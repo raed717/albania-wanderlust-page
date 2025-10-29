@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { UtensilsCrossed, Music } from "lucide-react";
-import foodImage from "@/assets/albanian-food.jpg";
-import cultureImage from "@/assets/albanian-culture.jpg";
+import foodImage from "@/assets/food/albanian-food.jpg";
+import cultureImage from "@/assets/culture/albanian-culture.jpg";
 
 const Culture = () => {
   return (

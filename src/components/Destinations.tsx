@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
-import beratImage from "@/assets/berat.jpg";
-import gjirokasterImage from "@/assets/gjirokaster.jpg";
-import ksamilImage from "@/assets/ksamil.jpg";
-import thethImage from "@/assets/theth.jpg";
+import beratImage from "@/assets/destinations/berat.jpg";
+import gjirokasterImage from "@/assets/destinations/gjirokaster.jpg";
+import ksamilImage from "@/assets/destinations/ksamil.jpg";
+import thethImage from "@/assets/destinations/theth.jpg";
 
 const destinations = [
   {
