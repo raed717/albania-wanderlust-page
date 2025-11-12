@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin } from "lucide-react";
 import heroImage from "@/assets/hero-albania.jpg";
+import ReservationPickerValue from "./reservationPicker";
 
 const Hero = () => {
   const scrollToSection = (id: string) => {
@@ -24,29 +25,34 @@ const Hero = () => {
         <div className="animate-fade-in-up">
           <div className="flex items-center justify-center gap-2 mb-6">
             <MapPin className="w-6 h-6 text-primary" />
-            <span className="text-lg font-medium">Southeast Europe's Hidden Gem</span>
+            <span className="text-lg font-medium">
+              Southeast Europe's Hidden Gem
+            </span>
           </div>
-          
-          <h1 className="mb-6 text-balance">
-            Discover Albania
-          </h1>
-          
+
+          <h1 className="mb-6 text-balance">Discover Albania</h1>
+
           <p className="text-xl md:text-2xl mb-12 max-w-3xl mx-auto text-balance opacity-90">
-            From the Alps to the Adriatic — a land of wonder, ancient history, and breathtaking beauty
+            From the Alps to the Adriatic — a land of wonder, ancient history,
+            and breathtaking beauty
           </p>
 
+          <div>
+            <ReservationPickerValue />
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 rounded-full shadow-xl hover:shadow-2xl transition-all hover:scale-105"
               onClick={() => scrollToSection("destinations")}
             >
               Explore Destinations
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
-            
-            <Button 
-              size="lg" 
+
+            <Button
+              size="lg"
               variant="outline"
               className="bg-white/10 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-foreground text-lg px-8 py-6 rounded-full transition-all hover:scale-105"
               onClick={() => scrollToSection("culture")}

@@ -10,7 +10,8 @@ const Culture = () => {
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="mb-4 text-foreground">Culture & Cuisine</h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Immerse yourself in Albania's rich traditions, flavors, and vibrant cultural heritage
+            Immerse yourself in Albania's rich traditions, flavors, and vibrant
+            cultural heritage
           </p>
         </div>
 
@@ -30,13 +31,16 @@ const Culture = () => {
                 </div>
               </div>
             </div>
-            
+
             <CardContent className="p-8">
-              <h3 className="text-3xl mb-4 text-foreground">Traditional Cuisine</h3>
+              <h3 className="text-3xl mb-4 text-foreground">
+                Traditional Cuisine
+              </h3>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                Savor the flavors of Albania with dishes like Tavë Kosi (baked lamb with yogurt), 
-                Byrek (savory pastries), and fresh Mediterranean ingredients. Albanian cuisine blends 
-                Ottoman, Greek, and Italian influences into a unique culinary experience.
+                Savor the flavors of Albania with dishes like Tavë Kosi (baked
+                lamb with yogurt), Byrek (savory pastries), and fresh
+                Mediterranean ingredients. Albanian cuisine blends Ottoman,
+                Greek, and Italian influences into a unique culinary experience.
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="px-3 py-1 bg-terracotta/10 text-terracotta rounded-full text-sm font-medium">
@@ -56,7 +60,10 @@ const Culture = () => {
           </Card>
 
           {/* Culture Card */}
-          <Card className="group overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 animate-fade-in-up" style={{ animationDelay: "200ms" }}>
+          <Card
+            className="group overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-500 animate-fade-in-up"
+            style={{ animationDelay: "200ms" }}
+          >
             <div className="relative h-80 overflow-hidden">
               <img
                 src={cultureImage}
@@ -70,13 +77,16 @@ const Culture = () => {
                 </div>
               </div>
             </div>
-            
+
             <CardContent className="p-8">
-              <h3 className="text-3xl mb-4 text-foreground">Festivals & Traditions</h3>
+              <h3 className="text-3xl mb-4 text-foreground">
+                Festivals & Traditions
+              </h3>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                Experience Albania's vibrant culture through traditional folk dances, colorful festivals, 
-                and ancient customs. The Albanian people are known for their warm hospitality and pride 
-                in preserving their unique cultural identity across centuries.
+                Experience Albania's vibrant culture through traditional folk
+                dances, colorful festivals, and ancient customs. The Albanian
+                people are known for their warm hospitality and pride in
+                preserving their unique cultural identity across centuries.
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
@@ -94,6 +104,12 @@ const Culture = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
+        {/* ✅ Centered Button */}
+        <div className="flex justify-center mt-10">
+          <button className="px-6 py-3 bg-foreground text-background rounded-full font-semibold hover:bg-foreground/90 transition">
+            Explore More
+          </button>
         </div>
       </div>
     </section>

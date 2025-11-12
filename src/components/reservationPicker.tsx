@@ -84,6 +84,7 @@ export default function ReservationPickerValue() {
           gap: 2,
           p: 3,
           backgroundColor: "white",
+          opacity: 0.85,
           borderRadius: 3,
           boxShadow: 3,
           width: "fit-content",
@@ -126,33 +127,45 @@ export default function ReservationPickerValue() {
         />
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
-          <Typography>Adults:</Typography>
+          <Typography sx={{ color: "text.primary", fontWeight: 500 }}>
+            Adults:
+          </Typography>
           <IconButton onClick={() => handleDecrement(setAdults)}>
             <Remove />
           </IconButton>
-          <Typography>{adults}</Typography>
+          <Typography sx={{ color: "text.primary", fontWeight: 500 }}>
+            {adults}
+          </Typography>
           <IconButton onClick={() => handleIncrement(setAdults)}>
             <Add />
           </IconButton>
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
-          <Typography>Children:</Typography>
+          <Typography sx={{ color: "text.primary", fontWeight: 500 }}>
+            Children:
+          </Typography>
           <IconButton onClick={() => handleDecrement(setChildren)}>
             <Remove />
           </IconButton>
-          <Typography>{children}</Typography>
+          <Typography sx={{ color: "text.primary", fontWeight: 500 }}>
+            {children}
+          </Typography>
           <IconButton onClick={() => handleIncrement(setChildren)}>
             <Add />
           </IconButton>
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
-          <Typography>Rooms:</Typography>
+          <Typography sx={{ color: "text.primary", fontWeight: 500 }}>
+            Rooms:
+          </Typography>
           <IconButton onClick={() => handleDecrement(setRooms)}>
             <Remove />
           </IconButton>
-          <Typography>{rooms}</Typography>
+          <Typography sx={{ color: "text.primary", fontWeight: 500 }}>
+            {rooms}
+          </Typography>
           <IconButton onClick={() => handleIncrement(setRooms)}>
             <Add />
           </IconButton>

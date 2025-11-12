@@ -18,7 +18,11 @@ export default function AuthPage() {
     }, 500);
   };
 
-  const handleManualSignIn = async (e) => {
+  type propsHedear = {
+    preventDefault: () => void;
+  }
+
+  const handleManualSignIn = async (e: propsHedear) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -34,7 +38,7 @@ export default function AuthPage() {
     }, 500);
   };
 
-  const handleManualSignUp = async (e) => {
+  const handleManualSignUp = async (e: propsHedear) => {
     e.preventDefault();
     setError('');
     setSuccess('');
