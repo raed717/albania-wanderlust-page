@@ -6,8 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import OAuthSignInPage from "./pages/Auth"; 
 import NotFound from "./pages/NotFound";
-import PrimarySearchAppBar from "./components/AppBar";
 import Footer from "./components/Footer";
+import CultureDetails from "./pages/CultureDetails";
+
 
 const queryClient = new QueryClient();
 
@@ -17,14 +18,14 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-      <PrimarySearchAppBar />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/CultureDetails" element={<CultureDetails />} />
           <Route path="/auth" element={<OAuthSignInPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      <Footer />
+        <Footer />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

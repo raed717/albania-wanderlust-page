@@ -2,8 +2,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { UtensilsCrossed, Music } from "lucide-react";
 import foodImage from "@/assets/food/albanian-food.jpg";
 import cultureImage from "@/assets/culture/albanian-culture.jpg";
+import { Link } from "react-router-dom";
+import { useEffect } from "react";
+
 
 const Culture = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <section id="culture" className="py-24 bg-background">
       <div className="container mx-auto px-4">
@@ -107,9 +113,12 @@ const Culture = () => {
         </div>
         {/* ✅ Centered Button */}
         <div className="flex justify-center mt-10">
-          <button className="px-6 py-3 bg-foreground text-background rounded-full font-semibold hover:bg-foreground/90 transition">
+          <Link
+            to="/CultureDetails"
+            className="px-6 py-3 bg-foreground text-background rounded-full font-semibold hover:bg-foreground/90 transition inline-block text-center"
+          >
             Explore More
-          </button>
+          </Link>
         </div>
       </div>
     </section>
@@ -117,3 +126,7 @@ const Culture = () => {
 };
 
 export default Culture;
+function setAnchorEl(arg0: null) {
+  throw new Error("Function not implemented.");
+}
+
