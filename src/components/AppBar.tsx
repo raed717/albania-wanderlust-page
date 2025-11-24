@@ -14,6 +14,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import { useNavigate } from "react-router-dom";
 
 const SearchIconWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 2),
@@ -62,9 +63,18 @@ export default function PrimarySearchAppBar() {
     window.location.href = "/auth";
   };
 
+    const handelDashboardRed = () => {
+      setAnchorEl(null);
+      handleMobileMenuClose();
+      // redirect to /auth route
+      window.location.href = "/dashboard";
+    };
+
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
+
+  const navigate = useNavigate();
 
   const menuId = "primary-search-account-menu";
   const renderMenu = (
@@ -83,6 +93,7 @@ export default function PrimarySearchAppBar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
+      <MenuItem onClick={handelDashboardRed}>Dashboard</MenuItem>
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
     </Menu>
@@ -166,7 +177,11 @@ export default function PrimarySearchAppBar() {
             variant="h6"
             noWrap
             component="div"
-            sx={{ display: { xs: "none", sm: "block" } }}
+            sx={{
+              display: { xs: "none", sm: "block" },
+              cursor: "pointer", // make it feel clickable
+            }}
+            onClick={() => navigate("/")}
           >
             Discover Albania
           </Typography>
