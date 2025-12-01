@@ -154,9 +154,9 @@ export default function PrimarySearchAppBar() {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
-        position="fixed"
+        position="static"
         sx={{
-          backgroundColor: "rgba(0, 110, 255, 0.2)", // ✅ 50% transparent
+          backgroundColor: "#000f64c7",
           color: "white",
           backdropFilter: "blur(10px)", // ✅ adds smooth glass effect
           boxShadow: "none", // optional: removes harsh shadow

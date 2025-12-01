@@ -1,15 +1,23 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { useHotelData } from "./useHotelData";
-import { Hotel } from "./types";
+import { useHotelData } from "./useStaticData";
+import { useApartmentData } from "./useStaticData";
+import { Hotel, Apartment } from "./types";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useState } from "react";
 import hotelIcon from "@/assets/map/hotel_icon.png";
+import apartmentIcon from "@/assets/map/home.png";
 import { Link } from "react-router-dom";
 
-const defaultIcon = new L.Icon({
+const HotelIcon = new L.Icon({
   iconUrl: hotelIcon,
-  iconSize: [40, 40],
+  iconSize: [30, 30],
+  iconAnchor: [12, 41],
+});
+
+const ApartmentIcon = new L.Icon({
+  iconUrl: apartmentIcon,
+  iconSize: [30, 30],
   iconAnchor: [12, 41],
 });
 
@@ -18,6 +26,7 @@ const ALBANIA_CENTER: [number, number] = [41.3275, 19.8187];
 
 export default function HotelMap() {
   const { data: hotels } = useHotelData();
+  const { data: apartments } = useApartmentData();
   const [selected, setSelected] = useState<Hotel | null>(null);
 
   return (
@@ -39,9 +48,20 @@ export default function HotelMap() {
           <Marker
             key={hotel.id}
             position={[hotel.lat, hotel.lon]}
-            icon={defaultIcon}
+            icon={HotelIcon}
             eventHandlers={{
               click: () => setSelected(hotel),
+            }}
+          />
+        ))}
+
+        {apartments?.map((apartment: Apartment) => (
+          <Marker
+            key={apartment.id}
+            position={[apartment.lat, apartment.lon]}
+            icon={ApartmentIcon}
+            eventHandlers={{
+              click: () => setSelected(apartment),
             }}
           />
         ))}

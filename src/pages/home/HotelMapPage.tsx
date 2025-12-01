@@ -1,10 +1,10 @@
 import HotelMap from "./map/HotelMap";
-//import PrimarySearchAppBar from "@/components/AppBar";
+import PrimarySearchAppBar from "@/components/AppBar";
 
 const HotelMapPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* <PrimarySearchAppBar /> */}
+      { <PrimarySearchAppBar /> }
       
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}

@@ -1,23 +1,41 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin } from "lucide-react";
-import heroImage from "@/assets/hero-albania.jpg";
+import slide1 from "@/assets/home/slide1.jpg";
+import slide2 from "@/assets/home/slide2.jpg";
+import slide3 from "@/assets/home/slide3.jpg";
 import ReservationPickerValue from "./reservationPicker";
 import { Link } from "react-router";
+import { Slide } from 'react-slideshow-image';
+import 'react-slideshow-image/dist/styles.css'
 
 const Hero = () => {
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const slideImages = [
+    {
+      image: slide1,
+    },
+    {
+      image: slide2,
+    },
+    {
+      image: slide3,
+    }
+  ];
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <img
-          src={heroImage}
-          alt="Albanian Riviera coastline"
-          className="w-full h-full object-cover"
-        />
+        <Slide duration={2000}>
+          {slideImages.map((slideImage, index) => (
+            <div key={index}>
+              <img src={slideImage.image} />
+            </div>
+          ))}
+        </Slide>
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
       </div>
 
