@@ -1,8 +1,8 @@
-import Hero from "@/components/Hero";
-import Destinations from "@/components/Destinations";
-import Culture from "@/components/Culture";
-import CallToAction from "@/components/CallToAction";
-import PrimarySearchAppBar from "@/components/AppBar";
+import Hero from "@/components/home/Hero";
+import Destinations from "@/components/home/Destinations";
+import Culture from "@/components/home/Culture";
+import CallToAction from "@/components/home/CallToAction";
+import PrimarySearchAppBar from "@/components/home/AppBar";
 
 const Index = () => {
   return (

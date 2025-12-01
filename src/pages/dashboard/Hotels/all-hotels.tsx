@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import Hsidebar from "../../components/dashboard/hsidebar";
+import { useNavigate } from "react-router-dom";
+import Hsidebar from "../../../components/dashboard/hsidebar";
 import {
   Search,
   Filter,
@@ -13,11 +14,8 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
-  LayoutDashboard,
-  Home,
-  Settings,
-  LogOut,
 } from "lucide-react";
+import { AddHotelDialog } from "./components/AddHotelDialog";
 
 // NOTE: In a real app, you would import Swal from 'sweetalert2'
 // For this standalone demo, we will use a simple window.confirm to avoid dependency errors in the preview
@@ -133,6 +131,7 @@ const hotelsData = [
 ];
 
 const AllHotels = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
@@ -164,6 +163,18 @@ const AllHotels = () => {
     if (confirmDelete(id)) {
       setHotels((prev) => prev.filter((h) => h.id !== id));
     }
+  };
+
+  const handleHotelAdded = (newHotel) => {
+    setHotels((prev) => [newHotel, ...prev]);
+  };
+
+  const handleViewHotel = (id) => {
+    navigate(`/dashboard/hotels/${id}`);
+  };
+
+  const handleEditHotel = (id) => {
+    navigate(`/dashboard/hotels/${id}?edit=true`);
   };
 
   // --- Logic ---
@@ -203,11 +214,14 @@ const AllHotels = () => {
     <Hsidebar>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">All Hotels</h1>
-          <p className="text-gray-500 text-lg">
-            Manage and monitor all your hotel properties
-          </p>
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">All Hotels</h1>
+            <p className="text-gray-500 text-lg">
+              Manage and monitor all your hotel properties
+            </p>
+          </div>
+          <AddHotelDialog onHotelAdded={handleHotelAdded} />
         </div>
 
         {/* Stats Cards */}
@@ -309,7 +323,13 @@ const AllHotels = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
             {paginatedHotels.map((hotel) => (
-              <HotelCard key={hotel.id} hotel={hotel} onDelete={handleDelete} />
+              <HotelCard
+                key={hotel.id}
+                hotel={hotel}
+                onDelete={handleDelete}
+                onView={handleViewHotel}
+                onEdit={handleEditHotel}
+              />
             ))}
           </div>
         )}
@@ -320,11 +340,10 @@ const AllHotels = () => {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                currentPage === 1
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === 1
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm"
-              }`}
+                }`}
             >
               <ChevronLeft size={16} />
               Previous
@@ -336,11 +355,10 @@ const AllHotels = () => {
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
-                      currentPage === page
+                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${currentPage === page
                         ? "bg-blue-600 text-white shadow-md shadow-blue-200"
                         : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>
@@ -353,11 +371,10 @@ const AllHotels = () => {
                 setCurrentPage((prev) => Math.min(totalPages, prev + 1))
               }
               disabled={currentPage === totalPages}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                currentPage === totalPages
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === totalPages
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm"
-              }`}
+                }`}
             >
               Next
               <ChevronRight size={16} />
@@ -380,7 +397,7 @@ const StatCard = ({ label, value, gradient }) => (
   </div>
 );
 
-const HotelCard = ({ hotel, onDelete }) => (
+const HotelCard = ({ hotel, onDelete, onView, onEdit }) => (
   <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
     {/* Image */}
     <div
@@ -391,11 +408,10 @@ const HotelCard = ({ hotel, onDelete }) => (
     >
       <div className="absolute top-3 right-3">
         <span
-          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-            hotel.status === "active"
+          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${hotel.status === "active"
               ? "bg-emerald-500 text-white"
               : "bg-amber-500 text-white"
-          }`}
+            }`}
         >
           {hotel.status}
         </span>
@@ -432,10 +448,16 @@ const HotelCard = ({ hotel, onDelete }) => (
       </div>
 
       <div className="flex gap-2 pt-4 border-t border-gray-100">
-        <button className="flex-1 py-2 px-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+        <button
+          onClick={() => onView(hotel.id)}
+          className="flex-1 py-2 px-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+        >
           <Eye size={16} /> View
         </button>
-        <button className="p-2 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+        <button
+          onClick={() => onEdit(hotel.id)}
+          className="p-2 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+        >
           <Edit size={16} />
         </button>
         <button

@@ -1,5 +1,5 @@
 // BLUE THEME VERSION
-import PrimarySearchAppBar from "@/components/AppBar";
+import PrimarySearchAppBar from "@/components/home/AppBar";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   UtensilsCrossed,
@@ -162,33 +162,30 @@ const CultureDetails = () => {
             {/* Tab Buttons */}
             <button
               onClick={() => setActiveTab("cuisine")}
-              className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${
-                activeTab === "cuisine"
+              className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${activeTab === "cuisine"
                   ? "bg-blue-600 text-white shadow-lg scale-105"
                   : "bg-blue-100 text-blue-600 hover:bg-blue-200"
-              }`}
+                }`}
             >
               <ChefHat className="w-5 h-5" />
               Cuisine
             </button>
             <button
               onClick={() => setActiveTab("festivals")}
-              className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${
-                activeTab === "festivals"
+              className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${activeTab === "festivals"
                   ? "bg-blue-600 text-white shadow-lg scale-105"
                   : "bg-blue-100 text-blue-600 hover:bg-blue-200"
-              }`}
+                }`}
             >
               <Calendar className="w-5 h-5" />
               Festivals
             </button>
             <button
               onClick={() => setActiveTab("traditions")}
-              className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${
-                activeTab === "traditions"
+              className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${activeTab === "traditions"
                   ? "bg-blue-600 text-white shadow-lg scale-105"
                   : "bg-blue-100 text-blue-600 hover:bg-blue-200"
-              }`}
+                }`}
             >
               <Heart className="w-5 h-5" />
               Traditions
