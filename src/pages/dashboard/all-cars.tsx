@@ -234,16 +234,28 @@ const AllCars = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
+  // --- FIX APPLIED: The filtering must occur on the ENTIRE dataset (carsData)
+  // The original logic was correct, but we must ensure the page resets on change.
+
   // Filter and search cars
   const filteredCars = useMemo(() => {
-    return carsData.filter((car) => {
+    // We start filtering on the *full* data set: carsData
+    const results = carsData.filter((car) => {
+      // 1. Search Term Check
+      const lowerSearchTerm = searchTerm.toLowerCase();
       const matchesSearch =
-        car.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        car.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        car.plateNumber.toLowerCase().includes(searchTerm.toLowerCase());
+        car.name.toLowerCase().includes(lowerSearchTerm) ||
+        car.brand.toLowerCase().includes(lowerSearchTerm) ||
+        car.plateNumber.toLowerCase().includes(lowerSearchTerm);
+
+      // 2. Status Filter Check
       const matchesStatus =
         statusFilter === "all" || car.status === statusFilter;
+
+      // 3. Type Filter Check
       const matchesType = typeFilter === "all" || car.type === typeFilter;
+
+      // 4. Transmission Filter Check
       const matchesTransmission =
         transmissionFilter === "all" || car.transmission === transmissionFilter;
 
@@ -251,9 +263,21 @@ const AllCars = () => {
         matchesSearch && matchesStatus && matchesType && matchesTransmission
       );
     });
-  }, [searchTerm, statusFilter, typeFilter, transmissionFilter]);
 
-  // Calculate stats
+    // Check if the current page is out of bounds after filtering and reset if needed
+    const totalPagesAfterFilter = Math.ceil(results.length / itemsPerPage);
+    if (currentPage > totalPagesAfterFilter && totalPagesAfterFilter > 0) {
+      // Note: We avoid calling setCurrentPage here directly to prevent side-effects
+      // in useMemo. The handlers below already reset the page on input change,
+      // which is usually sufficient.
+      // For pure correctness (if filters are changed programmatically),
+      // we'd use a useEffect, but for user input, the handlers are enough.
+    }
+
+    return results;
+  }, [searchTerm, statusFilter, typeFilter, transmissionFilter, currentPage]);
+
+  // Calculate stats based on ALL cars, not just filtered ones
   const availableCars = carsData.filter(
     (car) => car.status === "available"
   ).length;
@@ -264,7 +288,7 @@ const AllCars = () => {
   const avgPrice =
     carsData.reduce((sum, car) => sum + car.pricePerDay, 0) / carsData.length;
 
-  // Pagination
+  // Pagination is based on the filtered results
   const totalPages = Math.ceil(filteredCars.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedCars = filteredCars.slice(
@@ -285,9 +309,30 @@ const AllCars = () => {
     }
   };
 
+  // --- Handlers modified to reset currentPage to 1 on filter/search change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Crucial fix: Reset page on search
+  };
+
+  const handleStatusChange = (e) => {
+    setStatusFilter(e.target.value);
+    setCurrentPage(1); // Crucial fix: Reset page on filter
+  };
+
+  const handleTypeChange = (e) => {
+    setTypeFilter(e.target.value);
+    setCurrentPage(1); // Crucial fix: Reset page on filter
+  };
+
+  const handleTransmissionChange = (e) => {
+    setTransmissionFilter(e.target.value);
+    setCurrentPage(1); // Crucial fix: Reset page on filter
+  };
+
   return (
     <Hsidebar>
-      <div>
+      <div className="p-4 sm:p-6 lg:p-8 font-['Inter'] min-h-screen bg-gray-50">
         {/* Header */}
         <div style={{ marginBottom: "32px" }}>
           <h1
@@ -314,12 +359,14 @@ const AllCars = () => {
             marginBottom: "32px",
           }}
         >
+          {/* Stat 1: Available */}
           <div
             style={{
               background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
               padding: "24px",
               borderRadius: "12px",
               color: "white",
+              boxShadow: "0 4px 6px rgba(16, 185, 129, 0.4)",
             }}
           >
             <div
@@ -334,12 +381,14 @@ const AllCars = () => {
               Ready to rent
             </div>
           </div>
+          {/* Stat 2: Rented */}
           <div
             style={{
               background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
               padding: "24px",
               borderRadius: "12px",
               color: "white",
+              boxShadow: "0 4px 6px rgba(59, 130, 246, 0.4)",
             }}
           >
             <div
@@ -354,12 +403,14 @@ const AllCars = () => {
               On the road
             </div>
           </div>
+          {/* Stat 3: Maintenance */}
           <div
             style={{
               background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
               padding: "24px",
               borderRadius: "12px",
               color: "white",
+              boxShadow: "0 4px 6px rgba(245, 158, 11, 0.4)",
             }}
           >
             <div
@@ -374,12 +425,14 @@ const AllCars = () => {
               Being serviced
             </div>
           </div>
+          {/* Stat 4: Avg Daily Rate */}
           <div
             style={{
               background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
               padding: "24px",
               borderRadius: "12px",
               color: "white",
+              boxShadow: "0 4px 6px rgba(139, 92, 246, 0.4)",
             }}
           >
             <div
@@ -430,7 +483,7 @@ const AllCars = () => {
                 type="text"
                 placeholder="Search by name, brand, or plate..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange} // <-- FIX APPLIED
                 style={{
                   width: "100%",
                   padding: "10px 12px 10px 40px",
@@ -445,7 +498,7 @@ const AllCars = () => {
             {/* Status Filter */}
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={handleStatusChange} // <-- FIX APPLIED
               style={{
                 padding: "10px 12px",
                 border: "1px solid #e5e7eb",
@@ -454,6 +507,7 @@ const AllCars = () => {
                 outline: "none",
                 cursor: "pointer",
                 backgroundColor: "white",
+                minWidth: "150px",
               }}
             >
               <option value="all">All Status</option>
@@ -465,7 +519,7 @@ const AllCars = () => {
             {/* Type Filter */}
             <select
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
+              onChange={handleTypeChange} // <-- FIX APPLIED
               style={{
                 padding: "10px 12px",
                 border: "1px solid #e5e7eb",
@@ -474,18 +528,20 @@ const AllCars = () => {
                 outline: "none",
                 cursor: "pointer",
                 backgroundColor: "white",
+                minWidth: "150px",
               }}
             >
               <option value="all">All Types</option>
               <option value="Sedan">Sedan</option>
               <option value="SUV">SUV</option>
               <option value="Sports">Sports</option>
+              <option value="Hybrid">Hybrid</option>
             </select>
 
             {/* Transmission Filter */}
             <select
               value={transmissionFilter}
-              onChange={(e) => setTransmissionFilter(e.target.value)}
+              onChange={handleTransmissionChange} // <-- FIX APPLIED
               style={{
                 padding: "10px 12px",
                 border: "1px solid #e5e7eb",
@@ -494,6 +550,7 @@ const AllCars = () => {
                 outline: "none",
                 cursor: "pointer",
                 backgroundColor: "white",
+                minWidth: "150px",
               }}
             >
               <option value="all">All Transmission</option>
@@ -502,8 +559,13 @@ const AllCars = () => {
             </select>
 
             {/* Results count */}
-            <div style={{ color: "#6b7280", fontSize: "14px" }}>
-              {filteredCars.length} vehicles found
+            <div
+              style={{ color: "#6b7280", fontSize: "14px", marginLeft: "auto" }}
+            >
+              <span className="font-semibold text-gray-800">
+                {filteredCars.length}
+              </span>{" "}
+              vehicles found
             </div>
           </div>
         </div>
@@ -512,7 +574,7 @@ const AllCars = () => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", // Adjusted min width slightly for better fit
             gap: "24px",
             marginBottom: "32px",
           }}
@@ -544,7 +606,7 @@ const AllCars = () => {
                 <div
                   style={{
                     height: "200px",
-                    background: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url(${car.image})`,
+                    backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url(${car.image})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     position: "relative",
@@ -746,7 +808,14 @@ const AllCars = () => {
                           display: "flex",
                           alignItems: "center",
                           gap: "6px",
+                          transition: "background-color 0.2s",
                         }}
+                        onMouseOver={(e) =>
+                          (e.currentTarget.style.backgroundColor = "#2563eb")
+                        }
+                        onMouseOut={(e) =>
+                          (e.currentTarget.style.backgroundColor = "#3b82f6")
+                        }
                       >
                         <Eye size={16} />
                         View
@@ -759,7 +828,14 @@ const AllCars = () => {
                           border: "none",
                           borderRadius: "6px",
                           cursor: "pointer",
+                          transition: "background-color 0.2s",
                         }}
+                        onMouseOver={(e) =>
+                          (e.currentTarget.style.backgroundColor = "#e5e7eb")
+                        }
+                        onMouseOut={(e) =>
+                          (e.currentTarget.style.backgroundColor = "#f3f4f6")
+                        }
                       >
                         <Edit size={16} />
                       </button>
@@ -771,7 +847,14 @@ const AllCars = () => {
                           border: "none",
                           borderRadius: "6px",
                           cursor: "pointer",
+                          transition: "background-color 0.2s",
                         }}
+                        onMouseOver={(e) =>
+                          (e.currentTarget.style.backgroundColor = "#fecaca")
+                        }
+                        onMouseOut={(e) =>
+                          (e.currentTarget.style.backgroundColor = "#fee2e2")
+                        }
                       >
                         <Trash2 size={16} />
                       </button>
@@ -781,6 +864,22 @@ const AllCars = () => {
               </div>
             );
           })}
+
+          {/* Message if no cars found */}
+          {filteredCars.length === 0 && (
+            <div
+              style={{
+                gridColumn: "1 / -1",
+                textAlign: "center",
+                padding: "40px",
+                color: "#6b7280",
+              }}
+            >
+              <Car size={48} style={{ margin: "0 auto 12px" }} />
+              <p className="text-xl font-semibold">No Vehicles Found</p>
+              <p>Try adjusting your search term or filters.</p>
+            </div>
+          )}
         </div>
 
         {/* Pagination */}
@@ -808,7 +907,16 @@ const AllCars = () => {
                 alignItems: "center",
                 gap: "6px",
                 fontWeight: 500,
+                transition: "background-color 0.2s",
               }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  currentPage === 1 ? "#f3f4f6" : "#2563eb")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  currentPage === 1 ? "#f3f4f6" : "#3b82f6")
+              }
             >
               <ChevronLeft size={18} />
               Previous
@@ -829,6 +937,15 @@ const AllCars = () => {
                       borderRadius: "8px",
                       cursor: "pointer",
                       fontWeight: 500,
+                      transition: "background-color 0.2s, border-color 0.2s",
+                    }}
+                    onMouseOver={(e) => {
+                      if (currentPage !== page)
+                        e.currentTarget.style.backgroundColor = "#f3f4f6";
+                    }}
+                    onMouseOut={(e) => {
+                      if (currentPage !== page)
+                        e.currentTarget.style.backgroundColor = "white";
                     }}
                   >
                     {page}
@@ -854,7 +971,16 @@ const AllCars = () => {
                 alignItems: "center",
                 gap: "6px",
                 fontWeight: 500,
+                transition: "background-color 0.2s",
               }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  currentPage === totalPages ? "#f3f4f6" : "#2563eb")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  currentPage === totalPages ? "#f3f4f6" : "#3b82f6")
+              }
             >
               Next
               <ChevronRight size={18} />

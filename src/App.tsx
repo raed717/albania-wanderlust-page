@@ -7,10 +7,13 @@ import Index from "./pages/home/Index";
 import OAuthSignInPage from "./pages/home/Auth"; 
 import NotFound from "./pages/NotFound";
 import Footer from "./components/Footer";
-import CultureDetails from "./pages/CultureDetails";
+import CultureDetails from "./pages/home/CultureDetails";
+import HotelMapPage from "./pages/home/HotelMapPage";
 import Dashboard from "./pages/dashboard/dashboard";
 import AllHotels from "./pages/dashboard/all-hotels";
 import AllCars from "./pages/dashboard/all-cars";
+import UserManagement from "./pages/dashboard/Users/users-management";
+import UserDetails from "./pages/dashboard/Users/user-details";
 
 
 const queryClient = new QueryClient();
@@ -24,11 +27,17 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/CultureDetails" element={<CultureDetails />} />
+          <Route path="/hotels-map" element={<HotelMapPage />} />
           <Route path="/auth" element={<OAuthSignInPage />} />
 
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/HotelsList" element={<AllHotels />} />
           <Route path="/dashboard/carsList" element={<AllCars />} />
+          <Route
+            path="/dashboard/userManagement"
+            element={<UserManagement />}
+          />
+          <Route path="/dashboard/UserDetails" element={<UserDetails />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

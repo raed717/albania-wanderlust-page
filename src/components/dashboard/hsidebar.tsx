@@ -1,3 +1,4 @@
+// Rewritten full component/module
 import React, { useState } from "react";
 import {
   Sidebar,
@@ -25,87 +26,81 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+// Define the colors/sizes based on the original inline styles for react-pro-sidebar props
+const SIDEBAR_BG_COLOR = "#111827"; // Tailwind: bg-gray-900
+const SIDEBAR_BORDER_COLOR = "#1f2937"; // Tailwind: border-gray-800
+const PRIMARY_COLOR = "#3b82f6"; // Tailwind: blue-500
+const TEXT_COLOR_LIGHT = "#e5e7eb"; // Tailwind: text-gray-200
+const SUBMENU_BG_COLOR = "#0f172a"; // Tailwind: bg-slate-900
+
+// We must still use a style object for react-pro-sidebar's customization, but now it's cleaner.
+const menuItemStyles = {
+  button: ({ level, active, disabled }) => ({
+    color: disabled ? "#9ca3af" : TEXT_COLOR_LIGHT, // text-gray-400 : text-gray-200
+    backgroundColor: active ? PRIMARY_COLOR : "transparent", // bg-blue-500
+    borderRadius: "8px", // rounded-lg
+    margin: "4px 8px", // my-1 mx-2
+    padding: level === 0 ? "10px 16px" : "8px 16px", // py-2.5 px-4 : py-2 px-4
+    fontWeight: level === 0 ? 500 : 400, // font-medium : font-normal
+    transition: "all 0.2s ease", // transition-all duration-200 ease-in-out
+    "&:hover": {
+      backgroundColor: active ? PRIMARY_COLOR : SIDEBAR_BORDER_COLOR, // hover:bg-gray-800
+      color: "#ffffff", // hover:text-white
+    },
+  }),
+  subMenuContent: {
+    backgroundColor: SUBMENU_BG_COLOR,
+  },
+};
+
 const Hsidebar = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
 
-  const menuItemStyles = {
-    button: ({ level, active, disabled }) => ({
-      color: disabled ? "#9ca3af" : "#e5e7eb",
-      backgroundColor: active ? "#3b82f6" : "transparent",
-      borderRadius: "8px",
-      margin: "4px 8px",
-      padding: level === 0 ? "10px 16px" : "8px 16px",
-      fontWeight: level === 0 ? 500 : 400,
-      transition: "all 0.2s ease",
-      "&:hover": {
-        backgroundColor: active ? "#3b82f6" : "#1f2937",
-        color: "#ffffff",
-      },
-    }),
-    subMenuContent: {
-      backgroundColor: "#0f172a",
-    },
-    label: {
-      fontWeight: 500,
-    },
-  };
-
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div className="flex h-screen">
       <Sidebar
         collapsed={collapsed}
         transitionDuration={300}
         width="280px"
         collapsedWidth="80px"
-        backgroundColor="#111827"
+        backgroundColor={SIDEBAR_BG_COLOR}
         rootStyles={{
           [`.${sidebarClasses.container}`]: {
-            backgroundColor: "#111827",
-            borderRight: "1px solid #1f2937",
+            backgroundColor: SIDEBAR_BG_COLOR,
+            borderRight: `1px solid ${SIDEBAR_BORDER_COLOR}`,
           },
         }}
       >
-        {/* Logo Section */}
+        {/* Logo Section - All inline styles replaced with Tailwind classes */}
         <div
-          style={{
-            padding: collapsed ? "24px 16px" : "24px",
-            borderBottom: "1px solid #1f2937",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: collapsed ? "center" : "space-between",
-            minHeight: "80px",
-          }}
+          className={`
+            min-h-20
+            flex items-center
+            border-b
+            ${collapsed ? "justify-center p-6" : "justify-between p-6"}
+            border-gray-800
+          `}
         >
           {!collapsed && (
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <Hotel size={32} color="#3b82f6" />
-              <span
-                style={{
-                  fontSize: "20px",
-                  fontWeight: 600,
-                  color: "#ffffff",
-                }}
-              >
-                HotelHub
-              </span>
+            <div className="flex items-center gap-3">
+              <Hotel size={32} className="text-blue-500" />
+              <span className="text-xl font-semibold text-white">HotelHub</span>
             </div>
           )}
-          {collapsed && <Hotel size={28} color="#3b82f6" />}
+          {collapsed && <Hotel size={28} className="text-blue-500" />}
         </div>
 
-        {/* Menu Section */}
-        <div
-          style={{
-            padding: "16px 0",
-            overflowY: "auto",
-            height: "calc(100vh - 160px)",
-          }}
-        >
+        {/* Menu Section - Container classes added */}
+        <div className="py-4 overflow-y-auto h-[calc(100vh-160px)]">
           <Menu menuItemStyles={menuItemStyles}>
-            <MenuItem icon={<LayoutDashboard size={20} />} component={<Link to="/" />}>
+            <MenuItem
+              icon={<LayoutDashboard size={20} />}
+              component={<Link to="/" />}
+            >
               Dashboard
             </MenuItem>
 
+            {/* SubMenu structure */}
             <SubMenu icon={<Home size={20} />} label="Appartments">
               <MenuItem component={<Link to="/dashboard/HotelsList" />}>
                 All Appartments
@@ -149,7 +144,7 @@ const Hsidebar = ({ children }) => {
             </SubMenu>
 
             <SubMenu icon={<Users size={20} />} label="Users">
-              <MenuItem component={<Link to="/users/customers" />}>
+              <MenuItem component={<Link to="/dashboard/userManagement" />}>
                 Customers
               </MenuItem>
               <MenuItem component={<Link to="/users/staff" />}>Staff</MenuItem>
@@ -226,38 +221,23 @@ const Hsidebar = ({ children }) => {
           </Menu>
         </div>
 
-        {/* Toggle Button */}
+        {/* Toggle Button - All inline styles replaced with Tailwind classes */}
         <div
-          style={{
-            padding: "16px",
-            borderTop: "1px solid #1f2937",
-            display: "flex",
-            justifyContent: collapsed ? "center" : "flex-end",
-          }}
+          className={`
+            p-4 border-t border-gray-800 flex
+            ${collapsed ? "justify-center" : "justify-end"}
+          `}
         >
           <button
             onClick={() => setCollapsed(!collapsed)}
-            style={{
-              background: "#1f2937",
-              border: "1px solid #374151",
-              borderRadius: "8px",
-              padding: "8px 12px",
-              color: "#e5e7eb",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              transition: "all 0.2s ease",
-              fontWeight: 500,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#374151";
-              e.currentTarget.style.color = "#ffffff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#1f2937";
-              e.currentTarget.style.color = "#e5e7eb";
-            }}
+            className="
+              bg-gray-800 border border-gray-700
+              rounded-lg p-2.5 text-gray-200 cursor-pointer
+              flex items-center gap-2 transition-all duration-200
+              font-medium
+              hover:bg-gray-700 hover:text-white
+            "
+            // Removed onMouseEnter/onMouseLeave, relying on Tailwind's hover: class
           >
             {collapsed ? (
               <ChevronRight size={18} />
@@ -271,17 +251,8 @@ const Hsidebar = ({ children }) => {
         </div>
       </Sidebar>
 
-      {/* Main Content Area - Now accepts children */}
-      <main
-        style={{
-          flex: 1,
-          padding: "32px",
-          backgroundColor: "#f9fafb",
-          overflowY: "auto",
-        }}
-      >
-        {children}
-      </main>
+      {/* Main Content Area - All inline styles replaced with Tailwind classes */}
+      <main className="flex-1 p-8 bg-gray-50 overflow-y-auto">{children}</main>
     </div>
   );
 };

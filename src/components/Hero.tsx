@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin } from "lucide-react";
 import heroImage from "@/assets/hero-albania.jpg";
 import ReservationPickerValue from "./reservationPicker";
+import { Link } from "react-router";
 
 const Hero = () => {
   const scrollToSection = (id: string) => {
@@ -42,6 +43,7 @@ const Hero = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+
             <Button
               size="lg"
               className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 rounded-full shadow-xl hover:shadow-2xl transition-all hover:scale-105"
@@ -59,6 +61,14 @@ const Hero = () => {
             >
               Discover Culture
             </Button>
+          </div>
+          <div className="flex justify-center mt-6">
+            <Link
+              to="/hotels-map"
+              className="px-6 py-3 bg-foreground text-background rounded-full font-semibold hover:bg-foreground/90 transition inline-block text-center"
+            >
+              Explore Map
+            </Link>
           </div>
         </div>
       </div>
