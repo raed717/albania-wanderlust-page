@@ -75,16 +75,21 @@ export const updateHotel = async (
     .from("hotel")
     .update(updateData)
     .eq("id", id)
-    .select("*")
-    .single();
+    .select("*");
 
   if (error) {
     console.error(`[Hotel Service] Error updating hotel ID ${id}:`, error);
     throw error;
   }
 
-  console.log("[Hotel Service] Successfully updated hotel:", updatedHotel);
-  return updatedHotel;
+  if (!updatedHotel || updatedHotel.length === 0) {
+    const error = new Error("Update failed: Hotel not found or permission denied");
+    console.error(`[Hotel Service] Error updating hotel ID ${id}:`, error);
+    throw error;
+  }
+
+  console.log("[Hotel Service] Successfully updated hotel:", updatedHotel[0]);
+  return updatedHotel[0];
 };
 
 /**

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Hotel, UpdateHotelDto } from "@/types/hotel.types";
 import { getHotelById, updateHotel } from "@/services/api/hotelService";
+import Swal from "sweetalert2";
 
 const HotelDetails = () => {
     const { id } = useParams<{ id: string }>();
@@ -108,10 +109,18 @@ const HotelDetails = () => {
             const updatedHotel = await updateHotel(parseInt(id), formData);
             setHotel(updatedHotel);
             setIsEditing(false);
-            alert("Hotel updated successfully!");
+            Swal.fire({
+                icon: "success",
+                title: "Success...",
+                text: "Hotel updated successfully!",
+            });
         } catch (error) {
             console.error("Error updating hotel:", error);
-            alert("Failed to update hotel. Please try again.");
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Something went wrong!",
+            });
         } finally {
             setSaving(false);
         }
