@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from "react";
-import Hsidebar from "../../components/dashboard/hsidebar";
+import React, { useState, useMemo, useEffect } from "react";
+import Hsidebar from "../../../components/dashboard/hsidebar";
+import { getAllCars } from "@/services/api/carService";
+import { Car } from "@/types/car.types";
 import {
   Search,
   Filter,
-  Car,
   Fuel,
   Settings,
   Users,
@@ -18,229 +19,43 @@ import {
   Cog,
 } from "lucide-react";
 
-// Sample cars data
-const carsData = [
-  {
-    id: 1,
-    name: "Tesla Model 3",
-    brand: "Tesla",
-    type: "Sedan",
-    year: 2024,
-    transmission: "Automatic",
-    fuelType: "Electric",
-    seats: 5,
-    mileage: "358 miles",
-    pricePerDay: 89,
-    status: "available",
-    color: "Pearl White",
-    plateNumber: "EV-2024",
-    features: ["Autopilot", "Premium Audio", "Glass Roof"],
-    image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=400",
-  },
-  {
-    id: 2,
-    name: "BMW X5",
-    brand: "BMW",
-    type: "SUV",
-    year: 2023,
-    transmission: "Automatic",
-    fuelType: "Diesel",
-    seats: 7,
-    mileage: "25 MPG",
-    pricePerDay: 125,
-    status: "rented",
-    color: "Black Sapphire",
-    plateNumber: "BMW-5890",
-    features: ["4WD", "Leather Seats", "Sunroof"],
-    image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400",
-  },
-  {
-    id: 3,
-    name: "Mercedes-Benz C-Class",
-    brand: "Mercedes",
-    type: "Sedan",
-    year: 2024,
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    seats: 5,
-    mileage: "32 MPG",
-    pricePerDay: 110,
-    status: "available",
-    color: "Silver",
-    plateNumber: "MBC-7721",
-    features: ["Navigation", "Heated Seats", "Bluetooth"],
-    image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400",
-  },
-  {
-    id: 4,
-    name: "Toyota Camry",
-    brand: "Toyota",
-    type: "Sedan",
-    year: 2023,
-    transmission: "Automatic",
-    fuelType: "Hybrid",
-    seats: 5,
-    mileage: "52 MPG",
-    pricePerDay: 65,
-    status: "available",
-    color: "Blue",
-    plateNumber: "TOY-4432",
-    features: ["Backup Camera", "Cruise Control", "USB Ports"],
-    image: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400",
-  },
-  {
-    id: 5,
-    name: "Audi A4",
-    brand: "Audi",
-    type: "Sedan",
-    year: 2024,
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    seats: 5,
-    mileage: "30 MPG",
-    pricePerDay: 95,
-    status: "maintenance",
-    color: "Mythos Black",
-    plateNumber: "AUD-8834",
-    features: ["Quattro AWD", "Virtual Cockpit", "Ambient Lighting"],
-    image: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400",
-  },
-  {
-    id: 6,
-    name: "Honda CR-V",
-    brand: "Honda",
-    type: "SUV",
-    year: 2023,
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    seats: 5,
-    mileage: "28 MPG",
-    pricePerDay: 75,
-    status: "available",
-    color: "White Diamond",
-    plateNumber: "HON-2341",
-    features: ["Apple CarPlay", "Lane Assist", "Rear Camera"],
-    image: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400",
-  },
-  {
-    id: 7,
-    name: "Ford Mustang",
-    brand: "Ford",
-    type: "Sports",
-    year: 2024,
-    transmission: "Manual",
-    fuelType: "Petrol",
-    seats: 4,
-    mileage: "21 MPG",
-    pricePerDay: 150,
-    status: "available",
-    color: "Race Red",
-    plateNumber: "MUS-9876",
-    features: ["V8 Engine", "Sport Mode", "Premium Sound"],
-    image: "https://images.unsplash.com/photo-1584345604476-8ec5f8d69daf?w=400",
-  },
-  {
-    id: 8,
-    name: "Jeep Wrangler",
-    brand: "Jeep",
-    type: "SUV",
-    year: 2023,
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    seats: 5,
-    mileage: "22 MPG",
-    pricePerDay: 105,
-    status: "rented",
-    color: "Granite Crystal",
-    plateNumber: "JEP-5543",
-    features: ["4x4", "Removable Top", "Off-Road Package"],
-    image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400",
-  },
-  {
-    id: 9,
-    name: "Porsche 911",
-    brand: "Porsche",
-    type: "Sports",
-    year: 2024,
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    seats: 4,
-    mileage: "20 MPG",
-    pricePerDay: 299,
-    status: "available",
-    color: "Guards Red",
-    plateNumber: "POR-1111",
-    features: ["Turbo", "Sport Chrono", "Carbon Brakes"],
-    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400",
-  },
-  {
-    id: 10,
-    name: "Chevrolet Suburban",
-    brand: "Chevrolet",
-    type: "SUV",
-    year: 2023,
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    seats: 8,
-    mileage: "18 MPG",
-    pricePerDay: 135,
-    status: "available",
-    color: "Black",
-    plateNumber: "CHV-7788",
-    features: ["Third Row", "Towing Package", "Entertainment System"],
-    image: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400",
-  },
-  {
-    id: 11,
-    name: "Nissan Altima",
-    brand: "Nissan",
-    type: "Sedan",
-    year: 2023,
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    seats: 5,
-    mileage: "32 MPG",
-    pricePerDay: 55,
-    status: "available",
-    color: "Storm Blue",
-    plateNumber: "NIS-3322",
-    features: ["Keyless Entry", "Bluetooth", "Safety Shield"],
-    image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400",
-  },
-  {
-    id: 12,
-    name: "Range Rover Sport",
-    brand: "Land Rover",
-    type: "SUV",
-    year: 2024,
-    transmission: "Automatic",
-    fuelType: "Diesel",
-    seats: 7,
-    mileage: "24 MPG",
-    pricePerDay: 189,
-    status: "available",
-    color: "Santorini Black",
-    plateNumber: "RNG-4455",
-    features: ["Air Suspension", "Meridian Audio", "Terrain Response"],
-    image: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400",
-  },
-];
-
 const AllCars = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [transmissionFilter, setTransmissionFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [carsData, setCarsData] = useState<Car[]>([]);
   const itemsPerPage = 6;
 
-  // --- FIX APPLIED: The filtering must occur on the ENTIRE dataset (carsData)
-  // The original logic was correct, but we must ensure the page resets on change.
+  // Fetch cars on component mount
+  useEffect(() => {
+    fetchCars();
+  }, []);
 
-  // Filter and search cars
+  const fetchCars = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await getAllCars();
+      console.log("Fetched cars:", data);
+      console.log("Number of cars:", data?.length);
+
+      setCarsData(data || []); // Ensure we always set an array
+    } catch (err) {
+      console.error("Error fetching cars:", err);
+      setError("Failed to load cars. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter and search cars - FIXED: Removed currentPage from dependencies
   const filteredCars = useMemo(() => {
-    // We start filtering on the *full* data set: carsData
-    const results = carsData.filter((car) => {
+    return carsData.filter((car) => {
       // 1. Search Term Check
       const lowerSearchTerm = searchTerm.toLowerCase();
       const matchesSearch =
@@ -263,19 +78,12 @@ const AllCars = () => {
         matchesSearch && matchesStatus && matchesType && matchesTransmission
       );
     });
+  }, [carsData, searchTerm, statusFilter, typeFilter, transmissionFilter]);
 
-    // Check if the current page is out of bounds after filtering and reset if needed
-    const totalPagesAfterFilter = Math.ceil(results.length / itemsPerPage);
-    if (currentPage > totalPagesAfterFilter && totalPagesAfterFilter > 0) {
-      // Note: We avoid calling setCurrentPage here directly to prevent side-effects
-      // in useMemo. The handlers below already reset the page on input change,
-      // which is usually sufficient.
-      // For pure correctness (if filters are changed programmatically),
-      // we'd use a useEffect, but for user input, the handlers are enough.
-    }
-
-    return results;
-  }, [searchTerm, statusFilter, typeFilter, transmissionFilter, currentPage]);
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, typeFilter, transmissionFilter]);
 
   // Calculate stats based on ALL cars, not just filtered ones
   const availableCars = carsData.filter(
@@ -286,7 +94,9 @@ const AllCars = () => {
     (car) => car.status === "maintenance"
   ).length;
   const avgPrice =
-    carsData.reduce((sum, car) => sum + car.pricePerDay, 0) / carsData.length;
+    carsData.length > 0
+      ? carsData.reduce((sum, car) => sum + car.pricePerDay, 0) / carsData.length
+      : 0;
 
   // Pagination is based on the filtered results
   const totalPages = Math.ceil(filteredCars.length / itemsPerPage);
@@ -309,26 +119,54 @@ const AllCars = () => {
     }
   };
 
-  // --- Handlers modified to reset currentPage to 1 on filter/search change
+  // Simplified handlers - page reset now handled by useEffect
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1); // Crucial fix: Reset page on search
   };
 
   const handleStatusChange = (e) => {
     setStatusFilter(e.target.value);
-    setCurrentPage(1); // Crucial fix: Reset page on filter
   };
 
   const handleTypeChange = (e) => {
     setTypeFilter(e.target.value);
-    setCurrentPage(1); // Crucial fix: Reset page on filter
   };
 
   const handleTransmissionChange = (e) => {
     setTransmissionFilter(e.target.value);
-    setCurrentPage(1); // Crucial fix: Reset page on filter
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <Hsidebar>
+        <div className="p-4 sm:p-6 lg:p-8 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="text-xl font-semibold text-gray-700">Loading vehicles...</div>
+          </div>
+        </div>
+      </Hsidebar>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <Hsidebar>
+        <div className="p-4 sm:p-6 lg:p-8 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="text-xl font-semibold text-red-600">{error}</div>
+            <button
+              onClick={fetchCars}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </Hsidebar>
+    );
+  }
 
   return (
     <Hsidebar>
@@ -483,7 +321,7 @@ const AllCars = () => {
                 type="text"
                 placeholder="Search by name, brand, or plate..."
                 value={searchTerm}
-                onChange={handleSearchChange} // <-- FIX APPLIED
+                onChange={handleSearchChange}
                 style={{
                   width: "100%",
                   padding: "10px 12px 10px 40px",
@@ -498,7 +336,7 @@ const AllCars = () => {
             {/* Status Filter */}
             <select
               value={statusFilter}
-              onChange={handleStatusChange} // <-- FIX APPLIED
+              onChange={handleStatusChange}
               style={{
                 padding: "10px 12px",
                 border: "1px solid #e5e7eb",
@@ -519,7 +357,7 @@ const AllCars = () => {
             {/* Type Filter */}
             <select
               value={typeFilter}
-              onChange={handleTypeChange} // <-- FIX APPLIED
+              onChange={handleTypeChange}
               style={{
                 padding: "10px 12px",
                 border: "1px solid #e5e7eb",
@@ -541,7 +379,7 @@ const AllCars = () => {
             {/* Transmission Filter */}
             <select
               value={transmissionFilter}
-              onChange={handleTransmissionChange} // <-- FIX APPLIED
+              onChange={handleTransmissionChange}
               style={{
                 padding: "10px 12px",
                 border: "1px solid #e5e7eb",
@@ -574,7 +412,7 @@ const AllCars = () => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", // Adjusted min width slightly for better fit
+            gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
             gap: "24px",
             marginBottom: "32px",
           }}
@@ -753,7 +591,7 @@ const AllCars = () => {
                       marginBottom: "16px",
                     }}
                   >
-                    {car.features.slice(0, 3).map((feature, index) => (
+                    {car.features?.slice(0, 3).map((feature, index) => (
                       <span
                         key={index}
                         style={{
@@ -875,7 +713,6 @@ const AllCars = () => {
                 color: "#6b7280",
               }}
             >
-              <Car size={48} style={{ margin: "0 auto 12px" }} />
               <p className="text-xl font-semibold">No Vehicles Found</p>
               <p>Try adjusting your search term or filters.</p>
             </div>
@@ -910,12 +747,12 @@ const AllCars = () => {
                 transition: "background-color 0.2s",
               }}
               onMouseOver={(e) =>
-                (e.currentTarget.style.backgroundColor =
-                  currentPage === 1 ? "#f3f4f6" : "#2563eb")
+              (e.currentTarget.style.backgroundColor =
+                currentPage === 1 ? "#f3f4f6" : "#2563eb")
               }
               onMouseOut={(e) =>
-                (e.currentTarget.style.backgroundColor =
-                  currentPage === 1 ? "#f3f4f6" : "#3b82f6")
+              (e.currentTarget.style.backgroundColor =
+                currentPage === 1 ? "#f3f4f6" : "#3b82f6")
               }
             >
               <ChevronLeft size={18} />
@@ -974,12 +811,12 @@ const AllCars = () => {
                 transition: "background-color 0.2s",
               }}
               onMouseOver={(e) =>
-                (e.currentTarget.style.backgroundColor =
-                  currentPage === totalPages ? "#f3f4f6" : "#2563eb")
+              (e.currentTarget.style.backgroundColor =
+                currentPage === totalPages ? "#f3f4f6" : "#2563eb")
               }
               onMouseOut={(e) =>
-                (e.currentTarget.style.backgroundColor =
-                  currentPage === totalPages ? "#f3f4f6" : "#3b82f6")
+              (e.currentTarget.style.backgroundColor =
+                currentPage === totalPages ? "#f3f4f6" : "#3b82f6")
               }
             >
               Next
