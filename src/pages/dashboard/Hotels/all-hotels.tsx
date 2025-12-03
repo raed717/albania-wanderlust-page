@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Hsidebar from "../../../components/dashboard/hsidebar";
 import {
@@ -14,121 +14,24 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import { AddHotelDialog } from "./components/AddHotelDialog";
+import { getAllHotels, deleteHotel } from "@/services/api/hotelService";
+import { Hotel } from "@/types/hotel.types";
 
 // NOTE: In a real app, you would import Swal from 'sweetalert2'
-// For this standalone demo, we will use a simple window.confirm to avoid dependency errors in the preview
-const confirmDelete = (hotelId) => {
-  if (window.confirm("Are you sure? You won't be able to revert this!")) {
-    alert("Deleted! The hotel has been deleted.");
+// For this demo, we use window.confirm
+const confirmDelete = async (hotelId: number, hotelName: string) => {
+  if (
+    window.confirm(
+      `Are you sure you want to delete "${hotelName}"? You won't be able to revert this!`
+    )
+  ) {
     return true;
   }
   return false;
 };
-
-// --- Data ---
-const hotelsData = [
-  {
-    id: 1,
-    name: "Grand Plaza Hotel",
-    location: "New York, USA",
-    rating: 4.8,
-    rooms: 150,
-    occupancy: 85,
-    price: 299,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400",
-  },
-  {
-    id: 2,
-    name: "Ocean View Resort",
-    location: "Miami, USA",
-    rating: 4.6,
-    rooms: 200,
-    occupancy: 92,
-    price: 399,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400",
-  },
-  {
-    id: 3,
-    name: "Mountain Lodge",
-    location: "Aspen, USA",
-    rating: 4.9,
-    rooms: 80,
-    occupancy: 78,
-    price: 450,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400",
-  },
-  {
-    id: 4,
-    name: "City Center Inn",
-    location: "Chicago, USA",
-    rating: 4.3,
-    rooms: 120,
-    occupancy: 65,
-    price: 189,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=400",
-  },
-  {
-    id: 5,
-    name: "Sunset Beach Hotel",
-    location: "Los Angeles, USA",
-    rating: 4.7,
-    rooms: 180,
-    occupancy: 88,
-    price: 349,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400",
-  },
-  {
-    id: 6,
-    name: "Desert Oasis Resort",
-    location: "Phoenix, USA",
-    rating: 4.5,
-    rooms: 95,
-    occupancy: 72,
-    price: 279,
-    status: "maintenance",
-    image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400",
-  },
-  {
-    id: 7,
-    name: "Historic Manor Hotel",
-    location: "Boston, USA",
-    rating: 4.4,
-    rooms: 75,
-    occupancy: 80,
-    price: 320,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1549294413-26f195200c16?w=400",
-  },
-  {
-    id: 8,
-    name: "Lakeside Retreat",
-    location: "Seattle, USA",
-    rating: 4.8,
-    rooms: 110,
-    occupancy: 90,
-    price: 380,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=400",
-  },
-  {
-    id: 9,
-    name: "Downtown Suites",
-    location: "San Francisco, USA",
-    rating: 4.2,
-    rooms: 140,
-    occupancy: 70,
-    price: 420,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=400",
-  },
-];
 
 const AllHotels = () => {
   const navigate = useNavigate();
@@ -136,48 +39,74 @@ const AllHotels = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-
-  // NOTE: Assuming delete might update state in real app
-  const [hotels, setHotels] = useState(hotelsData);
+  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const itemsPerPage = 6;
 
-  // --- Handlers for Inputs (THE FIX) ---
-  // When filters change, we MUST reset the current page to 1
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset pagination
-  };
+  // Fetch hotels on component mount
+  useEffect(() => {
+    fetchHotels();
+  }, []);
 
-  const handleStatusChange = (e) => {
-    setStatusFilter(e.target.value);
-    setCurrentPage(1); // Reset pagination
-  };
-
-  const handleRatingChange = (e) => {
-    setRatingFilter(e.target.value);
-    setCurrentPage(1); // Reset pagination
-  };
-
-  const handleDelete = (id) => {
-    if (confirmDelete(id)) {
-      setHotels((prev) => prev.filter((h) => h.id !== id));
+  const fetchHotels = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getAllHotels();
+      setHotels(data);
+    } catch (err) {
+      console.error("Error fetching hotels:", err);
+      setError("Failed to load hotels. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleHotelAdded = (newHotel) => {
+  // When filters change, reset to page 1
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setStatusFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleRatingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRatingFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleDelete = async (id: number, name: string) => {
+    const confirmed = await confirmDelete(id, name);
+    if (confirmed) {
+      try {
+        await deleteHotel(id);
+        setHotels((prev) => prev.filter((h) => h.id !== id));
+        alert(`Hotel "${name}" has been deleted successfully.`);
+      } catch (err) {
+        console.error("Error deleting hotel:", err);
+        alert("Failed to delete hotel. Please try again.");
+      }
+    }
+  };
+
+  const handleHotelAdded = (newHotel: Hotel) => {
     setHotels((prev) => [newHotel, ...prev]);
   };
 
-  const handleViewHotel = (id) => {
+  const handleViewHotel = (id: number) => {
     navigate(`/dashboard/hotels/${id}`);
   };
 
-  const handleEditHotel = (id) => {
+  const handleEditHotel = (id: number) => {
     navigate(`/dashboard/hotels/${id}?edit=true`);
   };
 
-  // --- Logic ---
+  // Filtered hotels
   const filteredHotels = useMemo(() => {
     return hotels.filter((hotel) => {
       const matchesSearch =
@@ -194,11 +123,10 @@ const AllHotels = () => {
     });
   }, [searchTerm, statusFilter, ratingFilter, hotels]);
 
-  // Pagination Logic
+  // Pagination
   const totalPages = Math.ceil(filteredHotels.length / itemsPerPage);
 
-  // Safety check: if current page is greater than total pages (after deletion), go back
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(totalPages);
     }
@@ -210,13 +138,73 @@ const AllHotels = () => {
     startIndex + itemsPerPage
   );
 
+  // Loading state
+  if (loading) {
+    return (
+      <Hsidebar>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-96">
+            <div className="text-center">
+              <Loader2
+                size={48}
+                className="animate-spin text-blue-600 mx-auto mb-4"
+              />
+              <p className="text-gray-500 text-lg">Loading hotels...</p>
+            </div>
+          </div>
+        </div>
+      </Hsidebar>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Hsidebar>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-96">
+            <div className="text-center">
+              <div className="text-red-500 mb-4">
+                <svg
+                  className="w-16 h-16 mx-auto"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Error Loading Hotels
+              </h3>
+              <p className="text-gray-500 mb-4">{error}</p>
+              <button
+                onClick={fetchHotels}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </Hsidebar>
+    );
+  }
+
   return (
     <Hsidebar>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 flex items-end justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">All Hotels</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              All Hotels
+            </h1>
             <p className="text-gray-500 text-lg">
               Manage and monitor all your hotel properties
             </p>
@@ -340,10 +328,11 @@ const AllHotels = () => {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === 1
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                currentPage === 1
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm"
-                }`}
+              }`}
             >
               <ChevronLeft size={16} />
               Previous
@@ -355,10 +344,11 @@ const AllHotels = () => {
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${currentPage === page
+                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
+                      currentPage === page
                         ? "bg-blue-600 text-white shadow-md shadow-blue-200"
                         : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
-                      }`}
+                    }`}
                   >
                     {page}
                   </button>
@@ -371,10 +361,11 @@ const AllHotels = () => {
                 setCurrentPage((prev) => Math.min(totalPages, prev + 1))
               }
               disabled={currentPage === totalPages}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === totalPages
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                currentPage === totalPages
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm"
-                }`}
+              }`}
             >
               Next
               <ChevronRight size={16} />
@@ -386,9 +377,14 @@ const AllHotels = () => {
   );
 };
 
-// --- Subcomponents for cleaner code ---
+// Subcomponents
+interface StatCardProps {
+  label: string;
+  value: string | number;
+  gradient: string;
+}
 
-const StatCard = ({ label, value, gradient }) => (
+const StatCard: React.FC<StatCardProps> = ({ label, value, gradient }) => (
   <div
     className={`p-6 rounded-2xl text-white bg-gradient-to-br ${gradient} shadow-lg`}
   >
@@ -397,7 +393,19 @@ const StatCard = ({ label, value, gradient }) => (
   </div>
 );
 
-const HotelCard = ({ hotel, onDelete, onView, onEdit }) => (
+interface HotelCardProps {
+  hotel: Hotel;
+  onDelete: (id: number, name: string) => void;
+  onView: (id: number) => void;
+  onEdit: (id: number) => void;
+}
+
+const HotelCard: React.FC<HotelCardProps> = ({
+  hotel,
+  onDelete,
+  onView,
+  onEdit,
+}) => (
   <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
     {/* Image */}
     <div
@@ -408,10 +416,11 @@ const HotelCard = ({ hotel, onDelete, onView, onEdit }) => (
     >
       <div className="absolute top-3 right-3">
         <span
-          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${hotel.status === "active"
+          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+            hotel.status === "active"
               ? "bg-emerald-500 text-white"
               : "bg-amber-500 text-white"
-            }`}
+          }`}
         >
           {hotel.status}
         </span>
@@ -461,7 +470,7 @@ const HotelCard = ({ hotel, onDelete, onView, onEdit }) => (
           <Edit size={16} />
         </button>
         <button
-          onClick={() => onDelete(hotel.id)}
+          onClick={() => onDelete(hotel.id, hotel.name)}
           className="p-2 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
         >
           <Trash2 size={16} />

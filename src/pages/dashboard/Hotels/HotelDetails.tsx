@@ -62,8 +62,6 @@ const HotelDetails = () => {
                         contactEmail: "info@grandplaza.com",
                         contactPhone: "+1 (212) 555-0100",
                         address: "123 Fifth Avenue, New York, NY 10001",
-                        checkInTime: "15:00",
-                        checkOutTime: "11:00",
                     };
                     setHotel(mockHotel);
                     setFormData(mockHotel);
@@ -425,42 +423,6 @@ const HotelDetails = () => {
                                         />
                                     ) : (
                                         <p className="text-gray-700">{hotel.contactPhone || "N/A"}</p>
-                                    )}
-                                </div>
-
-                                {/* Check-in Time */}
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-medium flex items-center gap-2">
-                                        <Clock size={16} className="text-blue-500" />
-                                        Check-in Time
-                                    </Label>
-                                    {isEditing ? (
-                                        <Input
-                                            name="checkInTime"
-                                            type="time"
-                                            value={formData.checkInTime || ""}
-                                            onChange={handleChange}
-                                        />
-                                    ) : (
-                                        <p className="text-gray-700">{hotel.checkInTime || "N/A"}</p>
-                                    )}
-                                </div>
-
-                                {/* Check-out Time */}
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-medium flex items-center gap-2">
-                                        <Clock size={16} className="text-blue-500" />
-                                        Check-out Time
-                                    </Label>
-                                    {isEditing ? (
-                                        <Input
-                                            name="checkOutTime"
-                                            type="time"
-                                            value={formData.checkOutTime || ""}
-                                            onChange={handleChange}
-                                        />
-                                    ) : (
-                                        <p className="text-gray-700">{hotel.checkOutTime || "N/A"}</p>
                                     )}
                                 </div>
 

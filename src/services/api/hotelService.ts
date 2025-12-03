@@ -1,31 +1,18 @@
-/**
- * Hotel Service
- * 
- * Service layer for hotel CRUD operations.
- * Currently using mock data with console logging.
- * Ready to integrate with real backend by uncommenting API calls.
- */
-
+import { apiClient } from "./apiClient";
 import { Hotel, CreateHotelDto, UpdateHotelDto } from "@/types/hotel.types";
-// import apiClient from "./apiClient";
 
 /**
  * Fetch all hotels
  */
 export const getAllHotels = async (): Promise<Hotel[]> => {
-  console.log("[Hotel Service] Fetching all hotels");
-  
-  // TODO: Replace with real API call when backend is ready
-  // const response = await apiClient.get<Hotel[]>("/hotels");
-  // return response.data;
-  
-  // Mock implementation
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log("[Hotel Service] Successfully fetched hotels (mock data)");
-      resolve([]);
-    }, 300);
-  });
+  console.log("[Hotel Service] Fetching all hotels...");
+  const { data, error } = await apiClient.from("hotel").select("*");
+  if (error) {
+    console.error("[Hotel Service] Error fetching hotels:", error);
+    throw error;
+  }
+  console.log("[Hotel Service] Successfully fetched hotels:", data);
+  return data;
 };
 
 /**
@@ -33,18 +20,20 @@ export const getAllHotels = async (): Promise<Hotel[]> => {
  */
 export const getHotelById = async (id: number): Promise<Hotel | null> => {
   console.log(`[Hotel Service] Fetching hotel with ID: ${id}`);
-  
-  // TODO: Replace with real API call when backend is ready
-  // const response = await apiClient.get<Hotel>(`/hotels/${id}`);
-  // return response.data;
-  
-  // Mock implementation
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log(`[Hotel Service] Successfully fetched hotel ID: ${id} (mock data)`);
-      resolve(null);
-    }, 300);
-  });
+
+  const { data, error } = await apiClient
+    .from("hotel")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error(`[Hotel Service] Error fetching hotel ID ${id}:`, error);
+    throw error;
+  }
+
+  console.log(`[Hotel Service] Successfully fetched hotel ID: ${id}`, data);
+  return data;
 };
 
 /**
@@ -52,22 +41,20 @@ export const getHotelById = async (id: number): Promise<Hotel | null> => {
  */
 export const createHotel = async (data: CreateHotelDto): Promise<Hotel> => {
   console.log("[Hotel Service] Creating new hotel:", data);
-  
-  // TODO: Replace with real API call when backend is ready
-  // const response = await apiClient.post<Hotel>("/hotels", data);
-  // return response.data;
-  
-  // Mock implementation
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newHotel: Hotel = {
-        ...data,
-        id: Date.now(), // Generate temporary ID
-      };
-      console.log("[Hotel Service] Successfully created hotel:", newHotel);
-      resolve(newHotel);
-    }, 300);
-  });
+
+  const { data: newHotel, error } = await apiClient
+    .from("hotel")
+    .insert([data])
+    .select()
+    .single();
+
+  if (error) {
+    console.error("[Hotel Service] Error creating hotel:", error);
+    throw error;
+  }
+
+  console.log("[Hotel Service] Successfully created hotel:", newHotel);
+  return newHotel;
 };
 
 /**
@@ -78,30 +65,26 @@ export const updateHotel = async (
   data: UpdateHotelDto
 ): Promise<Hotel> => {
   console.log(`[Hotel Service] Updating hotel ID: ${id}`, data);
-  
-  // TODO: Replace with real API call when backend is ready
-  // const response = await apiClient.put<Hotel>(`/hotels/${id}`, data);
-  // return response.data;
-  
-  // Mock implementation
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const updatedHotel: Hotel = {
-        id,
-        name: data.name || "",
-        location: data.location || "",
-        rating: data.rating || 0,
-        rooms: data.rooms || 0,
-        occupancy: data.occupancy || 0,
-        price: data.price || 0,
-        status: data.status || "active",
-        image: data.image || "",
-        ...data,
-      } as Hotel;
-      console.log("[Hotel Service] Successfully updated hotel:", updatedHotel);
-      resolve(updatedHotel);
-    }, 300);
-  });
+
+  // Remove system fields that shouldn't be updated
+  const updateData = { ...data };
+  delete (updateData as any).id;
+  delete (updateData as any).created_at;
+
+  const { data: updatedHotel, error } = await apiClient
+    .from("hotel")
+    .update(updateData)
+    .eq("id", id)
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error(`[Hotel Service] Error updating hotel ID ${id}:`, error);
+    throw error;
+  }
+
+  console.log("[Hotel Service] Successfully updated hotel:", updatedHotel);
+  return updatedHotel;
 };
 
 /**
@@ -109,17 +92,15 @@ export const updateHotel = async (
  */
 export const deleteHotel = async (id: number): Promise<void> => {
   console.log(`[Hotel Service] Deleting hotel ID: ${id}`);
-  
-  // TODO: Replace with real API call when backend is ready
-  // await apiClient.delete(`/hotels/${id}`);
-  
-  // Mock implementation
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log(`[Hotel Service] Successfully deleted hotel ID: ${id}`);
-      resolve();
-    }, 300);
-  });
+
+  const { error } = await apiClient.from("hotel").delete().eq("id", id);
+
+  if (error) {
+    console.error(`[Hotel Service] Error deleting hotel ID ${id}:`, error);
+    throw error;
+  }
+
+  console.log(`[Hotel Service] Successfully deleted hotel ID: ${id}`);
 };
 
 // Export all services as a single object for easier imports

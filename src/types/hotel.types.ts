@@ -19,8 +19,6 @@ export interface Hotel {
   contactEmail?: string;
   contactPhone?: string;
   address?: string;
-  checkInTime?: string;
-  checkOutTime?: string;
 }
 
 export interface CreateHotelDto {
@@ -37,8 +35,6 @@ export interface CreateHotelDto {
   contactEmail?: string;
   contactPhone?: string;
   address?: string;
-  checkInTime?: string;
-  checkOutTime?: string;
 }
 
 export interface UpdateHotelDto {
@@ -54,9 +50,9 @@ export interface UpdateHotelDto {
   amenities?: string[];
   contactEmail?: string;
   contactPhone?: string;
+  lat?: number;
+  lng?: number;
   address?: string;
-  checkInTime?: string;
-  checkOutTime?: string;
 }
 
 export interface HotelFilters {

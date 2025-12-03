@@ -35,9 +35,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({ onHotelAdded }) 
         amenities: [],
         contactEmail: "",
         contactPhone: "",
-        address: "",
-        checkInTime: "14:00",
-        checkOutTime: "11:00",
+        address: ""
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -79,9 +77,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({ onHotelAdded }) 
                 amenities: [],
                 contactEmail: "",
                 contactPhone: "",
-                address: "",
-                checkInTime: "14:00",
-                checkOutTime: "11:00",
+                address: ""
             });
         } catch (error) {
             console.error("Error adding hotel:", error);
@@ -278,35 +274,6 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({ onHotelAdded }) 
                             />
                         </div>
 
-                        {/* Check-in Time */}
-                        <div className="space-y-2">
-                            <Label htmlFor="checkInTime" className="text-sm font-medium">
-                                Check-in Time
-                            </Label>
-                            <Input
-                                id="checkInTime"
-                                name="checkInTime"
-                                type="time"
-                                value={formData.checkInTime}
-                                onChange={handleChange}
-                                className="w-full"
-                            />
-                        </div>
-
-                        {/* Check-out Time */}
-                        <div className="space-y-2">
-                            <Label htmlFor="checkOutTime" className="text-sm font-medium">
-                                Check-out Time
-                            </Label>
-                            <Input
-                                id="checkOutTime"
-                                name="checkOutTime"
-                                type="time"
-                                value={formData.checkOutTime}
-                                onChange={handleChange}
-                                className="w-full"
-                            />
-                        </div>
                     </div>
 
                     {/* Address */}

@@ -145,9 +145,8 @@ const Hsidebar = ({ children }) => {
 
             <SubMenu icon={<Users size={20} />} label="Users">
               <MenuItem component={<Link to="/dashboard/userManagement" />}>
-                Customers
+                Users Management
               </MenuItem>
-              <MenuItem component={<Link to="/users/staff" />}>Staff</MenuItem>
               <MenuItem component={<Link to="/users/roles" />}>
                 Roles & Permissions
               </MenuItem>
