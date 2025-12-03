@@ -1,11 +1,9 @@
 import * as React from "react";
-import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import InputBase from "@mui/material/InputBase";
 import Badge from "@mui/material/Badge";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
@@ -14,39 +12,39 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import Avatar from "@mui/material/Avatar";
 import { useNavigate } from "react-router-dom";
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: "20ch",
-    },
-  },
-}));
+import { authService } from "@/services/api/authService";
 
 export default function PrimarySearchAppBar() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     React.useState<null | HTMLElement>(null);
+  const [user, setUser] = React.useState<any>(null);
+  const [userRole, setUserRole] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const navigate = useNavigate();
+
+  // Fetch current user on mount
+  React.useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const currentUser = await authService.getCurrentUser();
+        const userRole = await authService.getCurrentUserRole();
+        setUser(currentUser);
+        setUserRole(userRole);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -59,22 +57,38 @@ export default function PrimarySearchAppBar() {
   const handleMenuClose = () => {
     setAnchorEl(null);
     handleMobileMenuClose();
-    // redirect to /auth route
     window.location.href = "/auth";
   };
 
-    const handelDashboardRed = () => {
-      setAnchorEl(null);
-      handleMobileMenuClose();
-      // redirect to /auth route
-      window.location.href = "/dashboard";
-    };
+  const handleMyAccountRed = () => {
+    if (!user) return;
+    console.log("triggered");
+    setAnchorEl(null);
+    handleMobileMenuClose();
+    navigate("/myAccount");
+  };
+
+  const handleDashboardRed = () => {
+    setAnchorEl(null);
+    handleMobileMenuClose();
+    window.location.href = "/dashboard";
+  };
 
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
-  const navigate = useNavigate();
+  // Get user initials for fallback
+  const getUserInitials = () => {
+    if (!user) return "";
+    const name = user.user_metadata?.full_name || user.email || "";
+    return name
+      .split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   const menuId = "primary-search-account-menu";
   const renderMenu = (
@@ -93,9 +107,9 @@ export default function PrimarySearchAppBar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handelDashboardRed}>Dashboard</MenuItem>
+      <MenuItem onClick={handleDashboardRed}>Dashboard</MenuItem>
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleMyAccountRed}>My account</MenuItem>
     </Menu>
   );
 
@@ -144,7 +158,17 @@ export default function PrimarySearchAppBar() {
           aria-haspopup="true"
           color="inherit"
         >
-          <AccountCircle />
+          {user?.user_metadata?.avatar_url ? (
+            <Avatar
+              src={user.user_metadata.avatar_url}
+              alt={user.user_metadata?.full_name || user.email}
+              sx={{ width: 32, height: 32 }}
+            />
+          ) : (
+            <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
+              {getUserInitials()}
+            </Avatar>
+          )}
         </IconButton>
         <p>Profile</p>
       </MenuItem>
@@ -158,9 +182,9 @@ export default function PrimarySearchAppBar() {
         sx={{
           backgroundColor: "#000f64c7",
           color: "white",
-          backdropFilter: "blur(10px)", // ✅ adds smooth glass effect
-          boxShadow: "none", // optional: removes harsh shadow
-          zIndex: 1300, // ✅ ensures it stays on top of all content
+          backdropFilter: "blur(10px)",
+          boxShadow: "none",
+          zIndex: 1300,
         }}
       >
         <Toolbar>
@@ -179,14 +203,14 @@ export default function PrimarySearchAppBar() {
             component="div"
             sx={{
               display: { xs: "none", sm: "block" },
-              cursor: "pointer", // make it feel clickable
+              cursor: "pointer",
             }}
             onClick={() => navigate("/")}
           >
             Discover Albania
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: "none", md: "flex" } }}>
+          <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 1 }}>
             <IconButton
               size="large"
               aria-label="show 4 new mails"
@@ -213,8 +237,21 @@ export default function PrimarySearchAppBar() {
               aria-haspopup="true"
               onClick={handleProfileMenuOpen}
               color="inherit"
+              sx={{ ml: 1 }}
             >
-              <AccountCircle />
+              {loading ? (
+                <AccountCircle />
+              ) : user?.user_metadata?.avatar_url ? (
+                <Avatar
+                  src={user.user_metadata.avatar_url}
+                  alt={user.user_metadata?.full_name || user.email}
+                  sx={{ width: 32, height: 32 }}
+                />
+              ) : (
+                <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
+                  {getUserInitials()}
+                </Avatar>
+              )}
             </IconButton>
           </Box>
           <Box sx={{ display: { xs: "flex", md: "none" } }}>

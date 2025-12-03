@@ -1,4 +1,3 @@
-import { log } from "console";
 import { apiClient } from "./apiClient";
 import { AuthError, Session, User, SignUpWithPasswordCredentials, SignInWithPasswordCredentials } from "@supabase/supabase-js";
 
@@ -32,7 +31,7 @@ export const authService = {
         const { data, error } = await apiClient.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: `${window.location.origin}/dashboard/HotelsList`,
+                redirectTo: `${window.location.origin}`,
             },
         });
         return { data, error };
@@ -59,8 +58,22 @@ export const authService = {
      * Get current user
      */
     async getCurrentUser() {
-        const { data: { user }, error } = await apiClient.auth.getUser();
-        console.log(user, error);
-        return { user, error };
+        const { data, error } = await apiClient.auth.getUser();
+        if (error) throw error;
+        console.log(data.user);
+        
+        return data.user;
+    },
+
+    /**
+     * Get current user role
+     */
+    async getCurrentUserRole() {
+        const { data, error } = await apiClient.auth.getUser();
+        if (error) throw error;
+        console.log("current user role :",data.user.user_metadata.role);
+        
+        return data.user.user_metadata.role;
     }
+
 };
