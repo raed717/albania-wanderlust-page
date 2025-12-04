@@ -18,6 +18,7 @@ import UserDetails from "./pages/dashboard/Users/user-details";
 import MyAccount from "./pages/home/MyAccount";
 import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CarDetails from "./pages/dashboard/Cars/carDetails";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/dashboard/HotelsList" element={<AllHotels />} />
             <Route path="/dashboard/hotels/:id" element={<HotelDetails />} />
             <Route path="/dashboard/carsList" element={<AllCars />} />
+            <Route path="/dashboard/carInfo/:id" element={<CarDetails />} />
             <Route
               path="/dashboard/userManagement"
               element={<UserManagement />}

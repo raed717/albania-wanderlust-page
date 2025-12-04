@@ -1,10 +1,11 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { useHotelData } from "./useStaticData";
+import { getAllHotels } from "@/services/api/hotelService";
 import { useApartmentData } from "./useStaticData";
-import { Hotel, Apartment } from "./types";
+import { Apartment } from "./types";
+import { Hotel } from "@/types/hotel.types";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import hotelIcon from "@/assets/map/hotel_icon.png";
 import apartmentIcon from "@/assets/map/home.png";
 import { Link } from "react-router-dom";
@@ -25,9 +26,26 @@ const ApartmentIcon = new L.Icon({
 const ALBANIA_CENTER: [number, number] = [41.3275, 19.8187];
 
 export default function HotelMap() {
-  const { data: hotels } = useHotelData();
+  const [hotelsData, setHotelsData] = useState<Hotel[]>([]);
+  const [loading, setLoading] = useState(true);
   const { data: apartments } = useApartmentData();
-  const [selected, setSelected] = useState<Hotel | null>(null);
+  const [selected, setSelected] = useState<Hotel | Apartment | null>(null);
+
+  useEffect(() => {
+    const fetchHotels = async () => {
+      try {
+        const data = await getAllHotels();
+        setHotelsData(data || []);
+      } catch (error) {
+        console.error("Failed to fetch hotels:", error);
+        setHotelsData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHotels();
+  }, []);
 
   return (
     <div className="w-full h-full">
@@ -44,10 +62,10 @@ export default function HotelMap() {
         />
 
         {/* Markers */}
-        {hotels?.map((hotel: Hotel) => (
+        {hotelsData?.map((hotel: Hotel) => (
           <Marker
             key={hotel.id}
-            position={[hotel.lat, hotel.lon]}
+            position={[hotel.lat, hotel.lng]}
             icon={HotelIcon}
             eventHandlers={{
               click: () => setSelected(hotel),
@@ -58,7 +76,7 @@ export default function HotelMap() {
         {apartments?.map((apartment: Apartment) => (
           <Marker
             key={apartment.id}
-            position={[apartment.lat, apartment.lon]}
+            position={[apartment.lat, apartment.lng]}
             icon={ApartmentIcon}
             eventHandlers={{
               click: () => setSelected(apartment),
@@ -68,17 +86,14 @@ export default function HotelMap() {
 
         {/* Popup */}
         {selected && (
-          <Popup position={[selected.lat, selected.lon]}>
+          <Popup position={[selected.lat, selected.lng]}>
             <div className="space-y-1">
               <h2 className="font-semibold text-base">{selected.name}</h2>
               <p className="text-sm">{selected.location}</p>
               {selected.price && (
                 <p className="text-sm font-medium">€{selected.price} / night</p>
               )}
-              {selected.type && (
-                <p className="text-xs text-gray-500">{selected.type}</p>
-              )}
-              {selected.rating && (
+              {"rating" in selected && selected.rating && (
                 <p className="text-xs text-yellow-600">★ {selected.rating}</p>
               )}
             </div>

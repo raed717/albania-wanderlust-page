@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import Hsidebar from "../../../components/dashboard/hsidebar";
 import { getAllCars } from "@/services/api/carService";
 import { Car } from "@/types/car.types";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   Filter,
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 
 const AllCars = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -53,7 +55,7 @@ const AllCars = () => {
     }
   };
 
-  // Filter and search cars - FIXED: Removed currentPage from dependencies
+  // Filter and search cars
   const filteredCars = useMemo(() => {
     return carsData.filter((car) => {
       // 1. Search Term Check
@@ -106,7 +108,26 @@ const AllCars = () => {
     startIndex + itemsPerPage
   );
 
-  const getStatusColor = (status) => {
+  // Handler functions - moved outside of map
+  const handleViewCar = (id: number) => {
+    navigate(`/dashboard/carInfo/${id}`);
+  };
+
+  const handleEditCar = (id: number) => {
+    navigate(`/dashboard/carInfo/${id}?edit=true`);
+  };
+
+  const handleDeleteCar = (id: number, name: string) => {
+    if (window.confirm(`Are you sure you want to delete ${name}?`)) {
+      // Add your delete logic here
+      // Example: await deleteCar(id);
+      // Then refresh the cars list
+      // fetchCars();
+      console.log(`Deleting car with ID: ${id}`);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "available":
         return { bg: "#10b981", text: "white" };
@@ -119,20 +140,20 @@ const AllCars = () => {
     }
   };
 
-  // Simplified handlers - page reset now handled by useEffect
-  const handleSearchChange = (e) => {
+  // Simplified handlers
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
 
-  const handleStatusChange = (e) => {
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setStatusFilter(e.target.value);
   };
 
-  const handleTypeChange = (e) => {
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTypeFilter(e.target.value);
   };
 
-  const handleTransmissionChange = (e) => {
+  const handleTransmissionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTransmissionFilter(e.target.value);
   };
 
@@ -419,6 +440,7 @@ const AllCars = () => {
         >
           {paginatedCars.map((car) => {
             const statusColor = getStatusColor(car.status);
+
             return (
               <div
                 key={car.id}
@@ -634,65 +656,29 @@ const AllCars = () => {
                     </div>
                     <div style={{ display: "flex", gap: "8px" }}>
                       <button
-                        style={{
-                          padding: "8px 16px",
-                          backgroundColor: "#3b82f6",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "6px",
-                          fontSize: "14px",
-                          fontWeight: 500,
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          transition: "background-color 0.2s",
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewCar(car.id);
                         }}
-                        onMouseOver={(e) =>
-                          (e.currentTarget.style.backgroundColor = "#2563eb")
-                        }
-                        onMouseOut={(e) =>
-                          (e.currentTarget.style.backgroundColor = "#3b82f6")
-                        }
+                        className="flex-1 py-2 px-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
                       >
-                        <Eye size={16} />
-                        View
+                        <Eye size={16} /> View
                       </button>
                       <button
-                        style={{
-                          padding: "8px 12px",
-                          backgroundColor: "#f3f4f6",
-                          color: "#374151",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          transition: "background-color 0.2s",
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditCar(car.id);
                         }}
-                        onMouseOver={(e) =>
-                          (e.currentTarget.style.backgroundColor = "#e5e7eb")
-                        }
-                        onMouseOut={(e) =>
-                          (e.currentTarget.style.backgroundColor = "#f3f4f6")
-                        }
+                        className="p-2 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <Edit size={16} />
                       </button>
                       <button
-                        style={{
-                          padding: "8px 12px",
-                          backgroundColor: "#fee2e2",
-                          color: "#dc2626",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          transition: "background-color 0.2s",
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCar(car.id, car.name);
                         }}
-                        onMouseOver={(e) =>
-                          (e.currentTarget.style.backgroundColor = "#fecaca")
-                        }
-                        onMouseOut={(e) =>
-                          (e.currentTarget.style.backgroundColor = "#fee2e2")
-                        }
+                        className="p-2 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
                       >
                         <Trash2 size={16} />
                       </button>

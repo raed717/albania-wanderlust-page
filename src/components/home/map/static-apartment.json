@@ -6,7 +6,7 @@
     "rating": 4.6,
     "rooms": 3,
     "lat": 41.3301,
-    "lon": 19.8145,
+    "lng": 19.8145,
     "price": 65,
     "type": "Apartment",
     "image": "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=400"
@@ -18,7 +18,7 @@
     "rating": 4.7,
     "rooms": 2,
     "lat": 41.405038,
-    "lon": 19.908963,
+    "lng": 19.908963,
     "price": 55,
     "type": "Apartment",
     "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400"
@@ -30,7 +30,7 @@
     "rating": 4.5,
     "rooms": 1,
     "lat": 42.096184,
-    "lon": 19.607935,
+    "lng": 19.607935,
     "price": 48,
     "type": "Apartment",
     "image": "https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=400"
@@ -42,7 +42,7 @@
     "rating": 4.9,
     "rooms": 2,
     "lat": 39.8756,
-    "lon": 20.0056,
+    "lng": 20.0056,
     "price": 70,
     "type": "Apartment",
     "image": "https://images.unsplash.com/photo-1502673530728-f79b4cab31b1?w=400"
@@ -54,7 +54,7 @@
     "rating": 4.4,
     "rooms": 1,
     "lat": 40.0753,
-    "lon": 20.1385,
+    "lng": 20.1385,
     "price": 40,
     "type": "Apartment",
     "image": "https://images.unsplash.com/photo-1554995207-c18c203602cb?w=400"

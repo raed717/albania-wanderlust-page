@@ -9,11 +9,14 @@ export interface Car {
     seats: number;
     mileage: string;
     pricePerDay: number;
-    status: string;
+    status: "available" | "rented" | "maintenance";
     color: string;
     plateNumber: string;
     features: string[];
     image: string;
+    pickUpLocation: string;
+    lat?: number;
+    lng?: number;
 }
 
 export interface CreateCarDto {
@@ -26,11 +29,14 @@ export interface CreateCarDto {
     seats: number;
     mileage: string;
     pricePerDay: number;
-    status: string;
+    status: "available" | "rented" | "maintenance";
     color: string;
     plateNumber: string;
     features: string[];
     image: string;
+    pickUpLocation: string;
+    lat: number;
+    lng: number;
 }
 
 export interface UpdateCarDto {
@@ -43,11 +49,14 @@ export interface UpdateCarDto {
     seats?: number;
     mileage?: string;
     pricePerDay?: number;
-    status?: string;
+    status?: "available" | "rented" | "maintenance";
     color?: string;
     plateNumber?: string;
     features?: string[];
     image?: string;
+    pickUpLocation?: string;
+    lat?: number;
+    lng?: number;
 }
 
 export interface CarFilters {

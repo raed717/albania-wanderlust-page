@@ -102,7 +102,7 @@ const Hsidebar = ({ children }) => {
 
             {/* SubMenu structure */}
             <SubMenu icon={<Home size={20} />} label="Appartments">
-              <MenuItem component={<Link to="/dashboard/HotelsList" />}>
+              <MenuItem component={<Link to="/dashboard/AppartmentsList" />}>
                 All Appartments
               </MenuItem>
               <MenuItem component={<Link to="/hotels/rooms" />}>

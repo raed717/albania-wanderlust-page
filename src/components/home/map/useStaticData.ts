@@ -1,15 +1,8 @@
 // useHotelData.ts
 import { useQuery } from "@tanstack/react-query";
-import { Hotel, Apartment } from "./types";
-import hotels from "./static-hotels.json";
-import apartments from "./static-apartment.json";
+import { Apartment } from "./types";
 
-export const useHotelData = () => {
-  return useQuery({
-    queryKey: ["hotels"],
-    queryFn: async () => hotels as Hotel[], // replace later with fetch("/api/hotels")
-  });
-};
+import apartments from "./static-apartment.json";
 
 export const useApartmentData = () => {
   return useQuery({

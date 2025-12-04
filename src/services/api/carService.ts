@@ -36,3 +36,26 @@ export const getCarById = async (id: number): Promise<Car | null> => {
     console.log(`[Car Service] Successfully fetched car ID: ${id}`, data);
     return data;
 };
+
+
+/**
+ * update car by id
+ */
+export const updateCar = async (id: number, car: UpdateCarDto): Promise<Car> => {
+    console.log(`[Car Service] Updating car with ID: ${id}`);
+
+    const { data, error } = await apiClient
+        .from("car")
+        .update(car)
+        .eq("id", id)
+        .select()
+        .single();
+
+    if (error) {
+        console.error(`[Car Service] Error updating car ID ${id}:`, error);
+        throw error;
+    }
+
+    console.log(`[Car Service] Successfully updated car ID: ${id}`, data);
+    return data;
+};
