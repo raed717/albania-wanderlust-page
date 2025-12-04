@@ -19,6 +19,8 @@ export interface Hotel {
   contactEmail?: string;
   contactPhone?: string;
   address?: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface CreateHotelDto {
@@ -35,6 +37,8 @@ export interface CreateHotelDto {
   contactEmail?: string;
   contactPhone?: string;
   address?: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface UpdateHotelDto {
