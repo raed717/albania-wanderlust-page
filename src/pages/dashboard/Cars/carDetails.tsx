@@ -368,11 +368,16 @@ const CarDetails = () => {
                                         Transmission
                                     </Label>
                                     {isEditing ? (
-                                        <Input
+                                        <select
                                             name="transmission"
                                             value={formData.transmission || ""}
                                             onChange={handleChange}
-                                        />
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                        >
+                                            <option value="Manual">Manual</option>
+                                            <option value="Automatic">Automatic</option>
+                                        </select>
+
                                     ) : (
                                         <p className="text-gray-700">{car.transmission}</p>
                                     )}
@@ -385,11 +390,17 @@ const CarDetails = () => {
                                         Fuel Type
                                     </Label>
                                     {isEditing ? (
-                                        <Input
+                                        <select
                                             name="fuelType"
                                             value={formData.fuelType || ""}
                                             onChange={handleChange}
-                                        />
+                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                        >
+                                            <option value="Petrol">Petrol</option>
+                                            <option value="Diesel">Diesel</option>
+                                            <option value="Hybrid">Hybrid</option>
+                                            <option value="Electric">Electric</option>
+                                        </select>
                                     ) : (
                                         <p className="text-gray-700">{car.fuelType}</p>
                                     )}

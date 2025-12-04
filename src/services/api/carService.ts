@@ -37,6 +37,23 @@ export const getCarById = async (id: number): Promise<Car | null> => {
     return data;
 };
 
+/**
+ * add a new car
+ */
+export const addCar = async (car: CreateCarDto): Promise<Car> => {
+    console.log("[Car Service] Adding new car...");
+
+    const { data, error } = await apiClient.from("car").insert(car).select().single();
+
+    if (error) {
+        console.error("[Car Service] Error adding car:", error);
+        throw error;
+    }
+
+    console.log("[Car Service] Successfully added car:", data);
+    return data;
+};
+
 
 /**
  * update car by id

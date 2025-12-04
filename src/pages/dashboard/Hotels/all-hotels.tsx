@@ -19,18 +19,30 @@ import {
 import { AddHotelDialog } from "./components/AddHotelDialog";
 import { getAllHotels, deleteHotel } from "@/services/api/hotelService";
 import { Hotel } from "@/types/hotel.types";
+import Swal from "sweetalert2";
 
 // NOTE: In a real app, you would import Swal from 'sweetalert2'
 // For this demo, we use window.confirm
-const confirmDelete = async (hotelId: number, hotelName: string) => {
-  if (
-    window.confirm(
-      `Are you sure you want to delete "${hotelName}"? You won't be able to revert this!`
-    )
-  ) {
-    return true;
-  }
-  return false;
+const confirmDelete = async (hotelId: number, hotelName: string): Promise<boolean> => {
+  return Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "Deleted!",
+        text: "Your hotel has been deleted.",
+        icon: "success"
+      });
+      return true;
+    }
+    return false;
+  });
 };
 
 const AllHotels = () => {
@@ -86,10 +98,14 @@ const AllHotels = () => {
       try {
         await deleteHotel(id);
         setHotels((prev) => prev.filter((h) => h.id !== id));
-        alert(`Hotel "${name}" has been deleted successfully.`);
       } catch (err) {
         console.error("Error deleting hotel:", err);
-        alert("Failed to delete hotel. Please try again.");
+        Swal.fire({
+          title: "Error",
+          text: "Failed to delete hotel. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK"
+        });
       }
     }
   };
@@ -328,11 +344,10 @@ const AllHotels = () => {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                currentPage === 1
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === 1
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm"
-              }`}
+                }`}
             >
               <ChevronLeft size={16} />
               Previous
@@ -344,11 +359,10 @@ const AllHotels = () => {
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
-                      currentPage === page
+                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${currentPage === page
                         ? "bg-blue-600 text-white shadow-md shadow-blue-200"
                         : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>
@@ -361,11 +375,10 @@ const AllHotels = () => {
                 setCurrentPage((prev) => Math.min(totalPages, prev + 1))
               }
               disabled={currentPage === totalPages}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                currentPage === totalPages
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === totalPages
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm"
-              }`}
+                }`}
             >
               Next
               <ChevronRight size={16} />
@@ -416,11 +429,10 @@ const HotelCard: React.FC<HotelCardProps> = ({
     >
       <div className="absolute top-3 right-3">
         <span
-          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-            hotel.status === "active"
+          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${hotel.status === "active"
               ? "bg-emerald-500 text-white"
               : "bg-amber-500 text-white"
-          }`}
+            }`}
         >
           {hotel.status}
         </span>

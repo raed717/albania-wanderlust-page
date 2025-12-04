@@ -3,6 +3,7 @@ import Hsidebar from "../../../components/dashboard/hsidebar";
 import { getAllCars, deleteCar } from "@/services/api/carService";
 import { Car } from "@/types/car.types";
 import { useNavigate } from "react-router-dom";
+import { AddCarDialog } from "./addCarDialog";
 import {
   Search,
   Filter,
@@ -204,6 +205,10 @@ const AllCars = () => {
     );
   }
 
+  function handleCarAdded(car: any): void {
+    setCarsData((prev) => [...prev, car]);
+  }
+
   return (
     <Hsidebar>
       <div className="p-4 sm:p-6 lg:p-8 font-['Inter'] min-h-screen bg-gray-50">
@@ -222,6 +227,7 @@ const AllCars = () => {
           <p style={{ color: "#6b7280", fontSize: "16px" }}>
             Manage your entire car rental fleet in one place
           </p>
+          <AddCarDialog onCarAdded={handleCarAdded} />
         </div>
 
         {/* Stats Cards */}
