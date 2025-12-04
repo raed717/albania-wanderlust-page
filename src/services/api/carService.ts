@@ -59,3 +59,22 @@ export const updateCar = async (id: number, car: UpdateCarDto): Promise<Car> => 
     console.log(`[Car Service] Successfully updated car ID: ${id}`, data);
     return data;
 };
+
+/**
+ * delete car by id
+ */
+export const deleteCar = async (id: number): Promise<void> => {
+    console.log(`[Car Service] Deleting car with ID: ${id}`);
+
+    const { error } = await apiClient
+        .from("car")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+        console.error(`[Car Service] Error deleting car ID ${id}:`, error);
+        throw error;
+    }
+
+    console.log(`[Car Service] Successfully deleted car ID: ${id}`);
+};

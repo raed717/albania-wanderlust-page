@@ -22,9 +22,9 @@ import {
     Palette,
 } from "lucide-react";
 import { Car, UpdateCarDto } from "@/types/car.types";
-import { getCarById, updateCar } from "@/services/api/carService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import Swal from "sweetalert2";
+import { getCarById, updateCar } from "@/services/api/carService";
 
 const CarDetails = () => {
     const { id } = useParams<{ id: string }>();
@@ -488,6 +488,9 @@ const CarDetails = () => {
                                     {isEditing ? (
                                         <Input
                                             name="mileage"
+                                            type="number"
+                                            min="0"
+                                            max="999999"
                                             value={formData.mileage || ""}
                                             onChange={handleChange}
                                         />
@@ -521,20 +524,65 @@ const CarDetails = () => {
                                 Features
                             </h2>
                             {isEditing ? (
-                                <Input
-                                    name="features"
-                                    value={(formData.features || []).join(", ")}
-                                    onChange={(e) =>
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            features: e.target.value
-                                                .split(",")
-                                                .map((f) => f.trim())
-                                                .filter((f) => f),
-                                        }))
-                                    }
-                                    placeholder="Enter features separated by commas"
-                                />
+                                <div className="space-y-3">
+                                    <div className="flex flex-wrap gap-2">
+                                        {(formData.features || []).map((feature, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
+                                            >
+                                                <span>{feature}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setFormData((prev) => ({
+                                                            ...prev,
+                                                            features: prev.features.filter((_, i) => i !== index),
+                                                        }))
+                                                    }
+                                                    className="hover:bg-blue-100 rounded-full p-0.5"
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            placeholder="Add a new feature"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                                                    e.preventDefault();
+                                                    const newFeature = e.currentTarget.value.trim();
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        features: [...(prev.features || []), newFeature],
+                                                    }));
+                                                    e.currentTarget.value = '';
+                                                }
+                                            }}
+                                            className="flex-1"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                                if (input.value.trim()) {
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        features: [...(prev.features || []), input.value.trim()],
+                                                    }));
+                                                    input.value = '';
+                                                }
+                                            }}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
                             ) : (
                                 <div className="flex flex-wrap gap-2">
                                     {car.features && car.features.length > 0 ? (

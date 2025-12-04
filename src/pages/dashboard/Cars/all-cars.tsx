@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Hsidebar from "../../../components/dashboard/hsidebar";
-import { getAllCars } from "@/services/api/carService";
+import { getAllCars, deleteCar } from "@/services/api/carService";
 import { Car } from "@/types/car.types";
 import { useNavigate } from "react-router-dom";
 import {
@@ -18,7 +18,9 @@ import {
   Calendar,
   Gauge,
   Cog,
+  MapPin,
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 const AllCars = () => {
   const navigate = useNavigate();
@@ -117,14 +119,27 @@ const AllCars = () => {
     navigate(`/dashboard/carInfo/${id}?edit=true`);
   };
 
-  const handleDeleteCar = (id: number, name: string) => {
-    if (window.confirm(`Are you sure you want to delete ${name}?`)) {
-      // Add your delete logic here
-      // Example: await deleteCar(id);
-      // Then refresh the cars list
-      // fetchCars();
-      console.log(`Deleting car with ID: ${id}`);
-    }
+  const handleDeleteCar = async (id: number, name: string) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await deleteCar(id);
+        setCarsData((prev) => prev.filter((car) => car.id !== id));
+        console.log(`Deleting car with ID: ${id}`);
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your car has been deleted.",
+          icon: "success"
+        });
+      }
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -597,10 +612,29 @@ const AllCars = () => {
                         gap: "8px",
                       }}
                     >
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
                       <Gauge size={16} color="#6b7280" />
                       <span style={{ fontSize: "13px", color: "#374151" }}>
                         {car.mileage}
                       </span>
+
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}>
+                        <MapPin size={16} color="#6b7280" />
+                        <span style={{ fontSize: "13px", color: "#374151" }}>
+                          {car.pickUpLocation}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
