@@ -36,6 +36,9 @@ class UserService {
     };
   }
 
+  /**
+   * get all users
+   */
   async getAllUsers(): Promise<UserProfile[]> {
     const { data, error } = await apiClient
       .from("users")
