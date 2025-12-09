@@ -12,7 +12,15 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import LogoutIcon from "@mui/icons-material/Logout";
+import LoginIcon from "@mui/icons-material/Login";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PersonIcon from "@mui/icons-material/Person";
 import Avatar from "@mui/material/Avatar";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Divider from "@mui/material/Divider";
+import Skeleton from "@mui/material/Skeleton";
+import Tooltip from "@mui/material/Tooltip";
 import { useNavigate } from "react-router-dom";
 import { authService } from "@/services/api/authService";
 
@@ -32,10 +40,12 @@ export default function PrimarySearchAppBar() {
   React.useEffect(() => {
     const fetchUser = async () => {
       try {
-        const currentUser = await authService.getCurrentUser();
-        const userRole = await authService.getCurrentUserRole();
+        const [currentUser, role] = await Promise.all([
+          authService.getCurrentUser(),
+          authService.getCurrentUserRole(),
+        ]);
         setUser(currentUser);
-        setUserRole(userRole);
+        setUserRole(role);
       } catch (error) {
         console.error("Failed to fetch user:", error);
       } finally {
@@ -57,21 +67,32 @@ export default function PrimarySearchAppBar() {
   const handleMenuClose = () => {
     setAnchorEl(null);
     handleMobileMenuClose();
-    window.location.href = "/auth";
   };
 
-  const handleMyAccountRed = () => {
+  const handleLogout = () => {
+    handleMenuClose();
+    authService.signOut();
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 100);
+  };
+
+  const handleLogin = () => {
+    handleMenuClose();
+    setTimeout(() => {
+      navigate("/auth");
+    }, 100);
+  };
+
+  const handleMyAccount = () => {
     if (!user) return;
-    console.log("triggered");
-    setAnchorEl(null);
-    handleMobileMenuClose();
+    handleMenuClose();
     navigate("/myAccount");
   };
 
-  const handleDashboardRed = () => {
-    setAnchorEl(null);
-    handleMobileMenuClose();
-    window.location.href = "/dashboard";
+  const handleDashboard = () => {
+    handleMenuClose();
+    navigate("/dashboard");
   };
 
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -79,7 +100,7 @@ export default function PrimarySearchAppBar() {
   };
 
   // Get user initials for fallback
-  const getUserInitials = () => {
+  const getUserInitials = React.useMemo(() => {
     if (!user) return "";
     const name = user.user_metadata?.full_name || user.email || "";
     return name
@@ -88,14 +109,24 @@ export default function PrimarySearchAppBar() {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  }, [user]);
+
+  // Get display name
+  const getDisplayName = () => {
+    return user?.user_metadata?.full_name || user?.email || "User";
   };
+
+  // Check if user is admin
+  const isAdmin = React.useMemo(() => {
+    return userRole?.role === "admin" || userRole === "admin";
+  }, [userRole]);
 
   const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
       anchorOrigin={{
-        vertical: "top",
+        vertical: "bottom",
         horizontal: "right",
       }}
       id={menuId}
@@ -106,10 +137,61 @@ export default function PrimarySearchAppBar() {
       }}
       open={isMenuOpen}
       onClose={handleMenuClose}
+      slotProps={{
+        paper: {
+          elevation: 3,
+          sx: {
+            minWidth: 200,
+            mt: 1.5,
+            borderRadius: 2,
+          },
+        },
+      }}
     >
-      <MenuItem onClick={handleDashboardRed}>Dashboard</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMyAccountRed}>My account</MenuItem>
+      {user ? (
+        <>
+          <Box sx={{ px: 2, py: 1.5 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+              {getDisplayName()}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {user?.email}
+            </Typography>
+          </Box>
+          <Divider />
+          {isAdmin && (
+            <MenuItem onClick={handleDashboard} sx={{ py: 1.5 }}>
+              <ListItemIcon>
+                <DashboardIcon fontSize="small" />
+              </ListItemIcon>
+              Dashboard
+            </MenuItem>
+          )}
+          <MenuItem onClick={handleMyAccount} sx={{ py: 1.5 }}>
+            <ListItemIcon>
+              <PersonIcon fontSize="small" />
+            </ListItemIcon>
+            My Account
+          </MenuItem>
+          <Divider />
+          <MenuItem
+            onClick={handleLogout}
+            sx={{ py: 1.5, color: "error.main" }}
+          >
+            <ListItemIcon>
+              <LogoutIcon fontSize="small" color="error" />
+            </ListItemIcon>
+            Logout
+          </MenuItem>
+        </>
+      ) : (
+        <MenuItem onClick={handleLogin} sx={{ py: 1.5, color: "primary.main" }}>
+          <ListItemIcon>
+            <LoginIcon fontSize="small" color="primary" />
+          </ListItemIcon>
+          Login
+        </MenuItem>
+      )}
     </Menu>
   );
 
@@ -118,7 +200,7 @@ export default function PrimarySearchAppBar() {
     <Menu
       anchorEl={mobileMoreAnchorEl}
       anchorOrigin={{
-        vertical: "top",
+        vertical: "bottom",
         horizontal: "right",
       }}
       id={mobileMenuId}
@@ -129,74 +211,92 @@ export default function PrimarySearchAppBar() {
       }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
+      slotProps={{
+        paper: {
+          elevation: 3,
+          sx: {
+            minWidth: 200,
+            mt: 1.5,
+            borderRadius: 2,
+          },
+        },
+      }}
     >
-      <MenuItem>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="error">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton
-          size="large"
-          aria-label="show 17 new notifications"
-          color="inherit"
-        >
-          <Badge badgeContent={17} color="error">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          size="large"
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          {user?.user_metadata?.avatar_url ? (
+      <Divider />
+      <MenuItem onClick={handleProfileMenuOpen} sx={{ py: 1.5 }}>
+        <ListItemIcon>
+          {loading ? (
+            <Skeleton variant="circular" width={24} height={24} />
+          ) : user?.user_metadata?.avatar_url ? (
             <Avatar
               src={user.user_metadata.avatar_url}
               alt={user.user_metadata?.full_name || user.email}
-              sx={{ width: 32, height: 32 }}
+              sx={{ width: 24, height: 24 }}
             />
           ) : (
-            <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
-              {getUserInitials()}
+            <Avatar
+              sx={{
+                width: 24,
+                height: 24,
+                bgcolor: "primary.main",
+                fontSize: "0.75rem",
+              }}
+            >
+              {getUserInitials}
             </Avatar>
           )}
-        </IconButton>
-        <p>Profile</p>
+        </ListItemIcon>
+        Profile
       </MenuItem>
     </Menu>
   );
+
+  const renderAvatar = () => {
+    if (loading) {
+      return <Skeleton variant="circular" width={32} height={32} />;
+    }
+
+    if (user?.user_metadata?.avatar_url) {
+      return (
+        <Avatar
+          src={user.user_metadata.avatar_url}
+          alt={user.user_metadata?.full_name || user.email}
+          sx={{ width: 32, height: 32 }}
+        />
+      );
+    }
+
+    return (
+      <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
+        {getUserInitials}
+      </Avatar>
+    );
+  };
 
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
         position="static"
         sx={{
-          backgroundColor: "#000f64c7",
+          backgroundColor: "rgba(0, 15, 100, 0.78)",
           color: "white",
           backdropFilter: "blur(10px)",
-          boxShadow: "none",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           zIndex: 1300,
         }}
       >
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
+          <Tooltip title="Menu">
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="open drawer"
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          </Tooltip>
           <Typography
             variant="h6"
             noWrap
@@ -204,55 +304,38 @@ export default function PrimarySearchAppBar() {
             sx={{
               display: { xs: "none", sm: "block" },
               cursor: "pointer",
+              fontWeight: 600,
+              transition: "opacity 0.2s",
+              "&:hover": {
+                opacity: 0.8,
+              },
             }}
             onClick={() => navigate("/")}
           >
             Discover Albania
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 1 }}>
-            <IconButton
-              size="large"
-              aria-label="show 4 new mails"
-              color="inherit"
-            >
-              <Badge badgeContent={4} color="error">
-                <MailIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-            >
-              <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              size="large"
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-              sx={{ ml: 1 }}
-            >
-              {loading ? (
-                <AccountCircle />
-              ) : user?.user_metadata?.avatar_url ? (
-                <Avatar
-                  src={user.user_metadata.avatar_url}
-                  alt={user.user_metadata?.full_name || user.email}
-                  sx={{ width: 32, height: 32 }}
-                />
-              ) : (
-                <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
-                  {getUserInitials()}
-                </Avatar>
-              )}
-            </IconButton>
+          <Box
+            sx={{
+              display: { xs: "none", md: "flex" },
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <Tooltip title="Account">
+              <IconButton
+                size="large"
+                edge="end"
+                aria-label="account of current user"
+                aria-controls={menuId}
+                aria-haspopup="true"
+                onClick={handleProfileMenuOpen}
+                color="inherit"
+                sx={{ ml: 1 }}
+              >
+                {renderAvatar()}
+              </IconButton>
+            </Tooltip>
           </Box>
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
             <IconButton

@@ -33,11 +33,11 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<OAuthSignInPage />} />
+          <Route path="/myAccount" element={<MyAccount />} />
           <Route path="/CultureDetails" element={<CultureDetails />} />
           <Route path="/hotels-map" element={<HotelMapPage />} />
           <Route path="/hotelReservation/:id" element={<HotelReservation />} />
-          <Route path="/auth" element={<OAuthSignInPage />} />
-          <Route path="/myAccount" element={<MyAccount />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
@@ -49,7 +49,10 @@ const App = () => (
               path="/dashboard/userManagement"
               element={<UserManagement />}
             />
-            <Route path="/dashboard/UserDetails" element={<UserDetails />} />
+            <Route
+              path="/dashboard/user-details/:userId"
+              element={<UserDetails />}
+            />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

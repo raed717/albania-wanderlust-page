@@ -7,11 +7,19 @@ interface CarPopupProps {
 
 export function CarPopup({ car }: CarPopupProps) {
   return (
-    <div className="w-64 space-y-3">
+    <div className="w-64 max-h-64 overflow-y-auto space-y-3 p-2">
       <div>
         <h3 className="font-semibold text-base">
           {car.brand} {car.name}
         </h3>
+        {/* car image */}
+        <img
+          src={car.image}
+          alt={`${car.brand} ${car.name}`}
+          className="w-full h-32 object-cover rounded-md"
+        />
+      </div>
+      <div>
         <p className="text-sm text-gray-600">{car.pickUpLocation}</p>
       </div>
 

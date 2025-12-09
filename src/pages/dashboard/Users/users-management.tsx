@@ -1,8 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Hsidebar from "@/components/dashboard/hsidebar";
 import DataTable from "react-data-table-component";
 import { CheckCircle, XCircle, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { userService } from "@/services/api/userService";
+import { UserProfile } from "@/types/user.types";
 
 const StatusBadge = ({ status }) => {
   const config = {
@@ -37,82 +39,48 @@ const RoleTag = ({ role }) => (
   </span>
 );
 
-const UsersData = [
-  {
-    id: 1,
-    name: "Alice Johnson",
-    email: "alice.j@example.com",
-    role: "client",
-    status: "active",
-    registered: "2023-10-01",
-  },
-  {
-    id: 2,
-    name: "Bob Smith",
-    email: "bob.s@example.com",
-    role: "staff",
-    status: "active",
-    registered: "2023-09-15",
-  },
-  {
-    id: 3,
-    name: "Charlie Brown",
-    email: "charlie.b@example.com",
-    role: "car_owner",
-    status: "suspended",
-    registered: "2023-11-20",
-  },
-  {
-    id: 4,
-    name: "Diana Prince",
-    email: "diana.p@example.com",
-    role: "apartment_owner",
-    status: "active",
-    registered: "2024-01-05",
-  },
-  {
-    id: 5,
-    name: "Eve Adams",
-    email: "eve.a@example.com",
-    role: "client",
-    status: "pending",
-    registered: "2024-03-10",
-  },
-  {
-    id: 6,
-    name: "Frank Miller",
-    email: "frank.m@example.com",
-    role: "staff",
-    status: "active",
-    registered: "2023-08-01",
-  },
-  {
-    id: 7,
-    name: "Grace Hall",
-    email: "grace.h@example.com",
-    role: "car_owner",
-    status: "active",
-    registered: "2024-05-25",
-  },
-  {
-    id: 8,
-    name: "Heidi Klum",
-    email: "heidi.k@example.com",
-    role: "client",
-    status: "active",
-    registered: "2023-12-12",
-  },
-];
-
-function goToUserDetails(userId) {
-  // navigate to /userDetails/id
-  window.location.href = `/dashboard/UserDetails?id=${userId}`;
+// Transform Supabase user data to display format
+function transformUserData(user: UserProfile) {
+  return {
+    id: user.id,
+    name: user.raw_user_meta_data?.full_name || user.email.split("@")[0],
+    email: user.email,
+    role: user.role || user.raw_user_meta_data?.role || "user",
+    status: "active", // You can add status field to user metadata if needed
+    registered: user.created_at
+      ? new Date(user.created_at).toLocaleDateString()
+      : "-",
+  };
 }
 
 function UserManagement() {
+  const [users, setUsers] = useState<ReturnType<typeof transformUserData>[]>(
+    []
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+
+  // Fetch users from Supabase
+  useEffect(() => {
+    async function fetchUsers() {
+      setLoading(true);
+      setError(null);
+      try {
+        const allUsers = await userService.getAllUsers();
+        const transformedUsers = allUsers.map(transformUserData);
+        setUsers(transformedUsers);
+      } catch (err: any) {
+        setError("Failed to load users");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUsers();
+  }, []);
 
   const columns = useMemo(
     () => [
@@ -144,12 +112,12 @@ function UserManagement() {
       {
         name: "Actions",
         cell: (row) => (
-          <button
-            onClick={() => goToUserDetails(row.id)}
+          <Link
+            to={`/dashboard/user-details/${row.id}`}
             className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100"
           >
             View Details
-          </button>
+          </Link>
         ),
       },
     ],
@@ -157,7 +125,7 @@ function UserManagement() {
   );
 
   const filteredData = useMemo(() => {
-    return UsersData.filter((u) => {
+    return users.filter((u) => {
       const matchesSearch =
         u.name.toLowerCase().includes(search.toLowerCase()) ||
         u.email.toLowerCase().includes(search.toLowerCase());
@@ -167,101 +135,111 @@ function UserManagement() {
 
       return matchesSearch && matchesRole && matchesStatus;
     });
-  }, [search, roleFilter, statusFilter]);
+  }, [search, roleFilter, statusFilter, users]);
 
   const stats = useMemo(() => {
     return {
-      total: UsersData.length,
-      active: UsersData.filter((u) => u.status === "active").length,
-      suspended: UsersData.filter((u) => u.status === "suspended").length,
-      pending: UsersData.filter((u) => u.status === "pending").length,
+      total: users.length,
+      active: users.filter((u) => u.status === "active").length,
+      suspended: users.filter((u) => u.status === "suspended").length,
+      pending: users.filter((u) => u.status === "pending").length,
     };
-  }, []);
+  }, [users]);
 
   return (
     <Hsidebar>
       <h3 className="text-2xl font-semibold mb-6">User Management</h3>
       <div className="p-6 space-y-6 w-full">
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Total Users" value={stats.total} />
-          <StatCard
-            label="Active"
-            value={stats.active}
-            color="text-green-600"
-          />
-          <StatCard
-            label="Suspended"
-            value={stats.suspended}
-            color="text-red-600"
-          />
-          <StatCard
-            label="Pending"
-            value={stats.pending}
-            color="text-yellow-600"
-          />
-        </div>
-
-        {/* Filters */}
-        <div className="p-4 bg-white rounded-lg shadow flex flex-wrap gap-4 items-center">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search by name or email..."
-              className="pl-8 pr-3 py-2 border rounded w-full sm:w-64"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <svg
-              className="absolute left-2 top-2.5 w-4 h-4 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z"
-              />
-            </svg>
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            {error}
           </div>
+        )}
 
-          <select
-            className="px-3 py-2 border rounded"
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-          >
-            <option value="">All Roles</option>
-            <option value="client">Client</option>
-            <option value="staff">Staff</option>
-            <option value="car_owner">Car Owner</option>
-            <option value="apartment_owner">Apartment Owner</option>
-          </select>
+        {loading ? (
+          <div className="p-8 text-center text-gray-600">Loading users...</div>
+        ) : (
+          <>
+            {/* Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard label="Total Users" value={stats.total} />
+              <StatCard
+                label="Active"
+                value={stats.active}
+                color="text-green-600"
+              />
+              <StatCard
+                label="Suspended"
+                value={stats.suspended}
+                color="text-red-600"
+              />
+              <StatCard
+                label="Pending"
+                value={stats.pending}
+                color="text-yellow-600"
+              />
+            </div>
 
-          <select
-            className="px-3 py-2 border rounded"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="">All Status</option>
-            <option value="active">Active</option>
-            <option value="suspended">Suspended</option>
-            <option value="pending">Pending</option>
-          </select>
-        </div>
+            {/* Filters */}
+            <div className="p-4 bg-white rounded-lg shadow flex flex-wrap gap-4 items-center">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search by name or email..."
+                  className="pl-8 pr-3 py-2 border rounded w-full sm:w-64"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <svg
+                  className="absolute left-2 top-2.5 w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z"
+                  />
+                </svg>
+              </div>
 
-        {/* Table */}
-        <div className="bg-white p-4 rounded-lg shadow">
-          <DataTable
-            columns={columns}
-            data={filteredData}
-            pagination
-            highlightOnHover
-            striped
-            dense
-          />
-        </div>
+              <select
+                className="px-3 py-2 border rounded"
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+              >
+                <option value="">All Roles</option>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+
+              <select
+                className="px-3 py-2 border rounded"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="suspended">Suspended</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+
+            {/* Table */}
+            <div className="bg-white p-4 rounded-lg shadow">
+              <DataTable
+                columns={columns}
+                data={filteredData}
+                pagination
+                highlightOnHover
+                striped
+                dense
+              />
+            </div>
+          </>
+        )}
       </div>
     </Hsidebar>
   );
