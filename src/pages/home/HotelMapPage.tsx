@@ -1,4 +1,4 @@
-import HotelMap from "../../components/home/map/HotelMap";
+import HotelMap from "../../components/home/data-map/HotelMap";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 
 const HotelMapPage = () => {

@@ -1,14 +1,19 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { getAllHotels } from "@/services/api/hotelService";
+import { getAllCars } from "@/services/api/carService";
 import { useApartmentData } from "./useStaticData";
 import { Apartment } from "./types";
 import { Hotel } from "@/types/hotel.types";
+import { Car } from "@/types/car.types";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useState, useEffect } from "react";
 import hotelIcon from "@/assets/map/hotel_icon.png";
 import apartmentIcon from "@/assets/map/home.png";
-import { Link } from "react-router-dom";
+import carIcon from "@/assets/map/car_icon.png";
+import { HotelPopup } from "./HotelPopup";
+import { ApartmentPopup } from "./ApartmentPopup";
+import { CarPopup } from "./CarPopup";
 
 const HotelIcon = new L.Icon({
   iconUrl: hotelIcon,
@@ -22,14 +27,24 @@ const ApartmentIcon = new L.Icon({
   iconAnchor: [12, 41],
 });
 
+const CarIcon = new L.Icon({
+  iconUrl: carIcon,
+  iconSize: [30, 30],
+  iconAnchor: [12, 41],
+});
+
 // Center of Albania (Tirana)
 const ALBANIA_CENTER: [number, number] = [41.3275, 19.8187];
 
 export default function HotelMap() {
   const [hotelsData, setHotelsData] = useState<Hotel[]>([]);
+  const [carsData, setCarsData] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const { data: apartments } = useApartmentData();
-  const [selected, setSelected] = useState<Hotel | Apartment | null>(null);
+  const [selected, setSelected] = useState<{
+    type: "hotel" | "apartment" | "car";
+    data: Hotel | Apartment | Car;
+  } | null>(null);
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -45,6 +60,22 @@ export default function HotelMap() {
     };
 
     fetchHotels();
+  }, []);
+
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const data = await getAllCars();
+        setCarsData(data || []);
+      } catch (error) {
+        console.error("Failed to fetch cars:", error);
+        setCarsData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCars();
   }, []);
 
   return (
@@ -64,46 +95,47 @@ export default function HotelMap() {
         {/* Markers */}
         {hotelsData?.map((hotel: Hotel) => (
           <Marker
-            key={hotel.id}
-            position={[hotel.lat, hotel.lng]}
+            key={`hotel-${hotel.id}`}
+            position={[hotel.lat || 0, hotel.lng || 0]}
             icon={HotelIcon}
             eventHandlers={{
-              click: () => setSelected(hotel),
+              click: () => setSelected({ type: "hotel", data: hotel }),
             }}
           />
         ))}
 
         {apartments?.map((apartment: Apartment) => (
           <Marker
-            key={apartment.id}
+            key={`apartment-${apartment.id}`}
             position={[apartment.lat, apartment.lng]}
             icon={ApartmentIcon}
             eventHandlers={{
-              click: () => setSelected(apartment),
+              click: () => setSelected({ type: "apartment", data: apartment }),
+            }}
+          />
+        ))}
+
+        {carsData?.map((car: Car) => (
+          <Marker
+            key={`car-${car.id}`}
+            position={[car.lat || 0, car.lng || 0]}
+            icon={CarIcon}
+            eventHandlers={{
+              click: () => setSelected({ type: "car", data: car }),
             }}
           />
         ))}
 
         {/* Popup */}
         {selected && (
-          <Popup position={[selected.lat, selected.lng]}>
-            <div className="space-y-1">
-              <h2 className="font-semibold text-base">{selected.name}</h2>
-              <p className="text-sm">{selected.location}</p>
-              {selected.price && (
-                <p className="text-sm font-medium">€{selected.price} / night</p>
-              )}
-              {"rating" in selected && selected.rating && (
-                <p className="text-xs text-yellow-600">★ {selected.rating}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Link to={`/hotel/${selected.id}`}>
-                <button className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition">
-                  View Details
-                </button>
-              </Link>
-            </div>
+          <Popup position={[selected.data.lat || 0, selected.data.lng || 0]}>
+            {selected.type === "hotel" && (
+              <HotelPopup hotel={selected.data as Hotel} />
+            )}
+            {selected.type === "apartment" && (
+              <ApartmentPopup apartment={selected.data as Apartment} />
+            )}
+            {selected.type === "car" && <CarPopup car={selected.data as Car} />}
           </Popup>
         )}
       </MapContainer>

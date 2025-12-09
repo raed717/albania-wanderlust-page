@@ -52,7 +52,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
   defaultZoom = 8,
   label = "Select Location on Map",
   showCoordinates = true,
-  openOnGoogleMaps = false,
+  openOnGoogleMaps = true,
 }) => {
   const mapPosition: [number, number] | null =
     lat !== undefined && lng !== undefined ? [lat, lng] : null;

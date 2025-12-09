@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import Index from "./pages/home/Index";
 import OAuthSignInPage from "./pages/home/Auth";
 import NotFound from "./pages/NotFound";
@@ -18,7 +19,7 @@ import UserDetails from "./pages/dashboard/Users/user-details";
 import MyAccount from "./pages/home/MyAccount";
 import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
-import CarDetails from "./pages/dashboard/Cars/carDetails";
+import CarDetails from "./pages/dashboard/Cars/CarDetails";
 import HotelReservation from "./pages/home/HotelReservation";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
@@ -56,6 +58,7 @@ const App = () => (
         <Footer />
       </BrowserRouter>
     </TooltipProvider>
+    <SpeedInsights />
   </QueryClientProvider>
 );
 
