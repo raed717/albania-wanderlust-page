@@ -41,6 +41,7 @@ interface MapPickerProps {
   defaultZoom?: number;
   label?: string;
   showCoordinates?: boolean;
+  openOnGoogleMaps?: boolean;
 }
 
 export const MapPicker: React.FC<MapPickerProps> = ({
@@ -51,6 +52,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
   defaultZoom = 8,
   label = "Select Location on Map",
   showCoordinates = true,
+  openOnGoogleMaps = false,
 }) => {
   const mapPosition: [number, number] | null =
     lat !== undefined && lng !== undefined ? [lat, lng] : null;
@@ -103,6 +105,19 @@ export const MapPicker: React.FC<MapPickerProps> = ({
               No location selected yet
             </div>
           )}
+        </div>
+      )}
+      {/* Google Maps Link */}
+      {openOnGoogleMaps && lat !== undefined && lng !== undefined && (
+        <div>
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline text-sm font-medium"
+          > 
+            Open in Google Maps
+          </a>
         </div>
       )}
     </div>

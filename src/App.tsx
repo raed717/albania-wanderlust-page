@@ -19,6 +19,7 @@ import MyAccount from "./pages/home/MyAccount";
 import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CarDetails from "./pages/dashboard/Cars/carDetails";
+import HotelReservation from "./pages/home/HotelReservation";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/CultureDetails" element={<CultureDetails />} />
           <Route path="/hotels-map" element={<HotelMapPage />} />
+          <Route path="/hotelReservation/:id" element={<HotelReservation />} />
           <Route path="/auth" element={<OAuthSignInPage />} />
           <Route path="/myAccount" element={<MyAccount />} />
 

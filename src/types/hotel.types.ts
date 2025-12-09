@@ -19,6 +19,13 @@ export interface Hotel {
   contactEmail?: string;
   contactPhone?: string;
   address?: string;
+  wifi?: boolean;
+  parking?: boolean;
+  pool?: boolean;
+  gym?: boolean;
+  spa?: boolean;
+  restaurant?: boolean;
+  bar?: boolean;
   lat?: number;
   lng?: number;
 }

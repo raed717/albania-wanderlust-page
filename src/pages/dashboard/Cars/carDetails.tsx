@@ -314,11 +314,37 @@ const CarDetails = () => {
                                         Brand
                                     </Label>
                                     {isEditing ? (
-                                        <Input
+                                        <select
                                             name="brand"
                                             value={formData.brand || ""}
                                             onChange={handleChange}
-                                        />
+                                            className="border border-gray-300 rounded-md p-2"
+                                        >
+                                            <option value="Toyota">Toyota</option>
+                                            <option value="Honda">Honda</option>
+                                            <option value="Ford">Ford</option>
+                                            <option value="Chevrolet">Chevrolet</option>
+                                            <option value="Dodge">Dodge</option>
+                                            <option value="BMW">BMW</option>
+                                            <option value="Audi">Audi</option>
+                                            <option value="Mercedes">Mercedes</option>
+                                            <option value="Volkswagen">Volkswagen</option>
+                                            <option value="Hyundai">Hyundai</option>
+                                            <option value="Kia">Kia</option>
+                                            <option value="Nissan">Nissan</option>
+                                            <option value="Mazda">Mazda</option>
+                                            <option value="Subaru">Subaru</option>
+                                            <option value="Lexus">Lexus</option>
+                                            <option value="Jaguar">Jaguar</option>
+                                            <option value="Porsche">Porsche</option>
+                                            <option value="Ferrari">Ferrari</option>
+                                            <option value="Lamborghini">Lamborghini</option>
+                                            <option value="Maserati">Maserati</option>
+                                            <option value="Bentley">Bentley</option>
+                                            <option value="Rolls-Royce">Rolls-Royce</option>
+                                            <option value="Lamborghini">Lamborghini</option>
+                                            <option value="Other">Other</option>
+                                        </select>
                                     ) : (
                                         <p className="text-gray-700">{car.brand}</p>
                                     )}
@@ -331,11 +357,16 @@ const CarDetails = () => {
                                         Type
                                     </Label>
                                     {isEditing ? (
-                                        <Input
+                                        <select
                                             name="type"
                                             value={formData.type || ""}
                                             onChange={handleChange}
-                                        />
+                                            className="border border-gray-300 rounded-md p-2"
+                                        >
+                                            <option value="Sedan">Sedan</option>
+                                            <option value="SUV">SUV</option>
+                                            <option value="Sports">Sports</option>
+                                        </select>
                                     ) : (
                                         <p className="text-gray-700">{car.type}</p>
                                     )}

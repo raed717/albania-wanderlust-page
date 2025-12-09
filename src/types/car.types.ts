@@ -2,7 +2,7 @@ export interface Car {
     id: number;
     name: string;
     brand: string;
-    type: string;
+    type: "Sedan" | "SUV" | "Sports";
     year: number;
     transmission: "Manual" | "Automatic";
     fuelType: "Petrol" | "Diesel" | "Hybrid" | "Electric";
@@ -22,7 +22,7 @@ export interface Car {
 export interface CreateCarDto {
     name: string;
     brand: string;
-    type: string;
+    type: "Sedan" | "SUV" | "Sports";
     year: number;
     transmission: "Manual" | "Automatic";
     fuelType: "Petrol" | "Diesel" | "Hybrid" | "Electric";
@@ -42,7 +42,7 @@ export interface CreateCarDto {
 export interface UpdateCarDto {
     name?: string;
     brand?: string;
-    type?: string;
+    type?: "Sedan" | "SUV" | "Sports";
     year?: number;
     transmission?: "Manual" | "Automatic";
     fuelType?: "Petrol" | "Diesel" | "Hybrid" | "Electric";

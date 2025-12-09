@@ -213,20 +213,15 @@ const AllCars = () => {
     <Hsidebar>
       <div className="p-4 sm:p-6 lg:p-8 font-['Inter'] min-h-screen bg-gray-50">
         {/* Header */}
-        <div style={{ marginBottom: "32px" }}>
-          <h1
-            style={{
-              fontSize: "32px",
-              fontWeight: 700,
-              color: "#111827",
-              marginBottom: "8px",
-            }}
-          >
-            Fleet Management
-          </h1>
-          <p style={{ color: "#6b7280", fontSize: "16px" }}>
-            Manage your entire car rental fleet in one place
-          </p>
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              All Cars
+            </h1>
+            <p className="text-gray-500 text-lg">
+              Manage and monitor all your fleet
+            </p>
+          </div>
           <AddCarDialog onCarAdded={handleCarAdded} />
         </div>
 
@@ -415,7 +410,6 @@ const AllCars = () => {
               <option value="Sedan">Sedan</option>
               <option value="SUV">SUV</option>
               <option value="Sports">Sports</option>
-              <option value="Hybrid">Hybrid</option>
             </select>
 
             {/* Transmission Filter */}
@@ -653,7 +647,7 @@ const AllCars = () => {
                       marginBottom: "16px",
                     }}
                   >
-                    {car.features?.slice(0, 3).map((feature, index) => (
+                    {car.features?.map((feature, index) => (
                       <span
                         key={index}
                         style={{

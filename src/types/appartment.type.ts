@@ -7,11 +7,9 @@
 export interface Appartment {
     id: number;
     name: string;
-    location: string;
     rating: number;
     rooms: number;
-    occupancy: number;
-    price: number;
+    pricePerDay: number;
     status: "active" | "maintenance";
     image: string;
     description?: string;
@@ -25,11 +23,9 @@ export interface Appartment {
 
 export interface CreateAppartmentDto {
     name: string;
-    location: string;
     rating: number;
     rooms: number;
-    occupancy: number;
-    price: number;
+    pricePerDay: number;
     status: "active" | "maintenance";
     image: string;
     description?: string;
@@ -43,11 +39,9 @@ export interface CreateAppartmentDto {
 
 export interface UpdateAppartmentDto {
     name?: string;
-    location?: string;
     rating?: number;
     rooms?: number;
-    occupancy?: number;
-    price?: number;
+    pricePerDay?: number;
     status?: "active" | "maintenance";
     image?: string;
     description?: string;

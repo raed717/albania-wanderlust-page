@@ -28,7 +28,6 @@ const CultureDetails = () => {
       region: "Central Albania",
       type: "Main Course",
       image: "Tave-Kosi-recipe-joghurt.jpg",
-      icon: "🍖",
     },
     {
       name: "Byrek",
@@ -37,7 +36,6 @@ const CultureDetails = () => {
       region: "Nationwide",
       type: "Pastry",
       image: "byrek.png",
-      icon: "🥐",
     },
     {
       name: "Fërgesë",
@@ -46,7 +44,6 @@ const CultureDetails = () => {
       region: "Tirana",
       type: "Main Course",
       image: "Fërgesë.jpeg",
-      icon: "🍲",
     },
     {
       name: "Qofte",
@@ -55,7 +52,6 @@ const CultureDetails = () => {
       region: "Nationwide",
       type: "Main Course",
       image: "Boulettes.webp",
-      icon: "🍢",
     },
     {
       name: "Baklava",
@@ -64,7 +60,6 @@ const CultureDetails = () => {
       region: "Southern Albania",
       type: "Dessert",
       image: "DSC_6546.jpg",
-      icon: "🍰",
     },
     {
       name: "Raki",
@@ -73,7 +68,6 @@ const CultureDetails = () => {
       region: "Nationwide",
       type: "Beverage",
       image: "rakija-boisson-alcoolisee.jpg",
-      icon: "🥃",
     },
   ];
 
@@ -83,28 +77,24 @@ const CultureDetails = () => {
       date: "March 14",
       description:
         "Ancient pagan festival celebrating the end of winter with traditional sweets and outdoor activities.",
-      icon: "🌸",
     },
     {
       name: "Independence Day",
       date: "November 28",
       description:
         "Celebrating Albania's independence from the Ottoman Empire in 1912 with parades and festivities.",
-      icon: "🇦🇱",
     },
     {
       name: "National Folklore Festival",
       date: "May (Every 5 years)",
       description:
         "Gjirokastër hosts this spectacular showcase of traditional music, dance, and costumes.",
-      icon: "🎭",
     },
     {
       name: "Kala Festival",
       date: "August",
       description:
         "Electronic music festival held in the historic Dhërmi Castle overlooking the Ionian Sea.",
-      icon: "🎵",
     },
   ];
 
@@ -228,9 +218,6 @@ const CultureDetails = () => {
                   </div>
 
                   <CardContent className="p-6">
-                    <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                      {dish.icon}
-                    </div>
                     <h3 className="text-2xl font-bold mb-2">{dish.name}</h3>
                     <p className="text-blue-700/70 mb-4">{dish.description}</p>
 
@@ -298,11 +285,6 @@ const CultureDetails = () => {
                 >
                   <CardContent className="p-8">
                     <div className="flex flex-col md:flex-row gap-6 items-start">
-                      <div className="flex-shrink-0">
-                        <div className="text-6xl group-hover:scale-110 transition-transform duration-300">
-                          {festival.icon}
-                        </div>
-                      </div>
                       <div className="flex-1">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3">
                           <h3 className="text-2xl font-bold">

@@ -28,13 +28,13 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({
     const [formData, setFormData] = useState({
         name: "",
         brand: "",
-        type: "",
+        type: "Sedan" as "Sedan" | "SUV" | "Sports",
         year: new Date().getFullYear(),
         transmission: "Manual" as "Manual" | "Automatic",
         fuelType: "Petrol" as "Petrol" | "Diesel" | "Hybrid" | "Electric",
         seats: 5,
         mileage: 0,
-        pricePerDay: 0,
+        pricePerDay: 10,
         status: "available" as "available" | "rented" | "maintenance",
         color: "",
         plateNumber: "",
@@ -115,13 +115,13 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({
             setFormData({
                 name: "",
                 brand: "",
-                type: "",
+                type: "Sedan",
                 year: new Date().getFullYear(),
                 transmission: "Manual",
                 fuelType: "Petrol",
                 seats: 5,
                 mileage: 0,
-                pricePerDay: 0,
+                pricePerDay: 10,
                 status: "available",
                 color: "",
                 plateNumber: "",
@@ -194,14 +194,16 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({
                             <Label htmlFor="type" className="text-sm font-medium">
                                 Type
                             </Label>
-                            <Input
+                            <select
                                 id="type"
                                 name="type"
                                 value={formData.type}
-                                onChange={handleChange}
-                                placeholder="Sedan, SUV, Sports..."
-                                className="w-full"
-                            />
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            >
+                                <option value="Sedan">Sedan</option>
+                                <option value="SUV">SUV</option>
+                                <option value="Sports">Sports</option>
+                            </select>
                         </div>
 
                         {/* Year */}
@@ -302,7 +304,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({
                                 id="pricePerDay"
                                 name="pricePerDay"
                                 type="number"
-                                min="0"
+                                min="10"
                                 value={formData.pricePerDay}
                                 onChange={handleChange}
                                 placeholder="89"
