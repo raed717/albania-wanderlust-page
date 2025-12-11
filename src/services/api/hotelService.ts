@@ -11,7 +11,6 @@ export const getAllHotels = async (): Promise<Hotel[]> => {
     console.error("[Hotel Service] Error fetching hotels:", error);
     throw error;
   }
-  console.log("[Hotel Service] Successfully fetched hotels:", data);
   return data;
 };
 
@@ -31,8 +30,6 @@ export const getHotelById = async (id: number): Promise<Hotel | null> => {
     console.error(`[Hotel Service] Error fetching hotel ID ${id}:`, error);
     throw error;
   }
-
-  console.log(`[Hotel Service] Successfully fetched hotel ID: ${id}`, data);
   return data;
 };
 

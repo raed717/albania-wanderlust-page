@@ -63,8 +63,7 @@ export default function ReservationPickerValue() {
       console.log("✅ API Response:", { responseData });
     } catch (error: any) {
       console.error(
-        `❌ Request failed with status code ${
-          error?.response?.status || "unknown"
+        `❌ Request failed with status code ${error?.response?.status || "unknown"
         }`,
         error?.response?.data || error.message
       );
@@ -81,15 +80,16 @@ export default function ReservationPickerValue() {
           flexDirection: { xs: "column", md: "row" },
           alignItems: "center",
           justifyContent: "center",
-          gap: 2,
-          p: 3,
+          gap: { xs: 1.5, sm: 2 },
+          p: { xs: 2, sm: 2.5, md: 3 },
           backgroundColor: "white",
           opacity: 0.85,
-          borderRadius: 3,
+          borderRadius: { xs: 2, md: 3 },
           boxShadow: 3,
-          width: "fit-content",
+          maxWidth: { xs: "95%", sm: "90%", md: "fit-content" },
+          width: { xs: "95%", sm: "auto" },
           mx: "auto",
-          my: 4,
+          my: { xs: 2, md: 4 },
         }}
       >
         <TextField
@@ -97,7 +97,7 @@ export default function ReservationPickerValue() {
           value={destination}
           onChange={(e) => setDestination(e.target.value)}
           variant="outlined"
-          sx={{ minWidth: 200 }}
+          sx={{ minWidth: { xs: "100%", sm: 200 } }}
         />
 
         <DatePicker
@@ -110,7 +110,7 @@ export default function ReservationPickerValue() {
               setCheckoutError("");
             }
           }}
-          slotProps={{ textField: { variant: "outlined" } }}
+          slotProps={{ textField: { variant: "outlined", sx: { width: { xs: "100%", sm: "auto" } } } }}
         />
 
         <DatePicker
@@ -122,51 +122,52 @@ export default function ReservationPickerValue() {
               variant: "outlined",
               error: !!checkoutError,
               helperText: checkoutError,
+              sx: { width: { xs: "100%", sm: "auto" } }
             },
           }}
         />
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
-          <Typography sx={{ color: "text.primary", fontWeight: 500 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, sm: 0 }, width: { xs: "100%", sm: "auto" }, justifyContent: { xs: "space-between", sm: "flex-start" } }}>
+          <Typography sx={{ color: "text.primary", fontWeight: 500, fontSize: { xs: "0.875rem", sm: "1rem" } }}>
             Adults:
           </Typography>
-          <IconButton onClick={() => handleDecrement(setAdults)}>
+          <IconButton onClick={() => handleDecrement(setAdults)} size="small">
             <Remove />
           </IconButton>
-          <Typography sx={{ color: "text.primary", fontWeight: 500 }}>
+          <Typography sx={{ color: "text.primary", fontWeight: 500, fontSize: { xs: "0.875rem", sm: "1rem" } }}>
             {adults}
           </Typography>
-          <IconButton onClick={() => handleIncrement(setAdults)}>
+          <IconButton onClick={() => handleIncrement(setAdults)} size="small">
             <Add />
           </IconButton>
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
-          <Typography sx={{ color: "text.primary", fontWeight: 500 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, sm: 0 }, width: { xs: "100%", sm: "auto" }, justifyContent: { xs: "space-between", sm: "flex-start" } }}>
+          <Typography sx={{ color: "text.primary", fontWeight: 500, fontSize: { xs: "0.875rem", sm: "1rem" } }}>
             Children:
           </Typography>
-          <IconButton onClick={() => handleDecrement(setChildren)}>
+          <IconButton onClick={() => handleDecrement(setChildren)} size="small">
             <Remove />
           </IconButton>
-          <Typography sx={{ color: "text.primary", fontWeight: 500 }}>
+          <Typography sx={{ color: "text.primary", fontWeight: 500, fontSize: { xs: "0.875rem", sm: "1rem" } }}>
             {children}
           </Typography>
-          <IconButton onClick={() => handleIncrement(setChildren)}>
+          <IconButton onClick={() => handleIncrement(setChildren)} size="small">
             <Add />
           </IconButton>
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
-          <Typography sx={{ color: "text.primary", fontWeight: 500 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, sm: 0 }, width: { xs: "100%", sm: "auto" }, justifyContent: { xs: "space-between", sm: "flex-start" } }}>
+          <Typography sx={{ color: "text.primary", fontWeight: 500, fontSize: { xs: "0.875rem", sm: "1rem" } }}>
             Rooms:
           </Typography>
-          <IconButton onClick={() => handleDecrement(setRooms)}>
+          <IconButton onClick={() => handleDecrement(setRooms)} size="small">
             <Remove />
           </IconButton>
-          <Typography sx={{ color: "text.primary", fontWeight: 500 }}>
+          <Typography sx={{ color: "text.primary", fontWeight: 500, fontSize: { xs: "0.875rem", sm: "1rem" } }}>
             {rooms}
           </Typography>
-          <IconButton onClick={() => handleIncrement(setRooms)}>
+          <IconButton onClick={() => handleIncrement(setRooms)} size="small">
             <Add />
           </IconButton>
         </Box>
@@ -176,7 +177,7 @@ export default function ReservationPickerValue() {
           color="primary"
           disabled={!!checkoutError || loading}
           onClick={handleSearch}
-          sx={{ px: 4, py: 1.5, fontWeight: "bold" }}
+          sx={{ px: 4, py: 1.5, fontWeight: "bold", width: { xs: "100%", sm: "auto" } }}
         >
           {loading ? "Loading..." : "Search"}
         </Button>

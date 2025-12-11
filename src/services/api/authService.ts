@@ -25,7 +25,8 @@ export const authService = {
     // Create user profile in public.users table with default role
     if (data.user && !error) {
       console.log("Creating user profile for new user:", data.user.id);
-      await this.ensureUserProfile(data.user.id, data.user.email || "");
+      console.log("Creating user data:", data);
+      await this.ensureUserProfile(data.user.id, data.user.user_metadata || "");
     }
 
     return { user: data.user, session: data.session, error };
@@ -119,13 +120,15 @@ export const authService = {
   /**
    * Ensure user profile exists in public.users table
    */
-  async ensureUserProfile(userId: string, email: string) {
+  async ensureUserProfile(userId: string, user_metadata: any) {
     try {
       const { error } = await apiClient.from("users").upsert(
         {
           id: userId,
-          email,
-          role: "user", // Set default role
+          email: user_metadata.email,
+          full_name: user_metadata.full_name || "",
+          location: user_metadata.location || "",
+          role: "user", // Set default role      
         },
         { onConflict: "id" }
       );

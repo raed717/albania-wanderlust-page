@@ -1,21 +1,27 @@
 import { apiClient } from "./apiClient";
-import { UserProfile, UpdateUserProfileData } from "@/types/user.types";
+import {
+  UserProfile,
+  UpdateUserProfileData,
+  User,
+  UpdateUser,
+} from "@/types/user.types";
 
 class UserService {
   /**
    * Get current user profile
    */
-  async getCurrentUser(): Promise<UserProfile> {
+  async getCurrentUser(): Promise<User> {
     const { data, error } = await apiClient.auth.getUser();
     if (error) throw error;
-    return data.user as UserProfile;
+    const response = await this.getUserById(data.user?.id!);
+    return response as User;
   }
 
-  async getUserById(userId: string): Promise<UserProfile> {
+  async getUserById(userId: string): Promise<User> {
     const { data, error } = await apiClient
       .from("users")
       .select(
-        "id, email, role, phone, created_at, updated_at, full_name, avatar_url, bio, location"
+        "id, email, role, phone, created_at, updated_at, full_name, avatar_url, bio, location, status"
       )
       .eq("id", userId)
       .single();
@@ -27,23 +33,22 @@ class UserService {
       phone: data.phone,
       created_at: data.created_at,
       updated_at: data.updated_at,
-      raw_user_meta_data: {
-        full_name: data.full_name,
-        avatar_url: data.avatar_url,
-        bio: data.bio,
-        location: data.location,
-      },
+      full_name: data.full_name,
+      avatar_url: data.avatar_url,
+      bio: data.bio,
+      location: data.location,
+      status: data.status,
     };
   }
 
   /**
    * get all users
    */
-  async getAllUsers(): Promise<UserProfile[]> {
+  async getAllUsers(): Promise<User[]> {
     const { data, error } = await apiClient
       .from("users")
       .select(
-        "id, email, role, phone, created_at, updated_at, full_name, avatar_url, bio, location"
+        "id, email, role, phone, created_at, updated_at, full_name, avatar_url, bio, location, status"
       );
     if (error) throw error;
     return data.map((user: any) => ({
@@ -53,22 +58,18 @@ class UserService {
       phone: user.phone,
       created_at: user.created_at,
       updated_at: user.updated_at,
-      raw_user_meta_data: {
-        full_name: user.full_name,
-        avatar_url: user.avatar_url,
-        bio: user.bio,
-        location: user.location,
-      },
+      full_name: user.full_name,
+      location: user.location,
+      status: user.status,
+      avatar_url: user.avatar_url,
+      bio: user.bio,
     }));
   }
 
   /**
    * Update user profile
    */
-  async updateProfile(
-    userId: string,
-    updates: UpdateUserProfileData
-  ): Promise<UserProfile> {
+  async updateProfile(userId: string, updates: UpdateUser): Promise<User> {
     // Update users table with new profile data
     const { data, error } = await apiClient
       .from("users")
@@ -83,7 +84,7 @@ class UserService {
       })
       .eq("id", userId)
       .select(
-        "id, email, role, phone, created_at, updated_at, full_name, avatar_url, bio, location"
+        "id, email, role, phone, created_at, updated_at, full_name, avatar_url, bio, location, status"
       )
       .single();
     if (error) throw error;
@@ -94,12 +95,11 @@ class UserService {
       phone: data.phone,
       created_at: data.created_at,
       updated_at: data.updated_at,
-      raw_user_meta_data: {
-        full_name: data.full_name,
-        avatar_url: data.avatar_url,
-        bio: data.bio,
-        location: data.location,
-      },
+      full_name: data.full_name,
+      avatar_url: data.avatar_url,
+      bio: data.bio,
+      location: data.location,
+      status: data.status,
     };
   }
 

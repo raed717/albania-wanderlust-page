@@ -54,8 +54,6 @@ const HotelsPreview = () => {
     );
   }, [hotels]);
 
-  console.log("Filtered Hotels:", availableTopHotels);
-
   return (
     <section id="hotels" className="py-24 bg-slate-100">
       <div className="container mx-auto px-4">

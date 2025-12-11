@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "@/services/api/authService";
+import Swal from "sweetalert2";
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -49,7 +51,7 @@ export default function AuthPage() {
       setSuccess("Sign in successful!");
       // Navigate to dashboard or home after short delay
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/");
       }, 1000);
     } catch (err: any) {
       console.error("Login error:", err);
@@ -65,7 +67,7 @@ export default function AuthPage() {
     setSuccess("");
     setLoading(true);
 
-    if (!email || !password || !confirmPassword || !name) {
+    if (!email || !password || !confirmPassword || !name || !location) {
       setError("Please fill in all fields");
       setLoading(false);
       return;
@@ -90,6 +92,7 @@ export default function AuthPage() {
         options: {
           data: {
             full_name: name,
+            location: location
           },
         },
       });
@@ -99,11 +102,17 @@ export default function AuthPage() {
       setSuccess(
         "Account created! Please check your email to verify your account."
       );
+      Swal.fire(
+        "Signup Successful",
+        "Account created! Please check your email to verify your account.",
+        "success"
+      );
       // Clear form
       setEmail("");
       setPassword("");
       setConfirmPassword("");
       setName("");
+      setLocation("");
     } catch (err: any) {
       console.error("Signup error:", err);
       setError(err.message || "Failed to create account");
@@ -162,6 +171,19 @@ export default function AuthPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-semibold mb-2">
+                Location
+              </label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -323,34 +345,6 @@ export default function AuthPage() {
             className="w-full bg-white border-2 border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors font-semibold"
           >
             Create account manually
-          </button>
-
-          <button
-            onClick={() => {
-              authService.getSession();
-            }}
-            className="w-full bg-white border-2 border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors font-semibold"
-          >
-            getSession
-          </button>
-          <button
-            onClick={async () => {
-              try {
-                const { error, success } = await authService.signOut();
-                if (error) {
-                  setError("Failed to sign out");
-                  console.error(error);
-                } else if (success) {
-                  setSuccess("Signed out successfully");
-                  setTimeout(() => navigate("/"), 1500);
-                }
-              } catch (err: any) {
-                setError("Error signing out: " + err.message);
-              }
-            }}
-            className="w-full bg-white border-2 border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors font-semibold"
-          >
-            logout
           </button>
         </div>
 

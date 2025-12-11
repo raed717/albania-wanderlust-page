@@ -1,3 +1,4 @@
+// table auth.users
 export interface UserProfile {
   id: string;
   email: string;
@@ -21,4 +22,29 @@ export interface UpdateUserProfileData {
   bio?: string;
   location?: string;
   role?: "user" | "admin";
+}
+
+// table public.users
+export interface User {
+  id: string;
+  email: string;
+  full_name?: string;
+  avatar_url?: string;
+  phone?: string;
+  bio?: string;
+  location?: string;
+  role?: "user" | "admin";
+  status: "active" | "suspended";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UpdateUser {
+  full_name?: string;
+  avatar_url?: string;
+  phone?: string;
+  bio?: string;
+  location?: string;
+  role?: "user" | "admin";
+  status?: "active" | "suspended";
 }

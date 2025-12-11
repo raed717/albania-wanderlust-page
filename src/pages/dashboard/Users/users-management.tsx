@@ -4,7 +4,7 @@ import DataTable from "react-data-table-component";
 import { CheckCircle, XCircle, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { userService } from "@/services/api/userService";
-import { UserProfile } from "@/types/user.types";
+import { User } from "@/types/user.types";
 
 const StatusBadge = ({ status }) => {
   const config = {
@@ -40,13 +40,13 @@ const RoleTag = ({ role }) => (
 );
 
 // Transform Supabase user data to display format
-function transformUserData(user: UserProfile) {
+function transformUserData(user: User) {
   return {
     id: user.id,
-    name: user.raw_user_meta_data?.full_name || user.email.split("@")[0],
+    name: user.full_name || user.email.split("@")[0],
     email: user.email,
-    role: user.role || user.raw_user_meta_data?.role || "user",
-    status: "active", // You can add status field to user metadata if needed
+    role: user.role,
+    status: user.status, // You can add status field to user metadata if needed
     registered: user.created_at
       ? new Date(user.created_at).toLocaleDateString()
       : "-",
@@ -70,6 +70,7 @@ function UserManagement() {
       setError(null);
       try {
         const allUsers = await userService.getAllUsers();
+        console.log("Fetched users:", allUsers);
         const transformedUsers = allUsers.map(transformUserData);
         setUsers(transformedUsers);
       } catch (err: any) {
@@ -142,7 +143,6 @@ function UserManagement() {
       total: users.length,
       active: users.filter((u) => u.status === "active").length,
       suspended: users.filter((u) => u.status === "suspended").length,
-      pending: users.filter((u) => u.status === "pending").length,
     };
   }, [users]);
 
@@ -172,11 +172,6 @@ function UserManagement() {
                 label="Suspended"
                 value={stats.suspended}
                 color="text-red-600"
-              />
-              <StatCard
-                label="Pending"
-                value={stats.pending}
-                color="text-yellow-600"
               />
             </div>
 

@@ -97,7 +97,7 @@ const Hsidebar = ({ children }) => {
               icon={<LayoutDashboard size={20} />}
               component={<Link to="/" />}
             >
-              Dashboard
+              Home
             </MenuItem>
 
             {/* SubMenu structure */}

@@ -1,9 +1,9 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Hsidebar from "@/components/dashboard/hsidebar";
-import { ArrowLeft, Edit, Ban, Mail, Calendar, User, X } from "lucide-react";
+import { ArrowLeft, Edit, Ban, Mail, Calendar, X, Contact, Badge  } from "lucide-react";
 import { userService } from "@/services/api/userService";
-import { UserProfile, UpdateUserProfileData } from "@/types/user.types";
+import { User, UpdateUserProfileData, UpdateUser } from "@/types/user.types";
 
 // --- Components ---
 
@@ -49,7 +49,7 @@ const StatusBadge = ({ status }) => {
  */
 const RoleTag = ({ role }) => (
   <span className="px-3 py-1 text-sm font-semibold rounded-full bg-indigo-100 text-indigo-800 shadow-sm capitalize">
-    <User className="inline-block w-4 h-4 mr-1" />
+    <Contact className="inline-block w-4 h-4 mr-1" />
     {(role || "user").replace("_", " ")}
   </span>
 );
@@ -58,10 +58,10 @@ const RoleTag = ({ role }) => (
 
 function UserDetails() {
   const { userId } = useParams();
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
-  const [editData, setEditData] = useState<UpdateUserProfileData>({});
+  const [editData, setEditData] = useState<UpdateUser>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -84,12 +84,13 @@ function UserDetails() {
   const handleEditOpen = () => {
     if (!user) return;
     setEditData({
-      full_name: user.raw_user_meta_data?.full_name,
-      avatar_url: user.raw_user_meta_data?.avatar_url,
+      full_name: user.full_name,
+      avatar_url: user.avatar_url,
       phone: user.phone,
-      bio: user.raw_user_meta_data?.bio,
-      location: user.raw_user_meta_data?.location,
+      bio: user.bio,
+      location: user.location,
       role: user.role,
+      status: user.status,
     });
     setEditOpen(true);
   };
@@ -168,20 +169,18 @@ function UserDetails() {
               <img
                 className="w-24 h-24 rounded-full object-cover shadow-md ring-4 ring-indigo-500/30"
                 src={
-                  user.raw_user_meta_data?.avatar_url ||
-                  "https://i.pravatar.cc/150?u=" + user.id
+                  user.avatar_url || "https://i.pravatar.cc/150?u=" + user.id
                 }
-                alt={user.raw_user_meta_data?.full_name || user.email}
+                alt={user.full_name || user.email}
               />
               {/* Basic Info */}
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">
-                  {user.raw_user_meta_data?.full_name || user.email}
+                  {user.full_name || user.email}
                 </h2>
                 <div className="mt-2 flex items-center gap-4">
-                  <RoleTag
-                    role={user.role || user.raw_user_meta_data?.role || "user"}
-                  />
+                  <RoleTag role={user.role || "user"} />
+                  <StatusBadge status={user.status } />
                   {/* StatusBadge can be customized if you add status to metadata */}
                 </div>
               </div>
@@ -278,7 +277,7 @@ function UserDetails() {
                 Address
               </dt>
               <dd className="text-base text-gray-900">
-                {user.raw_user_meta_data?.location || "-"}
+                {user.location || "-"}
               </dd>
             </div>
           </div>

@@ -31,8 +31,12 @@ const Hero = () => {
       <div className="absolute inset-0 z-0">
         <Slide duration={2000}>
           {slideImages.map((slideImage, index) => (
-            <div key={index}>
-              <img src={slideImage.image} />
+            <div key={index} className="w-full h-screen">
+              <img
+                src={slideImage.image}
+                className="w-full h-full object-cover"
+                alt={`Albania slide ${index + 1}`}
+              />
             </div>
           ))}
         </Slide>
@@ -40,18 +44,18 @@ const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 text-center text-white">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
         <div className="animate-fade-in-up">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <MapPin className="w-6 h-6 text-primary" />
-            <span className="text-lg font-medium">
+          <div className="flex items-center justify-center gap-2 mb-4 md:mb-6">
+            <MapPin className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+            <span className="text-sm md:text-lg font-medium">
               Southeast Europe's Hidden Gem
             </span>
           </div>
 
-          <h1 className="mb-6 text-balance">Discover Albania</h1>
+          <h1 className="mb-4 md:mb-6 text-3xl md:text-5xl lg:text-6xl font-bold text-balance">Discover Albania</h1>
 
-          <p className="text-xl md:text-2xl mb-12 max-w-3xl mx-auto text-balance opacity-90">
+          <p className="text-base md:text-xl lg:text-2xl mb-6 md:mb-8 max-w-3xl mx-auto text-balance opacity-90 px-2">
             From the Alps to the Adriatic — a land of wonder, ancient history,
             and breathtaking beauty
           </p>
@@ -60,27 +64,27 @@ const Hero = () => {
             <ReservationPickerValue />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
 
             <Button
               size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 rounded-full shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm md:text-lg px-6 py-4 md:px-8 md:py-6 rounded-full shadow-xl hover:shadow-2xl transition-all hover:scale-105 w-full sm:w-auto"
               onClick={() => scrollToSection("destinations")}
             >
               Explore Destinations
-              <ArrowRight className="ml-2 w-5 h-5" />
+              <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
             </Button>
 
             <Button
               size="lg"
               variant="outline"
-              className="bg-white/10 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-foreground text-lg px-8 py-6 rounded-full transition-all hover:scale-105"
+              className="bg-white/10 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-foreground text-sm md:text-lg px-6 py-4 md:px-8 md:py-6 rounded-full transition-all hover:scale-105 w-full sm:w-auto"
               onClick={() => scrollToSection("culture")}
             >
               Discover Culture
             </Button>
           </div>
-          <div className="flex justify-center mt-6">
+          <div className="flex justify-center mt-4 md:mt-6">
             <Link
               to="/hotels-map"
               className="px-6 py-3 bg-foreground text-background rounded-full font-semibold hover:bg-foreground/90 transition inline-block text-center"

@@ -4,13 +4,9 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import Badge from "@mui/material/Badge";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import MailIcon from "@mui/icons-material/Mail";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
@@ -23,14 +19,17 @@ import Skeleton from "@mui/material/Skeleton";
 import Tooltip from "@mui/material/Tooltip";
 import { useNavigate } from "react-router-dom";
 import { authService } from "@/services/api/authService";
+import { userService } from "@/services/api/userService";
+import { User } from "@/types/user.types";
 
 export default function PrimarySearchAppBar() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     React.useState<null | HTMLElement>(null);
-  const [user, setUser] = React.useState<any>(null);
+  const [user, setUser] = React.useState<User>(null);
   const [userRole, setUserRole] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
+  const [avatarError, setAvatarError] = React.useState(false);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -40,14 +39,24 @@ export default function PrimarySearchAppBar() {
   React.useEffect(() => {
     const fetchUser = async () => {
       try {
-        const [currentUser, role] = await Promise.all([
-          authService.getCurrentUser(),
-          authService.getCurrentUserRole(),
-        ]);
+        const currentUser = await userService.getCurrentUser();
+
+        // Not signed in → stop here
+        if (!currentUser) {
+          console.log("user not found ");
+
+          setUser(null);
+          setUserRole(null);
+          return;
+        }
+
+        // User exists → fetch role;
         setUser(currentUser);
-        setUserRole(role);
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
+        setUserRole(currentUser.role);
+      } catch {
+        // Silent fail — user likely not authenticated
+        setUser(null);
+        setUserRole(null);
       } finally {
         setLoading(false);
       }
@@ -55,6 +64,15 @@ export default function PrimarySearchAppBar() {
 
     fetchUser();
   }, []);
+
+  // Debug user state after it updates
+  React.useEffect(() => {
+  }, [user]);
+
+  // Reset avatar error when user or avatar URL changes
+  React.useEffect(() => {
+    setAvatarError(false);
+  }, [user?.avatar_url]);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -102,7 +120,7 @@ export default function PrimarySearchAppBar() {
   // Get user initials for fallback
   const getUserInitials = React.useMemo(() => {
     if (!user) return "";
-    const name = user.user_metadata?.full_name || user.email || "";
+    const name = user.full_name || user.email || "";
     return name
       .split(" ")
       .map((n: string) => n[0])
@@ -113,7 +131,7 @@ export default function PrimarySearchAppBar() {
 
   // Get display name
   const getDisplayName = () => {
-    return user?.user_metadata?.full_name || user?.email || "User";
+    return user?.full_name || user?.email || "User";
   };
 
   // Check if user is admin
@@ -227,11 +245,14 @@ export default function PrimarySearchAppBar() {
         <ListItemIcon>
           {loading ? (
             <Skeleton variant="circular" width={24} height={24} />
-          ) : user?.user_metadata?.avatar_url ? (
+          ) : user?.avatar_url && !avatarError ? (
             <Avatar
-              src={user.user_metadata.avatar_url}
-              alt={user.user_metadata?.full_name || user.email}
+              src={user.avatar_url}
+              alt={user.full_name || user.email}
               sx={{ width: 24, height: 24 }}
+              imgProps={{
+                onError: () => setAvatarError(true),
+              }}
             />
           ) : (
             <Avatar
@@ -256,12 +277,18 @@ export default function PrimarySearchAppBar() {
       return <Skeleton variant="circular" width={32} height={32} />;
     }
 
-    if (user?.user_metadata?.avatar_url) {
+    // Check if we have a valid avatar URL and no error
+    const hasValidAvatar = user?.avatar_url && !avatarError;
+
+    if (hasValidAvatar) {
       return (
         <Avatar
-          src={user.user_metadata.avatar_url}
-          alt={user.user_metadata?.full_name || user.email}
+          src={user.avatar_url}
+          alt={user.full_name || user.email}
           sx={{ width: 32, height: 32 }}
+          imgProps={{
+            onError: () => setAvatarError(true),
+          }}
         />
       );
     }
