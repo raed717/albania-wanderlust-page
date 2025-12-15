@@ -17,6 +17,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import Divider from "@mui/material/Divider";
 import Skeleton from "@mui/material/Skeleton";
 import Tooltip from "@mui/material/Tooltip";
+import Badge from "@mui/material/Badge";
 import { useNavigate } from "react-router-dom";
 import { authService } from "@/services/api/authService";
 import { userService } from "@/services/api/userService";
@@ -28,6 +29,7 @@ export default function PrimarySearchAppBar() {
     React.useState<null | HTMLElement>(null);
   const [user, setUser] = React.useState<User>(null);
   const [userRole, setUserRole] = React.useState<any>(null);
+  const [userStatus, setUserStaus] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [avatarError, setAvatarError] = React.useState(false);
 
@@ -47,16 +49,19 @@ export default function PrimarySearchAppBar() {
 
           setUser(null);
           setUserRole(null);
+          setUserStaus(null);
           return;
         }
 
         // User exists → fetch role;
         setUser(currentUser);
         setUserRole(currentUser.role);
+        setUserStaus(currentUser.status);
       } catch {
         // Silent fail — user likely not authenticated
         setUser(null);
         setUserRole(null);
+        setUserStaus(null);
       } finally {
         setLoading(false);
       }
@@ -65,9 +70,13 @@ export default function PrimarySearchAppBar() {
     fetchUser();
   }, []);
 
-  // Debug user state after it updates
+  // Handle suspended user redirection
   React.useEffect(() => {
-  }, [user]);
+    if (userStatus === "suspended") {
+      handleLogout();
+      window.open("/suspended", "_blank");
+    }
+  }, [userStatus, navigate]);
 
   // Reset avatar error when user or avatar URL changes
   React.useEffect(() => {
@@ -116,6 +125,12 @@ export default function PrimarySearchAppBar() {
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
+
+  // Check if user profile is complete
+  const isProfileComplete = React.useMemo(() => {
+    if (!user) return false;
+    return !!(user.full_name && user.phone && user.location);
+  }, [user]);
 
   // Get user initials for fallback
   const getUserInitials = React.useMemo(() => {
@@ -189,7 +204,7 @@ export default function PrimarySearchAppBar() {
             <ListItemIcon>
               <PersonIcon fontSize="small" />
             </ListItemIcon>
-            My Account
+            {isProfileComplete ? "My Account" : "Complete My Profile"}
           </MenuItem>
           <Divider />
           <MenuItem
@@ -274,29 +289,43 @@ export default function PrimarySearchAppBar() {
 
   const renderAvatar = () => {
     if (loading) {
-      return <Skeleton variant="circular" width={32} height={32} />;
+      return (
+        <Badge
+          badgeContent={user && !isProfileComplete ? 1 : 0}
+          color="warning"
+          variant="dot"
+        >
+          <Skeleton variant="circular" width={32} height={32} />
+        </Badge>
+      );
     }
 
     // Check if we have a valid avatar URL and no error
     const hasValidAvatar = user?.avatar_url && !avatarError;
 
-    if (hasValidAvatar) {
-      return (
-        <Avatar
-          src={user.avatar_url}
-          alt={user.full_name || user.email}
-          sx={{ width: 32, height: 32 }}
-          imgProps={{
-            onError: () => setAvatarError(true),
-          }}
-        />
-      );
-    }
-
-    return (
+    const avatarComponent = hasValidAvatar ? (
+      <Avatar
+        src={user.avatar_url}
+        alt={user.full_name || user.email}
+        sx={{ width: 32, height: 32 }}
+        imgProps={{
+          onError: () => setAvatarError(true),
+        }}
+      />
+    ) : (
       <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
         {getUserInitials}
       </Avatar>
+    );
+
+    return (
+      <Badge
+        badgeContent={user && !isProfileComplete ? 1 : 0}
+        color="warning"
+        variant="dot"
+      >
+        {avatarComponent}
+      </Badge>
     );
   };
 

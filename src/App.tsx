@@ -21,6 +21,7 @@ import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CarDetails from "./pages/dashboard/Cars/CarDetails";
 import HotelReservation from "./pages/home/HotelReservation";
+import SuspendedPage from "./pages/SuspendedPage";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           <Route path="unauthorized" element={<Unauthorized />} />
+          <Route path="/suspended" element={<SuspendedPage />} />
         </Routes>
         <Footer />
       </BrowserRouter>

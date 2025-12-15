@@ -17,6 +17,16 @@ class UserService {
     return response as User;
   }
 
+  async getUserStatus(userId: string): Promise<string> {
+    const { data, error } = await apiClient
+      .from("users")
+      .select("status")
+      .eq("id", userId)
+      .single();
+    if (error) throw error;
+    return data.status;
+  }
+
   async getUserById(userId: string): Promise<User> {
     const { data, error } = await apiClient
       .from("users")
@@ -80,6 +90,7 @@ class UserService {
         bio: updates.bio,
         location: updates.location,
         role: updates.role,
+        status: updates.status,
         updated_at: new Date().toISOString(),
       })
       .eq("id", userId)
@@ -109,31 +120,71 @@ class UserService {
   async uploadAvatar(file: File): Promise<string> {
     const fileExt = file.name.split(".").pop();
     const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `avatars/${fileName}`;
+    const filePath = `${fileName}`;
 
-    const { error: uploadError } = await apiClient.storage
-      .from("avatars")
-      .upload(filePath, file);
+    // Try uploading to the new bucket first
+    try {
+      const { error: uploadError } = await apiClient.storage
+        .from("userAvatar")
+        .upload(filePath, file, { upsert: false });
 
-    if (uploadError) throw uploadError;
+      if (uploadError) throw uploadError;
 
-    const { data } = apiClient.storage.from("avatars").getPublicUrl(filePath);
+      const { data } = apiClient.storage
+        .from("userAvatar")
+        .getPublicUrl(filePath);
+      return data.publicUrl;
+    } catch (err: any) {
+      // If the bucket rejects due to RLS or policy, try legacy bucket as a fallback
+      const msg = err?.message || String(err);
+      if (
+        msg.includes("row-level security") ||
+        msg.includes("policy") ||
+        err?.status === 400
+      ) {
+        try {
+          const { error: uploadError2 } = await apiClient.storage
+            .from("avatars")
+            .upload(filePath, file, { upsert: false });
 
-    return data.publicUrl;
+          if (uploadError2) throw uploadError2;
+
+          const { data } = apiClient.storage
+            .from("avatars")
+            .getPublicUrl(filePath);
+          return data.publicUrl;
+        } catch (err2) {
+          // Fall through to final error below
+        }
+      }
+
+      // Provide a helpful error explaining the likely cause
+      throw new Error(
+        "Failed to upload avatar. Check the 'userAvatar' bucket policy (allow authenticated uploads) or use the service_role key on the server. Original: " +
+          msg
+      );
+    }
   }
 
   /**
    * Delete user avatar
    */
   async deleteAvatar(avatarPath: string): Promise<void> {
-    const path = avatarPath.split("/avatars/")[1];
+    if (!avatarPath) return;
+
+    // Support public URLs that include the bucket/folder name, e.g.
+    // .../object/public/userAvatar/<filePath> or legacy /avatars/<filePath>
+    const match = avatarPath.match(/\/(?:userAvatar|avatars)\/([^?#]+)/);
+    const path = match ? match[1] : null;
     if (!path) return;
 
-    const { error } = await apiClient.storage
-      .from("avatars")
-      .remove([`avatars/${path}`]);
-
-    if (error) throw error;
+    // Try removing from the new bucket first, then legacy bucket
+    let res = await apiClient.storage.from("userAvatar").remove([path]);
+    if (res.error) {
+      // attempt legacy bucket
+      res = await apiClient.storage.from("avatars").remove([path]);
+      if (res.error) throw res.error;
+    }
   }
 }
 

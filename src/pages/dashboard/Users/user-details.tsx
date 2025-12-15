@@ -95,6 +95,36 @@ function UserDetails() {
     setEditOpen(true);
   };
 
+  const handelSuspendUser = async () => {
+    if (!user) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const updated = await userService.updateProfile(user.id, { status: "suspended" });
+      setUser(updated);
+    } catch (err: any) {
+      setError("Failed to suspend user.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+    const handelActivateUser = async () => {
+      if (!user) return;
+      setSaving(true);
+      setError(null);
+      try {
+        const updated = await userService.updateProfile(user.id, {
+          status: "active",
+        });
+        setUser(updated);
+      } catch (err: any) {
+        setError("Failed to activate user.");
+      } finally {
+        setSaving(false);
+      }
+    };
+
   const handleEditChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -298,9 +328,13 @@ function UserDetails() {
                   <Edit className="w-4 h-4 mr-2" />
                   Edit Profile
                 </button>
-                <button className="flex items-center justify-center w-full px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-150 shadow-md">
+                <button className="flex items-center justify-center w-full px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-150 shadow-md" onClick={handelSuspendUser} disabled={saving || user.status === "suspended"}>
                   <Ban className="w-4 h-4 mr-2" />
                   Suspend User
+                </button>
+                <button className="flex items-center justify-center w-full px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition duration-150 shadow-md" onClick={handelActivateUser} disabled={saving || user.status === "active"}>
+                  <Badge className="w-4 h-4 mr-2" />
+                  Activate User
                 </button>
               </div>
             </div>

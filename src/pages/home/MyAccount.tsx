@@ -290,9 +290,8 @@ export default function MyAccount() {
                       name="role"
                       value={formData.role}
                       onChange={handleInputChange}
-                      disabled={!editing}
+                      disabled={true}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-600 transition-colors"
-                      placeholder="Enter your role"
                     />
                   </div>
 
