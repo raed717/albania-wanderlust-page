@@ -10,7 +10,7 @@ export interface Appartment {
     rating: number;
     rooms: number;
     pricePerDay: number;
-    status: "active" | "maintenance";
+    status: "available" | "rented" | "maintenance";
     image: string;
     description?: string;
     amenities?: string[];
@@ -26,7 +26,7 @@ export interface CreateAppartmentDto {
     rating: number;
     rooms: number;
     pricePerDay: number;
-    status: "active" | "maintenance";
+    status: "available" | "rented" | "maintenance";
     image: string;
     description?: string;
     amenities?: string[];
@@ -42,7 +42,7 @@ export interface UpdateAppartmentDto {
     rating?: number;
     rooms?: number;
     pricePerDay?: number;
-    status?: "active" | "maintenance";
+    status?: "available" | "rented" | "maintenance";
     image?: string;
     description?: string;
     amenities?: string[];
@@ -55,7 +55,7 @@ export interface UpdateAppartmentDto {
 
 export interface AppartmentFilters {
     searchTerm?: string;
-    status?: "all" | "active" | "maintenance";
+    status?: "all" | "available" | "rented" | "maintenance";
     rating?: "all" | "4+" | "4.5+";
 }
 

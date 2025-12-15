@@ -1,3 +1,4 @@
+import { log } from "console";
 import { apiClient } from "./apiClient";
 import {
   UserProfile,
@@ -14,6 +15,7 @@ class UserService {
     const { data, error } = await apiClient.auth.getUser();
     if (error) throw error;
     const response = await this.getUserById(data.user?.id!);
+    console.log( "UserService - getCurrentUser response:", response );
     return response as User;
   }
 

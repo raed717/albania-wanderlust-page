@@ -22,6 +22,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import CarDetails from "./pages/dashboard/Cars/CarDetails";
 import HotelReservation from "./pages/home/HotelReservation";
 import SuspendedPage from "./pages/SuspendedPage";
+import AllAppartments from "./pages/dashboard/Appartments/all-appartmets";
+import AppartmentDetails from "./pages/dashboard/Appartments/AppartmentDetails";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,14 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/HotelsList" element={<AllHotels />} />
             <Route path="/dashboard/hotels/:id" element={<HotelDetails />} />
+            <Route
+              path="/dashboard/AppartmentsList"
+              element={<AllAppartments />}
+            />
+            <Route
+              path="/dashboard/appartments/:id"
+              element={<AppartmentDetails />}
+            />
             <Route path="/dashboard/carsList" element={<AllCars />} />
             <Route path="/dashboard/carInfo/:id" element={<CarDetails />} />
             <Route
