@@ -100,7 +100,8 @@ const AllCars = () => {
   ).length;
   const avgPrice =
     carsData.length > 0
-      ? carsData.reduce((sum, car) => sum + car.pricePerDay, 0) / carsData.length
+      ? carsData.reduce((sum, car) => sum + car.pricePerDay, 0) /
+        carsData.length
       : 0;
 
   // Pagination is based on the filtered results
@@ -128,7 +129,7 @@ const AllCars = () => {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         await deleteCar(id);
@@ -137,7 +138,7 @@ const AllCars = () => {
         Swal.fire({
           title: "Deleted!",
           text: "Your car has been deleted.",
-          icon: "success"
+          icon: "success",
         });
       }
     });
@@ -169,7 +170,9 @@ const AllCars = () => {
     setTypeFilter(e.target.value);
   };
 
-  const handleTransmissionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleTransmissionChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     setTransmissionFilter(e.target.value);
   };
 
@@ -179,7 +182,9 @@ const AllCars = () => {
       <Hsidebar>
         <div className="p-4 sm:p-6 lg:p-8 flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <div className="text-xl font-semibold text-gray-700">Loading vehicles...</div>
+            <div className="text-xl font-semibold text-gray-700">
+              Loading vehicles...
+            </div>
           </div>
         </div>
       </Hsidebar>
@@ -213,12 +218,12 @@ const AllCars = () => {
     <Hsidebar>
       <div className="p-4 sm:p-6 lg:p-8 font-['Inter'] min-h-screen bg-gray-50">
         {/* Header */}
-        <div className="mb-8 flex items-end justify-between">
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
               All Cars
             </h1>
-            <p className="text-gray-500 text-lg">
+            <p className="text-gray-500 text-base sm:text-lg">
               Manage and monitor all your fleet
             </p>
           </div>
@@ -226,19 +231,12 @@ const AllCars = () => {
         </div>
 
         {/* Stats Cards */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-            gap: "20px",
-            marginBottom: "32px",
-          }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6 sm:mb-8">
           {/* Stat 1: Available */}
           <div
             style={{
               background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-              padding: "24px",
+              padding: "20px",
               borderRadius: "12px",
               color: "white",
               boxShadow: "0 4px 6px rgba(16, 185, 129, 0.4)",
@@ -249,7 +247,7 @@ const AllCars = () => {
             >
               Available Cars
             </div>
-            <div style={{ fontSize: "32px", fontWeight: 700 }}>
+            <div style={{ fontSize: "28px", fontWeight: 700 }}>
               {availableCars}
             </div>
             <div style={{ fontSize: "12px", opacity: 0.8, marginTop: "4px" }}>
@@ -260,7 +258,7 @@ const AllCars = () => {
           <div
             style={{
               background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-              padding: "24px",
+              padding: "20px",
               borderRadius: "12px",
               color: "white",
               boxShadow: "0 4px 6px rgba(59, 130, 246, 0.4)",
@@ -271,7 +269,7 @@ const AllCars = () => {
             >
               Currently Rented
             </div>
-            <div style={{ fontSize: "32px", fontWeight: 700 }}>
+            <div style={{ fontSize: "28px", fontWeight: 700 }}>
               {rentedCars}
             </div>
             <div style={{ fontSize: "12px", opacity: 0.8, marginTop: "4px" }}>
@@ -282,7 +280,7 @@ const AllCars = () => {
           <div
             style={{
               background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-              padding: "24px",
+              padding: "20px",
               borderRadius: "12px",
               color: "white",
               boxShadow: "0 4px 6px rgba(245, 158, 11, 0.4)",
@@ -293,7 +291,7 @@ const AllCars = () => {
             >
               In Maintenance
             </div>
-            <div style={{ fontSize: "32px", fontWeight: 700 }}>
+            <div style={{ fontSize: "28px", fontWeight: 700 }}>
               {maintenanceCars}
             </div>
             <div style={{ fontSize: "12px", opacity: 0.8, marginTop: "4px" }}>
@@ -304,7 +302,7 @@ const AllCars = () => {
           <div
             style={{
               background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
-              padding: "24px",
+              padding: "20px",
               borderRadius: "12px",
               color: "white",
               boxShadow: "0 4px 6px rgba(139, 92, 246, 0.4)",
@@ -315,7 +313,7 @@ const AllCars = () => {
             >
               Avg Daily Rate
             </div>
-            <div style={{ fontSize: "32px", fontWeight: 700 }}>
+            <div style={{ fontSize: "28px", fontWeight: 700 }}>
               ${avgPrice.toFixed(0)}
             </div>
             <div style={{ fontSize: "12px", opacity: 0.8, marginTop: "4px" }}>
@@ -325,117 +323,63 @@ const AllCars = () => {
         </div>
 
         {/* Filters and Search */}
-        <div
-          style={{
-            backgroundColor: "white",
-            padding: "24px",
-            borderRadius: "12px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            marginBottom: "24px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              gap: "16px",
-              flexWrap: "wrap",
-              alignItems: "center",
-            }}
-          >
-            {/* Search */}
-            <div style={{ flex: "1", minWidth: "250px", position: "relative" }}>
+        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm mb-6">
+          <div className="flex flex-col gap-3 sm:gap-4">
+            {/* Search - Full width on mobile */}
+            <div className="relative w-full">
               <Search
                 size={18}
-                style={{
-                  position: "absolute",
-                  left: "12px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#9ca3af",
-                }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               />
               <input
                 type="text"
                 placeholder="Search by name, brand, or plate..."
                 value={searchTerm}
                 onChange={handleSearchChange}
-                style={{
-                  width: "100%",
-                  padding: "10px 12px 10px 40px",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  outline: "none",
-                }}
+                className="w-full py-2.5 pl-10 pr-4 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
-            {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={handleStatusChange}
-              style={{
-                padding: "10px 12px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                fontSize: "14px",
-                outline: "none",
-                cursor: "pointer",
-                backgroundColor: "white",
-                minWidth: "150px",
-              }}
-            >
-              <option value="all">All Status</option>
-              <option value="available">Available</option>
-              <option value="rented">Rented</option>
-              <option value="maintenance">Maintenance</option>
-            </select>
+            {/* Filters Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Status Filter */}
+              <select
+                value={statusFilter}
+                onChange={handleStatusChange}
+                className="w-full py-2.5 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white"
+              >
+                <option value="all">All Status</option>
+                <option value="available">Available</option>
+                <option value="rented">Rented</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
 
-            {/* Type Filter */}
-            <select
-              value={typeFilter}
-              onChange={handleTypeChange}
-              style={{
-                padding: "10px 12px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                fontSize: "14px",
-                outline: "none",
-                cursor: "pointer",
-                backgroundColor: "white",
-                minWidth: "150px",
-              }}
-            >
-              <option value="all">All Types</option>
-              <option value="Sedan">Sedan</option>
-              <option value="SUV">SUV</option>
-              <option value="Sports">Sports</option>
-            </select>
+              {/* Type Filter */}
+              <select
+                value={typeFilter}
+                onChange={handleTypeChange}
+                className="w-full py-2.5 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white"
+              >
+                <option value="all">All Types</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Sports">Sports</option>
+              </select>
 
-            {/* Transmission Filter */}
-            <select
-              value={transmissionFilter}
-              onChange={handleTransmissionChange}
-              style={{
-                padding: "10px 12px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                fontSize: "14px",
-                outline: "none",
-                cursor: "pointer",
-                backgroundColor: "white",
-                minWidth: "150px",
-              }}
-            >
-              <option value="all">All Transmission</option>
-              <option value="Automatic">Automatic</option>
-              <option value="Manual">Manual</option>
-            </select>
+              {/* Transmission Filter */}
+              <select
+                value={transmissionFilter}
+                onChange={handleTransmissionChange}
+                className="w-full py-2.5 px-3 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white"
+              >
+                <option value="all">All Transmission</option>
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
+              </select>
+            </div>
 
             {/* Results count */}
-            <div
-              style={{ color: "#6b7280", fontSize: "14px", marginLeft: "auto" }}
-            >
+            <div className="text-sm text-gray-600 text-center sm:text-left">
               <span className="font-semibold text-gray-800">
                 {filteredCars.length}
               </span>{" "}
@@ -444,259 +388,136 @@ const AllCars = () => {
           </div>
         </div>
 
-        {/* Cars Grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
-            gap: "24px",
-            marginBottom: "32px",
-          }}
-        >
+        {/* Cars Grid - Responsive */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-8">
           {paginatedCars.map((car) => {
             const statusColor = getStatusColor(car.status);
 
             return (
               <div
                 key={car.id}
-                style={{
-                  backgroundColor: "white",
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                  transition: "transform 0.2s, box-shadow 0.2s",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-4px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 8px 16px rgba(0,0,0,0.15)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
-                }}
+                className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
                 {/* Image */}
                 <div
+                  className="h-48 sm:h-52 bg-cover bg-center relative"
                   style={{
-                    height: "200px",
                     backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url(${car.image})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    position: "relative",
                   }}
                 >
                   <div
                     style={{
-                      position: "absolute",
-                      top: "12px",
-                      right: "12px",
                       backgroundColor: statusColor.bg,
                       color: statusColor.text,
-                      padding: "6px 12px",
-                      borderRadius: "20px",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      textTransform: "capitalize",
                     }}
+                    className="absolute top-3 right-3 px-3 py-1.5 rounded-full text-xs font-semibold capitalize"
                   >
                     {car.status}
                   </div>
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: "12px",
-                      left: "12px",
-                      backgroundColor: "rgba(0,0,0,0.7)",
-                      color: "white",
-                      padding: "6px 12px",
-                      borderRadius: "6px",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                    }}
-                  >
+                  <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1.5 rounded-md text-xs font-semibold">
                     {car.plateNumber}
                   </div>
                 </div>
 
                 {/* Content */}
-                <div style={{ padding: "20px" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "start",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    <div>
-                      <h3
-                        style={{
-                          fontSize: "20px",
-                          fontWeight: 600,
-                          color: "#111827",
-                          marginBottom: "4px",
-                        }}
-                      >
+                <div className="p-4 sm:p-5">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                         {car.name}
                       </h3>
-                      <div style={{ fontSize: "14px", color: "#6b7280" }}>
+                      <div className="text-sm text-gray-600">
                         {car.brand} • {car.year}
                       </div>
                     </div>
-                    <div
-                      style={{
-                        backgroundColor: "#f3f4f6",
-                        padding: "6px 12px",
-                        borderRadius: "6px",
-                        fontSize: "12px",
-                        fontWeight: 600,
-                        color: "#374151",
-                      }}
-                    >
+                    <div className="ml-2 bg-gray-100 px-2.5 py-1 rounded-md text-xs font-semibold text-gray-700 whitespace-nowrap">
                       {car.type}
                     </div>
                   </div>
 
                   {/* Specs Grid */}
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(2, 1fr)",
-                      gap: "12px",
-                      marginTop: "16px",
-                      marginBottom: "16px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <Settings size={16} color="#6b7280" />
-                      <span style={{ fontSize: "13px", color: "#374151" }}>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <Settings
+                        size={16}
+                        className="text-gray-500 flex-shrink-0"
+                      />
+                      <span className="text-xs sm:text-sm text-gray-700 truncate">
                         {car.transmission}
                       </span>
                     </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <Fuel size={16} color="#6b7280" />
-                      <span style={{ fontSize: "13px", color: "#374151" }}>
+                    <div className="flex items-center gap-2">
+                      <Fuel size={16} className="text-gray-500 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm text-gray-700 truncate">
                         {car.fuelType}
                       </span>
                     </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <Users size={16} color="#6b7280" />
-                      <span style={{ fontSize: "13px", color: "#374151" }}>
+                    <div className="flex items-center gap-2">
+                      <Users
+                        size={16}
+                        className="text-gray-500 flex-shrink-0"
+                      />
+                      <span className="text-xs sm:text-sm text-gray-700">
                         {car.seats} Seats
                       </span>
                     </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <Gauge size={16} color="#6b7280" />
-                      <span style={{ fontSize: "13px", color: "#374151" }}>
+                    <div className="flex items-center gap-2">
+                      <Gauge
+                        size={16}
+                        className="text-gray-500 flex-shrink-0"
+                      />
+                      <span className="text-xs sm:text-sm text-gray-700 truncate">
                         {car.mileage}
                       </span>
-
-                      <div style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}>
-                        <MapPin size={16} color="#6b7280" />
-                        <span style={{ fontSize: "13px", color: "#374151" }}>
-                          {car.pickUpLocation}
-                        </span>
-                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 col-span-2">
+                      <MapPin
+                        size={16}
+                        className="text-gray-500 flex-shrink-0"
+                      />
+                      <span className="text-xs sm:text-sm text-gray-700 truncate">
+                        {car.pickUpLocation}
+                      </span>
                     </div>
                   </div>
 
                   {/* Features */}
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "6px",
-                      marginBottom: "16px",
-                    }}
-                  >
-                    {car.features?.map((feature, index) => (
-                      <span
-                        key={index}
-                        style={{
-                          fontSize: "11px",
-                          backgroundColor: "#eff6ff",
-                          color: "#3b82f6",
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          fontWeight: 500,
-                        }}
-                      >
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
+                  {car.features && car.features.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {car.features.slice(0, 3).map((feature, index) => (
+                        <span
+                          key={index}
+                          className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded font-medium"
+                        >
+                          {feature}
+                        </span>
+                      ))}
+                      {car.features.length > 3 && (
+                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium">
+                          +{car.features.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   {/* Price and Actions */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      paddingTop: "16px",
-                      borderTop: "1px solid #e5e7eb",
-                    }}
-                  >
+                  <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                     <div>
-                      <div style={{ fontSize: "12px", color: "#6b7280" }}>
-                        Daily Rate
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "24px",
-                          fontWeight: 700,
-                          color: "#111827",
-                        }}
-                      >
+                      <div className="text-xs text-gray-500">Daily Rate</div>
+                      <div className="text-xl sm:text-2xl font-bold text-gray-900">
                         ${car.pricePerDay}
                       </div>
                     </div>
-                    <div style={{ display: "flex", gap: "8px" }}>
+                    <div className="flex gap-2">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleViewCar(car.id);
                         }}
-                        className="flex-1 py-2 px-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+                        className="px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors"
                       >
-                        <Eye size={16} /> View
+                        <Eye size={16} />
+                        <span className="hidden sm:inline">View</span>
                       </button>
                       <button
                         onClick={(e) => {
@@ -725,85 +546,44 @@ const AllCars = () => {
 
           {/* Message if no cars found */}
           {filteredCars.length === 0 && (
-            <div
-              style={{
-                gridColumn: "1 / -1",
-                textAlign: "center",
-                padding: "40px",
-                color: "#6b7280",
-              }}
-            >
-              <p className="text-xl font-semibold">No Vehicles Found</p>
-              <p>Try adjusting your search term or filters.</p>
+            <div className="col-span-full text-center py-12 text-gray-500">
+              <p className="text-lg sm:text-xl font-semibold mb-2">
+                No Vehicles Found
+              </p>
+              <p className="text-sm">
+                Try adjusting your search term or filters.
+              </p>
             </div>
           )}
         </div>
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "12px",
-              marginTop: "32px",
-            }}
-          >
+          <div className="flex justify-center items-center gap-2 sm:gap-3 mt-8">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              style={{
-                padding: "8px 16px",
-                backgroundColor: currentPage === 1 ? "#f3f4f6" : "#3b82f6",
-                color: currentPage === 1 ? "#9ca3af" : "white",
-                border: "none",
-                borderRadius: "8px",
-                cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                fontWeight: 500,
-                transition: "background-color 0.2s",
-              }}
-              onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor =
-                currentPage === 1 ? "#f3f4f6" : "#2563eb")
-              }
-              onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor =
-                currentPage === 1 ? "#f3f4f6" : "#3b82f6")
-              }
+              className={`px-3 sm:px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors ${
+                currentPage === 1
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 text-white hover:bg-blue-600"
+              }`}
             >
               <ChevronLeft size={18} />
-              Previous
+              <span className="hidden sm:inline">Previous</span>
             </button>
 
-            <div style={{ display: "flex", gap: "8px" }}>
+            <div className="flex gap-2">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (page) => (
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    style={{
-                      padding: "8px 14px",
-                      backgroundColor:
-                        currentPage === page ? "#3b82f6" : "white",
-                      color: currentPage === page ? "white" : "#374151",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                      fontWeight: 500,
-                      transition: "background-color 0.2s, border-color 0.2s",
-                    }}
-                    onMouseOver={(e) => {
-                      if (currentPage !== page)
-                        e.currentTarget.style.backgroundColor = "#f3f4f6";
-                    }}
-                    onMouseOut={(e) => {
-                      if (currentPage !== page)
-                        e.currentTarget.style.backgroundColor = "white";
-                    }}
+                    className={`w-10 h-10 rounded-lg font-medium transition-colors ${
+                      currentPage === page
+                        ? "bg-blue-500 text-white"
+                        : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                    }`}
                   >
                     {page}
                   </button>
@@ -816,30 +596,13 @@ const AllCars = () => {
                 setCurrentPage((prev) => Math.min(totalPages, prev + 1))
               }
               disabled={currentPage === totalPages}
-              style={{
-                padding: "8px 16px",
-                backgroundColor:
-                  currentPage === totalPages ? "#f3f4f6" : "#3b82f6",
-                color: currentPage === totalPages ? "#9ca3af" : "white",
-                border: "none",
-                borderRadius: "8px",
-                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                fontWeight: 500,
-                transition: "background-color 0.2s",
-              }}
-              onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor =
-                currentPage === totalPages ? "#f3f4f6" : "#2563eb")
-              }
-              onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor =
-                currentPage === totalPages ? "#f3f4f6" : "#3b82f6")
-              }
+              className={`px-3 sm:px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors ${
+                currentPage === totalPages
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 text-white hover:bg-blue-600"
+              }`}
             >
-              Next
+              <span className="hidden sm:inline">Next</span>kou
               <ChevronRight size={18} />
             </button>
           </div>

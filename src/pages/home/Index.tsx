@@ -4,6 +4,7 @@ import Culture from "@/components/home/Culture";
 import CallToAction from "@/components/home/CallToAction";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import HotelsPreview from "@/components/home/HotelsPreview";
+import AppartmentsPreview from "@/components/home/AppartmentssPreview";
 
 const Index = () => {
   return (
@@ -12,6 +13,7 @@ const Index = () => {
       <Hero />
       <HotelsPreview />
       <Destinations />
+      <AppartmentsPreview />
       <Culture />
       <CallToAction />
     </div>

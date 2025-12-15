@@ -14,10 +14,17 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  Cookie,
+  ChefHat,
+  Toilet,
+  Bath,
+  Sofa,
+  BedDouble,
 } from "lucide-react";
 import { getAllAppartments } from "@/services/api/appartmentService";
 import { Appartment, AppartmentFilters } from "@/types/appartment.type";
 import Swal from "sweetalert2";
+import { Room } from "@mui/icons-material";
 
 /* -------------------------------------------------------------------------- */
 /*                                   Utils                                    */
@@ -321,17 +328,57 @@ const AppartmentCard: React.FC<CardProps> = ({
       </div>
 
       <div className="grid grid-cols-2 gap-3 mb-4">
+        {/* Row 1: Rating & Rooms */}
         <div className="flex items-center gap-2">
           <Star size={16} className="text-amber-400" />
-          {appartment.rating}
+          <span className="text-sm">{appartment.rating}</span>
         </div>
         <div className="flex items-center gap-2">
-          <Bed size={16} />
-          {appartment.rooms} rooms
+          <Bed size={16} className="text-gray-500" />
+          <span className="text-sm">{appartment.rooms} rooms</span>
         </div>
+
+        {/* Row 2: Beds & Kitchens */}
+        <div className="flex items-center gap-2">
+          <BedDouble size={16} className="text-gray-500" />
+          <span className="text-sm">{appartment.beds} bed</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <ChefHat size={16} className="text-gray-500" />
+          <span className="text-sm">{appartment.kitchens} kitchen</span>
+        </div>
+
+        {/* Row 3: Bathrooms & Living Rooms */}
+        <div className="flex items-center gap-2">
+          <Bath size={16} className="text-gray-500" />
+          <span className="text-sm">{appartment.bathrooms} bathroom</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Sofa size={16} className="text-gray-500" />
+          <span className="text-sm">{appartment.livingRooms} living room</span>
+        </div>
+
+        {/* Row 4: Price (spans full width) */}
         <div className="flex items-center gap-2 col-span-2">
-          <DollarSign size={16} />
-          <strong>${appartment.pricePerDay}</strong>/day
+          <DollarSign size={16} className="text-green-600" />
+          <span className="text-lg font-bold">${appartment.pricePerDay}</span>
+          <span className="text-sm text-gray-500">/day</span>
+        </div>
+
+        {/* Row 5: Amenities (spans full width) */}
+        <div className="col-span-2 flex flex-wrap gap-2">
+          {appartment.amenities && appartment.amenities.length > 0 ? (
+            appartment.amenities.map((amenity, index) => (
+              <span
+                key={index}
+                className="px-2 py-1 bg-blue-500 text-white rounded-full text-xs"
+              >
+                {amenity}
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-xs">No amenities listed</span>
+          )}
         </div>
       </div>
 

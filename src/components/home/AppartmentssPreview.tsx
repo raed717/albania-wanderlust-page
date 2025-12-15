@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Star } from "lucide-react";
-import { getAllHotels } from "@/services/api/hotelService";
+import { getAllAppartments } from "@/services/api/appartmentService";
 import { useKeenSlider } from "keen-slider/react"
 import "keen-slider/keen-slider.min.css"
 import { ClipLoader } from "react-spinners";
@@ -16,7 +16,7 @@ const override: CSSProperties = {
   margin: "0 auto",
 };
 
-const HotelsPreview = () => {
+const AppartmentsPreview = () => {
 
   const navigate = useNavigate();
 
@@ -42,25 +42,25 @@ const HotelsPreview = () => {
     },
   })
 
-  const { data: hotels = [], isLoading } = useQuery({
-    queryKey: ["hotels"],
-    queryFn: getAllHotels,
+  const { data: appartments = [], isLoading } = useQuery({
+    queryKey: ["appartments"],
+    queryFn: getAllAppartments,
   });
 
-  // Filter hotels with rating > 3.5 and status "available"
-  const availableTopHotels = useMemo(() => {
-    return hotels.filter(
-      (hotel) => hotel.rating > 0 && hotel.status === "active"
+  // Filter appartments with rating > 3.5 and status "available"
+  const availableTopAppartments = useMemo(() => {
+    return appartments.filter(
+      (appartment) => appartment.rating > 0 && appartment.status === "available"
     );
-  }, [hotels]);
+  }, [appartments]);
 
   return (
-    <section id="hotels" className="py-24 bg-slate-100">
+    <section id="appartments" className="py-24 bg-slate-100">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="mb-4 text-foreground">Top Available Hotels</h2>
+          <h2 className="mb-4 text-foreground">Check Our Available Appartments</h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Discover the best available hotels in Albania with ratings above 3.5
+            Make your stay unforgettable with our top-rated appartments
           </p>
         </div>
 
@@ -75,33 +75,33 @@ const HotelsPreview = () => {
               data-testid="loader"
             />
             <p className="text-lg text-muted-foreground mt-4">
-              Loading hotels...
+              Loading appartments...
             </p>
           </div>
-        ) : availableTopHotels.length === 0 ? (
+        ) : availableTopAppartments.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-lg text-muted-foreground">
-              No hotels available at the moment. Please check back later.
+              No appartments available at the moment. Please check back later.
             </p>
           </div>
         ) : (
           <div ref={sliderRef} className="keen-slider">
-            {availableTopHotels.map((hotel, index) => (
-              <div key={hotel.id} className="keen-slider__slide">
+            {availableTopAppartments.map((appartment, index) => (
+              <div key={appartment.id} className="keen-slider__slide">
                 <Card
                   className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-scale-in h-full"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="relative h-64 overflow-hidden">
                     <img
-                      src={hotel.image}
-                      alt={hotel.name}
+                      src={appartment.image}
+                      alt={appartment.name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                     <div className="absolute top-4 right-4 flex gap-2">
                       <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
                         <Star className="w-4 h-4 fill-current" />
-                        {hotel.rating}
+                        {appartment.rating}
                       </span>
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -110,17 +110,19 @@ const HotelsPreview = () => {
                   <CardContent className="p-6">
                     <div className="flex items-start gap-2 mb-3">
                       <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                      <h3 className="text-2xl text-foreground">{hotel.name}</h3>
+                      <h3 className="text-2xl text-foreground">
+                        {appartment.name}
+                      </h3>
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      {hotel.location}
+                      {appartment.address}
                     </p>
                     <p className="text-muted-foreground mb-4 line-clamp-3">
-                      {hotel.description}
+                      {appartment.description}
                     </p>
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-lg font-semibold text-foreground">
-                        ${hotel.price}/night
+                        ${appartment.pricePerDay}/night
                       </span>
                       <span className="text-sm text-green-600 font-medium">
                         Available
@@ -129,7 +131,9 @@ const HotelsPreview = () => {
                     <Button
                       variant="outline"
                       className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                      onClick={() => navigate(`/hotelReservation/${hotel.id}`)}
+                      onClick={() =>
+                        navigate(`/appartmentReservation/${appartment.id}`)
+                      }
                     >
                       Learn More
                     </Button>
@@ -144,4 +148,4 @@ const HotelsPreview = () => {
   );
 };
 
-export default HotelsPreview;
+export default AppartmentsPreview;

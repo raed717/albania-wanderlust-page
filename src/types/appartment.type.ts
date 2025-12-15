@@ -5,52 +5,64 @@
  */
 
 export interface Appartment {
-    id: number;
-    name: string;
-    rating: number;
-    rooms: number;
-    pricePerDay: number;
-    status: "available" | "rented" | "maintenance";
-    image: string;
-    description?: string;
-    amenities?: string[];
-    contactEmail?: string;
-    contactPhone?: string;
-    address?: string;
-    lat?: number;
-    lng?: number;
+  id: number;
+  name: string;
+  rating: number;
+  rooms: number;
+  beds?: number;
+  kitchens?: number;
+  bathrooms?: number;
+  livingRooms?: number;
+  pricePerDay: number;
+  status: "available" | "rented" | "maintenance";
+  image: string;
+  description?: string;
+  amenities?: string[];
+  contactEmail?: string;
+  contactPhone?: string;
+  address?: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface CreateAppartmentDto {
-    name: string;
-    rating: number;
-    rooms: number;
-    pricePerDay: number;
-    status: "available" | "rented" | "maintenance";
-    image: string;
-    description?: string;
-    amenities?: string[];
-    contactEmail?: string;
-    contactPhone?: string;
-    address?: string;
-    lat?: number;
-    lng?: number;
+  name: string;
+  rating: number;
+  rooms: number;
+  beds?: number;
+  kitchens?: number;
+  bathrooms?: number;
+  livingRooms?: number;
+  pricePerDay: number;
+  status: "available" | "rented" | "maintenance";
+  image: string;
+  description?: string;
+  amenities?: string[];
+  contactEmail?: string;
+  contactPhone?: string;
+  address?: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface UpdateAppartmentDto {
-    name?: string;
-    rating?: number;
-    rooms?: number;
-    pricePerDay?: number;
-    status?: "available" | "rented" | "maintenance";
-    image?: string;
-    description?: string;
-    amenities?: string[];
-    contactEmail?: string;
-    contactPhone?: string;
-    lat?: number;
-    lng?: number;
-    address?: string;
+  name?: string;
+  rating?: number;
+  rooms?: number;
+  beds?: number;
+  kitchens?: number;
+  bathrooms?: number;
+  livingRooms?: number;
+  pricePerDay?: number;
+  status?: "available" | "rented" | "maintenance";
+  image?: string;
+  description?: string;
+  amenities?: string[];
+  contactEmail?: string;
+  contactPhone?: string;
+  lat?: number;
+  lng?: number;
+  address?: string;
 }
 
 export interface AppartmentFilters {
