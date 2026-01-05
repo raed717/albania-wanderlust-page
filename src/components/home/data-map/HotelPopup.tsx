@@ -10,6 +10,11 @@ export function HotelPopup({ hotel }: HotelPopupProps) {
     <div className="w-64 space-y-3">
       <div>
         <h3 className="font-semibold text-base">{hotel.name}</h3>
+        <img 
+          src={hotel.image}
+          alt={hotel.name}
+          className="w-full h-32 object-cover rounded-md my-2"
+        />
         <p className="text-sm text-gray-600">{hotel.location}</p>
       </div>
 

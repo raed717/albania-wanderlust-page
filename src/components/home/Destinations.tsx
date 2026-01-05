@@ -1,6 +1,7 @@
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin } from "lucide-react";
+import { MapPin, ArrowRight } from "lucide-react";
 import beratImage from "@/assets/destinations/berat.jpg";
 import gjirokasterImage from "@/assets/destinations/gjirokaster.jpg";
 import ksamilImage from "@/assets/destinations/ksamil.jpg";
@@ -9,75 +10,316 @@ import thethImage from "@/assets/destinations/theth.jpg";
 const destinations = [
   {
     name: "Berat",
-    description: "The 'City of a Thousand Windows' - a UNESCO World Heritage site with stunning Ottoman architecture",
+    description:
+      "The 'City of a Thousand Windows' - a UNESCO World Heritage site with stunning Ottoman architecture",
     image: beratImage,
-    tag: "Historic"
+    tag: "Historic",
   },
   {
     name: "Gjirokastër",
-    description: "Stone city perched on a mountain, home to an imposing fortress and rich cultural heritage",
+    description:
+      "Stone city perched on a mountain, home to an imposing fortress and rich cultural heritage",
     image: gjirokasterImage,
-    tag: "UNESCO Site"
+    tag: "UNESCO Site",
   },
   {
     name: "Ksamil",
-    description: "Paradise beaches with crystal-clear turquoise waters and small islands just offshore",
+    description:
+      "Paradise beaches with crystal-clear turquoise waters and small islands just offshore",
     image: ksamilImage,
-    tag: "Beach"
+    tag: "Beach",
   },
   {
     name: "Theth",
-    description: "Remote mountain village in the Albanian Alps, perfect for hiking and nature lovers",
+    description:
+      "Remote mountain village in the Albanian Alps, perfect for hiking and nature lovers",
     image: thethImage,
-    tag: "Adventure"
-  }
+    tag: "Adventure",
+  },
 ];
 
 const Destinations = () => {
+  const sectionRef = useRef(null);
+  const headingRef = useRef(null);
+  const subtitleRef = useRef(null);
+  const cardsRef = useRef([]);
+
+  useEffect(() => {
+    // Import GSAP from npm package
+    const loadGSAP = async () => {
+      const { default: gsap } = await import("gsap");
+      const { default: ScrollTrigger } = await import("gsap/ScrollTrigger");
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Heading animation with parallax effect
+      gsap.fromTo(
+        headingRef.current,
+        {
+          opacity: 0,
+          y: 60,
+          scale: 0.9,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 1,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 80%",
+            end: "top 20%",
+            toggleActions: "play none none reverse",
+          },
+        }
+      );
+
+      // Subtitle animation
+      gsap.fromTo(
+        subtitleRef.current,
+        {
+          opacity: 0,
+          y: 40,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          delay: 0.2,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 80%",
+            toggleActions: "play none none reverse",
+          },
+        }
+      );
+
+      // Cards stagger animation with advanced effects
+      cardsRef.current.forEach((card, index) => {
+        if (!card) return;
+
+        const image = card.querySelector(".destination-image");
+        const overlay = card.querySelector(".destination-overlay");
+        const tag = card.querySelector(".destination-tag");
+        const content = card.querySelector(".destination-content");
+
+        // Main card animation
+        gsap.fromTo(
+          card,
+          {
+            opacity: 0,
+            y: 100,
+            rotateX: 15,
+            scale: 0.9,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            scale: 1,
+            duration: 1,
+            delay: index * 0.15,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+
+        // Image zoom on scroll
+        gsap.fromTo(
+          image,
+          { scale: 1.3 },
+          {
+            scale: 1,
+            duration: 1.2,
+            delay: index * 0.15,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+
+        // Overlay fade in
+        gsap.fromTo(
+          overlay,
+          { opacity: 0 },
+          {
+            opacity: 1,
+            duration: 0.8,
+            delay: index * 0.15 + 0.3,
+            ease: "power2.inOut",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+
+        // Tag slide in
+        gsap.fromTo(
+          tag,
+          { x: 50, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.6,
+            delay: index * 0.15 + 0.4,
+            ease: "back.out(1.7)",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+
+        // Content fade up
+        gsap.fromTo(
+          content,
+          { y: 30, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            delay: index * 0.15 + 0.5,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+
+        // Hover animations
+        card.addEventListener("mouseenter", () => {
+          gsap.to(card, {
+            y: -12,
+            scale: 1.02,
+            duration: 0.4,
+            ease: "power2.out",
+          });
+          gsap.to(image, {
+            scale: 1.15,
+            duration: 0.6,
+            ease: "power2.out",
+          });
+          gsap.to(overlay, {
+            opacity: 0.95,
+            duration: 0.3,
+          });
+        });
+
+        card.addEventListener("mouseleave", () => {
+          gsap.to(card, {
+            y: 0,
+            scale: 1,
+            duration: 0.4,
+            ease: "power2.out",
+          });
+          gsap.to(image, {
+            scale: 1,
+            duration: 0.6,
+            ease: "power2.out",
+          });
+          gsap.to(overlay, {
+            opacity: 1,
+            duration: 0.3,
+          });
+        });
+      });
+
+      // Parallax effect for the section
+      gsap.to(sectionRef.current, {
+        yPercent: -5,
+        ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+        },
+      });
+    };
+
+    loadGSAP();
+  }, []);
+
   return (
-    <section id="destinations" className="py-24 bg-muted/30">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="mb-4 text-foreground">Top Destinations</h2>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Experience Albania's most captivating locations, from ancient cities to pristine beaches
+    <section
+      id="destinations"
+      ref={sectionRef}
+      className="py-24 bg-gradient-to-b from-muted via-muted to-muted relative overflow-hidden"
+    >
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center mb-16">
+          <h2
+            ref={headingRef}
+            className="mb-4 text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70"
+          >
+            Top Destinations
+          </h2>
+          <p
+            ref={subtitleRef}
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+          >
+            Experience Albania's most captivating locations, from ancient cities
+            to pristine beaches
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {destinations.map((destination, index) => (
-            <Card 
+            <Card
               key={destination.name}
-              className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-scale-in"
-              style={{ animationDelay: `${index * 100}ms` }}
+              ref={(el) => (cardsRef.current[index] = el)}
+              className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-card/80 backdrop-blur-sm"
             >
               <div className="relative h-64 overflow-hidden">
                 <img
                   src={destination.image}
                   alt={destination.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="destination-image w-full h-full object-cover"
                 />
-                <div className="absolute top-4 right-4">
-                  <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
+                <div className="destination-tag absolute top-4 right-4 z-20">
+                  <span className="bg-primary text-primary-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm">
                     {destination.tag}
                   </span>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="destination-overlay absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
               </div>
-              
-              <CardContent className="p-6">
+
+              <CardContent className="destination-content p-6">
                 <div className="flex items-start gap-2 mb-3">
-                  <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                  <h3 className="text-2xl text-foreground">{destination.name}</h3>
+                  <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-1 group-hover:scale-110 transition-transform duration-300" />
+                  <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                    {destination.name}
+                  </h3>
                 </div>
-                <p className="text-muted-foreground mb-4 line-clamp-3">
+                <p className="text-muted-foreground mb-4 line-clamp-3 leading-relaxed">
                   {destination.description}
                 </p>
-                <Button 
-                  variant="outline" 
-                  className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                <Button
+                  variant="outline"
+                  className="w-full border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground group/btn transition-all duration-300 hover:border-primary font-semibold"
                 >
-                  Learn More
+                  <span>Learn More</span>
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform duration-300" />
                 </Button>
               </CardContent>
             </Card>

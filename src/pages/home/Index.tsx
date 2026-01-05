@@ -5,16 +5,18 @@ import CallToAction from "@/components/home/CallToAction";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import HotelsPreview from "@/components/home/HotelsPreview";
 import AppartmentsPreview from "@/components/home/AppartmentssPreview";
+import AlbaniaHeroScroll from "@/components/home/AlbaniaHeroScroll";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <PrimarySearchAppBar />
       <Hero />
-      <HotelsPreview />
+      <AlbaniaHeroScroll />
       <Destinations />
-      <AppartmentsPreview />
+      <HotelsPreview />
       <Culture />
+      <AppartmentsPreview />
       <CallToAction />
     </div>
   );

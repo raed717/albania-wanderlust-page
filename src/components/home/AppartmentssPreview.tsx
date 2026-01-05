@@ -58,7 +58,7 @@ const AppartmentsPreview = () => {
     <section id="appartments" className="py-24 bg-slate-100">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="mb-4 text-foreground">Check Our Available Appartments</h2>
+          <h2 className="mb-4 text-foreground">Check Our Appartments</h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             Make your stay unforgettable with our top-rated appartments
           </p>

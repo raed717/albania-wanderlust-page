@@ -334,7 +334,10 @@ export default function PrimarySearchAppBar() {
       <AppBar
         position="static"
         sx={{
-          backgroundColor: "rgba(0, 15, 100, 0.78)",
+          //backgroundColor: "rgba(0, 15, 100, 0.78)",
+          background:
+            "linear-gradient(135deg, #7f1d1d 0%, #7f1d1d 50%, #120000 100%)",
+
           color: "white",
           backdropFilter: "blur(10px)",
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
