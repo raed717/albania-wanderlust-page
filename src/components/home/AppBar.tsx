@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { authService } from "@/services/api/authService";
 import { userService } from "@/services/api/userService";
 import { User } from "@/types/user.types";
+import { Home } from "lucide-react";
 
 export default function PrimarySearchAppBar() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -154,6 +155,10 @@ export default function PrimarySearchAppBar() {
     return userRole?.role === "admin" || userRole === "admin";
   }, [userRole]);
 
+  const isProvider = React.useMemo(() => {
+    return userRole?.role === "provider" || userRole === "provider";
+  }, [userRole]);
+
   const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
@@ -198,6 +203,14 @@ export default function PrimarySearchAppBar() {
                 <DashboardIcon fontSize="small" />
               </ListItemIcon>
               Dashboard
+            </MenuItem>
+          )}
+          {(isProvider && isProfileComplete) && (
+            <MenuItem onClick={handleDashboard} sx={{ py: 1.5 }}>
+              <ListItemIcon>
+                <Home fontSize="small" />
+              </ListItemIcon>
+              Properties Management
             </MenuItem>
           )}
           <MenuItem onClick={handleMyAccount} sx={{ py: 1.5 }}>

@@ -25,11 +25,12 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { User } from "@/types/user.types";
+import { userService } from "@/services/api/userService";
 
 // ====================
 // CONFIGURATION ARRAYS
 // ====================
-
 // Color constants
 const COLORS = {
   sidebarBg: "#111827", // Tailwind: bg-gray-900
@@ -62,9 +63,9 @@ const ROUTES = {
   home: "/",
   apartments: {
     list: "/dashboard/AppartmentsList",
-    owners: "/hotels/rooms", // Note: This seems like it should be /apartments/owners
-    bookings: "/hotels/bookings", // Note: This seems like it should be /apartments/bookings
-    availability: "/hotels/availability", // Note: This seems like it should be /apartments/availability
+    owners: "/apartments/rooms",
+    bookings: "/apartments/bookings",
+    availability: "/apartments/availability",
   },
   hotels: {
     list: "/dashboard/HotelsList",
@@ -99,100 +100,152 @@ const ROUTES = {
   settings: "/settings",
 };
 
-// Menu items configuration
+// Menu items configuration with role-based access
 const MENU_ITEMS = {
   singleItems: [
     {
       label: "Home",
       icon: ICONS.dashboard,
       route: ROUTES.home,
+      roles: ["admin", "provider"], // Available to both roles
     },
-    // {
-    //   label: "Calendar",
-    //   icon: ICONS.calendar,
-    //   route: ROUTES.calendar,
-    // },
-    // {
-    //   label: "Reviews",
-    //   icon: ICONS.messages,
-    //   route: ROUTES.reviews,
-    // },
-    // {
-    //   label: "Inventory",
-    //   icon: ICONS.inventory,
-    //   route: ROUTES.inventory,
-    // },
-    // {
-    //   label: "Notifications",
-    //   icon: ICONS.notifications,
-    //   route: ROUTES.notifications,
-    // },
-    // {
-    //   label: "Documentation",
-    //   icon: ICONS.documentation,
-    //   route: ROUTES.documentation,
-    // },
-    // {
-    //   label: "Settings",
-    //   icon: ICONS.settings,
-    //   route: ROUTES.settings,
-    // },
   ],
-
   subMenuItems: [
     {
       label: "Appartments",
       icon: ICONS.apartments,
+      roles: ["admin", "provider"],
       items: [
-        { label: "All Appartments", route: ROUTES.apartments.list },
-        { label: "Owners Management", route: ROUTES.apartments.owners },
-        { label: "Bookings", route: ROUTES.apartments.bookings },
-        { label: "Availability", route: ROUTES.apartments.availability },
+        {
+          label: "All Appartments",
+          route: ROUTES.apartments.list,
+          roles: ["admin", "provider"],
+        },
+        {
+          label: "Owners Management",
+          route: ROUTES.apartments.owners,
+          roles: ["admin"], // Only admin can see this
+        },
+        {
+          label: "Bookings",
+          route: ROUTES.apartments.bookings,
+          roles: ["admin", "provider"],
+        },
+        {
+          label: "Availability",
+          route: ROUTES.apartments.availability,
+          roles: ["admin", "provider"],
+        },
       ],
     },
     {
       label: "Hotels",
       icon: ICONS.hotels,
+      roles: ["admin", "provider"],
       items: [
-        { label: "All Hotels", route: ROUTES.hotels.list },
-        { label: "Rooms Management", route: ROUTES.hotels.rooms },
-        { label: "Bookings", route: ROUTES.hotels.bookings },
-        { label: "Availability", route: ROUTES.hotels.availability },
+        {
+          label: "All Hotels",
+          route: ROUTES.hotels.list,
+          roles: ["admin", "provider"],
+        },
+        {
+          label: "Rooms Management",
+          route: ROUTES.hotels.rooms,
+          roles: ["admin", "provider"],
+        },
+        {
+          label: "Bookings",
+          route: ROUTES.hotels.bookings,
+          roles: ["admin", "provider"],
+        },
+        {
+          label: "Availability",
+          route: ROUTES.hotels.availability,
+          roles: ["admin", "provider"],
+        },
       ],
     },
     {
       label: "Car Rentals",
       icon: ICONS.cars,
+      roles: ["admin", "provider"],
       items: [
-        { label: "Fleet Management", route: ROUTES.cars.fleet },
-        { label: "Active Rentals", route: ROUTES.cars.rentals },
-        { label: "Maintenance", route: ROUTES.cars.maintenance },
+        {
+          label: "Fleet Management",
+          route: ROUTES.cars.fleet,
+          roles: ["admin", "provider"],
+        },
+        {
+          label: "Active Rentals",
+          route: ROUTES.cars.rentals,
+          roles: ["admin", "provider"],
+        },
+        {
+          label: "Maintenance",
+          route: ROUTES.cars.maintenance,
+          roles: ["admin", "provider"],
+        },
       ],
     },
     {
       label: "Users",
       icon: ICONS.users,
+      roles: ["admin"], // Only admin can see users
       items: [
-        { label: "Users Management", route: ROUTES.users.management },
-        { label: "Roles & Permissions", route: ROUTES.users.roles },
+        {
+          label: "Users Management",
+          route: ROUTES.users.management,
+          roles: ["admin"],
+        },
+        {
+          label: "Roles & Permissions",
+          route: ROUTES.users.roles,
+          roles: ["admin"],
+        },
       ],
     },
     {
       label: "Finance",
       icon: ICONS.finance,
+      roles: ["admin"], // Only admin can see finance
       items: [
-        { label: "Revenue", route: ROUTES.finance.revenue },
-        { label: "Invoices", route: ROUTES.finance.invoices },
-        { label: "Financial Reports", route: ROUTES.finance.reports },
+        {
+          label: "Revenue",
+          route: ROUTES.finance.revenue,
+          roles: ["admin"],
+        },
+        {
+          label: "Invoices",
+          route: ROUTES.finance.invoices,
+          roles: ["admin"],
+        },
+        {
+          label: "Financial Reports",
+          route: ROUTES.finance.reports,
+          roles: ["admin"],
+        },
       ],
     },
     {
       label: "Analytics",
       icon: ICONS.analytics,
+      roles: ["admin"], // Only admin can see analytics
       items: [
-        { label: "Overview", route: ROUTES.analytics.overview },
-        { label: "Performance", route: ROUTES.analytics.performance },
-        { label: "Trends", route: ROUTES.analytics.trends },
+        {
+          label: "Overview",
+          route: ROUTES.analytics.overview,
+          roles: ["admin"],
+        },
+        {
+          label: "Performance",
+          route: ROUTES.analytics.performance,
+          roles: ["admin"],
+        },
+        {
+          label: "Trends",
+          route: ROUTES.analytics.trends,
+          roles: ["admin"],
+        },
       ],
     },
   ],
@@ -201,7 +254,6 @@ const MENU_ITEMS = {
 // ====================
 // STYLES CONFIGURATION
 // ====================
-
 const menuItemStyles = {
   button: ({ level, active, disabled }) => ({
     color: disabled ? COLORS.disabled : COLORS.textLight,
@@ -222,43 +274,86 @@ const menuItemStyles = {
 };
 
 // ====================
+// HELPER FUNCTIONS
+// ====================
+const hasAccess = (roles: string[], userRole: string | undefined): boolean => {
+  if (!userRole) return false;
+  return roles.includes(userRole.toLowerCase());
+};
+
+// ====================
 // MAIN COMPONENT
 // ====================
-
 const Hsidebar = ({ children }) => {
+  const [user, setUser] = React.useState<User | null>(null);
   const [collapsed, setCollapsed] = useState(true);
 
-  // Render single menu items
+  // Fetch current user on mount
+  React.useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const currentUser = await userService.getCurrentUser();
+        if (!currentUser) {
+          console.log("user not found");
+          setUser(null);
+          return;
+        }
+        setUser(currentUser);
+      } catch {
+        setUser(null);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // Get user role
+  const userRole = user?.role?.toLowerCase();
+
+  // Render single menu items (filtered by role)
   const renderSingleItems = () => {
-    return MENU_ITEMS.singleItems.map((item, index) => (
-      <MenuItem
-        key={`single-${index}`}
-        icon={item.icon}
-        component={<Link to={item.route} />}
-      >
-        {item.label}
-      </MenuItem>
-    ));
+    return MENU_ITEMS.singleItems
+      .filter((item) => hasAccess(item.roles, userRole))
+      .map((item, index) => (
+        <MenuItem
+          key={`single-${index}`}
+          icon={item.icon}
+          component={<Link to={item.route} />}
+        >
+          {item.label}
+        </MenuItem>
+      ));
   };
 
-  // Render submenu items
+  // Render submenu items (filtered by role)
   const renderSubMenuItems = () => {
-    return MENU_ITEMS.subMenuItems.map((submenu, index) => (
-      <SubMenu
-        key={`submenu-${index}`}
-        icon={submenu.icon}
-        label={submenu.label}
-      >
-        {submenu.items.map((item, itemIndex) => (
-          <MenuItem
-            key={`${submenu.label}-${itemIndex}`}
-            component={<Link to={item.route} />}
+    return MENU_ITEMS.subMenuItems
+      .filter((submenu) => hasAccess(submenu.roles, userRole))
+      .map((submenu, index) => {
+        // Filter submenu items based on role
+        const accessibleItems = submenu.items.filter((item) =>
+          hasAccess(item.roles, userRole)
+        );
+
+        // Only render submenu if it has accessible items
+        if (accessibleItems.length === 0) return null;
+
+        return (
+          <SubMenu
+            key={`submenu-${index}`}
+            icon={submenu.icon}
+            label={submenu.label}
           >
-            {item.label}
-          </MenuItem>
-        ))}
-      </SubMenu>
-    ));
+            {accessibleItems.map((item, itemIndex) => (
+              <MenuItem
+                key={`${submenu.label}-${itemIndex}`}
+                component={<Link to={item.route} />}
+              >
+                {item.label}
+              </MenuItem>
+            ))}
+          </SubMenu>
+        );
+      });
   };
 
   return (

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Hsidebar from "../../../components/dashboard/hsidebar";
-import { getAllCars, deleteCar } from "@/services/api/carService";
+import { getAllCars, deleteCar, getCarsByOwnerId } from "@/services/api/carService";
 import { Car } from "@/types/car.types";
 import { useNavigate } from "react-router-dom";
 import { AddCarDialog } from "./addCarDialog";
@@ -22,6 +22,8 @@ import {
   MapPin,
 } from "lucide-react";
 import Swal from "sweetalert2";
+import { userService } from "@/services/api/userService";
+import { User } from "@/types/user.types";
 
 const AllCars = () => {
   const navigate = useNavigate();
@@ -33,23 +35,39 @@ const AllCars = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [carsData, setCarsData] = useState<Car[]>([]);
+  const [currentUser, setUser] = useState<User | null>(null);
   const itemsPerPage = 6;
 
-  // Fetch cars on component mount
-  useEffect(() => {
-    fetchCars();
+  React.useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const currentUser = await userService.getCurrentUser();
+        if (!currentUser) {
+          console.log("user not found");
+          setUser(null);
+          return;
+        }
+        setUser(currentUser);
+      } catch {
+        setUser(null);
+      }
+    };
+    fetchUser();
   }, []);
 
-  const fetchCars = async () => {
+  const fetchCars = async (user: User) => {
     try {
       setLoading(true);
       setError(null);
 
-      const data = await getAllCars();
-      console.log("Fetched cars:", data);
-      console.log("Number of cars:", data?.length);
-
-      setCarsData(data || []); // Ensure we always set an array
+      if (user.role === "admin") {
+        const data = await getAllCars();
+        setCarsData(data || []);
+      } else {
+        const data = await getCarsByOwnerId(user.id);
+        setCarsData(data || []);
+      }
+      
     } catch (err) {
       console.error("Error fetching cars:", err);
       setError("Failed to load cars. Please try again later.");
@@ -57,6 +75,12 @@ const AllCars = () => {
       setLoading(false);
     }
   };
+
+  // Fetch cars on component mount
+  useEffect(() => {
+    if (!currentUser) return;
+    fetchCars(currentUser);
+  }, [currentUser]);
 
   // Filter and search cars
   const filteredCars = useMemo(() => {
@@ -199,7 +223,7 @@ const AllCars = () => {
           <div className="text-center">
             <div className="text-xl font-semibold text-red-600">{error}</div>
             <button
-              onClick={fetchCars}
+              onClick={() => currentUser && fetchCars(currentUser)}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
             >
               Retry

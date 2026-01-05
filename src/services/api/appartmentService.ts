@@ -11,6 +11,18 @@ export const getAllAppartments = async (): Promise<Appartment[]> => {
 };
 
 /**
+ * fetch appartments by provider ID
+ */
+export const getAppartmentsByProviderId = async (providerId: string): Promise<Appartment[]> => {
+    const { data, error } = await apiClient
+        .from("appartment")
+        .select("*")
+        .eq("providerId", providerId);
+    if (error) throw error;
+    return data;
+};
+
+/**
  * fetch a single appartment by ID
  */
 export const getAppartmentById = async (id: number): Promise<Appartment | null> => {

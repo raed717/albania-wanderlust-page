@@ -5,8 +5,24 @@ import { Hotel, CreateHotelDto, UpdateHotelDto } from "@/types/hotel.types";
  * Fetch all hotels
  */
 export const getAllHotels = async (): Promise<Hotel[]> => {
-  console.log("[Hotel Service] Fetching all hotels...");
+  //console.log("[Hotel Service] Fetching all hotels...");
   const { data, error } = await apiClient.from("hotel").select("*");
+  if (error) {
+    console.error("[Hotel Service] Error fetching hotels:", error);
+    throw error;
+  }
+  return data;
+};
+
+/**
+ * Fetch hotles by providerId
+ */
+export const getAllHotelsByProviderId = async (providerId:string): Promise<Hotel[]> => {
+  //console.log("[Hotel Service] Fetching all hotels...");
+  const { data, error } = await apiClient
+    .from("hotel")
+    .select("*")
+    .eq("providerId", providerId);
   if (error) {
     console.error("[Hotel Service] Error fetching hotels:", error);
     throw error;

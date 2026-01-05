@@ -22,9 +22,12 @@ import {
   BedDouble,
 } from "lucide-react";
 import { getAllAppartments } from "@/services/api/appartmentService";
+import { getAppartmentsByProviderId } from "@/services/api/appartmentService";
 import { Appartment, AppartmentFilters } from "@/types/appartment.type";
 import Swal from "sweetalert2";
 import { Room } from "@mui/icons-material";
+import { User } from "@/types/user.types";
+import { userService } from "@/services/api/userService";
 
 /* -------------------------------------------------------------------------- */
 /*                                   Utils                                    */
@@ -60,6 +63,8 @@ const confirmDelete = async (): Promise<boolean> => {
 const AllAppartments = () => {
   const navigate = useNavigate();
 
+  const [currentUser, setUser] = useState<User | null>(null);
+
   const [appartments, setAppartments] = useState<Appartment[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] =
@@ -75,12 +80,35 @@ const AllAppartments = () => {
 
   /* ------------------------------- Fetching -------------------------------- */
 
-  const fetchAppartments = async () => {
+  React.useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const currentUser = await userService.getCurrentUser();
+        if (!currentUser) {
+          console.log("user not found");
+          setUser(null);
+          return;
+        }
+        setUser(currentUser);
+      } catch {
+        setUser(null);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const fetchAppartments = async (user: User) => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getAllAppartments();
-      setAppartments(data);
+
+      if (user.role === "admin") {
+        const data = await getAllAppartments();
+        setAppartments(data);
+      } else {
+        const data = await getAppartmentsByProviderId(user.id);
+        setAppartments(data);
+      }
     } catch (err) {
       console.error(err);
       setError("Failed to load apartments.");
@@ -90,8 +118,9 @@ const AllAppartments = () => {
   };
 
   useEffect(() => {
-    fetchAppartments();
-  }, []);
+    if (!currentUser) return;
+    fetchAppartments(currentUser);
+  }, [currentUser]);
 
   /* ------------------------------- Handlers -------------------------------- */
 
@@ -162,7 +191,7 @@ const AllAppartments = () => {
         <div className="text-center py-20">
           <p className="text-red-500">{error}</p>
           <button
-            onClick={fetchAppartments}
+            onClick={() => currentUser && fetchAppartments(currentUser)}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
           >
             Retry

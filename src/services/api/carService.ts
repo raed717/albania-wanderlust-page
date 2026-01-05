@@ -15,6 +15,28 @@ export const getAllCars = async (): Promise<Car[]> => {
     return data;
 };
 
+/**
+ * fetch cars by owner id
+ */
+export const getCarsByOwnerId = async (providerId: string): Promise<Car[]> => {
+  console.log(`[Car Service] Fetching cars for owner ID: ${providerId}`);
+  const { data, error } = await apiClient
+    .from("car")
+    .select("*")
+    .eq("providerId", providerId);
+  if (error) {
+    console.error(
+      `[Car Service] Error fetching cars for owner ID ${providerId}:`,
+      error
+    );
+    throw error;
+  }
+  console.log(
+    `[Car Service] Successfully fetched cars for owner ID: ${providerId}`,
+    data
+  );
+  return data;
+};
 
 /**
  * Fetch car by id

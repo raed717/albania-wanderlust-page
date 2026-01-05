@@ -17,9 +17,11 @@ import {
   Loader2,
 } from "lucide-react";
 import { AddHotelDialog } from "./components/AddHotelDialog";
-import { getAllHotels, deleteHotel } from "@/services/api/hotelService";
+import { getAllHotels, deleteHotel, getAllHotelsByProviderId } from "@/services/api/hotelService";
 import { Hotel } from "@/types/hotel.types";
 import Swal from "sweetalert2";
+import { User } from "@/types/user.types";
+import { userService } from "@/services/api/userService";
 
 // NOTE: In a real app, you would import Swal from 'sweetalert2'
 // For this demo, we use window.confirm
@@ -48,6 +50,7 @@ const confirmDelete = async (hotelId: number, hotelName: string): Promise<boolea
 const AllHotels = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentUser, setUser] = useState<User | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,17 +60,35 @@ const AllHotels = () => {
 
   const itemsPerPage = 6;
 
-  // Fetch hotels on component mount
-  useEffect(() => {
-    fetchHotels();
+  React.useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const currentUser = await userService.getCurrentUser();
+        if (!currentUser) {
+          console.log("user not found");
+          setUser(null);
+          return;
+        }
+        setUser(currentUser);
+      } catch {
+        setUser(null);
+      }
+    };
+    fetchUser();
   }, []);
 
-  const fetchHotels = async () => {
+  const fetchHotels = async (user: User) => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getAllHotels();
-      setHotels(data);
+      if (user.role === "admin") {
+        const data = await getAllHotels();
+        setHotels(data);
+      } else {
+          const data = await getAllHotelsByProviderId(user.id);
+          setHotels(data);
+      }
+      
     } catch (err) {
       console.error("Error fetching hotels:", err);
       setError("Failed to load hotels. Please try again later.");
@@ -75,6 +96,11 @@ const AllHotels = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!currentUser) return;
+    fetchHotels(currentUser);
+  }, [currentUser]);
 
   // When filters change, reset to page 1
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -200,7 +226,7 @@ const AllHotels = () => {
               </h3>
               <p className="text-gray-500 mb-4">{error}</p>
               <button
-                onClick={fetchHotels}
+                onClick={() => currentUser && fetchHotels(currentUser)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Try Again
