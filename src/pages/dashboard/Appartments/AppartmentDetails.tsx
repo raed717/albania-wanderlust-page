@@ -75,7 +75,7 @@ const AppartmentDetails = () => {
     setFormData((prev) => ({
       ...prev,
       [name]:
-        name === "rating" || name === "rooms" || name === "pricePerDay"
+        name === "rating" || name === "rooms" || name === "price"
           ? Number(value)
           : value,
     }));
@@ -230,7 +230,7 @@ const AppartmentDetails = () => {
                   className="w-full mt-2 border rounded-md px-3 py-2"
                 >
                   <option value="available">Available</option>
-                    <option value="rented">Rented</option>
+                  <option value="rented">Rented</option>
                   <option value="maintenance">Maintenance</option>
                 </select>
               ) : (
@@ -301,12 +301,12 @@ const AppartmentDetails = () => {
                   {isEditing ? (
                     <Input
                       type="number"
-                      name="pricePerDay"
-                      value={formData.pricePerDay || 0}
+                      name="price"
+                      value={formData.price || 0}
                       onChange={handleChange}
                     />
                   ) : (
-                    <p>${appartment.pricePerDay}</p>
+                    <p>${appartment.price}</p>
                   )}
                 </div>
 

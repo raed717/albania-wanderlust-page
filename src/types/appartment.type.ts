@@ -1,6 +1,6 @@
 /**
  * Appartment Type Definitions
- * 
+ *
  * TypeScript interfaces for appartment data models and API operations
  */
 
@@ -13,7 +13,7 @@ export interface Appartment {
   kitchens?: number;
   bathrooms?: number;
   livingRooms?: number;
-  pricePerDay: number;
+  price: number;
   status: "available" | "rented" | "maintenance";
   image: string;
   description?: string;
@@ -33,7 +33,7 @@ export interface CreateAppartmentDto {
   kitchens?: number;
   bathrooms?: number;
   livingRooms?: number;
-  pricePerDay: number;
+  price: number;
   status: "available" | "rented" | "maintenance";
   image: string;
   description?: string;
@@ -53,7 +53,7 @@ export interface UpdateAppartmentDto {
   kitchens?: number;
   bathrooms?: number;
   livingRooms?: number;
-  pricePerDay?: number;
+  price?: number;
   status?: "available" | "rented" | "maintenance";
   image?: string;
   description?: string;
@@ -66,12 +66,29 @@ export interface UpdateAppartmentDto {
 }
 
 export interface AppartmentFilters {
-    searchTerm?: string;
-    status?: "all" | "available" | "rented" | "maintenance";
-    rating?: "all" | "4+" | "4.5+";
+  searchTerm?: string;
+  priceRange?: {
+    min: number;
+    max: number;
+  };
+  rating?: "all" | "3+" | "3.5+" | "4+" | "4.5+";
+  status?: "all" | "available" | "rented" | "maintenance";
+  rooms?: {
+    min?: number;
+    max?: number;
+  };
+  beds?: {
+    min?: number;
+    max?: number;
+  };
+  bathrooms?: {
+    min?: number;
+    max?: number;
+  };
+  amenities?: string[];
 }
 
 export interface PaginationParams {
-    page: number;
-    limit: number;
+  page: number;
+  limit: number;
 }

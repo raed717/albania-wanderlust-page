@@ -122,7 +122,7 @@ const AppartmentsPreview = () => {
                     </p>
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-lg font-semibold text-foreground">
-                        ${appartment.pricePerDay}/night
+                        ${appartment.price}/night
                       </span>
                       <span className="text-sm text-green-600 font-medium">
                         Available

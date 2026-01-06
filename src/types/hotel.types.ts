@@ -1,6 +1,6 @@
 /**
  * Hotel Type Definitions
- * 
+ *
  * TypeScript interfaces for hotel data models and API operations
  */
 
@@ -66,10 +66,30 @@ export interface UpdateHotelDto {
   address?: string;
 }
 
+/**
+ * Extended hotel filter options for search
+ */
 export interface HotelFilters {
   searchTerm?: string;
+  priceRange?: {
+    min: number;
+    max: number;
+  };
+  rating?: "all" | "3+" | "3.5+" | "4+" | "4.5+";
   status?: "all" | "active" | "maintenance";
-  rating?: "all" | "4+" | "4.5+";
+  rooms?: {
+    min?: number;
+    max?: number;
+  };
+  amenities?: {
+    wifi?: boolean;
+    parking?: boolean;
+    pool?: boolean;
+    gym?: boolean;
+    spa?: boolean;
+    restaurant?: boolean;
+    bar?: boolean;
+  };
 }
 
 export interface PaginationParams {

@@ -24,6 +24,7 @@ import HotelReservation from "./pages/home/HotelReservation";
 import SuspendedPage from "./pages/SuspendedPage";
 import AllAppartments from "./pages/dashboard/Appartments/all-appartmets";
 import AppartmentDetails from "./pages/dashboard/Appartments/AppartmentDetails";
+import SearchResults from "./pages/home/SearchResults/SearchResults";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/myAccount" element={<MyAccount />} />
           <Route path="/CultureDetails" element={<CultureDetails />} />
           <Route path="/hotels-map" element={<HotelMapPage />} />
+          <Route path="/searchResults" element={<SearchResults />} />
           <Route path="/hotelReservation/:id" element={<HotelReservation />} />
 
           <Route element={<ProtectedRoute />}>

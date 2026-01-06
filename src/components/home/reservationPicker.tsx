@@ -7,6 +7,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Box, TextField, Typography, IconButton, Button } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
+import { useNavigate } from "react-router";
+
 
 export default function ReservationPickerValue() {
   const [destination, setDestination] = React.useState("");
@@ -37,39 +39,22 @@ export default function ReservationPickerValue() {
       setCheckOutDate(newValue);
     }
   };
+  const navigate = useNavigate();
 
   const handleSearch = async () => {
-    if (checkoutError) return;
-
-    const url = "https://api.makcorps.com/city";
-    const params = {
-      cityid: "60763",
-      //hotelid: destination || "Hotel Deluxe", // fallback if no destination
-      checkin: checkInDate?.format("YYYY-MM-DD"),
-      checkout: checkOutDate?.format("YYYY-MM-DD"),
-      currency: "USD",
-      kids: children,
-      adults: adults,
-      rooms: 1,
-      api_key: "6901d8fcc1c36084a1345b4c", // ⚠️ Don't expose in production!
-    };
-
-    try {
-      setLoading(true);
-      console.log("🔍 Sending booking request with params:", params);
-
-      const response = await axios.get(url, { params });
-      setResponseData(response.data);
-      console.log("✅ API Response:", { responseData });
-    } catch (error: any) {
-      console.error(
-        `❌ Request failed with status code ${error?.response?.status || "unknown"
-        }`,
-        error?.response?.data || error.message
-      );
-    } finally {
-      setLoading(false);
-    }
+    // redirect to search results page with query params
+    setLoading(true);
+    navigate("/searchResults", {
+      state: {
+        destination,
+        checkInDate: checkInDate ? checkInDate.toISOString() : null,
+        checkOutDate: checkOutDate ? checkOutDate.toISOString() : null,
+        adults,
+        children,
+        rooms,
+      },
+    });
+    setLoading(false);
   };
 
   return (

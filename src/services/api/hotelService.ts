@@ -1,5 +1,10 @@
 import { apiClient } from "./apiClient";
-import { Hotel, CreateHotelDto, UpdateHotelDto } from "@/types/hotel.types";
+import {
+  Hotel,
+  CreateHotelDto,
+  UpdateHotelDto,
+  HotelFilters,
+} from "@/types/hotel.types";
 
 /**
  * Fetch all hotels
@@ -11,13 +16,15 @@ export const getAllHotels = async (): Promise<Hotel[]> => {
     console.error("[Hotel Service] Error fetching hotels:", error);
     throw error;
   }
-  return data;
+  return data || [];
 };
 
 /**
  * Fetch hotles by providerId
  */
-export const getAllHotelsByProviderId = async (providerId:string): Promise<Hotel[]> => {
+export const getAllHotelsByProviderId = async (
+  providerId: string
+): Promise<Hotel[]> => {
   //console.log("[Hotel Service] Fetching all hotels...");
   const { data, error } = await apiClient
     .from("hotel")
@@ -96,7 +103,9 @@ export const updateHotel = async (
   }
 
   if (!updatedHotel || updatedHotel.length === 0) {
-    const error = new Error("Update failed: Hotel not found or permission denied");
+    const error = new Error(
+      "Update failed: Hotel not found or permission denied"
+    );
     console.error(`[Hotel Service] Error updating hotel ID ${id}:`, error);
     throw error;
   }
@@ -121,6 +130,76 @@ export const deleteHotel = async (id: number): Promise<void> => {
   console.log(`[Hotel Service] Successfully deleted hotel ID: ${id}`);
 };
 
+/**
+ * Search hotels with filters (client-side filtering)
+ */
+export const searchHotels = async (
+  filters?: HotelFilters
+): Promise<Hotel[]> => {
+  try {
+    const hotels = await getAllHotels();
+
+    if (!filters) {
+      return hotels;
+    }
+
+    return hotels.filter((hotel) => {
+      // Search term filter
+      if (filters.searchTerm) {
+        const term = filters.searchTerm.toLowerCase();
+        const matchesSearch =
+          hotel.name.toLowerCase().includes(term) ||
+          hotel.location?.toLowerCase().includes(term) ||
+          hotel.address?.toLowerCase().includes(term);
+        if (!matchesSearch) return false;
+      }
+
+      // Price range filter
+      if (filters.priceRange) {
+        if (
+          hotel.price < filters.priceRange.min ||
+          hotel.price > filters.priceRange.max
+        ) {
+          return false;
+        }
+      }
+
+      // Rating filter
+      if (filters.rating && filters.rating !== "all") {
+        const threshold = parseFloat(filters.rating);
+        if (hotel.rating < threshold) return false;
+      }
+
+      // Status filter
+      if (filters.status && filters.status !== "all") {
+        if (hotel.status !== filters.status) return false;
+      }
+
+      // Rooms filter
+      if (filters.rooms) {
+        if (filters.rooms.min && hotel.rooms < filters.rooms.min) return false;
+        if (filters.rooms.max && hotel.rooms > filters.rooms.max) return false;
+      }
+
+      // Amenities filter
+      if (filters.amenities) {
+        if (filters.amenities.wifi && !hotel.wifi) return false;
+        if (filters.amenities.parking && !hotel.parking) return false;
+        if (filters.amenities.pool && !hotel.pool) return false;
+        if (filters.amenities.gym && !hotel.gym) return false;
+        if (filters.amenities.spa && !hotel.spa) return false;
+        if (filters.amenities.restaurant && !hotel.restaurant) return false;
+        if (filters.amenities.bar && !hotel.bar) return false;
+      }
+
+      return true;
+    });
+  } catch (err) {
+    console.error("[Hotel Service] Error searching hotels:", err);
+    throw err;
+  }
+};
+
 // Export all services as a single object for easier imports
 const hotelService = {
   getAllHotels,
@@ -128,6 +207,7 @@ const hotelService = {
   createHotel,
   updateHotel,
   deleteHotel,
+  searchHotels,
 };
 
 export default hotelService;

@@ -390,7 +390,7 @@ const AppartmentCard: React.FC<CardProps> = ({
         {/* Row 4: Price (spans full width) */}
         <div className="flex items-center gap-2 col-span-2">
           <DollarSign size={16} className="text-green-600" />
-          <span className="text-lg font-bold">${appartment.pricePerDay}</span>
+          <span className="text-lg font-bold">${appartment.price}</span>
           <span className="text-sm text-gray-500">/day</span>
         </div>
 
