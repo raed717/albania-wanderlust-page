@@ -24,7 +24,8 @@ import HotelReservation from "./pages/home/HotelReservation";
 import SuspendedPage from "./pages/SuspendedPage";
 import AllAppartments from "./pages/dashboard/Appartments/all-appartmets";
 import AppartmentDetails from "./pages/dashboard/Appartments/AppartmentDetails";
-import SearchResults from "./pages/home/SearchResults/SearchResults";
+import SearchPropertyResults from "./pages/home/SearchPropertyResults/SearchPropertyResults";
+import SearchCarResults from "./pages/home/SearchPropertyResults/SearchCarResults";
 
 const queryClient = new QueryClient();
 
@@ -41,7 +42,8 @@ const App = () => (
           <Route path="/myAccount" element={<MyAccount />} />
           <Route path="/CultureDetails" element={<CultureDetails />} />
           <Route path="/hotels-map" element={<HotelMapPage />} />
-          <Route path="/searchResults" element={<SearchResults />} />
+          <Route path="/searchResults" element={<SearchPropertyResults />} />
+          <Route path="/searchCarResults" element={<SearchCarResults />} />
           <Route path="/hotelReservation/:id" element={<HotelReservation />} />
 
           <Route element={<ProtectedRoute />}>

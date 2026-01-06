@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Hotel } from "@/types/hotel.types";
 import { Appartment } from "@/types/appartment.type";
 
-const SearchResults = () => {
+const SearchPropertyResults = () => {
   const {
     filters,
     results,
@@ -28,10 +28,18 @@ const SearchResults = () => {
   }, [applyFilters]);
 
   // Handle property click
-  const handlePropertyClick = (id: number) => {
+  const handlePropertyClick = (id: number, isHotel: boolean) => {
     // Navigate to property details page
     console.log("Navigate to property details:", id);
-    // TODO: Implement navigation to details page
+    if (isHotel) {
+      window.open(`/hotelReservation/${id}`, "_blank", "noopener,noreferrer");
+    } else {
+      window.open(
+        `/appartmentReservation/${id}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    }
   };
 
   // Render skeleton loaders
@@ -123,7 +131,7 @@ const SearchResults = () => {
             {!loading && results.combined.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {results.combined.map((property, index) => {
-                  const isHotel = "location" in property;
+                  const isHotel = "occupancy" in property;
                   const propertyType = isHotel ? "hotel" : "apartment";
                   // Use a truly unique key combining type, id, and index
                   const uniqueKey = `${propertyType}-${property.id}-${index}`;
@@ -133,26 +141,16 @@ const SearchResults = () => {
                       key={uniqueKey}
                       id={property.id}
                       name={property.name}
-                      image={
-                        isHotel
-                          ? (property as Hotel).image
-                          : (property as Appartment).image
-                      }
+                      image={property.image}
                       rating={property.rating}
-                      price={
-                        isHotel
-                          ? (property as Hotel).price
-                          : (property as Appartment).price
-                      }
-                      location={
-                        isHotel ? (property as Hotel).location : undefined
-                      }
+                      price={property.price}
+                      location={property.location}
                       address={property.address}
                       rooms={property.rooms}
                       amenities={property.amenities || []}
                       status={property.status}
                       propertyType={propertyType}
-                      onClick={handlePropertyClick}
+                      onClick={() => handlePropertyClick(property.id, isHotel)}
                     />
                   );
                 })}
@@ -165,4 +163,4 @@ const SearchResults = () => {
   );
 };
 
-export default SearchResults;
+export default SearchPropertyResults;

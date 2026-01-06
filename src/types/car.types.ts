@@ -10,6 +10,7 @@ export interface Car {
     mileage: number;
     pricePerDay: number;
     status: "available" | "rented" | "maintenance";
+    providerId: string;
     color: string;
     plateNumber: string;
     features: string[];
@@ -30,6 +31,7 @@ export interface CreateCarDto {
     mileage: number;
     pricePerDay: number;
     status: "available" | "rented" | "maintenance";
+    providerId: string;
     color: string;
     plateNumber: string;
     features: string[];

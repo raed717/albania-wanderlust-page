@@ -1,5 +1,6 @@
 import { apiClient } from "./apiClient";
 import { Car, CreateCarDto, UpdateCarDto } from "@/types/car.types";
+import { authService } from "./authService";
 
 /**
  * Fetch all cars
@@ -65,7 +66,18 @@ export const getCarById = async (id: number): Promise<Car | null> => {
 export const addCar = async (car: CreateCarDto): Promise<Car> => {
     console.log("[Car Service] Adding new car...");
 
-    const { data, error } = await apiClient.from("car").insert(car).select().single();
+    const providerId = await authService.getCurrentUserId();
+
+    if (!providerId) {
+        throw new Error("User not authenticated");
+    }
+
+    const payload = {
+        ...car,
+        providerId: providerId,
+    };
+
+    const { data, error } = await apiClient.from("car").insert(payload).select().single();
 
     if (error) {
         console.error("[Car Service] Error adding car:", error);

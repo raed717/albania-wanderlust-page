@@ -4,7 +4,7 @@ import Culture from "@/components/home/Culture";
 import CallToAction from "@/components/home/CallToAction";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import HotelsPreview from "@/components/home/HotelsPreview";
-import AppartmentsPreview from "@/components/home/AppartmentssPreview";
+import AppartmentsPreview from "@/components/home/AppartmentsPreview";
 import AlbaniaHeroScroll from "@/components/home/AlbaniaHeroScroll";
 
 const Index = () => {

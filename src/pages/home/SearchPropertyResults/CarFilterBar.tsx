@@ -1,0 +1,294 @@
+import { useState } from "react";
+import { Filter, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { CarFilters } from "@/types/car.types"; // We might need to extend this locally if not flexible enough
+
+export interface CarFilterState extends CarFilters {
+    priceRange?: { min: number; max: number };
+    features?: string[];
+    seats?: number;
+}
+
+interface CarFilterBarProps {
+    filters: CarFilterState;
+    onFilterChange: (filters: Partial<CarFilterState>) => void;
+    onResetFilters: () => void;
+    availableFeatures: string[];
+    featuresLoading?: boolean;
+}
+
+export const CarFilterBar = ({
+    filters,
+    onFilterChange,
+    onResetFilters,
+    availableFeatures,
+    featuresLoading = false,
+}: CarFilterBarProps) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    // Count active filters
+    const countActiveFilters = (): number => {
+        let count = 0;
+        if (filters.searchTerm) count++;
+        if (filters.status && filters.status !== "all") count++;
+        if (filters.type && filters.type !== "all") count++;
+        if (filters.transmission && filters.transmission !== "all") count++;
+        if (filters.fuelType && filters.fuelType !== "all") count++;
+        if (filters.priceRange && (filters.priceRange.min > 0 || filters.priceRange.max < 1000)) count++;
+        if (filters.features && filters.features.length > 0) count++;
+        if (filters.seats && filters.seats > 0) count++;
+        return count;
+    };
+
+    const activeFiltersCount = countActiveFilters();
+
+    return (
+        <>
+            {/* Mobile Filter Toggle Button */}
+            <div className="lg:hidden mb-4 flex gap-2">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="flex items-center gap-2"
+                >
+                    <Filter className="w-4 h-4" />
+                    Filters
+                    {activeFiltersCount > 0 && (
+                        <span className="ml-2 bg-blue-600 text-white text-xs rounded-full px-2 py-0.5">
+                            {activeFiltersCount}
+                        </span>
+                    )}
+                </Button>
+            </div>
+
+            {/* Filter Sidebar */}
+            <aside
+                className={`${isOpen ? "block" : "hidden"
+                    } lg:block w-full lg:w-64 lg:border-r lg:pr-6 space-y-6 bg-white lg:bg-transparent p-4 lg:p-0 rounded-lg shadow-sm lg:shadow-none`}
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <Filter className="w-5 h-5" />
+                        Filters
+                        {activeFiltersCount > 0 && (
+                            <span className="ml-2 text-xs bg-blue-100 text-blue-700 rounded-full px-2 py-0.5">
+                                {activeFiltersCount}
+                            </span>
+                        )}
+                    </h2>
+                    {activeFiltersCount > 0 && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onResetFilters}
+                            className="text-xs flex items-center gap-1 h-8 px-2"
+                        >
+                            <RotateCcw className="w-3 h-3" />
+                            Reset
+                        </Button>
+                    )}
+                </div>
+
+                <div className="space-y-4">
+                    <Accordion type="single" collapsible defaultValue="search">
+                        {/* Search */}
+                        <AccordionItem value="search">
+                            <AccordionTrigger className="text-sm font-semibold">
+                                Search
+                            </AccordionTrigger>
+                            <AccordionContent className="space-y-3 pt-2">
+                                <Input
+                                    placeholder="Brand, model or location..."
+                                    value={filters.searchTerm || ""}
+                                    onChange={(e) =>
+                                        onFilterChange({ searchTerm: e.target.value })
+                                    }
+                                    className="text-sm"
+                                />
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        {/* Price Range */}
+                        <AccordionItem value="price">
+                            <AccordionTrigger className="text-sm font-semibold">
+                                Daily Price Range
+                            </AccordionTrigger>
+                            <AccordionContent className="space-y-4 pt-2">
+                                <div className="space-y-3">
+                                    <div className="flex justify-between text-xs text-gray-600 font-medium">
+                                        <span>€{filters.priceRange?.min || 0}</span>
+                                        <span>€{filters.priceRange?.max || 1000}</span>
+                                    </div>
+                                    <Slider
+                                        min={0}
+                                        max={1000}
+                                        step={10}
+                                        value={[
+                                            filters.priceRange?.min || 0,
+                                            filters.priceRange?.max || 1000,
+                                        ]}
+                                        onValueChange={(value) => {
+                                            onFilterChange({
+                                                priceRange: { min: value[0], max: value[1] },
+                                            });
+                                        }}
+                                        className="py-2"
+                                    />
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        {/* Car Type */}
+                        <AccordionItem value="type">
+                            <AccordionTrigger className="text-sm font-semibold">
+                                Car Type
+                            </AccordionTrigger>
+                            <AccordionContent className="space-y-2 pt-2">
+                                <Select
+                                    value={filters.type || "all"}
+                                    onValueChange={(value) =>
+                                        onFilterChange({ type: value as any })
+                                    }
+                                >
+                                    <SelectTrigger className="text-sm">
+                                        <SelectValue placeholder="All Types" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Types</SelectItem>
+                                        <SelectItem value="Sedan">Sedan</SelectItem>
+                                        <SelectItem value="SUV">SUV</SelectItem>
+                                        <SelectItem value="Sports">Sports</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        {/* Transmission */}
+                        <AccordionItem value="transmission">
+                            <AccordionTrigger className="text-sm font-semibold">
+                                Transmission
+                            </AccordionTrigger>
+                            <AccordionContent className="space-y-2 pt-2">
+                                <Select
+                                    value={filters.transmission || "all"}
+                                    onValueChange={(value) =>
+                                        onFilterChange({ transmission: value as any })
+                                    }
+                                >
+                                    <SelectTrigger className="text-sm">
+                                        <SelectValue placeholder="Any" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Any</SelectItem>
+                                        <SelectItem value="Automatic">Automatic</SelectItem>
+                                        <SelectItem value="Manual">Manual</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        {/* Fuel Type */}
+                        <AccordionItem value="fuel">
+                            <AccordionTrigger className="text-sm font-semibold">
+                                Fuel Type
+                            </AccordionTrigger>
+                            <AccordionContent className="space-y-2 pt-2">
+                                <Select
+                                    value={filters.fuelType || "all"}
+                                    onValueChange={(value) =>
+                                        onFilterChange({ fuelType: value as any })
+                                    }
+                                >
+                                    <SelectTrigger className="text-sm">
+                                        <SelectValue placeholder="Any Fuel" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Any Fuel</SelectItem>
+                                        <SelectItem value="Petrol">Petrol</SelectItem>
+                                        <SelectItem value="Diesel">Diesel</SelectItem>
+                                        <SelectItem value="Hybrid">Hybrid</SelectItem>
+                                        <SelectItem value="Electric">Electric</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        {/* Seats */}
+                        <AccordionItem value="seats">
+                            <AccordionTrigger className="text-sm font-semibold">
+                                Min Seats
+                            </AccordionTrigger>
+                            <AccordionContent className="space-y-2 pt-2">
+                                <Input
+                                    type="number"
+                                    min="1"
+                                    max="9"
+                                    placeholder="e.g. 4"
+                                    value={filters.seats || ""}
+                                    onChange={(e) => onFilterChange({ seats: e.target.value ? parseInt(e.target.value) : undefined })}
+                                />
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        {/* Features (Dynamic) */}
+                        <AccordionItem value="features">
+                            <AccordionTrigger className="text-sm font-semibold">
+                                Features
+                            </AccordionTrigger>
+                            <AccordionContent className="pt-2">
+                                {featuresLoading ? (
+                                    <div className="text-sm text-gray-500 py-2">Loading features...</div>
+                                ) : availableFeatures.length === 0 ? (
+                                    <div className="text-sm text-gray-500 py-2">No features available</div>
+                                ) : (
+                                    <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                                        {availableFeatures.map((feature) => (
+                                            <div key={feature} className="flex items-center space-x-2">
+                                                <Checkbox
+                                                    id={`feature-${feature}`}
+                                                    checked={filters.features?.includes(feature) || false}
+                                                    onCheckedChange={(checked) => {
+                                                        const currentFeatures = filters.features || [];
+                                                        const newFeatures = checked
+                                                            ? [...currentFeatures, feature]
+                                                            : currentFeatures.filter((f) => f !== feature);
+                                                        onFilterChange({ features: newFeatures });
+                                                    }}
+                                                />
+                                                <Label
+                                                    htmlFor={`feature-${feature}`}
+                                                    className="text-sm font-normal cursor-pointer"
+                                                >
+                                                    {feature}
+                                                </Label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+                </div>
+            </aside>
+        </>
+    );
+};

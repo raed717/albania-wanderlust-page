@@ -1,4 +1,5 @@
 import { apiClient } from "./apiClient";
+import { authService } from "./authService";
 import {
   Hotel,
   CreateHotelDto,
@@ -62,9 +63,20 @@ export const getHotelById = async (id: number): Promise<Hotel | null> => {
 export const createHotel = async (data: CreateHotelDto): Promise<Hotel> => {
   console.log("[Hotel Service] Creating new hotel:", data);
 
+  const providerId = await authService.getCurrentUserId();
+
+  if (!providerId) {
+    throw new Error("User not authenticated");
+  }
+
+  const payload = {
+    ...data,
+    providerId: providerId,
+  };
+
   const { data: newHotel, error } = await apiClient
     .from("hotel")
-    .insert([data])
+    .insert(payload)
     .select()
     .single();
 
@@ -76,6 +88,7 @@ export const createHotel = async (data: CreateHotelDto): Promise<Hotel> => {
   console.log("[Hotel Service] Successfully created hotel:", newHotel);
   return newHotel;
 };
+
 
 /**
  * Update an existing hotel

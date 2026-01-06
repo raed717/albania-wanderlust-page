@@ -27,6 +27,7 @@ import { getHotelById } from "@/services/api/hotelService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import Swal from "sweetalert2";
 import { Pool, Spa } from "@mui/icons-material";
+import PrimarySearchAppBar from "@/components/home/AppBar";
 
 const HotelReservation = () => {
   const { id } = useParams<{ id: string }>();
@@ -68,6 +69,7 @@ const HotelReservation = () => {
 
   if (loading) {
     return (
+      
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
         <div className="text-center">
           <Loader2
@@ -94,7 +96,7 @@ const HotelReservation = () => {
             The hotel you're looking for doesn't exist or has been removed.
           </p>
           <Button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/searchResults")}
             className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
           >
             <ArrowLeft className="mr-2" size={16} />
@@ -117,11 +119,12 @@ const HotelReservation = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <PrimarySearchAppBar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <Button
           variant="ghost"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/searchResults")}
           className="mb-6 hover:bg-white/50"
         >
           <ArrowLeft className="mr-2" size={16} />

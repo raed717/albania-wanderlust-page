@@ -15,6 +15,7 @@ export interface Hotel {
   status: "active" | "maintenance";
   image: string;
   description?: string;
+  providerId?: string;
   amenities?: string[];
   contactEmail?: string;
   contactPhone?: string;
@@ -40,6 +41,7 @@ export interface CreateHotelDto {
   status: "active" | "maintenance";
   image: string;
   description?: string;
+  providerId?: string;
   amenities?: string[];
   contactEmail?: string;
   contactPhone?: string;

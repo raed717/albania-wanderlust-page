@@ -1,4 +1,4 @@
-// BLUE THEME VERSION
+// red THEME VERSION
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -103,41 +103,41 @@ const CultureDetails = () => {
       title: "Besa",
       description:
         "A code of honor meaning 'to keep the promise' - the cornerstone of Albanian culture emphasizing trust, loyalty, and protection of guests.",
-      icon: <Heart className="w-6 h-6 text-blue-600" />,
+      icon: <Heart className="w-6 h-6 text-red-600" />,
     },
     {
       title: "Albanian Iso-Polyphony",
       description:
         "UNESCO-recognized traditional singing style featuring multiple vocal parts creating rich harmonies, especially in southern Albania.",
-      icon: <Music className="w-6 h-6 text-blue-600" />,
+      icon: <Music className="w-6 h-6 text-red-600" />,
     },
     {
       title: "Hospitality (Mikpritja)",
       description:
         "Guests are treated as sacred. It's common to be invited into homes and offered food and drink, even by strangers.",
-      icon: <Users className="w-6 h-6 text-blue-600" />,
+      icon: <Users className="w-6 h-6 text-red-600" />,
     },
     {
       title: "Traditional Crafts",
       description:
         "Skilled artisans create intricate filigree jewelry, handwoven rugs, and carved wooden items using centuries-old techniques.",
-      icon: <Sparkles className="w-6 h-6 text-blue-600" />,
+      icon: <Sparkles className="w-6 h-6 text-red-600" />,
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-blue-100/40 to-blue-200/20">
+    <div className="min-h-screen bg-gradient-to-b from-red-50 via-red-100/40 to-red-200/20">
       <PrimarySearchAppBar />
 
       {/* HERO */}
       <section className="relative py-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-blue-300/20 to-blue-600/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-red-300/20 to-red-600/10" />
         <div className="container mx-auto relative z-10">
           <div className="text-center max-w-4xl mx-auto animate-fade-in">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-t from-blue-500 to-blue-800 bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-t from-red-500 to-red-800 bg-clip-text text-transparent">
               Albanian Culture & Cuisine
             </h1>
-            <p className="text-xl text-blue-700/70 leading-relaxed">
+            <p className="text-xl text-red-700/70 leading-relaxed">
               Discover the spirit of Albania through its rich traditions,
               ancient customs, and unforgettable cuisine.
             </p>
@@ -146,15 +146,15 @@ const CultureDetails = () => {
       </section>
 
       {/* TABS */}
-      <section className="sticky top-0 z-40 bg-blue-50/90 backdrop-blur-sm border-b shadow-sm">
+      <section className="sticky top-0 z-40 bg-red-50/90 backdrop-blur-sm border-b shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex justify-center gap-4 py-4">
             {/* Tab Buttons */}
             <button
               onClick={() => setActiveTab("cuisine")}
               className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${activeTab === "cuisine"
-                  ? "bg-blue-600 text-white shadow-lg scale-105"
-                  : "bg-blue-100 text-blue-600 hover:bg-blue-200"
+                  ? "bg-red-600 text-white shadow-lg scale-105"
+                  : "bg-red-100 text-red-600 hover:bg-red-200"
                 }`}
             >
               <ChefHat className="w-5 h-5" />
@@ -163,8 +163,8 @@ const CultureDetails = () => {
             <button
               onClick={() => setActiveTab("festivals")}
               className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${activeTab === "festivals"
-                  ? "bg-blue-600 text-white shadow-lg scale-105"
-                  : "bg-blue-100 text-blue-600 hover:bg-blue-200"
+                  ? "bg-red-600 text-white shadow-lg scale-105"
+                  : "bg-red-100 text-red-600 hover:bg-red-200"
                 }`}
             >
               <Calendar className="w-5 h-5" />
@@ -173,8 +173,8 @@ const CultureDetails = () => {
             <button
               onClick={() => setActiveTab("traditions")}
               className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${activeTab === "traditions"
-                  ? "bg-blue-600 text-white shadow-lg scale-105"
-                  : "bg-blue-100 text-blue-600 hover:bg-blue-200"
+                  ? "bg-red-600 text-white shadow-lg scale-105"
+                  : "bg-red-100 text-red-600 hover:bg-red-200"
                 }`}
             >
               <Heart className="w-5 h-5" />
@@ -189,13 +189,13 @@ const CultureDetails = () => {
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-7xl">
             <div className="text-center mb-12 animate-fade-in">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-200 rounded-full mb-4">
-                <UtensilsCrossed className="w-8 h-8 text-blue-600" />
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-red-200 rounded-full mb-4">
+                <UtensilsCrossed className="w-8 h-8 text-red-600" />
               </div>
               <h2 className="text-4xl font-bold mb-4">
                 Traditional Albanian Dishes
               </h2>
-              <p className="text-lg text-blue-700/70 max-w-2xl mx-auto">
+              <p className="text-lg text-red-700/70 max-w-2xl mx-auto">
                 Albanian cuisine blends Mediterranean freshness with Balkan
                 heartiness.
               </p>
@@ -219,13 +219,13 @@ const CultureDetails = () => {
 
                   <CardContent className="p-6">
                     <h3 className="text-2xl font-bold mb-2">{dish.name}</h3>
-                    <p className="text-blue-700/70 mb-4">{dish.description}</p>
+                    <p className="text-red-700/70 mb-4">{dish.description}</p>
 
                     <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1 bg-blue-200 text-blue-700 rounded-full text-xs font-medium">
+                      <span className="px-3 py-1 bg-red-200 text-red-700 rounded-full text-xs font-medium">
                         {dish.region}
                       </span>
-                      <span className="px-3 py-1 bg-blue-600/10 text-blue-700 rounded-full text-xs font-medium">
+                      <span className="px-3 py-1 bg-red-600/10 text-red-700 rounded-full text-xs font-medium">
                         {dish.type}
                       </span>
                     </div>
@@ -235,18 +235,18 @@ const CultureDetails = () => {
             </div>
 
             {/* WINE SECTION */}
-            <div className="mt-16 bg-gradient-to-r from-blue-200/40 to-blue-600/20 rounded-3xl p-8 md:p-12 animate-fade-in">
+            <div className="mt-16 bg-gradient-to-r from-red-200/40 to-red-600/20 rounded-3xl p-8 md:p-12 animate-fade-in">
               <div className="flex flex-col md:flex-row items-center gap-8">
                 <div className="flex-shrink-0">
-                  <div className="w-24 h-24 bg-blue-300/40 rounded-full flex items-center justify-center">
-                    <Wine className="w-12 h-12 text-blue-600" />
+                  <div className="w-24 h-24 bg-red-300/40 rounded-full flex items-center justify-center">
+                    <Wine className="w-12 h-12 text-red-600" />
                   </div>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-3xl font-bold mb-4">
                     Albanian Wine & Spirits
                   </h3>
-                  <p className="text-blue-700/70 leading-relaxed">
+                  <p className="text-red-700/70 leading-relaxed">
                     Albania's wine tradition dates to Illyrian times, producing
                     unique wines from ancient grapes like Shesh i Zi and
                     Kallmet. Raki remains the national spirit—shared proudly
@@ -264,13 +264,13 @@ const CultureDetails = () => {
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-6xl">
             <div className="text-center mb-12 animate-fade-in">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-200 rounded-full mb-4">
-                <Calendar className="w-8 h-8 text-blue-600" />
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-red-200 rounded-full mb-4">
+                <Calendar className="w-8 h-8 text-red-600" />
               </div>
               <h2 className="text-4xl font-bold mb-4">
                 Festivals & Celebrations
               </h2>
-              <p className="text-lg text-blue-700/70 max-w-2xl mx-auto">
+              <p className="text-lg text-red-700/70 max-w-2xl mx-auto">
                 Albania comes alive with music, culture, and tradition all year
                 long.
               </p>
@@ -290,11 +290,11 @@ const CultureDetails = () => {
                           <h3 className="text-2xl font-bold">
                             {festival.name}
                           </h3>
-                          <span className="px-4 py-2 bg-blue-300/20 text-blue-700 rounded-full text-sm font-semibold">
+                          <span className="px-4 py-2 bg-red-300/20 text-red-700 rounded-full text-sm font-semibold">
                             {festival.date}
                           </span>
                         </div>
-                        <p className="text-blue-700/70">
+                        <p className="text-red-700/70">
                           {festival.description}
                         </p>
                       </div>
@@ -312,11 +312,11 @@ const CultureDetails = () => {
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-6xl">
             <div className="text-center mb-12 animate-fade-in">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-200 rounded-full mb-4">
-                <Heart className="w-8 h-8 text-blue-600" />
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-red-200 rounded-full mb-4">
+                <Heart className="w-8 h-8 text-red-600" />
               </div>
               <h2 className="text-4xl font-bold mb-4">Cultural Traditions</h2>
-              <p className="text-lg text-blue-700/70 max-w-2xl mx-auto">
+              <p className="text-lg text-red-700/70 max-w-2xl mx-auto">
                 Albania preserves deep-rooted values of honor, hospitality, and
                 unity.
               </p>
@@ -331,14 +331,14 @@ const CultureDetails = () => {
                 >
                   <CardContent className="p-8">
                     <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-12 h-12 bg-blue-300/20 rounded-full flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform duration-300">
+                      <div className="flex-shrink-0 w-12 h-12 bg-red-300/20 rounded-full flex items-center justify-center text-red-600 group-hover:scale-110 transition-transform duration-300">
                         {tradition.icon}
                       </div>
                       <div className="flex-1">
                         <h3 className="text-2xl font-bold mb-3">
                           {tradition.title}
                         </h3>
-                        <p className="text-blue-700/70 leading-relaxed">
+                        <p className="text-red-700/70 leading-relaxed">
                           {tradition.description}
                         </p>
                       </div>
@@ -348,17 +348,17 @@ const CultureDetails = () => {
               ))}
             </div>
 
-            <div className="mt-16 bg-gradient-to-br from-blue-200/40 via-blue-100 to-blue-400/30 rounded-3xl p-8 md:p-12 animate-fade-in">
+            <div className="mt-16 bg-gradient-to-br from-red-200/40 via-red-100 to-red-400/30 rounded-3xl p-8 md:p-12 animate-fade-in">
               <h3 className="text-3xl font-bold mb-6 text-center">
                 The Albanian Spirit
               </h3>
-              <p className="text-blue-700/70 leading-relaxed text-center max-w-4xl mx-auto mb-6">
+              <p className="text-red-700/70 leading-relaxed text-center max-w-4xl mx-auto mb-6">
                 Albanian identity is rooted in honor, family, and hospitality.
                 From ancient symbols to vibrant music and art, the spirit of the
                 country lives on through its traditions.
               </p>
               <div className="flex justify-center">
-                <button className="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-full font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <button className="px-8 py-4 bg-gradient-to-r from-red-500 to-red-700 text-white rounded-full font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105">
                   Experience Albania
                 </button>
               </div>

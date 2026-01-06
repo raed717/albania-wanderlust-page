@@ -118,6 +118,16 @@ export const authService = {
   },
 
   /**
+   * Het current user id
+   */
+  async getCurrentUserId() {
+    const { data, error } = await apiClient.auth.getUser();
+    if (error) throw error;
+    console.log(data.user.id);
+    return data.user.id;
+  },
+
+  /**
    * Ensure user profile exists in public.users table
    */
   async ensureUserProfile(userId: string, user_metadata: any) {

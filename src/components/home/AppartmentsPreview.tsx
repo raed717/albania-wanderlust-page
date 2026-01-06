@@ -1,6 +1,6 @@
 import { useMemo, CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getAllHotels } from "@/services/api/hotelService";
+import { getAllAppartments } from "@/services/api/appartmentService";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { ClipLoader } from "react-spinners";
@@ -14,7 +14,7 @@ const override: CSSProperties = {
   margin: "0 auto",
 };
 
-const HotelsPreview = () => {
+const AppartmentsPreview = () => {
   const navigate = useNavigate();
 
   const [sliderRef] = useKeenSlider({
@@ -39,29 +39,29 @@ const HotelsPreview = () => {
     },
   });
 
-  const { data: hotels = [], isLoading } = useQuery({
-    queryKey: ["hotels"],
-    queryFn: getAllHotels,
+  const { data: appartments = [], isLoading } = useQuery({
+    queryKey: ["appartments"],
+    queryFn: getAllAppartments,
   });
 
-  // Filter hotels with rating > 0 and status "active"
-  const availableTopHotels = useMemo(() => {
-    return hotels.filter(
-      (hotel) => hotel.rating > 0 && hotel.status === "active"
+  // Filter appartments with rating > 0 and status "available"
+  const availableTopAppartments = useMemo(() => {
+    return appartments.filter(
+      (appartment) => appartment.rating > 0 && appartment.status === "available"
     );
-  }, [hotels]);
+  }, [appartments]);
 
-  const handlePropertyClick = (hotelId: string | number) => {
-    navigate(`/hotelReservation/${hotelId}`);
+  const handlePropertyClick = (appartmentId: string | number) => {
+    navigate(`/appartmentReservation/${appartmentId}`);
   };
 
   return (
-    <section id="hotels" className="py-24 bg-slate-100">
+    <section id="appartments" className="py-24 bg-slate-100">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="mb-4 text-foreground">Top Available Hotels</h2>
+          <h2 className="mb-4 text-foreground">Check Our Appartments</h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Discover the best available hotels in Albania with ratings above 3.5
+            Make your stay unforgettable with our top-rated appartments
           </p>
         </div>
 
@@ -76,35 +76,35 @@ const HotelsPreview = () => {
               data-testid="loader"
             />
             <p className="text-lg text-muted-foreground mt-4">
-              Loading hotels...
+              Loading appartments...
             </p>
           </div>
-        ) : availableTopHotels.length === 0 ? (
+        ) : availableTopAppartments.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-lg text-muted-foreground">
-              No hotels available at the moment. Please check back later.
+              No appartments available at the moment. Please check back later.
             </p>
           </div>
         ) : (
           <div ref={sliderRef} className="keen-slider">
-            {availableTopHotels.map((hotel, index) => (
+            {availableTopAppartments.map((appartment, index) => (
               <div
-                key={hotel.id}
+                key={appartment.id}
                 className="keen-slider__slide"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <PropertyCard
-                  id={hotel.id}
-                  name={hotel.name}
-                  image={hotel.image}
-                  rating={hotel.rating}
-                  price={hotel.price}
-                  location={hotel.location}
-                  address={hotel.address}
-                  rooms={hotel.rooms || 0}
-                  amenities={hotel.amenities || []}
-                  status={hotel.status}
-                  propertyType="hotel"
+                  id={appartment.id}
+                  name={appartment.name}
+                  image={appartment.image}
+                  rating={appartment.rating}
+                  price={appartment.price}
+                  location={appartment.location}
+                  address={appartment.address}
+                  rooms={appartment.rooms || 0}
+                  amenities={appartment.amenities || []}
+                  status={appartment.status}
+                  propertyType="apartment"
                   onClick={handlePropertyClick}
                 />
               </div>
@@ -116,4 +116,4 @@ const HotelsPreview = () => {
   );
 };
 
-export default HotelsPreview;
+export default AppartmentsPreview;

@@ -21,6 +21,7 @@ export interface Appartment {
   contactEmail?: string;
   contactPhone?: string;
   address?: string;
+  location?: string;
   lat?: number;
   lng?: number;
 }
@@ -41,6 +42,7 @@ export interface CreateAppartmentDto {
   contactEmail?: string;
   contactPhone?: string;
   address?: string;
+  location?: string;
   lat?: number;
   lng?: number;
 }
@@ -63,6 +65,7 @@ export interface UpdateAppartmentDto {
   lat?: number;
   lng?: number;
   address?: string;
+  location?: string;
 }
 
 export interface AppartmentFilters {
