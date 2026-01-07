@@ -17,7 +17,11 @@ import {
   Loader2,
 } from "lucide-react";
 import { AddHotelDialog } from "./components/AddHotelDialog";
-import { getAllHotels, deleteHotel, getAllHotelsByProviderId } from "@/services/api/hotelService";
+import {
+  getAllHotels,
+  deleteHotel,
+  getAllHotelsByProviderId,
+} from "@/services/api/hotelService";
 import { Hotel } from "@/types/hotel.types";
 import Swal from "sweetalert2";
 import { User } from "@/types/user.types";
@@ -25,7 +29,10 @@ import { userService } from "@/services/api/userService";
 
 // NOTE: In a real app, you would import Swal from 'sweetalert2'
 // For this demo, we use window.confirm
-const confirmDelete = async (hotelId: number, hotelName: string): Promise<boolean> => {
+const confirmDelete = async (
+  hotelId: number,
+  hotelName: string
+): Promise<boolean> => {
   return Swal.fire({
     title: "Are you sure?",
     text: "You won't be able to revert this!",
@@ -33,13 +40,13 @@ const confirmDelete = async (hotelId: number, hotelName: string): Promise<boolea
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!"
+    confirmButtonText: "Yes, delete it!",
   }).then((result) => {
     if (result.isConfirmed) {
       Swal.fire({
         title: "Deleted!",
         text: "Your hotel has been deleted.",
-        icon: "success"
+        icon: "success",
       });
       return true;
     }
@@ -85,10 +92,9 @@ const AllHotels = () => {
         const data = await getAllHotels();
         setHotels(data);
       } else {
-          const data = await getAllHotelsByProviderId(user.id);
-          setHotels(data);
+        const data = await getAllHotelsByProviderId(user.id);
+        setHotels(data);
       }
-      
     } catch (err) {
       console.error("Error fetching hotels:", err);
       setError("Failed to load hotels. Please try again later.");
@@ -130,7 +136,7 @@ const AllHotels = () => {
           title: "Error",
           text: "Failed to delete hotel. Please try again.",
           icon: "error",
-          confirmButtonText: "OK"
+          confirmButtonText: "OK",
         });
       }
     }
@@ -370,10 +376,11 @@ const AllHotels = () => {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === 1
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                currentPage === 1
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm"
-                }`}
+              }`}
             >
               <ChevronLeft size={16} />
               Previous
@@ -385,10 +392,11 @@ const AllHotels = () => {
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${currentPage === page
+                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
+                      currentPage === page
                         ? "bg-blue-600 text-white shadow-md shadow-blue-200"
                         : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
-                      }`}
+                    }`}
                   >
                     {page}
                   </button>
@@ -401,10 +409,11 @@ const AllHotels = () => {
                 setCurrentPage((prev) => Math.min(totalPages, prev + 1))
               }
               disabled={currentPage === totalPages}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === totalPages
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                currentPage === totalPages
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm"
-                }`}
+              }`}
             >
               Next
               <ChevronRight size={16} />
@@ -450,15 +459,16 @@ const HotelCard: React.FC<HotelCardProps> = ({
     <div
       className="h-52 bg-cover bg-center relative group-hover:scale-105 transition-transform duration-500"
       style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url(${hotel.image})`,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url(${hotel.imageUrls?.[0]})`,
       }}
     >
       <div className="absolute top-3 right-3">
         <span
-          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${hotel.status === "active"
+          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+            hotel.status === "active"
               ? "bg-emerald-500 text-white"
               : "bg-amber-500 text-white"
-            }`}
+          }`}
         >
           {hotel.status}
         </span>

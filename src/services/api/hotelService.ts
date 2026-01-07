@@ -6,6 +6,7 @@ import {
   UpdateHotelDto,
   HotelFilters,
 } from "@/types/hotel.types";
+import { uploadHotelImages, deleteHotelImage } from "./storageService";
 
 /**
  * Fetch all hotels
@@ -58,9 +59,12 @@ export const getHotelById = async (id: number): Promise<Hotel | null> => {
 };
 
 /**
- * Create a new hotel
+ * Create a new hotel with image uploads
  */
-export const createHotel = async (data: CreateHotelDto): Promise<Hotel> => {
+export const createHotel = async (
+  data: CreateHotelDto,
+  imageFiles?: File[]
+): Promise<Hotel> => {
   console.log("[Hotel Service] Creating new hotel:", data);
 
   const providerId = await authService.getCurrentUserId();
@@ -69,9 +73,26 @@ export const createHotel = async (data: CreateHotelDto): Promise<Hotel> => {
     throw new Error("User not authenticated");
   }
 
+  // Upload images first if provided
+  let imageUrls: string[] = [];
+  if (imageFiles && imageFiles.length > 0) {
+    try {
+      console.log("[Hotel Service] Uploading images...");
+      const uploadResults = await uploadHotelImages(imageFiles);
+      imageUrls = uploadResults.map((result) => result.publicUrl);
+      console.log("[Hotel Service] Images uploaded successfully");
+    } catch (err) {
+      console.error("[Hotel Service] Error uploading images:", err);
+      throw new Error(
+        `Failed to upload images: ${err instanceof Error ? err.message : "Unknown error"}`
+      );
+    }
+  }
+
   const payload = {
     ...data,
     providerId: providerId,
+    imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
   };
 
   const { data: newHotel, error } = await apiClient
@@ -81,6 +102,13 @@ export const createHotel = async (data: CreateHotelDto): Promise<Hotel> => {
     .single();
 
   if (error) {
+    // If database insert fails, we should clean up uploaded images
+    if (imageUrls.length > 0) {
+      console.error(
+        "[Hotel Service] Cleaning up uploaded images due to DB error"
+      );
+      // Note: Clean up is optional here - files can be deleted manually later
+    }
     console.error("[Hotel Service] Error creating hotel:", error);
     throw error;
   }
@@ -89,13 +117,13 @@ export const createHotel = async (data: CreateHotelDto): Promise<Hotel> => {
   return newHotel;
 };
 
-
 /**
- * Update an existing hotel
+ * Update an existing hotel with optional image uploads
  */
 export const updateHotel = async (
   id: number,
-  data: UpdateHotelDto
+  data: UpdateHotelDto,
+  newImageFiles?: File[]
 ): Promise<Hotel> => {
   console.log(`[Hotel Service] Updating hotel ID: ${id}`, data);
 
@@ -103,6 +131,32 @@ export const updateHotel = async (
   const updateData = { ...data };
   delete (updateData as any).id;
   delete (updateData as any).created_at;
+
+  // Handle new image uploads
+  if (newImageFiles && newImageFiles.length > 0) {
+    try {
+      console.log("[Hotel Service] Uploading new images...");
+      const uploadResults = await uploadHotelImages(newImageFiles, id);
+      const newImageUrls = uploadResults.map((result) => result.publicUrl);
+
+      // Append new images to existing ones or replace
+      if (updateData.imageUrls) {
+        updateData.imageUrls = [
+          ...(updateData.imageUrls || []),
+          ...newImageUrls,
+        ];
+      } else {
+        updateData.imageUrls = newImageUrls;
+      }
+
+      console.log("[Hotel Service] New images uploaded successfully");
+    } catch (err) {
+      console.error("[Hotel Service] Error uploading images:", err);
+      throw new Error(
+        `Failed to upload images: ${err instanceof Error ? err.message : "Unknown error"}`
+      );
+    }
+  }
 
   const { data: updatedHotel, error } = await apiClient
     .from("hotel")

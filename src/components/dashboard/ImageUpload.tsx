@@ -1,0 +1,227 @@
+import React, { useState, useRef } from "react";
+import {
+  Upload,
+  X,
+  Image as ImageIcon,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+interface ImageUploadProps {
+  onImagesSelected: (files: File[]) => void;
+  maxImages?: number;
+  maxFileSize?: number; // in bytes, default 5MB
+  selectedFiles?: File[];
+  onRemoveFile?: (index: number) => void;
+  isLoading?: boolean;
+}
+
+export const ImageUpload: React.FC<ImageUploadProps> = ({
+  onImagesSelected,
+  maxImages = 10,
+  maxFileSize = 5 * 1024 * 1024,
+  selectedFiles = [],
+  onRemoveFile,
+  isLoading = false,
+}) => {
+  const [error, setError] = useState<string>("");
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+  const validateFiles = (files: File[]): File[] => {
+    setError("");
+    const validFiles: File[] = [];
+
+    files.forEach((file) => {
+      // Check file type
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        setError(
+          `Invalid file type: ${file.name}. Allowed: JPEG, PNG, WebP, GIF`
+        );
+        return;
+      }
+
+      // Check file size
+      if (file.size > maxFileSize) {
+        setError(
+          `File ${file.name} exceeds ${Math.round(maxFileSize / 1024 / 1024)}MB limit`
+        );
+        return;
+      }
+
+      validFiles.push(file);
+    });
+
+    // Check total count
+    const totalFiles = selectedFiles.length + validFiles.length;
+    if (totalFiles > maxImages) {
+      setError(
+        `Maximum ${maxImages} images allowed. You have ${selectedFiles.length} selected.`
+      );
+      return [];
+    }
+
+    return validFiles;
+  };
+
+  const handleFiles = (files: FileList) => {
+    const fileArray = Array.from(files);
+    const validFiles = validateFiles(fileArray);
+    if (validFiles.length > 0) {
+      onImagesSelected([...selectedFiles, ...validFiles]);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      handleFiles(e.target.files);
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files) {
+      handleFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleClick = () => {
+    if (!isLoading) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleRemove = (index: number) => {
+    onRemoveFile?.(index);
+  };
+
+  return (
+    <div className="space-y-4">
+      <Label htmlFor="image-upload" className="text-sm font-medium">
+        Hotel Images <span className="text-gray-500">(Max {maxImages})</span>
+      </Label>
+
+      {/* Upload Area */}
+      <div
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+        onClick={handleClick}
+        className={`relative rounded-lg border-2 border-dashed transition-colors cursor-pointer ${
+          dragActive
+            ? "border-blue-500 bg-blue-50"
+            : "border-gray-300 bg-gray-50 hover:border-gray-400"
+        } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+      >
+        <input
+          ref={fileInputRef}
+          id="image-upload"
+          type="file"
+          multiple
+          accept={ALLOWED_TYPES.join(",")}
+          onChange={handleInputChange}
+          disabled={isLoading}
+          className="hidden"
+        />
+
+        <div className="p-8 text-center">
+          {isLoading ? (
+            <div className="flex flex-col items-center gap-2">
+              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+              <p className="text-sm text-gray-600">Uploading images...</p>
+            </div>
+          ) : (
+            <>
+              <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+              <p className="text-sm font-medium text-gray-700">
+                Drag and drop images here or click to select
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                PNG, JPG, WebP, GIF up to 5MB each
+              </p>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Error Message */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Selected Images Preview */}
+      {selectedFiles.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-gray-700">
+            Selected Images ({selectedFiles.length}/{maxImages})
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {selectedFiles.map((file, index) => (
+              <div
+                key={index}
+                className="relative group rounded-lg overflow-hidden bg-gray-100 aspect-square"
+              >
+                {/* Image Preview */}
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={`Preview ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+
+                {/* Overlay with remove button */}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleRemove(index)}
+                    disabled={isLoading}
+                    className="rounded-full p-2 h-auto"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {/* File name tooltip */}
+                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1 truncate">
+                  {file.name}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Help Text */}
+      <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+        <ImageIcon className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+        <p className="text-xs text-blue-700">
+          Upload multiple high-quality images to showcase your hotel. The first
+          image will be used as the primary image in listings.
+        </p>
+      </div>
+    </div>
+  );
+};

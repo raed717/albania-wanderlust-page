@@ -13,7 +13,7 @@ export interface Hotel {
   occupancy: number;
   price: number;
   status: "active" | "maintenance";
-  image: string;
+  imageUrls?: string[];
   description?: string;
   providerId?: string;
   amenities?: string[];
@@ -39,7 +39,7 @@ export interface CreateHotelDto {
   occupancy: number;
   price: number;
   status: "active" | "maintenance";
-  image: string;
+  imageUrls?: string[];
   description?: string;
   providerId?: string;
   amenities?: string[];
@@ -58,7 +58,7 @@ export interface UpdateHotelDto {
   occupancy?: number;
   price?: number;
   status?: "active" | "maintenance";
-  image?: string;
+  imageUrls?: string[];
   description?: string;
   amenities?: string[];
   contactEmail?: string;

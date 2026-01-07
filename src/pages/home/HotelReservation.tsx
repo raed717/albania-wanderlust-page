@@ -69,7 +69,6 @@ const HotelReservation = () => {
 
   if (loading) {
     return (
-      
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
         <div className="text-center">
           <Loader2
@@ -137,7 +136,7 @@ const HotelReservation = () => {
             <div
               className="absolute inset-0 bg-cover bg-center"
               style={{
-                backgroundImage: `url(${hotel.image})`,
+                backgroundImage: `url(${hotel.imageUrls?.[0]})`,
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />

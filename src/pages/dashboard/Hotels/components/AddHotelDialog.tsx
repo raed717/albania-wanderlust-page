@@ -15,6 +15,7 @@ import { Plus, Loader2 } from "lucide-react";
 import { CreateHotelDto } from "@/types/hotel.types";
 import { createHotel } from "@/services/api/hotelService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
+import { ImageUpload } from "@/components/dashboard/ImageUpload";
 
 interface AddHotelDialogProps {
   onHotelAdded: (hotel: any) => void;
@@ -25,6 +26,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedImageFiles, setSelectedImageFiles] = useState<File[]>([]);
   const [formData, setFormData] = useState<CreateHotelDto>({
     name: "",
     location: "",
@@ -33,7 +35,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
     occupancy: 0,
     price: 0,
     status: "active",
-    image: "",
+    imageUrls: [],
     description: "",
     amenities: [],
     contactEmail: "",
@@ -78,9 +80,14 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
       return;
     }
 
+    if (selectedImageFiles.length === 0) {
+      alert("Please upload at least one image");
+      return;
+    }
+
     setLoading(true);
     try {
-      const newHotel = await createHotel(formData);
+      const newHotel = await createHotel(formData, selectedImageFiles);
       onHotelAdded(newHotel);
       setOpen(false);
 
@@ -93,7 +100,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
         occupancy: 0,
         price: 0,
         status: "active",
-        image: "",
+        imageUrls: [],
         description: "",
         amenities: [],
         contactEmail: "",
@@ -102,9 +109,12 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
         lat: undefined,
         lng: undefined,
       });
+      setSelectedImageFiles([]);
     } catch (error) {
       console.error("Error adding hotel:", error);
-      alert("Failed to add hotel. Please try again.");
+      alert(
+        `Failed to add hotel: ${error instanceof Error ? error.message : "Please try again."}`
+      );
     } finally {
       setLoading(false);
     }
@@ -251,21 +261,6 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
               </select>
             </div>
 
-            {/* Image URL */}
-            <div className="space-y-2">
-              <Label htmlFor="image" className="text-sm font-medium">
-                Image URL
-              </Label>
-              <Input
-                id="image"
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                placeholder="https://images.unsplash.com/..."
-                className="w-full"
-              />
-            </div>
-
             {/* Contact Email */}
             <div className="space-y-2">
               <Label htmlFor="contactEmail" className="text-sm font-medium">
@@ -297,6 +292,21 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
               />
             </div>
           </div>
+
+          {/* Image Upload Component */}
+          <ImageUpload
+            onImagesSelected={(files) => {
+              setSelectedImageFiles(files);
+            }}
+            selectedFiles={selectedImageFiles}
+            onRemoveFile={(index) => {
+              setSelectedImageFiles((prev) =>
+                prev.filter((_, i) => i !== index)
+              );
+            }}
+            maxImages={10}
+            isLoading={loading}
+          />
 
           {/* Address */}
           <div className="space-y-2">

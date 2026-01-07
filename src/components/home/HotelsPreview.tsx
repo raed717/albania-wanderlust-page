@@ -96,7 +96,7 @@ const HotelsPreview = () => {
                 <PropertyCard
                   id={hotel.id}
                   name={hotel.name}
-                  image={hotel.image}
+                  image={hotel.imageUrls?.[0]}
                   rating={hotel.rating}
                   price={hotel.price}
                   location={hotel.location}

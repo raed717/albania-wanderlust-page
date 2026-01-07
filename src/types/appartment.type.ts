@@ -16,6 +16,7 @@ export interface Appartment {
   price: number;
   status: "available" | "rented" | "maintenance";
   image: string;
+  imageUrls?: string[];
   description?: string;
   amenities?: string[];
   contactEmail?: string;
@@ -37,6 +38,7 @@ export interface CreateAppartmentDto {
   price: number;
   status: "available" | "rented" | "maintenance";
   image: string;
+  imageUrls?: string[];
   description?: string;
   amenities?: string[];
   contactEmail?: string;
@@ -58,6 +60,7 @@ export interface UpdateAppartmentDto {
   price?: number;
   status?: "available" | "rented" | "maintenance";
   image?: string;
+  imageUrls?: string[];
   description?: string;
   amenities?: string[];
   contactEmail?: string;

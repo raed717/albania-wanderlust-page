@@ -141,7 +141,7 @@ const SearchPropertyResults = () => {
                       key={uniqueKey}
                       id={property.id}
                       name={property.name}
-                      image={property.image}
+                      image={property.imageUrls?.[0]}
                       rating={property.rating}
                       price={property.price}
                       location={property.location}

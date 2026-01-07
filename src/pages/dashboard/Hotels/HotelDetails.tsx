@@ -57,8 +57,9 @@ const HotelDetails = () => {
             occupancy: 85,
             price: 299,
             status: "active",
-            image:
+            imageUrls: [
               "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+            ],
             description:
               "Luxurious hotel in the heart of Manhattan with stunning city views, world-class amenities, and exceptional service. Perfect for business and leisure travelers.",
             amenities: [
@@ -259,18 +260,18 @@ const HotelDetails = () => {
               <div
                 className="h-64 bg-cover bg-center"
                 style={{
-                  backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url(${isEditing ? formData.image : hotel.image})`,
+                  backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url(${isEditing ? formData.imageUrls?.[0] : hotel.imageUrls?.[0]})`,
                 }}
               />
               {isEditing && (
                 <div className="p-4">
-                  <Label htmlFor="image" className="text-sm font-medium">
-                    Image URL
+                  <Label htmlFor="imageUrls" className="text-sm font-medium">
+                    Image URLs
                   </Label>
                   <Input
-                    id="image"
-                    name="image"
-                    value={formData.image || ""}
+                    id="imageUrls"
+                    name="imageUrls"
+                    value={formData.imageUrls?.[0] || ""}
                     onChange={handleChange}
                     placeholder="https://..."
                     className="mt-2"
