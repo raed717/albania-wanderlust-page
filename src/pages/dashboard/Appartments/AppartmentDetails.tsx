@@ -238,10 +238,11 @@ const AppartmentDetails = () => {
                     <div className="grid grid-cols-4 grid-rows-2 gap-1 h-[300px]">
                       {/* First large image */}
                       <div
-                        className={`bg-cover bg-center cursor-pointer relative group ${appartment.imageUrls.length === 1
+                        className={`bg-cover bg-center cursor-pointer relative group ${
+                          appartment.imageUrls.length === 1
                             ? "col-span-4 row-span-2"
                             : "col-span-2 row-span-2"
-                          }`}
+                        }`}
                         style={{
                           backgroundImage: `url(${appartment.imageUrls[0]})`,
                         }}
@@ -269,12 +270,9 @@ const AppartmentDetails = () => {
                         </div>
                       )}
                     </div>
-                  ) : appartment.image ? (
+                  ) : appartment.imageUrls[0] ? (
                     <div
                       className="h-64 bg-cover bg-center"
-                      style={{
-                        backgroundImage: `url(${appartment.image})`,
-                      }}
                     />
                   ) : (
                     <div className="h-64 bg-gray-100 flex items-center justify-center text-gray-400">

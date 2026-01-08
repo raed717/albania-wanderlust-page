@@ -33,13 +33,28 @@ import { userService } from "@/services/api/userService";
 // ====================
 // Color constants
 const COLORS = {
-  sidebarBg: "#111827", // Tailwind: bg-gray-900
-  sidebarBorder: "#1f2937", // Tailwind: border-gray-800
-  primary: "#3b82f6", // Tailwind: blue-500
-  textLight: "#e5e7eb", // Tailwind: text-gray-200
-  submenuBg: "#0f172a", // Tailwind: bg-slate-900
-  disabled: "#9ca3af", // Tailwind: text-gray-400
+  // Core surfaces
+  sidebarBg: "#0b0b0b", // near-black (flag black)
+  sidebarBorder: "#1a1a1a", // subtle black border
+
+  // Primary (flag red)
+  primary: "#e41e20", // Albanian red
+  primaryDark: "#9b111e", // darker blood red
+
+  // Gradient (red → black)
+  primaryGradient: "linear-gradient(135deg, #e41e20 0%, #0b0b0b 100%)",
+
+  // Text
+  textLight: "#f5f5f5", // clean white-ish
+  textMuted: "#9ca3af", // neutral gray (unchanged, works well)
+
+  // Sub elements
+  submenuBg: "#111111", // lifted black
+
+  // States
+  disabled: "#6b7280", // muted gray, readable on black
 };
+
 
 // Icon mapping for consistent usage
 const ICONS = {
@@ -373,21 +388,16 @@ const Hsidebar = ({ children }) => {
       >
         {/* Logo Section */}
         <div
-          className={`
-            min-h-20
-            flex items-center
-            border-b
-            ${collapsed ? "justify-center p-6" : "justify-between p-6"}
-            border-gray-800
-          `}
+          className={`min-h-20 flex items-center ${collapsed ? "justify-center p-6" : "justify-between p-6"}`}
         >
           {!collapsed ? (
             <div className="flex items-center gap-3">
-              <Hotel size={32} className="text-blue-500" />
-              <span className="text-xl font-semibold text-white">HotelHub</span>
+              <Hotel size={32} style={{ color: COLORS.primary }} />
+
+              <span className="text-xl font-semibold text-white">VisitAlbania</span>
             </div>
           ) : (
-            <Hotel size={28} className="text-blue-500" />
+            <Hotel size={28} style={{ color: COLORS.primary }} />
           )}
         </div>
 
@@ -408,14 +418,12 @@ const Hsidebar = ({ children }) => {
         >
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="
-              bg-gray-800 border border-gray-700
-              rounded-lg p-2.5 text-gray-200 cursor-pointer
-              flex items-center gap-2 transition-all duration-200
-              font-medium
-              hover:bg-gray-700 hover:text-white
-            "
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            style={{
+              background: COLORS.primaryGradient,
+              border: `1px solid ${COLORS.primaryDark}`,
+              color: COLORS.textLight,
+            }}
+            className="rounded-lg p-2.5 flex items-center gap-2 transition-all duration-200 font-medium"
           >
             {collapsed ? (
               <ChevronRight size={18} />

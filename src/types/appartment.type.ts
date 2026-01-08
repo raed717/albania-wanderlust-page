@@ -15,7 +15,6 @@ export interface Appartment {
   livingRooms?: number;
   price: number;
   status: "available" | "rented" | "maintenance";
-  image: string;
   imageUrls?: string[];
   description?: string;
   amenities?: string[];
@@ -37,7 +36,6 @@ export interface CreateAppartmentDto {
   livingRooms?: number;
   price: number;
   status: "available" | "rented" | "maintenance";
-  image: string;
   imageUrls?: string[];
   description?: string;
   amenities?: string[];
@@ -59,7 +57,6 @@ export interface UpdateAppartmentDto {
   livingRooms?: number;
   price?: number;
   status?: "available" | "rented" | "maintenance";
-  image?: string;
   imageUrls?: string[];
   description?: string;
   amenities?: string[];

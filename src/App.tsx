@@ -26,6 +26,8 @@ import AllAppartments from "./pages/dashboard/Appartments/all-appartmets";
 import AppartmentDetails from "./pages/dashboard/Appartments/AppartmentDetails";
 import SearchPropertyResults from "./pages/home/SearchPropertyResults/SearchPropertyResults";
 import SearchCarResults from "./pages/home/SearchPropertyResults/SearchCarResults";
+import ApartmentReservation from "./pages/home/AppartmentReservation";
+import CarReservation from "./pages/home/CarReservation";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,12 @@ const App = () => (
           <Route path="/searchResults" element={<SearchPropertyResults />} />
           <Route path="/searchCarResults" element={<SearchCarResults />} />
           <Route path="/hotelReservation/:id" element={<HotelReservation />} />
+          <Route
+            path="/appartmentReservation/:id"
+            element={<ApartmentReservation />}
+          />
+          <Route path="/carReservation/:id" element={<CarReservation />} />
+
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />

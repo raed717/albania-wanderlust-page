@@ -343,7 +343,7 @@ const AppartmentCard: React.FC<CardProps> = ({
   <div className="bg-white rounded-xl shadow-sm overflow-hidden border hover:shadow-xl transition">
     <div
       className="h-52 bg-cover bg-center"
-      style={{ backgroundImage: `url(${appartment.image})` }}
+      style={{ backgroundImage: `url(${appartment.imageUrls[0]})` }}
     />
     <div className="absolute top-3 right-3"></div>
     <div className="p-5">

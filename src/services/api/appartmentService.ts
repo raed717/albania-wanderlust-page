@@ -81,7 +81,6 @@ export const createAppartment = async (
     ...data,
     providerId: providerId,
     imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
-    image: imageUrls.length > 0 ? imageUrls[0] : data.image, // Set first image as main image
   };
 
   const { data: newAppartment, error } = await apiClient
@@ -129,11 +128,6 @@ export const updateAppartment = async (
         ];
       } else {
         updateData.imageUrls = newImageUrls;
-      }
-
-      // Update main image if not already set
-      if (!updateData.image && newImageUrls.length > 0) {
-        updateData.image = newImageUrls[0];
       }
 
       console.log("[Apartment Service] New images uploaded successfully");
