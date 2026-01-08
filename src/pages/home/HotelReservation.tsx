@@ -21,6 +21,9 @@ import {
   Wine,
   UtensilsCrossed,
   CheckCircle2,
+  Image as ImageIcon,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Hotel } from "@/types/hotel.types";
 import { getHotelById } from "@/services/api/hotelService";
@@ -28,6 +31,13 @@ import { MapPicker } from "@/components/dashboard/mapPicker";
 import Swal from "sweetalert2";
 import { Pool, Spa } from "@mui/icons-material";
 import PrimarySearchAppBar from "@/components/home/AppBar";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+
+
+
 
 const HotelReservation = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +45,9 @@ const HotelReservation = () => {
 
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [loading, setLoading] = useState(true);
+  const [images, setImages] = useState<string[]>([]);
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Fetch hotel data
   useEffect(() => {
@@ -48,6 +61,7 @@ const HotelReservation = () => {
           setHotel(null);
         } else {
           setHotel(data);
+          setImages(data.imageUrls || []);
         }
       } catch (error) {
         console.error("Error fetching hotel:", error);
@@ -130,63 +144,151 @@ const HotelReservation = () => {
           Back to Hotels
         </Button>
 
-        {/* Hero Section with Image */}
+        {/* Hero Section with Image Gallery */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8">
-          <div className="relative h-96 sm:h-[500px]">
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${hotel.imageUrls?.[0]})`,
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          <div className="relative">
+            {/* Main Image Display */}
+            {images.length > 0 ? (
+              <div className="relative h-96 sm:h-[500px]">
+                <img
+                  src={images[photoIndex]}
+                  alt={`${hotel.name} - Image ${photoIndex + 1}`}
+                  onClick={() => setIsOpen(true)}
+                  className="w-full h-full object-cover cursor-zoom-in"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
-            {/* Floating Status Badge */}
-            <div className="absolute top-6 right-6">
-              <span
-                className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg backdrop-blur-sm ${
-                  hotel.status === "active"
-                    ? "bg-emerald-500/90 text-white"
-                    : "bg-amber-500/90 text-white"
-                }`}
-              >
-                <CheckCircle2 size={16} className="mr-2" />
-                {hotel.status}
-              </span>
-            </div>
+                {/* Image Navigation */}
+                {images.length > 1 && (
+                  <>
+                    <button
+                      onClick={() =>
+                        setPhotoIndex(
+                          (photoIndex + images.length - 1) % images.length
+                        )
+                      }
+                      className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+                    >
+                      <ChevronLeft size={24} className="text-gray-900" />
+                    </button>
+                    <button
+                      onClick={() =>
+                        setPhotoIndex((photoIndex + 1) % images.length)
+                      }
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+                    >
+                      <ChevronRight size={24} className="text-gray-900" />
+                    </button>
+                  </>
+                )}
 
-            {/* Hotel Info Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h1 className="text-4xl sm:text-5xl font-bold mb-3 drop-shadow-lg">
-                    {hotel.name}
-                  </h1>
-                  <div className="flex items-center gap-2 text-lg mb-4">
-                    <MapPin size={20} />
-                    <span className="drop-shadow">{hotel.location}</span>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                      <Star
-                        size={20}
-                        className="text-amber-400 fill-amber-400"
-                      />
-                      <span className="font-bold text-lg">{hotel.rating}</span>
-                      <span className="text-sm opacity-90">/ 5.0</span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                      <Users size={20} />
-                      <span className="font-medium">
-                        {hotel.occupancy}% occupied
-                      </span>
+                {/* View All Photos Button */}
+                <button
+                  onClick={() => setIsOpen(true)}
+                  className="absolute bottom-6 right-6 px-6 py-3 bg-white hover:bg-gray-50 rounded-xl shadow-lg flex items-center gap-2 font-semibold text-gray-900 transition-all hover:scale-105"
+                >
+                  <ImageIcon size={20} />
+                  View All {images.length} Photos
+                </button>
+
+                {/* Image Counter */}
+                <div className="absolute bottom-6 left-6 px-4 py-2 bg-black/60 backdrop-blur-sm rounded-full text-white text-sm font-medium">
+                  {photoIndex + 1} / {images.length}
+                </div>
+
+                {/* Floating Status Badge */}
+                <div className="absolute top-6 right-6">
+                  <span
+                    className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg backdrop-blur-sm ${hotel.status === "active"
+                        ? "bg-emerald-500/90 text-white"
+                        : "bg-amber-500/90 text-white"
+                      }`}
+                  >
+                    <CheckCircle2 size={16} className="mr-2" />
+                    {hotel.status}
+                  </span>
+                </div>
+
+                {/* Hotel Info Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h1 className="text-4xl sm:text-5xl font-bold mb-3 drop-shadow-lg">
+                        {hotel.name}
+                      </h1>
+                      <div className="flex items-center gap-2 text-lg mb-4">
+                        <MapPin size={20} />
+                        <span className="drop-shadow">{hotel.location}</span>
+                      </div>
+                      <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                          <Star
+                            size={20}
+                            className="text-amber-400 fill-amber-400"
+                          />
+                          <span className="font-bold text-lg">
+                            {hotel.rating}
+                          </span>
+                          <span className="text-sm opacity-90">/ 5.0</span>
+                        </div>
+                        <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                          <Users size={20} />
+                          <span className="font-medium">
+                            {hotel.occupancy}% occupied
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="h-96 sm:h-[500px] bg-gray-200 flex items-center justify-center">
+                <p className="text-gray-500">No images available</p>
+              </div>
+            )}
+
+            {/* Thumbnail Strip */}
+            {images.length > 1 && (
+              <div className="p-4 bg-gray-50 overflow-x-auto">
+                <div className="flex gap-3">
+                  {images.map((img, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setPhotoIndex(index)}
+                      className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden transition-all ${index === photoIndex
+                          ? "ring-4 ring-blue-600 scale-105"
+                          : "ring-2 ring-gray-300 hover:ring-blue-400 opacity-70 hover:opacity-100"
+                        }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Lightbox */}
+        {isOpen && images.length > 0 && (
+          <Lightbox
+            open={isOpen}
+            close={() => setIsOpen(false)}
+            index={photoIndex}
+            slides={images.map((src) => ({ src }))}
+            plugins={[Zoom, Fullscreen]}
+            on={{
+              view: ({ index }) => setPhotoIndex(index),
+            }}
+          />
+
+        )}
+
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -345,7 +447,7 @@ const HotelReservation = () => {
                   <MapPicker
                     lat={hotel.lat}
                     lng={hotel.lng}
-                    onLocationSelect={() => {}}
+                    onLocationSelect={() => { }}
                     label=""
                     defaultCenter={[hotel.lat, hotel.lng]}
                     defaultZoom={15}

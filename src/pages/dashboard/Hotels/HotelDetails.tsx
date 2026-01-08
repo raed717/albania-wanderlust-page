@@ -15,13 +15,15 @@ import {
   Bed,
   DollarSign,
   Mail,
-  Phone,
   Home,
+  Phone,
   Loader2,
+  Image as ImageIcon,
 } from "lucide-react";
 import { Hotel, UpdateHotelDto } from "@/types/hotel.types";
 import { getHotelById, updateHotel } from "@/services/api/hotelService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
+import { ImageUpload } from "@/components/dashboard/ImageUpload";
 import Swal from "sweetalert2";
 
 const HotelDetails = () => {
@@ -35,6 +37,7 @@ const HotelDetails = () => {
   const [isEditing, setIsEditing] = useState(editMode);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<UpdateHotelDto>({});
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
 
   // Fetch hotel data
   useEffect(() => {
@@ -103,9 +106,9 @@ const HotelDetails = () => {
       ...prev,
       [name]:
         name === "rating" ||
-        name === "rooms" ||
-        name === "occupancy" ||
-        name === "price"
+          name === "rooms" ||
+          name === "occupancy" ||
+          name === "price"
           ? parseFloat(value) || 0
           : value,
     }));
@@ -128,6 +131,7 @@ const HotelDetails = () => {
     if (hotel) {
       setFormData(hotel);
     }
+    setNewImageFiles([]);
   };
 
   const handleSave = async () => {
@@ -135,9 +139,14 @@ const HotelDetails = () => {
 
     setSaving(true);
     try {
-      const updatedHotel = await updateHotel(parseInt(id), formData);
+      const updatedHotel = await updateHotel(
+        parseInt(id),
+        formData,
+        newImageFiles
+      );
       setHotel(updatedHotel);
       setIsEditing(false);
+      setNewImageFiles([]);
       Swal.fire({
         icon: "success",
         title: "Success...",
@@ -256,26 +265,77 @@ const HotelDetails = () => {
           {/* Left Column - Image and Basic Info */}
           <div className="lg:col-span-1">
             {/* Hotel Image */}
+            {/* Hotel Image / Gallery */}
             <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 mb-6">
-              <div
-                className="h-64 bg-cover bg-center"
-                style={{
-                  backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url(${isEditing ? formData.imageUrls?.[0] : hotel.imageUrls?.[0]})`,
-                }}
-              />
-              {isEditing && (
+              {isEditing ? (
                 <div className="p-4">
-                  <Label htmlFor="imageUrls" className="text-sm font-medium">
-                    Image URLs
-                  </Label>
-                  <Input
-                    id="imageUrls"
-                    name="imageUrls"
-                    value={formData.imageUrls?.[0] || ""}
-                    onChange={handleChange}
-                    placeholder="https://..."
-                    className="mt-2"
+                  <ImageUpload
+                    onImagesSelected={(files) => {
+                      setNewImageFiles((prev) => [...prev, ...files]);
+                    }}
+                    selectedFiles={newImageFiles}
+                    onRemoveFile={(index) => {
+                      setNewImageFiles((prev) =>
+                        prev.filter((_, i) => i !== index)
+                      );
+                    }}
+                    existingImages={formData.imageUrls}
+                    onRemoveExisting={(url) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        imageUrls: prev.imageUrls?.filter((img) => img !== url),
+                      }));
+                    }}
+                    maxImages={10}
+                    isLoading={saving}
                   />
+                </div>
+              ) : (
+                <div className="relative">
+                  {/* Main Image */}
+                  {hotel.imageUrls && hotel.imageUrls.length > 0 ? (
+                    <div className="grid grid-cols-4 grid-rows-2 gap-1 h-[300px]">
+                      {/* First large image */}
+                      <div
+                        className={`bg-cover bg-center cursor-pointer relative group ${hotel.imageUrls.length === 1
+                            ? "col-span-4 row-span-2"
+                            : "col-span-2 row-span-2"
+                          }`}
+                        style={{
+                          backgroundImage: `url(${hotel.imageUrls[0]})`,
+                        }}
+                      >
+                        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
+                      </div>
+
+                      {/* Other images grid */}
+                      {hotel.imageUrls.slice(1, 5).map((url, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-cover bg-center col-span-1 row-span-1 relative group"
+                          style={{
+                            backgroundImage: `url(${url})`,
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
+                        </div>
+                      ))}
+
+                      {/* "See all" overlay if more than 5 images */}
+                      {hotel.imageUrls.length > 5 && (
+                        <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium shadow-sm">
+                          +{hotel.imageUrls.length - 5} photos
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="h-64 bg-gray-100 flex items-center justify-center text-gray-400">
+                      <div className="text-center">
+                        <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p>No images available</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -295,11 +355,10 @@ const HotelDetails = () => {
                 </select>
               ) : (
                 <span
-                  className={`inline-block px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider ${
-                    hotel.status === "active"
+                  className={`inline-block px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider ${hotel.status === "active"
                       ? "bg-emerald-500 text-white"
                       : "bg-amber-500 text-white"
-                  }`}
+                    }`}
                 >
                   {hotel.status}
                 </span>
@@ -528,7 +587,7 @@ const HotelDetails = () => {
                   <MapPicker
                     lat={hotel.lat}
                     lng={hotel.lng}
-                    onLocationSelect={() => {}}
+                    onLocationSelect={() => { }}
                     label=""
                     defaultCenter={[hotel.lat, hotel.lng]}
                     defaultZoom={15}

@@ -17,6 +17,8 @@ interface ImageUploadProps {
   selectedFiles?: File[];
   onRemoveFile?: (index: number) => void;
   isLoading?: boolean;
+  existingImages?: string[];
+  onRemoveExisting?: (url: string) => void;
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -26,6 +28,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   selectedFiles = [],
   onRemoveFile,
   isLoading = false,
+  existingImages = [],
+  onRemoveExisting,
 }) => {
   const [error, setError] = useState<string>("");
   const [dragActive, setDragActive] = useState(false);
@@ -58,10 +62,12 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     });
 
     // Check total count
-    const totalFiles = selectedFiles.length + validFiles.length;
+    const totalFiles =
+      selectedFiles.length + existingImages.length + validFiles.length;
     if (totalFiles > maxImages) {
       setError(
-        `Maximum ${maxImages} images allowed. You have ${selectedFiles.length} selected.`
+        `Maximum ${maxImages} images allowed. You have ${selectedFiles.length + existingImages.length
+        } current images.`
       );
       return [];
     }
@@ -113,6 +119,12 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     onRemoveFile?.(index);
   };
 
+  const handleRemoveExistingImage = (url: string) => {
+    onRemoveExisting?.(url);
+  };
+
+  const totalImages = selectedFiles.length + existingImages.length;
+
   return (
     <div className="space-y-4">
       <Label htmlFor="image-upload" className="text-sm font-medium">
@@ -126,11 +138,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         onDragOver={handleDrag}
         onDrop={handleDrop}
         onClick={handleClick}
-        className={`relative rounded-lg border-2 border-dashed transition-colors cursor-pointer ${
-          dragActive
+        className={`relative rounded-lg border-2 border-dashed transition-colors cursor-pointer ${dragActive
             ? "border-blue-500 bg-blue-50"
             : "border-gray-300 bg-gray-50 hover:border-gray-400"
-        } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+          } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
       >
         <input
           ref={fileInputRef}
@@ -171,26 +182,53 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         </Alert>
       )}
 
-      {/* Selected Images Preview */}
-      {selectedFiles.length > 0 && (
+      {/* Images Preview Grid */}
+      {totalImages > 0 && (
         <div className="space-y-2">
           <p className="text-sm font-medium text-gray-700">
-            Selected Images ({selectedFiles.length}/{maxImages})
+            Current Images ({totalImages}/{maxImages})
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {selectedFiles.map((file, index) => (
+            {/* Existing Images */}
+            {existingImages.map((url, index) => (
               <div
-                key={index}
-                className="relative group rounded-lg overflow-hidden bg-gray-100 aspect-square"
+                key={`existing-${index}`}
+                className="relative group rounded-lg overflow-hidden bg-gray-100 aspect-square border border-gray-200"
               >
-                {/* Image Preview */}
                 <img
-                  src={URL.createObjectURL(file)}
-                  alt={`Preview ${index + 1}`}
+                  src={url}
+                  alt={`Hotel ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleRemoveExistingImage(url)}
+                    disabled={isLoading}
+                    className="rounded-full p-2 h-auto"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-bl">
+                  Stored
+                </div>
+              </div>
+            ))}
 
-                {/* Overlay with remove button */}
+            {/* New Selected Files */}
+            {selectedFiles.map((file, index) => (
+              <div
+                key={`new-${index}`}
+                className="relative group rounded-lg overflow-hidden bg-gray-100 aspect-square border-2 border-green-500/50"
+              >
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={`New ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <Button
                     type="button"
@@ -203,10 +241,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                     <X className="w-4 h-4" />
                   </Button>
                 </div>
-
-                {/* File name tooltip */}
-                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1 truncate">
-                  {file.name}
+                <div className="absolute top-0 right-0 bg-green-500 text-white text-[10px] px-1.5 py-0.5 rounded-bl">
+                  New
                 </div>
               </div>
             ))}
