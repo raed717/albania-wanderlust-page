@@ -2,10 +2,13 @@ import { apiClient } from "./apiClient";
 
 /**
  * Supabase Storage Service
- * Handles file uploads and management for hotel images
+ * Handles file uploads and management for various entity types (hotels, apartments, cars, etc.)
  */
 
-const BUCKET_NAME = "hotel-images";
+// Supported entity types for storage organization
+export type StorageEntityType = "hotel" | "apartment" | "car";
+
+const BUCKET_NAME = "hotel-images"; // Main bucket for all property images
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
@@ -16,14 +19,16 @@ export interface UploadResult {
 }
 
 /**
- * Upload a single image file to Supabase Storage
+ * Upload a single image file to Supabase Storage (Generic)
  * @param file - File object to upload
- * @param hotelId - Hotel ID (optional for folder organization)
+ * @param entityType - Type of entity (hotel, apartment, car)
+ * @param entityId - Entity ID (optional for folder organization)
  * @returns Upload result with public URL
  */
-export const uploadHotelImage = async (
+export const uploadImage = async (
   file: File,
-  hotelId?: string | number
+  entityType: StorageEntityType,
+  entityId?: string | number
 ): Promise<UploadResult> => {
   // Validate file type
   if (!ALLOWED_TYPES.includes(file.type)) {
@@ -45,12 +50,13 @@ export const uploadHotelImage = async (
       .replace(/\s+/g, "-")
       .replace(/[^\w\-\.]/g, "");
 
-    // Create folder structure: hotel-images/{hotelId}/{timestamp}-{fileName}
-    const folderPath = hotelId ? `hotel-${hotelId}` : "temp";
+    // Create folder structure: {entityType}-{entityId}/{timestamp}-{fileName}
+    const folderPath = entityId ? `${entityType}-${entityId}` : `${entityType}-temp`;
     const filePath = `${folderPath}/${timestamp}-${randomString}-${sanitizedFileName}`;
 
     console.log("[Storage Service] Uploading file:", filePath);
     console.log("[Storage Service] Bucket name:", BUCKET_NAME);
+    console.log("[Storage Service] Entity type:", entityType);
     console.log("[Storage Service] File size:", file.size, "bytes");
     console.log("[Storage Service] File type:", file.type);
 
@@ -72,7 +78,7 @@ export const uploadHotelImage = async (
       // Provide helpful error messages
       if ((error as any).status === 400) {
         throw new Error(
-          `Bad Request: The storage bucket may not exist or RLS policies are not configured. Make sure 'hotel-images' bucket exists and has proper RLS policies. Details: ${error.message}`
+          `Bad Request: The storage bucket may not exist or RLS policies are not configured. Make sure '${BUCKET_NAME}' bucket exists and has proper RLS policies. Details: ${error.message}`
         );
       } else if ((error as any).status === 403) {
         throw new Error(
@@ -80,7 +86,7 @@ export const uploadHotelImage = async (
         );
       } else if ((error as any).status === 404) {
         throw new Error(
-          `Storage bucket 'hotel-images' not found. Please create it in Supabase Dashboard > Storage. Details: ${error.message}`
+          `Storage bucket '${BUCKET_NAME}' not found. Please create it in Supabase Dashboard > Storage. Details: ${error.message}`
         );
       }
 
@@ -111,17 +117,19 @@ export const uploadHotelImage = async (
 };
 
 /**
- * Upload multiple image files to Supabase Storage
+ * Upload multiple image files to Supabase Storage (Generic)
  * @param files - Array of File objects to upload
- * @param hotelId - Hotel ID (optional for folder organization)
+ * @param entityType - Type of entity (hotel, apartment, car)
+ * @param entityId - Entity ID (optional for folder organization)
  * @returns Array of upload results
  */
-export const uploadHotelImages = async (
+export const uploadImages = async (
   files: File[],
-  hotelId?: string | number
+  entityType: StorageEntityType,
+  entityId?: string | number
 ): Promise<UploadResult[]> => {
   try {
-    const uploadPromises = files.map((file) => uploadHotelImage(file, hotelId));
+    const uploadPromises = files.map((file) => uploadImage(file, entityType, entityId));
     const results = await Promise.all(uploadPromises);
     console.log("[Storage Service] Batch upload completed:", results.length);
     return results;
@@ -135,7 +143,7 @@ export const uploadHotelImages = async (
  * Delete an image from Supabase Storage
  * @param filePath - Full path of the file to delete
  */
-export const deleteHotelImage = async (filePath: string): Promise<void> => {
+export const deleteImage = async (filePath: string): Promise<void> => {
   try {
     console.log("[Storage Service] Deleting file:", filePath);
 
@@ -159,7 +167,7 @@ export const deleteHotelImage = async (filePath: string): Promise<void> => {
  * Delete multiple images from Supabase Storage
  * @param filePaths - Array of file paths to delete
  */
-export const deleteHotelImages = async (filePaths: string[]): Promise<void> => {
+export const deleteImages = async (filePaths: string[]): Promise<void> => {
   try {
     if (filePaths.length === 0) return;
 
@@ -191,13 +199,62 @@ export const getPublicUrl = (filePath: string): string => {
   return data.publicUrl;
 };
 
+// ============================================================================
+// BACKWARDS COMPATIBLE HOTEL-SPECIFIC FUNCTIONS
+// These delegate to the generic functions for backwards compatibility
+// ============================================================================
+
+/**
+ * Upload a single hotel image (backwards compatible)
+ * @deprecated Use uploadImage(file, 'hotel', hotelId) instead
+ */
+export const uploadHotelImage = async (
+  file: File,
+  hotelId?: string | number
+): Promise<UploadResult> => {
+  return uploadImage(file, "hotel", hotelId);
+};
+
+/**
+ * Upload multiple hotel images (backwards compatible)
+ * @deprecated Use uploadImages(files, 'hotel', hotelId) instead
+ */
+export const uploadHotelImages = async (
+  files: File[],
+  hotelId?: string | number
+): Promise<UploadResult[]> => {
+  return uploadImages(files, "hotel", hotelId);
+};
+
+/**
+ * Delete a hotel image (backwards compatible)
+ * @deprecated Use deleteImage(filePath) instead
+ */
+export const deleteHotelImage = async (filePath: string): Promise<void> => {
+  return deleteImage(filePath);
+};
+
+/**
+ * Delete multiple hotel images (backwards compatible)
+ * @deprecated Use deleteImages(filePaths) instead
+ */
+export const deleteHotelImages = async (filePaths: string[]): Promise<void> => {
+  return deleteImages(filePaths);
+};
+
 // Export all services
 const storageService = {
+  // Generic functions
+  uploadImage,
+  uploadImages,
+  deleteImage,
+  deleteImages,
+  getPublicUrl,
+  // Backwards compatible hotel functions
   uploadHotelImage,
   uploadHotelImages,
   deleteHotelImage,
   deleteHotelImages,
-  getPublicUrl,
 };
 
 export default storageService;

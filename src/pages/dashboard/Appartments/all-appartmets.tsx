@@ -28,6 +28,7 @@ import Swal from "sweetalert2";
 import { Room } from "@mui/icons-material";
 import { User } from "@/types/user.types";
 import { userService } from "@/services/api/userService";
+import { AddAppartmentDialog } from "./AddAppartmentDialog";
 
 /* -------------------------------------------------------------------------- */
 /*                                   Utils                                    */
@@ -139,6 +140,10 @@ const AllAppartments = () => {
     navigate(`/dashboard/appartments/${id}?edit=true`);
   };
 
+  const handleAppartmentAdded = (newAppartment: Appartment) => {
+    setAppartments((prev) => [newAppartment, ...prev]);
+  };
+
   /* ------------------------------ Filtering -------------------------------- */
 
   const filteredAppartments = useMemo(() => {
@@ -207,11 +212,14 @@ const AllAppartments = () => {
     <Hsidebar>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">All Appartments</h1>
-          <p className="text-gray-500">
-            Manage and monitor all your apartment listings
-          </p>
+        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">All Appartments</h1>
+            <p className="text-gray-500">
+              Manage and monitor all your apartment listings
+            </p>
+          </div>
+          <AddAppartmentDialog onAppartmentAdded={handleAppartmentAdded} />
         </div>
 
         {/* Filters */}
@@ -294,9 +302,8 @@ const AllAppartments = () => {
               <button
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`w-10 h-10 rounded-lg ${
-                  currentPage === i + 1 ? "bg-blue-600 text-white" : "border"
-                }`}
+                className={`w-10 h-10 rounded-lg ${currentPage === i + 1 ? "bg-blue-600 text-white" : "border"
+                  }`}
               >
                 {i + 1}
               </button>
@@ -341,11 +348,10 @@ const AppartmentCard: React.FC<CardProps> = ({
     <div className="absolute top-3 right-3"></div>
     <div className="p-5">
       <span
-        className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-          appartment.status === "available"
+        className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${appartment.status === "available"
             ? "bg-emerald-500 text-white"
             : "bg-amber-500 text-white"
-        }`}
+          }`}
       >
         {appartment.status}
       </span>

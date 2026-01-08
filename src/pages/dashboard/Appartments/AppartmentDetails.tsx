@@ -17,6 +17,7 @@ import {
   Phone,
   Home,
   Loader2,
+  Image as ImageIcon,
 } from "lucide-react";
 import { Appartment, UpdateAppartmentDto } from "@/types/appartment.type";
 import {
@@ -24,6 +25,7 @@ import {
   updateAppartment,
 } from "@/services/api/appartmentService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
+import { ImageUpload } from "@/components/dashboard/ImageUpload";
 import Swal from "sweetalert2";
 
 const AppartmentDetails = () => {
@@ -37,6 +39,7 @@ const AppartmentDetails = () => {
   const [isEditing, setIsEditing] = useState(editMode);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<UpdateAppartmentDto>({});
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
 
   /* -------------------------------------------------------------------------- */
   /*                                   Fetch                                    */
@@ -50,7 +53,8 @@ const AppartmentDetails = () => {
       try {
         const data = await getAppartmentById(Number(id));
         setAppartment(data);
-        setFormData(data);
+        setFormData(data ?? {});
+        setNewImageFiles([]);
       } catch (error) {
         console.error("Error fetching appartment:", error);
       } finally {
@@ -90,8 +94,10 @@ const AppartmentDetails = () => {
 
     setSaving(true);
     try {
-      const updated = await updateAppartment(Number(id), formData);
+      const updated = await updateAppartment(Number(id), formData, newImageFiles.length > 0 ? newImageFiles : undefined);
       setAppartment(updated);
+      setFormData(updated);
+      setNewImageFiles([]);
       setIsEditing(false);
 
       Swal.fire({
@@ -201,21 +207,83 @@ const AppartmentDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left */}
           <div>
-            <div className="bg-white rounded-xl overflow-hidden mb-6">
-              <div
-                className="h-64 bg-cover bg-center"
-                style={{
-                  backgroundImage: `url(${formData.image || appartment.image})`,
-                }}
-              />
-              {isEditing && (
+            <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 mb-6">
+              {isEditing ? (
                 <div className="p-4">
-                  <Label>Image URL</Label>
-                  <Input
-                    name="image"
-                    value={formData.image || ""}
-                    onChange={handleChange}
+                  <ImageUpload
+                    onImagesSelected={(files) => {
+                      setNewImageFiles((prev) => [...prev, ...files]);
+                    }}
+                    selectedFiles={newImageFiles}
+                    onRemoveFile={(index) => {
+                      setNewImageFiles((prev) =>
+                        prev.filter((_, i) => i !== index)
+                      );
+                    }}
+                    existingImages={formData.imageUrls}
+                    onRemoveExisting={(url) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        imageUrls: prev.imageUrls?.filter((img) => img !== url),
+                      }));
+                    }}
+                    maxImages={10}
+                    isLoading={saving}
                   />
+                </div>
+              ) : (
+                <div className="relative">
+                  {/* Main Image */}
+                  {appartment.imageUrls && appartment.imageUrls.length > 0 ? (
+                    <div className="grid grid-cols-4 grid-rows-2 gap-1 h-[300px]">
+                      {/* First large image */}
+                      <div
+                        className={`bg-cover bg-center cursor-pointer relative group ${appartment.imageUrls.length === 1
+                            ? "col-span-4 row-span-2"
+                            : "col-span-2 row-span-2"
+                          }`}
+                        style={{
+                          backgroundImage: `url(${appartment.imageUrls[0]})`,
+                        }}
+                      >
+                        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
+                      </div>
+
+                      {/* Other images grid */}
+                      {appartment.imageUrls.slice(1, 5).map((url, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-cover bg-center col-span-1 row-span-1 relative group"
+                          style={{
+                            backgroundImage: `url(${url})`,
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
+                        </div>
+                      ))}
+
+                      {/* "See all" overlay if more than 5 images */}
+                      {appartment.imageUrls.length > 5 && (
+                        <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium shadow-sm">
+                          +{appartment.imageUrls.length - 5} photos
+                        </div>
+                      )}
+                    </div>
+                  ) : appartment.image ? (
+                    <div
+                      className="h-64 bg-cover bg-center"
+                      style={{
+                        backgroundImage: `url(${appartment.image})`,
+                      }}
+                    />
+                  ) : (
+                    <div className="h-64 bg-gray-100 flex items-center justify-center text-gray-400">
+                      <div className="text-center">
+                        <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p>No images available</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

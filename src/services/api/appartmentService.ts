@@ -5,6 +5,8 @@ import {
   UpdateAppartmentDto,
   AppartmentFilters,
 } from "@/types/appartment.type";
+import { uploadImages } from "./storageService";
+import { authService } from "./authService";
 
 /**
  * fetch all appatments
@@ -43,35 +45,119 @@ export const getAppartmentById = async (
   if (error) throw error;
   return data;
 };
-/*
- * create a new appartment
+
+/**
+ * create a new appartment with image uploads
  */
 export const createAppartment = async (
-  data: CreateAppartmentDto
+  data: CreateAppartmentDto,
+  imageFiles?: File[]
 ): Promise<Appartment> => {
+  console.log("[Apartment Service] Creating new apartment:", data);
+
+  const providerId = await authService.getCurrentUserId();
+
+  if (!providerId) {
+    throw new Error("User not authenticated");
+  }
+
+  // Upload images first if provided
+  let imageUrls: string[] = [];
+  if (imageFiles && imageFiles.length > 0) {
+    try {
+      console.log("[Apartment Service] Uploading images...");
+      const uploadResults = await uploadImages(imageFiles, "apartment");
+      imageUrls = uploadResults.map((result) => result.publicUrl);
+      console.log("[Apartment Service] Images uploaded successfully");
+    } catch (err) {
+      console.error("[Apartment Service] Error uploading images:", err);
+      throw new Error(
+        `Failed to upload images: ${err instanceof Error ? err.message : "Unknown error"}`
+      );
+    }
+  }
+
+  const payload = {
+    ...data,
+    providerId: providerId,
+    imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
+    image: imageUrls.length > 0 ? imageUrls[0] : data.image, // Set first image as main image
+  };
+
   const { data: newAppartment, error } = await apiClient
     .from("appartment")
-    .insert([data])
+    .insert([payload])
     .select()
     .single();
-  if (error) throw error;
+
+  if (error) {
+    console.error("[Apartment Service] Error creating apartment:", error);
+    throw error;
+  }
+
+  console.log("[Apartment Service] Successfully created apartment:", newAppartment);
   return newAppartment;
 };
 
 /**
- * update an existing appartment
+ * update an existing appartment with optional image uploads
  */
 export const updateAppartment = async (
   id: number,
-  updates: UpdateAppartmentDto
+  updates: UpdateAppartmentDto,
+  newImageFiles?: File[]
 ): Promise<Appartment> => {
+  console.log(`[Apartment Service] Updating apartment ID: ${id}`, updates);
+
+  // Remove system fields that shouldn't be updated
+  const updateData = { ...updates };
+  delete (updateData as any).id;
+  delete (updateData as any).created_at;
+
+  // Handle new image uploads
+  if (newImageFiles && newImageFiles.length > 0) {
+    try {
+      console.log("[Apartment Service] Uploading new images...");
+      const uploadResults = await uploadImages(newImageFiles, "apartment", id);
+      const newImageUrls = uploadResults.map((result) => result.publicUrl);
+
+      // Append new images to existing ones
+      if (updateData.imageUrls) {
+        updateData.imageUrls = [
+          ...(updateData.imageUrls || []),
+          ...newImageUrls,
+        ];
+      } else {
+        updateData.imageUrls = newImageUrls;
+      }
+
+      // Update main image if not already set
+      if (!updateData.image && newImageUrls.length > 0) {
+        updateData.image = newImageUrls[0];
+      }
+
+      console.log("[Apartment Service] New images uploaded successfully");
+    } catch (err) {
+      console.error("[Apartment Service] Error uploading images:", err);
+      throw new Error(
+        `Failed to upload images: ${err instanceof Error ? err.message : "Unknown error"}`
+      );
+    }
+  }
+
   const { data, error } = await apiClient
     .from("appartment")
-    .update(updates)
+    .update(updateData)
     .eq("id", id)
     .select()
     .single();
-  if (error) throw error;
+
+  if (error) {
+    console.error(`[Apartment Service] Error updating apartment ID ${id}:`, error);
+    throw error;
+  }
+
+  console.log("[Apartment Service] Successfully updated apartment:", data);
   return data;
 };
 
