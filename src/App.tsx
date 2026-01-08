@@ -53,7 +53,6 @@ const App = () => (
           />
           <Route path="/carReservation/:id" element={<CarReservation />} />
 
-
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/HotelsList" element={<AllHotels />} />

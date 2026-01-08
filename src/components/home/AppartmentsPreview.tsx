@@ -96,7 +96,7 @@ const AppartmentsPreview = () => {
                 <PropertyCard
                   id={appartment.id}
                   name={appartment.name}
-                  image={appartment.image}
+                  image={appartment.imageUrls[0]}
                   rating={appartment.rating}
                   price={appartment.price}
                   location={appartment.location}
