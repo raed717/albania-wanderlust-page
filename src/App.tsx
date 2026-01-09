@@ -19,7 +19,7 @@ import UserDetails from "./pages/dashboard/Users/user-details";
 import MyAccount from "./pages/home/MyAccount";
 import Unauthorized from "./pages/Unauthorized";
 import ProtectedRoute from "./components/ProtectedRoute";
-import CarDetails from "./pages/dashboard/Cars/CarDetails";
+import CarDetails from "./pages/dashboard/Cars/CarDetails.tsx";
 import HotelReservation from "./pages/home/HotelReservation";
 import SuspendedPage from "./pages/SuspendedPage";
 import AllAppartments from "./pages/dashboard/Appartments/all-appartmets";
