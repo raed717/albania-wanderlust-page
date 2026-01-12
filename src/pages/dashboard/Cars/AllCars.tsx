@@ -3,7 +3,7 @@ import Hsidebar from "../../../components/dashboard/hsidebar";
 import { getAllCars, deleteCar, getCarsByOwnerId } from "@/services/api/carService";
 import { Car } from "@/types/car.types";
 import { useNavigate } from "react-router-dom";
-import { AddCarDialog } from "./addCarDialog";
+import { AddCarDialog } from "./AddCarDialog";
 import {
   Search,
   Filter,
@@ -426,7 +426,7 @@ const AllCars = () => {
                 <div
                   className="h-48 sm:h-52 bg-cover bg-center relative"
                   style={{
-                    backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url(${car.image})`,
+                    backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url(${car.imageUrls[0]})`,
                   }}
                 >
                   <div

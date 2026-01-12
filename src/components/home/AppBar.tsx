@@ -384,7 +384,7 @@ export default function PrimarySearchAppBar() {
             }}
             onClick={() => navigate("/")}
           >
-            Discover Albania
+            BOOKinAL
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Box

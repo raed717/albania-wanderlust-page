@@ -242,6 +242,30 @@ export const deleteHotelImages = async (filePaths: string[]): Promise<void> => {
   return deleteImages(filePaths);
 };
 
+// ============================================================================
+// CAR-SPECIFIC FUNCTIONS
+// ============================================================================
+
+/**
+ * Upload a single car image
+ */
+export const uploadCarImage = async (
+  file: File,
+  carId?: string | number
+): Promise<UploadResult> => {
+  return uploadImage(file, "car", carId);
+};
+
+/**
+ * Upload multiple car images
+ */
+export const uploadCarImages = async (
+  files: File[],
+  carId?: string | number
+): Promise<UploadResult[]> => {
+  return uploadImages(files, "car", carId);
+};
+
 // Export all services
 const storageService = {
   // Generic functions
@@ -255,6 +279,9 @@ const storageService = {
   uploadHotelImages,
   deleteHotelImage,
   deleteHotelImages,
+  // Car functions
+  uploadCarImage,
+  uploadCarImages,
 };
 
 export default storageService;

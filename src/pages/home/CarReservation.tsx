@@ -60,7 +60,7 @@ const CarReservation = () => {
         } else {
           setCar(data);
           // If car has a single image string, convert to array
-          setImages(data.image ? [data.image] : []);
+          setImages(data.imageUrls || []);
         }
       } catch (error) {
         console.error("Error fetching car:", error);

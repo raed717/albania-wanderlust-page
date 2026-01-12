@@ -18,7 +18,7 @@ interface CarCardProps {
   color: string;
   plateNumber: string;
   features?: string[];
-  image: string;
+  imageUrls: string[];
   pickUpLocation: string;
   onClick: (id: number) => void;
 }
@@ -40,7 +40,7 @@ export const CarCard = ({
   status,
   color,
   features = [],
-  image,
+  imageUrls,
   pickUpLocation,
   onClick,
 }: CarCardProps) => {
@@ -84,7 +84,7 @@ export const CarCard = ({
       {/* Image Container */}
       <div className="relative overflow-hidden bg-gray-200 h-48 w-full">
         <img
-          src={image}
+          src={imageUrls[0]}
           alt={`${brand} ${name}`}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />

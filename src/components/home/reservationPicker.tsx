@@ -18,7 +18,7 @@ import { Add, Remove, DirectionsCar, Hotel } from "@mui/icons-material";
 import { useNavigate } from "react-router";
 
 export default function ReservationPickerValue() {
-  const [tabValue, setTabValue] = React.useState(0); // 0 = Stay, 1 = Car
+  const [tabValue, setTabValue] = React.useState(0); // 0 = Car, 1 = Stay
   const [destination, setDestination] = React.useState("");
   const [checkInDate, setCheckInDate] = React.useState<Dayjs | null>(dayjs());
   const [checkOutDate, setCheckOutDate] = React.useState<Dayjs | null>(
@@ -56,30 +56,30 @@ export default function ReservationPickerValue() {
 
   const handleSearch = async () => {
     setLoading(true);
-    const searchType = tabValue === 0 ? "stay" : "car";
+    const searchType = tabValue === 0 ? "car" : "stay";
 
-    if (searchType === "stay") {
-      navigate("/searchResults", {
-        state: {
-          type: "stay",
-          destination,
-          checkInDate: checkInDate ? checkInDate.toISOString() : null,
-          checkOutDate: checkOutDate ? checkOutDate.toISOString() : null,
-          adults,
-          children,
-          rooms,
-        },
-      });
-    } else {
-      navigate("/searchCarResults", {
-        state: {
-          type: "car",
-          destination,
-          pickupDate: checkInDate ? checkInDate.toISOString() : null,
-          returnDate: checkOutDate ? checkOutDate.toISOString() : null,
-        },
-      });
-    }
+if (searchType === "stay") {
+  navigate("/searchResults", {
+    state: {
+      type: "stay",
+      destination,
+      checkInDate: checkInDate?.toISOString() ?? null,
+      checkOutDate: checkOutDate?.toISOString() ?? null,
+      adults,
+      children,
+      rooms,
+    },
+  });
+} else {
+  navigate("/searchCarResults", {
+    state: {
+      type: "car",
+      destination,
+      pickupDate: checkInDate?.toISOString() ?? null,
+      returnDate: checkOutDate?.toISOString() ?? null,
+    },
+  });
+}
     setLoading(false);
   };
 
@@ -112,8 +112,9 @@ export default function ReservationPickerValue() {
             },
           }}
         >
-          <Tab icon={<Hotel />} iconPosition="start" label="Stay" />
           <Tab icon={<DirectionsCar />} iconPosition="start" label="Car" />
+          <Tab icon={<Hotel />} iconPosition="start" label="Stay" />
+          
         </Tabs>
 
         {/* Search Fields */}
@@ -128,7 +129,7 @@ export default function ReservationPickerValue() {
           }}
         >
           <TextField
-            label={tabValue === 0 ? "Destination" : "Pickup Location"}
+            label={tabValue === 1 ? "Destination" : "Pickup Location"}
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
             variant="outlined"
@@ -136,7 +137,7 @@ export default function ReservationPickerValue() {
           />
 
           <DatePicker
-            label={tabValue === 0 ? "Check-in Date" : "Pickup Date"}
+            label={tabValue === 1 ? "Check-in Date" : "Pickup Date"}
             value={checkInDate}
             onChange={(newValue) => {
               setCheckInDate(newValue);
@@ -154,7 +155,7 @@ export default function ReservationPickerValue() {
           />
 
           <DatePicker
-            label={tabValue === 0 ? "Check-out Date" : "Return Date"}
+            label={tabValue === 1 ? "Check-out Date" : "Return Date"}
             value={checkOutDate}
             onChange={handleCheckOutChange}
             slotProps={{
@@ -168,7 +169,7 @@ export default function ReservationPickerValue() {
           />
 
           {/* Show guest/room fields only for Stay tab */}
-          {tabValue === 0 && (
+          {tabValue === 1 && (
             <>
               <Box
                 sx={{

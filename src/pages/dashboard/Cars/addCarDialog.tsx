@@ -15,6 +15,7 @@ import { Plus, Loader2 } from "lucide-react";
 import { CreateCarDto } from "@/types/car.types";
 import { addCar } from "@/services/api/carService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
+import { ImageUpload } from "@/components/dashboard/ImageUpload";
 
 interface AddCarDialogProps {
   onCarAdded: (car: any) => void;
@@ -23,6 +24,7 @@ interface AddCarDialogProps {
 export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedImageFiles, setSelectedImageFiles] = useState<File[]>([]);
   const featureInputRef = React.useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -38,7 +40,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
     color: "",
     plateNumber: "",
     features: [] as string[],
-    image: "",
+    imageUrls: [] as string[],
     pickUpLocation: "",
     lat: undefined as number | undefined,
     lng: undefined as number | undefined,
@@ -54,9 +56,9 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
       ...prev,
       [name]:
         name === "year" ||
-        name === "seats" ||
-        name === "mileage" ||
-        name === "pricePerDay"
+          name === "seats" ||
+          name === "mileage" ||
+          name === "pricePerDay"
           ? parseFloat(value) || 0
           : value,
     }));
@@ -82,9 +84,13 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
       return;
     }
 
-    // Validate coordinates
     if (formData.lat === undefined || formData.lng === undefined) {
       alert("Please select a location on the map");
+      return;
+    }
+
+    if (selectedImageFiles.length === 0) {
+      alert("Please upload at least one image");
       return;
     }
 
@@ -105,13 +111,13 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
         color: formData.color,
         plateNumber: formData.plateNumber,
         features: formData.features,
-        image: formData.image,
+        imageUrls: formData.imageUrls,
         pickUpLocation: formData.pickUpLocation,
         lat: formData.lat,
         lng: formData.lng,
       };
 
-      const newCar = await addCar(carData);
+      const newCar = await addCar(carData, selectedImageFiles);
       onCarAdded(newCar);
       setOpen(false);
 
@@ -130,11 +136,12 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
         color: "",
         plateNumber: "",
         features: [],
-        image: "",
+        imageUrls: [],
         pickUpLocation: "",
         lat: undefined,
         lng: undefined,
       });
+      setSelectedImageFiles([]);
     } catch (error) {
       console.error("Error adding car:", error);
       alert("Failed to add car. Please try again.");
@@ -364,21 +371,22 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
               />
             </div>
 
-            {/* Image URL */}
-            <div className="space-y-2">
-              <Label htmlFor="image" className="text-sm font-medium">
-                Image URL
-              </Label>
-              <Input
-                id="image"
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                placeholder="https://images.unsplash.com/..."
-                className="w-full"
-              />
-            </div>
           </div>
+
+          {/* Image Upload Component */}
+          <ImageUpload
+            onImagesSelected={(files) => {
+              setSelectedImageFiles(files);
+            }}
+            selectedFiles={selectedImageFiles}
+            onRemoveFile={(index) => {
+              setSelectedImageFiles((prev) =>
+                prev.filter((_, i) => i !== index)
+              );
+            }}
+            maxImages={10}
+            isLoading={loading}
+          />
 
           {/* Pick Up Location */}
           <div className="space-y-2">

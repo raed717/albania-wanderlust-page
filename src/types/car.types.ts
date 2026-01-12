@@ -14,7 +14,7 @@ export interface Car {
     color: string;
     plateNumber: string;
     features: string[];
-    image: string;
+    imageUrls?: string[];
     pickUpLocation: string;
     lat?: number;
     lng?: number;
@@ -35,7 +35,7 @@ export interface CreateCarDto {
     color: string;
     plateNumber: string;
     features: string[];
-    image: string;
+    imageUrls?: string[];
     pickUpLocation: string;
     lat: number;
     lng: number;
@@ -51,11 +51,11 @@ export interface UpdateCarDto {
     seats?: number;
     mileage?: number;
     pricePerDay?: number;
+    imageUrls?: string[];
     status?: "available" | "rented" | "maintenance";
     color?: string;
     plateNumber?: string;
     features?: string[];
-    image?: string;
     pickUpLocation?: string;
     lat?: number;
     lng?: number;
