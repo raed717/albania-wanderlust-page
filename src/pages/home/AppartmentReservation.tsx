@@ -73,11 +73,7 @@ const ApartmentReservation = () => {
   }, [id]);
 
   const handleReservation = () => {
-    Swal.fire({
-      icon: "info",
-      title: "Reservation",
-      text: "Reservation feature coming soon!",
-    });
+    navigate(`/apartmentBilling/${id}`);
   };
 
   if (loading) {

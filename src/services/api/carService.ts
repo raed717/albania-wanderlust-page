@@ -2,6 +2,7 @@ import { apiClient } from "./apiClient";
 import { Car, CreateCarDto, UpdateCarDto } from "@/types/car.types";
 import { authService } from "./authService";
 import { uploadCarImages } from "./storageService";
+import {getBookingsByPropertyIdAndType } from "./bookingService";
 
 /**
  * Fetch all cars
@@ -60,6 +61,31 @@ export const getCarById = async (id: number): Promise<Car | null> => {
     console.log(`[Car Service] Successfully fetched car ID: ${id}`, data);
     return data;
 };
+
+/*
+* Get car unavailability dates by car id using booking service getBookingByPropertyIdAndType
+*/
+export const getCarUnavailabilityDates = async (carId: number): Promise<string[]> => {
+    const bookings = await getBookingsByPropertyIdAndType(carId.toString(), "car");
+    
+    if (!bookings || bookings.length === 0) {
+      return [];
+    }
+  
+    const unavailabilityDates: string[] = []; // Declare outside the loop
+  
+    bookings.forEach(booking => {
+      const startDate = new Date(booking.startDate);
+      const endDate = new Date(booking.endDate);
+      
+      while (startDate <= endDate) {
+        unavailabilityDates.push(startDate.toISOString().split('T')[0]);
+        startDate.setDate(startDate.getDate() + 1);
+      }
+    });
+  
+    return unavailabilityDates; // Return the accumulated dates
+  };
 
 /**
  * add a new car with optional image uploads

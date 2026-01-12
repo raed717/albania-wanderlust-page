@@ -6,6 +6,7 @@
 
 export interface Appartment {
   id: number;
+  providerId: string;
   name: string;
   rating: number;
   rooms: number;
@@ -35,6 +36,7 @@ export interface CreateAppartmentDto {
   bathrooms?: number;
   livingRooms?: number;
   price: number;
+  providerId?: string;
   status: "available" | "rented" | "maintenance";
   imageUrls?: string[];
   description?: string;

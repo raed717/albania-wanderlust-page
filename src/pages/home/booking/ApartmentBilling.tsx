@@ -1,0 +1,450 @@
+import React, { useState, useEffect } from "react";
+import {
+  Calendar,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Clock,
+  CreditCard,
+  Check,
+  Home,
+} from "lucide-react";
+import { Appartment } from "@/types/appartment.type";
+import { getAppartmentById } from "@/services/api/appartmentService";
+import { useNavigate, useParams } from "react-router";
+import PrimarySearchAppBar from "@/components/home/AppBar";
+import "react-phone-number-input/style.css";
+import PhoneInput, {
+  isValidPhoneNumber,
+} from "react-phone-number-input";
+import { useMutation } from "@tanstack/react-query";
+import { createBooking } from "@/services/api/bookingService";
+import Swal from "sweetalert2";
+
+export default function ApartmentBilling() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [apartment, setApartment] = useState<Appartment | null>(null);
+
+  useEffect(() => {
+    const fetchApartment = async () => {
+      if (!id) return;
+
+      setLoading(true);
+      try {
+        const data = await getAppartmentById(parseInt(id));
+        if (!data) {
+          setApartment(null);
+        } else {
+          setApartment(data);
+        }
+      } catch (error) {
+        console.error("Error fetching apartment:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApartment();
+  }, [id]);
+
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    checkInDate: "",
+    checkOutDate: "",
+    checkInTime: "14:00",
+    checkOutTime: "11:00",
+  });
+
+  const [totalDays, setTotalDays] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+
+  const bookingMutation = useMutation({
+    mutationFn: createBooking,
+    onSuccess: () => {
+      Swal.fire({
+        icon: "success",
+        title: "Booking confirmed",
+        text: "Your apartment booking has been created successfully.",
+      });
+      navigate("/myBookings");
+    },
+    onError: (error: any) => {
+      console.error("Error creating booking:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Booking failed",
+        text:
+          error?.message ||
+          "We couldn't create your booking. Please try again or log in again.",
+      });
+    },
+  });
+
+  useEffect(() => {
+    if (!apartment) return;
+    if (formData.checkInDate && formData.checkOutDate) {
+      const checkIn = new Date(formData.checkInDate);
+      const checkOut = new Date(formData.checkOutDate);
+      const diffTime = Math.abs(checkOut.getTime() - checkIn.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const days = diffDays || 1;
+      
+      setTotalDays(days);
+      // Calculate price: daily rate * number of days (minimum 1 day)
+      setTotalPrice(apartment.price * Math.max(1, days));
+    }
+  }, [formData.checkInDate, formData.checkOutDate, apartment]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!apartment) return;
+
+    if (!formData.phone || !isValidPhoneNumber(formData.phone)) {
+      Swal.fire({
+        icon: "warning",
+        title: "Invalid phone number",
+        text: "Please enter a valid phone number before confirming your booking.",
+      });
+      return;
+    }
+
+    bookingMutation.mutate({
+      propertyId: String(apartment.id),
+      providerId: apartment.providerId,
+      propertyType: "apartment",
+      startDate: formData.checkInDate,
+      endDate: formData.checkOutDate,
+      pickUpLocation: apartment.address || apartment.location || "",
+      dropOffLocation: apartment.address || apartment.location || "",
+      pickUpTime: formData.checkInTime,
+      dropOffTime: formData.checkOutTime,
+      totalPrice,
+      contactMail: formData.email,
+      contactPhone: formData.phone,
+      requesterName: formData.fullName,
+    });
+  };
+
+  const serviceFee = totalPrice * 0.05;
+  const tax = totalPrice * 0.1;
+  const finalTotal = totalPrice + serviceFee + tax;
+
+  function handlePhoneChange(value?: string): void {
+    setFormData((prev) => ({
+      ...prev,
+      phone: value || "",
+    }));
+  }
+
+  if (loading) {
+    return (
+      <div className="p-8 text-center">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p className="mt-2 text-slate-600">Loading apartment details…</p>
+      </div>
+    );
+  }
+
+  if (!apartment) {
+    return <div className="p-8 text-center">Apartment not found</div>;
+  }
+
+  return (
+    <div>
+      <PrimarySearchAppBar />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">
+              Complete Your Booking
+            </h1>
+            <p className="text-slate-600">
+              Just a few more details and you're ready to go
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Main Form Section */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Personal Information */}
+              <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
+                <h2 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
+                  <User className="w-5 h-5 text-blue-600" />
+                  Personal Information
+                </h2>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={formData.fullName}
+                      onChange={handleInputChange}
+                      placeholder="John Doe"
+                      className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Email Address *
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="john@example.com"
+                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Phone Number *
+                      </label>
+                      <div className="relative">
+                        <PhoneInput
+                          international
+                          countryCallingCodeEditable={false}
+                          placeholder="Enter phone number"
+                          value={formData.phone}
+                          onChange={handlePhoneChange}
+                          error={
+                            formData.phone
+                              ? isValidPhoneNumber(formData.phone)
+                                ? undefined
+                                : "Invalid phone number"
+                              : "Phone number required"
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Rental Period */}
+              <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
+                <h2 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-blue-600" />
+                  Rental Period
+                </h2>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Check-in Date *
+                      </label>
+                      <input
+                        type="date"
+                        name="checkInDate"
+                        value={formData.checkInDate}
+                        onChange={handleInputChange}
+                        min={new Date().toISOString().split("T")[0]}
+                        className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Check-in Time
+                      </label>
+                      <div className="relative">
+                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                        <input
+                          type="time"
+                          name="checkInTime"
+                          value={formData.checkInTime}
+                          onChange={handleInputChange}
+                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Check-out Date *
+                      </label>
+                      <input
+                        type="date"
+                        name="checkOutDate"
+                        value={formData.checkOutDate}
+                        onChange={handleInputChange}
+                        min={
+                          formData.checkInDate ||
+                          new Date().toISOString().split("T")[0]
+                        }
+                        className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Check-out Time
+                      </label>
+                      <div className="relative">
+                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                        <input
+                          type="time"
+                          name="checkOutTime"
+                          value={formData.checkOutDate}
+                          onChange={handleInputChange}
+                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {totalDays > 0 && (
+                  <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm text-blue-800">
+                      <span className="font-semibold">Rental Duration:</span>{" "}
+                      {totalDays} {totalDays === 1 ? "day" : "days"}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Summary Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-8 space-y-6">
+                {/* Apartment Summary */}
+                <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
+                  <div className="h-48 overflow-hidden">
+                    <img
+                      src={apartment.imageUrls?.[0]}
+                      alt={apartment.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-slate-800 mb-1">
+                      {apartment.name}
+                    </h3>
+                    <p className="text-sm text-slate-600 mb-4">
+                      {apartment.location || apartment.address || "Location not specified"}
+                    </p>
+
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                        <Home className="w-4 h-4" />
+                        <span>{apartment.rooms} Rooms</span>
+                      </div>
+                      {apartment.beds && (
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                          <span>•</span>
+                          <span>{apartment.beds} Beds</span>
+                        </div>
+                      )}
+                      {apartment.amenities && apartment.amenities.length > 0 && (
+                        <div className="flex gap-2 flex-wrap mt-2">
+                          {apartment.amenities.slice(0, 3).map((amenity, idx) => (
+                            <span
+                              key={idx}
+                              className="text-xs px-2 py-1 bg-slate-100 text-slate-700 rounded-full"
+                            >
+                              {amenity}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Price Breakdown */}
+                <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
+                  <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-blue-600" />
+                    Price Summary
+                  </h3>
+
+                  <div className="space-y-3 mb-4">
+                    <div className="flex justify-between text-slate-600">
+                      <span>
+                        ${apartment.price}/day × {totalDays || 1} {totalDays === 1 ? "day" : "days"}
+                      </span>
+                      <span className="font-medium">
+                        ${totalPrice.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-slate-600">
+                      <span>Service fee</span>
+                      <span className="font-medium">
+                        ${serviceFee.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-slate-600">
+                      <span>Tax (10%)</span>
+                      <span className="font-medium">${tax.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-200">
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-semibold text-slate-800">
+                        Total
+                      </span>
+                      <span className="text-2xl font-bold text-blue-600">
+                        ${finalTotal.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleSubmit}
+                    disabled={
+                      bookingMutation.isPending ||
+                      !formData.fullName ||
+                      !formData.email ||
+                      !formData.phone ||
+                      !formData.checkInDate ||
+                      !formData.checkOutDate
+                    }
+                    className="w-full mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30"
+                  >
+                    <Check className="w-5 h-5" />
+                    {bookingMutation.isPending ? "Processing..." : "Confirm Booking"}
+                  </button>
+
+                  <p className="text-xs text-slate-500 text-center mt-4">
+                    You won't be charged yet
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

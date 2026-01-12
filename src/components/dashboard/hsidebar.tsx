@@ -71,6 +71,7 @@ const ICONS = {
   notifications: <Bell size={20} />,
   documentation: <FileText size={20} />,
   settings: <Settings size={20} />,
+  bookings: <Calendar size={20} />,
 };
 
 // Route paths configuration
@@ -107,6 +108,9 @@ const ROUTES = {
     overview: "/analytics/overview",
     performance: "/analytics/performance",
     trends: "/analytics/trends",
+  },
+  bookings: {
+    list: "/dashboard/bookings",
   },
   reviews: "/reviews",
   inventory: "/inventory",
@@ -198,6 +202,18 @@ const MENU_ITEMS = {
         {
           label: "Maintenance",
           route: ROUTES.cars.maintenance,
+          roles: ["admin", "provider"],
+        },
+      ],
+    },
+    {
+      label: "Bookings",
+      icon: ICONS.bookings,
+      roles: ["admin", "provider"],
+      items: [
+        {
+          label: "All Bookings",
+          route: ROUTES.bookings.list,
           roles: ["admin", "provider"],
         },
       ],

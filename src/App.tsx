@@ -28,6 +28,10 @@ import SearchPropertyResults from "./pages/home/SearchPropertyResults/SearchProp
 import SearchCarResults from "./pages/home/SearchPropertyResults/SearchCarResults";
 import ApartmentReservation from "./pages/home/AppartmentReservation";
 import CarReservation from "./pages/home/CarReservation";
+import CarBilling from "./pages/home/booking/CarBilling";
+import BookingsSummary from "./pages/home/BookingsSummary";
+import ApartmentBilling from "./pages/home/booking/ApartmentBilling";
+import BookingsManagement from "./pages/dashboard/bookings/BookingsManagement";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +56,9 @@ const App = () => (
             element={<ApartmentReservation />}
           />
           <Route path="/carReservation/:id" element={<CarReservation />} />
+          <Route path="/carBilling/:id" element={<CarBilling />} />
+          <Route path="/apartmentBilling/:id" element={<ApartmentBilling />} />
+          <Route path="/myBookings" element={<BookingsSummary />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
@@ -75,6 +82,7 @@ const App = () => (
               path="/dashboard/user-details/:userId"
               element={<UserDetails />}
             />
+            <Route path="/dashboard/bookings" element={<BookingsManagement />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

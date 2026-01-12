@@ -36,6 +36,7 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import { getCarUnavailabilityDates } from "@/services/api/carService";
 
 const CarReservation = () => {
   const { id } = useParams<{ id: string }>();
@@ -67,17 +68,16 @@ const CarReservation = () => {
       } finally {
         setLoading(false);
       }
+      const unavailabilityDates = await getCarUnavailabilityDates(parseInt(id));
+      console.log(unavailabilityDates);
     };
 
     fetchCar();
   }, [id]);
 
   const handleReservation = () => {
-    Swal.fire({
-      icon: "info",
-      title: "Reservation",
-      text: "Reservation feature coming soon!",
-    });
+    // navigate to /carBilling/{id}
+    navigate(`/carBilling/${id}`);
   };
 
   if (loading) {

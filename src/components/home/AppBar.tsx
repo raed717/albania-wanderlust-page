@@ -12,12 +12,14 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PersonIcon from "@mui/icons-material/Person";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Avatar from "@mui/material/Avatar";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Divider from "@mui/material/Divider";
 import Skeleton from "@mui/material/Skeleton";
 import Tooltip from "@mui/material/Tooltip";
 import Badge from "@mui/material/Badge";
+import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
 import { authService } from "@/services/api/authService";
 import { userService } from "@/services/api/userService";
@@ -123,6 +125,15 @@ export default function PrimarySearchAppBar() {
     navigate("/dashboard");
   };
 
+  const handleMyBookings = () => {
+    handleMenuClose();
+    if (!user) {
+      handleLogin();
+      return;
+    }
+    navigate("/myBookings");
+  };
+
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
@@ -205,6 +216,12 @@ export default function PrimarySearchAppBar() {
               Dashboard
             </MenuItem>
           )}
+          <MenuItem onClick={handleMyBookings} sx={{ py: 1.5 }}>
+            <ListItemIcon>
+              <CalendarMonthIcon fontSize="small" />
+            </ListItemIcon>
+            My Bookings
+          </MenuItem>
           {(isProvider && isProfileComplete) && (
             <MenuItem onClick={handleDashboard} sx={{ py: 1.5 }}>
               <ListItemIcon>
@@ -394,6 +411,16 @@ export default function PrimarySearchAppBar() {
               gap: 1,
             }}
           >
+            {user && (
+              <Button
+                color="inherit"
+                startIcon={<CalendarMonthIcon />}
+                onClick={() => navigate("/myBookings")}
+                sx={{ textTransform: "none", mr: 1 }}
+              >
+                My Bookings
+              </Button>
+            )}
             <Tooltip title="Account">
               <IconButton
                 size="large"
