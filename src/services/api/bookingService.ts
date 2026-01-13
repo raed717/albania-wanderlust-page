@@ -109,6 +109,7 @@ export const getBookingsByPropertyIdAndType = async (
   const { data, error } = await apiClient
     .from("booking")
     .select("*")
+    .in("status", ["confirmed", "pending"])
     .eq("propertyId", propertyId)
     .eq("propertyType", propertyType);
 

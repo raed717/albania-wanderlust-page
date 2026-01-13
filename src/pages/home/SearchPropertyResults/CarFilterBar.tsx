@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Filter, RotateCcw } from "lucide-react";
+import { Filter, RotateCcw, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,8 @@ export interface CarFilterState extends CarFilters {
     priceRange?: { min: number; max: number };
     features?: string[];
     seats?: number;
+    pickupDate?: Date | null;
+    returnDate?: Date | null;
 }
 
 interface CarFilterBarProps {
@@ -54,6 +56,7 @@ export const CarFilterBar = ({
         if (filters.priceRange && (filters.priceRange.min > 0 || filters.priceRange.max < 1000)) count++;
         if (filters.features && filters.features.length > 0) count++;
         if (filters.seats && filters.seats > 0) count++;
+        if (filters.pickupDate || filters.returnDate) count++;
         return count;
     };
 
@@ -124,6 +127,49 @@ export const CarFilterBar = ({
                                     }
                                     className="text-sm"
                                 />
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        {/* Date Range */}
+                        <AccordionItem value="dates">
+                            <AccordionTrigger className="text-sm font-semibold">
+                                <span className="flex items-center gap-2">
+                                    <Calendar className="w-4 h-4" />
+                                    Rental Dates
+                                </span>
+                            </AccordionTrigger>
+                            <AccordionContent className="space-y-3 pt-2">
+                                <div className="space-y-2">
+                                    <Label className="text-xs text-gray-600">Pickup Date</Label>
+                                    <Input
+                                        type="date"
+                                        value={filters.pickupDate ? filters.pickupDate.toISOString().split('T')[0] : ""}
+                                        onChange={(e) => {
+                                            const date = e.target.value ? new Date(e.target.value) : null;
+                                            onFilterChange({ pickupDate: date });
+                                        }}
+                                        className="text-sm"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-xs text-gray-600">Return Date</Label>
+                                    <Input
+                                        type="date"
+                                        value={filters.returnDate ? filters.returnDate.toISOString().split('T')[0] : ""}
+                                        min={filters.pickupDate ? filters.pickupDate.toISOString().split('T')[0] : undefined}
+                                        onChange={(e) => {
+                                            const date = e.target.value ? new Date(e.target.value) : null;
+                                            onFilterChange({ returnDate: date });
+                                        }}
+                                        className="text-sm"
+                                    />
+                                </div>
+                                {(filters.pickupDate || filters.returnDate) && (
+                                    <p className="text-xs text-blue-600 flex items-center gap-1">
+                                        <Calendar className="w-3 h-3" />
+                                        Showing cars available for selected dates
+                                    </p>
+                                )}
                             </AccordionContent>
                         </AccordionItem>
 

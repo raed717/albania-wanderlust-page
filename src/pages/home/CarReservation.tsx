@@ -5,10 +5,7 @@ import { Label } from "@/components/ui/label";
 import {
   ArrowLeft,
   MapPin,
-  Star,
   DollarSign,
-  Mail,
-  Phone,
   Loader2,
   Calendar,
   Car as CarIcon,
@@ -24,19 +21,16 @@ import {
   Palette,
   Hash,
   Package,
-  Clock,
   MapPinned,
 } from "lucide-react";
 import { Car } from "@/types/car.types";
 import { getCarById } from "@/services/api/carService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
-import Swal from "sweetalert2";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
-import { getCarUnavailabilityDates } from "@/services/api/carService";
 
 const CarReservation = () => {
   const { id } = useParams<{ id: string }>();
@@ -68,8 +62,6 @@ const CarReservation = () => {
       } finally {
         setLoading(false);
       }
-      const unavailabilityDates = await getCarUnavailabilityDates(parseInt(id));
-      console.log(unavailabilityDates);
     };
 
     fetchCar();

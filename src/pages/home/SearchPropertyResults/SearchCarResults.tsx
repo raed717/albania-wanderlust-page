@@ -1,34 +1,80 @@
 import { useEffect, useState, useMemo } from "react";
+import { useLocation } from "react-router";
 import { AlertCircle, Car as CarIcon } from "lucide-react";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import { CarCard } from "@/components/home/CarCard";
-import { getAllCars } from "@/services/api/carService";
+import { getAllCars, getCarUnavailabilityDates } from "@/services/api/carService";
 import { Car } from "@/types/car.types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { CarFilterBar, CarFilterState } from "./CarFilterBar";
 
+interface LocationState {
+  type?: string;
+  destination?: string;
+  pickupDate?: string | null;
+  returnDate?: string | null;
+}
+
 const SearchCarResults = () => {
+  const location = useLocation();
+  const state = location.state as LocationState | null;
+
   const [cars, setCars] = useState<Car[]>([]);
+  const [carUnavailability, setCarUnavailability] = useState<Record<number, string[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Extract search params from navigation state
+  const initialDestination = state?.destination || "";
+  const pickupDate = state?.pickupDate ? new Date(state.pickupDate) : null;
+  const returnDate = state?.returnDate ? new Date(state.returnDate) : null;
+
   // Filter State
   const [filters, setFilters] = useState<CarFilterState>({
-    searchTerm: "",
+    searchTerm: initialDestination,
     status: "all",
     type: "all",
     transmission: "all",
     fuelType: "all",
     priceRange: { min: 0, max: 1000 },
     features: [],
-    seats: undefined
+    seats: undefined,
+    pickupDate: pickupDate,
+    returnDate: returnDate
   });
 
   useEffect(() => {
     fetchCars();
   }, []);
+
+  // Fetch unavailability dates when cars are loaded or date filters change
+  useEffect(() => {
+    const fetchUnavailability = async () => {
+      if (cars.length === 0) return;
+      if (!filters.pickupDate && !filters.returnDate) {
+        setCarUnavailability({});
+        return;
+      }
+
+      const unavailabilityMap: Record<number, string[]> = {};
+      await Promise.all(
+        cars.map(async (car) => {
+          try {
+            const dates = await getCarUnavailabilityDates(car.id);
+            unavailabilityMap[car.id] = dates;
+          } catch (err) {
+            console.error(`Error fetching unavailability for car ${car.id}:`, err);
+            unavailabilityMap[car.id] = [];
+          }
+        })
+      );
+      setCarUnavailability(unavailabilityMap);
+    };
+
+    fetchUnavailability();
+  }, [cars, filters.pickupDate, filters.returnDate]);
 
   const fetchCars = async () => {
     try {
@@ -44,6 +90,7 @@ const SearchCarResults = () => {
     }
   };
 
+
   // Extract unique features from all cars
   const availableFeatures = useMemo(() => {
     const featuresSet = new Set<string>();
@@ -52,6 +99,25 @@ const SearchCarResults = () => {
     });
     return Array.from(featuresSet).sort();
   }, [cars]);
+
+  // Helper function to check if car is available for the selected date range
+  const isCarAvailableForDateRange = (carId: number, pickup: Date | null, returnD: Date | null): boolean => {
+    if (!pickup || !returnD) return true; // No date filter applied
+
+    const unavailableDates = carUnavailability[carId] || [];
+    if (unavailableDates.length === 0) return true;
+
+    // Get all dates in the requested range
+    const requestedDates: string[] = [];
+    const currentDate = new Date(pickup);
+    while (currentDate <= returnD) {
+      requestedDates.push(currentDate.toISOString().split('T')[0]);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    // Check if any requested date is unavailable
+    return !requestedDates.some(date => unavailableDates.includes(date));
+  };
 
   // Filter logic
   const filteredCars = useMemo(() => {
@@ -91,9 +157,16 @@ const SearchCarResults = () => {
         if (!hasAllFeatures) return false;
       }
 
+      // Date Availability
+      if (filters.pickupDate || filters.returnDate) {
+        if (!isCarAvailableForDateRange(car.id, filters.pickupDate ?? null, filters.returnDate ?? null)) {
+          return false;
+        }
+      }
+
       return true;
     });
-  }, [cars, filters]);
+  }, [cars, filters, carUnavailability]);
 
   const handleFilterChange = (newFilters: Partial<CarFilterState>) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
@@ -108,7 +181,9 @@ const SearchCarResults = () => {
       fuelType: "all",
       priceRange: { min: 0, max: 1000 },
       features: [],
-      seats: undefined
+      seats: undefined,
+      pickupDate: null,
+      returnDate: null
     });
   };
 

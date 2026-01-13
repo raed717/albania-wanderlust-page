@@ -18,7 +18,7 @@ interface CarCardProps {
   color: string;
   plateNumber: string;
   features?: string[];
-  imageUrls: string[];
+  imageUrls?: string[];
   pickUpLocation: string;
   onClick: (id: number) => void;
 }
