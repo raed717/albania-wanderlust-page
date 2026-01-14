@@ -8,24 +8,173 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Hotel } from "@/types/hotel.types";
 import { Appartment } from "@/types/appartment.type";
+import { useLocation } from "react-router-dom";
+import { defaultSearchFilters } from "@/types/search.types";
 
 const SearchPropertyResults = () => {
+  const location = useLocation();
+  const state = location.state as {
+    type: string;
+    destination?: string;
+    checkInDate?: string | null;
+    checkOutDate?: string | null;
+    adults?: number;
+    children?: number;
+    rooms?: number;
+  } | null;
+
+
+  const initialFilters = state
+    ? {
+      destination: state.destination,
+      checkInDate: state.checkInDate,
+      checkOutDate: state.checkOutDate,
+      adults: state.adults,
+      children: state.children,
+      rooms: state.rooms,
+      hotelFilters: {
+        ...defaultSearchFilters.hotelFilters,
+        searchTerm: state.destination || defaultSearchFilters.hotelFilters.searchTerm,
+        rooms: state.rooms
+          ? { ...defaultSearchFilters.hotelFilters.rooms, min: state.rooms }
+          : defaultSearchFilters.hotelFilters.rooms,
+      },
+      appartmentFilters: {
+        ...defaultSearchFilters.appartmentFilters,
+        searchTerm: state.destination || defaultSearchFilters.appartmentFilters.searchTerm,
+        rooms: state.rooms
+          ? { ...defaultSearchFilters.appartmentFilters.rooms, min: state.rooms }
+          : defaultSearchFilters.appartmentFilters.rooms,
+        beds:
+          state.adults || state.children
+            ? {
+              ...defaultSearchFilters.appartmentFilters.beds,
+              min: (state.adults || 0) + (state.children || 0),
+            }
+            : defaultSearchFilters.appartmentFilters.beds,
+      },
+    }
+    : undefined;
+
   const {
     filters,
     results,
     loading,
     error,
+    setFilters,
     setPropertyType,
     setHotelFilters,
     setAppartmentFilters,
     resetFilters,
     applyFilters,
-  } = useSearchFilters();
+  } = useSearchFilters(initialFilters);
+
+  // Set filters from navigation state
+  useEffect(() => {
+    if (state) {
+      // Set destination as search term
+      if (state.destination) {
+        setHotelFilters({ searchTerm: state.destination });
+        setAppartmentFilters({ searchTerm: state.destination });
+      }
+
+      // Set dates and guest info
+      if (
+        state.checkInDate ||
+        state.checkOutDate ||
+        state.adults !== undefined ||
+        state.children !== undefined ||
+        state.rooms !== undefined
+      ) {
+        setFilters({
+          checkInDate: state.checkInDate,
+          checkOutDate: state.checkOutDate,
+          adults: state.adults,
+          children: state.children,
+          rooms: state.rooms,
+        });
+
+        // Update derived filters
+        if (state.adults !== undefined || state.children !== undefined) {
+          const requiredBeds = (state.adults || 0) + (state.children || 0);
+          setAppartmentFilters({
+            beds: {
+              min: requiredBeds,
+              max: filters.appartmentFilters.beds?.max,
+            },
+          });
+        }
+
+        if (state.rooms !== undefined) {
+          setHotelFilters({
+            rooms: {
+              min: state.rooms,
+              max: filters.hotelFilters.rooms?.max,
+            },
+          });
+          setAppartmentFilters({
+            rooms: {
+              min: state.rooms,
+              max: filters.appartmentFilters.rooms?.max,
+            },
+          });
+        }
+      }
+    }
+  }, [state, setFilters, setHotelFilters, setAppartmentFilters]);
 
   // Fetch properties on component mount
   useEffect(() => {
     applyFilters();
   }, [applyFilters]);
+
+  // Handle date changes
+  const handleDateChange = (dates: {
+    checkInDate?: string | null;
+    checkOutDate?: string | null;
+  }) => {
+    setFilters({
+      checkInDate: dates.checkInDate ?? filters.checkInDate,
+      checkOutDate: dates.checkOutDate ?? filters.checkOutDate,
+    });
+    // Re-apply filters when dates change
+    setTimeout(() => applyFilters(), 0);
+  };
+
+  // Handle guests changes
+  const handleGuestsChange = (guests: {
+    adults?: number;
+    children?: number;
+    rooms?: number;
+  }) => {
+    setFilters({
+      adults: guests.adults ?? filters.adults,
+      children: guests.children ?? filters.children,
+      rooms: guests.rooms ?? filters.rooms,
+    });
+    // Update apartment filters
+    setAppartmentFilters({
+      beds: {
+        min: (guests.adults || 2) + (guests.children || 0),
+        max: filters.appartmentFilters.beds?.max,
+      },
+      rooms: {
+        min: guests.rooms || 1,
+        max: filters.appartmentFilters.rooms?.max,
+      },
+    });
+    // If property type is hotel, update hotel rooms
+    if (filters.propertyType === "hotel") {
+      setHotelFilters({
+        rooms: {
+          min: guests.rooms || 1,
+          max: filters.hotelFilters.rooms?.max,
+        },
+      });
+    }
+    // Re-apply filters when guests change
+    setTimeout(() => applyFilters(), 0);
+  };
 
   // Handle property click
   const handlePropertyClick = (id: number, isHotel: boolean) => {
@@ -86,6 +235,8 @@ const SearchPropertyResults = () => {
             onPropertyTypeChange={setPropertyType}
             onHotelFiltersChange={setHotelFilters}
             onAppartmentFiltersChange={setAppartmentFilters}
+            onDateChange={handleDateChange}
+            onGuestsChange={handleGuestsChange}
             onResetFilters={resetFilters}
             onApplyFilters={applyFilters}
             loading={loading}

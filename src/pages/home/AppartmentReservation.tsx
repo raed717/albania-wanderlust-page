@@ -30,7 +30,6 @@ import {
 import { Appartment } from "@/types/appartment.type"; 
 import { getAppartmentById } from "@/services/api/appartmentService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
-import Swal from "sweetalert2";
 import { Pool, Spa } from "@mui/icons-material";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import Lightbox from "yet-another-react-lightbox";

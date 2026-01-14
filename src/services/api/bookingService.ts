@@ -21,6 +21,7 @@ export const createBooking = async (
       ...payload,
       userId,
       status: "pending",
+      payment_status: "pending",
     })
     .select("*")
     .single();
@@ -58,8 +59,8 @@ export const getCurrentUserBookings = async (): Promise<Booking[]> => {
 };
 
 /*
-* Get all bookings for a specific provider
-*/
+ * Get all bookings for a specific provider
+ */
 export const getBookingsByProviderId = async (): Promise<Booking[]> => {
   const providerId = await authService.getCurrentUserId();
   const { data, error } = await apiClient
@@ -68,7 +69,10 @@ export const getBookingsByProviderId = async (): Promise<Booking[]> => {
     .eq("providerId", providerId)
     .order("createdAt", { ascending: false });
   if (error) {
-    console.error("[Booking Service] Error fetching bookings for provider:", error);
+    console.error(
+      "[Booking Service] Error fetching bookings for provider:",
+      error
+    );
     throw error;
   }
   return data || [];
@@ -114,21 +118,22 @@ export const getBookingsByPropertyIdAndType = async (
     .eq("propertyType", propertyType);
 
   if (error) {
-    console.error("[Booking Service] Error fetching booking by property id and type:", error);
+    console.error(
+      "[Booking Service] Error fetching booking by property id and type:",
+      error
+    );
     throw error;
   }
 
   return data as Booking[] | null;
 };
 
-
 const bookingService = {
   createBooking,
   getCurrentUserBookings,
   getBookingsByProviderId,
   updateBookingStatus,
-  getBookingsByPropertyIdAndType
+  getBookingsByPropertyIdAndType,
 };
 
 export default bookingService;
-

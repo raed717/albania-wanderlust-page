@@ -1,8 +1,8 @@
-import { Apartment } from "./types";
+import { Appartment } from "@/types/appartment.type";
 import { Link } from "react-router-dom";
 
 interface ApartmentPopupProps {
-  apartment: Apartment;
+  apartment: Appartment;
 }
 
 export function ApartmentPopup({ apartment }: ApartmentPopupProps) {
@@ -12,6 +12,10 @@ export function ApartmentPopup({ apartment }: ApartmentPopupProps) {
         <h3 className="font-semibold text-base">{apartment.name}</h3>
         <p className="text-sm text-gray-600">{apartment.location}</p>
       </div>
+      <img
+        src={apartment.imageUrls[0]}
+        className="w-full h-32 object-cover rounded-md"
+      />
 
       <div className="space-y-1 text-sm">
         {apartment.price && (
@@ -23,12 +27,6 @@ export function ApartmentPopup({ apartment }: ApartmentPopupProps) {
         {apartment.rooms && (
           <p>
             <span className="font-medium">Rooms:</span> {apartment.rooms}
-          </p>
-        )}
-        {apartment.occupancy && (
-          <p>
-            <span className="font-medium">Capacity:</span> {apartment.occupancy}{" "}
-            guests
           </p>
         )}
         {apartment.rating && (

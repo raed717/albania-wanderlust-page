@@ -14,7 +14,7 @@ export function CarPopup({ car }: CarPopupProps) {
         </h3>
         {/* car image */}
         <img
-          src={car.image}
+          src={car.imageUrls[0]}
           alt={`${car.brand} ${car.name}`}
           className="w-full h-32 object-cover rounded-md"
         />
@@ -84,7 +84,7 @@ export function CarPopup({ car }: CarPopupProps) {
         </div>
       )}
 
-      <Link to={`/dashboard`}>
+      <Link to={`/carReservation/${car.id}`}>
         <button className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition font-medium text-sm">
           Rent Now
         </button>

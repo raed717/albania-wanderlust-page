@@ -8,7 +8,10 @@ import {
   defaultSearchFilters,
 } from "@/types/search.types";
 import { getAllHotels } from "@/services/api/hotelService";
-import { getAllAppartments } from "@/services/api/appartmentService";
+import {
+  getAllAppartments,
+  getApartmentUnavailabilityDates,
+} from "@/services/api/appartmentService";
 
 interface UseSearchFiltersReturn {
   filters: SearchFiltersState;
@@ -30,11 +33,18 @@ interface UseSearchFiltersReturn {
 /**
  * Custom hook to manage search filters and property results
  */
-export const useSearchFilters = (): UseSearchFiltersReturn => {
-  const [filters, setFiltersState] =
-    useState<SearchFiltersState>(defaultSearchFilters);
+export const useSearchFilters = (
+  initialFilters?: Partial<SearchFiltersState>
+): UseSearchFiltersReturn => {
+  const [filters, setFiltersState] = useState<SearchFiltersState>({
+    ...defaultSearchFilters,
+    ...initialFilters,
+  });
   const [allHotels, setAllHotels] = useState<Hotel[]>([]);
   const [allApartments, setAllApartments] = useState<Appartment[]>([]);
+  const [availableApartments, setAvailableApartments] = useState<Appartment[]>(
+    []
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -104,9 +114,22 @@ export const useSearchFilters = (): UseSearchFiltersReturn => {
   const filterAppartment = (apartment: Appartment): boolean => {
     const f = filters.appartmentFilters;
 
-    // Search term filter
-    if (f.searchTerm && f.searchTerm.trim()) {
-      const term = f.searchTerm.toLowerCase();
+    // If dates are provided, check beds requirement
+    if (
+      filters.checkInDate &&
+      filters.checkOutDate &&
+      (filters.adults || filters.children)
+    ) {
+      const requiredBeds = (filters.adults || 0) + (filters.children || 0);
+      if (apartment.beds < requiredBeds) {
+        return false;
+      }
+    }
+
+    // Search term filter - use destination if provided
+    const searchTerm = f.searchTerm || filters.destination || "";
+    if (searchTerm && searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
       if (
         !apartment.name.toLowerCase().includes(term) &&
         !apartment.address?.toLowerCase().includes(term)
@@ -187,9 +210,15 @@ export const useSearchFilters = (): UseSearchFiltersReturn => {
           }))
         : [];
 
+    // Use available apartments if dates are provided, otherwise all apartments
+    const apartmentsToFilter =
+      filters.checkInDate && filters.checkOutDate
+        ? availableApartments
+        : allApartments;
+
     const filteredApartments =
       filters.propertyType === "apartment" || filters.propertyType === "both"
-        ? allApartments.filter(filterAppartment).map((apt) => ({
+        ? apartmentsToFilter.filter(filterAppartment).map((apt) => ({
             ...apt,
             amenities: apt.amenities || [],
             image: apt.image || "",
@@ -204,7 +233,58 @@ export const useSearchFilters = (): UseSearchFiltersReturn => {
       apartments: filteredApartments,
       combined: [...filteredHotels, ...filteredApartments],
     };
-  }, [filters, allHotels, allApartments]);
+  }, [
+    filters,
+    allHotels,
+    allApartments,
+    availableApartments,
+    filterHotel,
+    filterAppartment,
+  ]);
+
+  /**
+   * Filter apartments by availability based on dates
+   */
+  const filterApartmentsByAvailability = useCallback(
+    async (apartments: Appartment[]): Promise<Appartment[]> => {
+      if (!filters.checkInDate || !filters.checkOutDate) {
+        return apartments;
+      }
+
+      const checkIn = new Date(filters.checkInDate);
+      const checkOut = new Date(filters.checkOutDate);
+
+      const availableApartmentsPromises = apartments.map(async (apartment) => {
+        try {
+          const unavailableDates = await getApartmentUnavailabilityDates(
+            apartment.id
+          );
+
+          // Check if any date in the range is unavailable
+          const currentDate = new Date(checkIn);
+          while (currentDate <= checkOut) {
+            const dateStr = currentDate.toISOString().split("T")[0];
+            if (unavailableDates.includes(dateStr)) {
+              return null; // Not available
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+
+          return apartment; // Available
+        } catch (error) {
+          console.error(
+            `Error checking availability for apartment ${apartment.id}:`,
+            error
+          );
+          return null; // On error, consider unavailable
+        }
+      });
+
+      const results = await Promise.all(availableApartmentsPromises);
+      return results.filter((apt): apt is Appartment => apt !== null);
+    },
+    [filters.checkInDate, filters.checkOutDate]
+  );
 
   /**
    * Fetch all properties
@@ -229,6 +309,18 @@ export const useSearchFilters = (): UseSearchFiltersReturn => {
 
       setAllHotels(hotelsData);
       setAllApartments(apartmentsData);
+
+      // Filter apartments by availability if dates are provided
+      if (
+        shouldFetchApartments &&
+        filters.checkInDate &&
+        filters.checkOutDate
+      ) {
+        const available = await filterApartmentsByAvailability(apartmentsData);
+        setAvailableApartments(available);
+      } else {
+        setAvailableApartments(apartmentsData);
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to fetch properties";
@@ -237,7 +329,12 @@ export const useSearchFilters = (): UseSearchFiltersReturn => {
     } finally {
       setLoading(false);
     }
-  }, [filters.propertyType]);
+  }, [
+    filters.propertyType,
+    filters.checkInDate,
+    filters.checkOutDate,
+    filterApartmentsByAvailability,
+  ]);
 
   /**
    * Update filters

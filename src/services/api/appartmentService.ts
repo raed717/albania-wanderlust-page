@@ -7,6 +7,7 @@ import {
 } from "@/types/appartment.type";
 import { uploadImages } from "./storageService";
 import { authService } from "./authService";
+import { getBookingsByPropertyIdAndType } from "./bookingService";
 
 /**
  * fetch all appatments
@@ -94,7 +95,10 @@ export const createAppartment = async (
     throw error;
   }
 
-  console.log("[Apartment Service] Successfully created apartment:", newAppartment);
+  console.log(
+    "[Apartment Service] Successfully created apartment:",
+    newAppartment
+  );
   return newAppartment;
 };
 
@@ -147,7 +151,10 @@ export const updateAppartment = async (
     .single();
 
   if (error) {
-    console.error(`[Apartment Service] Error updating apartment ID ${id}:`, error);
+    console.error(
+      `[Apartment Service] Error updating apartment ID ${id}:`,
+      error
+    );
     throw error;
   }
 
@@ -161,6 +168,36 @@ export const updateAppartment = async (
 export const deleteAppartment = async (id: number): Promise<void> => {
   const { error } = await apiClient.from("appartment").delete().eq("id", id);
   if (error) throw error;
+};
+
+/*
+ * Get apartment unavailability dates by apartment id using booking service getBookingByPropertyIdAndType
+ */
+export const getApartmentUnavailabilityDates = async (
+  apartmentId: number
+): Promise<string[]> => {
+  const bookings = await getBookingsByPropertyIdAndType(
+    apartmentId.toString(),
+    "apartment"
+  );
+
+  if (!bookings || bookings.length === 0) {
+    return [];
+  }
+
+  const unavailabilityDates: string[] = []; // Declare outside the loop
+
+  bookings.forEach((booking) => {
+    const startDate = new Date(booking.startDate);
+    const endDate = new Date(booking.endDate);
+
+    while (startDate <= endDate) {
+      unavailabilityDates.push(startDate.toISOString().split("T")[0]);
+      startDate.setDate(startDate.getDate() + 1);
+    }
+  });
+
+  return unavailabilityDates; // Return the accumulated dates
 };
 
 /**
@@ -253,6 +290,7 @@ const appartmentService = {
   updateAppartment,
   deleteAppartment,
   searchAppartments,
+  getApartmentUnavailabilityDates,
 };
 
 export default appartmentService;

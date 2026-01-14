@@ -1,8 +1,8 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { getAllHotels } from "@/services/api/hotelService";
 import { getAllCars } from "@/services/api/carService";
-import { useApartmentData } from "./useStaticData";
-import { Apartment } from "./types";
+import { getAllAppartments } from "@/services/api/appartmentService";
+import { Appartment } from "@/types/appartment.type";
 import { Hotel } from "@/types/hotel.types";
 import { Car } from "@/types/car.types";
 import "leaflet/dist/leaflet.css";
@@ -40,10 +40,10 @@ export default function HotelMap() {
   const [hotelsData, setHotelsData] = useState<Hotel[]>([]);
   const [carsData, setCarsData] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
-  const { data: apartments } = useApartmentData();
+  const [apartmentsData, setApartmentsData] = useState<Appartment[]>([]);
   const [selected, setSelected] = useState<{
     type: "hotel" | "apartment" | "car";
-    data: Hotel | Apartment | Car;
+    data: Hotel | Appartment | Car;
   } | null>(null);
 
   useEffect(() => {
@@ -78,6 +78,22 @@ export default function HotelMap() {
     fetchCars();
   }, []);
 
+  useEffect(() => {
+    const fetchApartments = async () => {
+      try {
+        const data = await getAllAppartments();
+        setApartmentsData(data || []);
+      } catch (error) {
+        console.error("Failed to fetch apartments:", error);
+        setApartmentsData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApartments();
+  }, []);
+
   return (
     <div className="w-full h-full">
       <MapContainer
@@ -104,7 +120,7 @@ export default function HotelMap() {
           />
         ))}
 
-        {apartments?.map((apartment: Apartment) => (
+        {apartmentsData?.map((apartment: Appartment) => (
           <Marker
             key={`apartment-${apartment.id}`}
             position={[apartment.lat, apartment.lng]}
@@ -133,7 +149,7 @@ export default function HotelMap() {
               <HotelPopup hotel={selected.data as Hotel} />
             )}
             {selected.type === "apartment" && (
-              <ApartmentPopup apartment={selected.data as Apartment} />
+              <ApartmentPopup apartment={selected.data as Appartment} />
             )}
             {selected.type === "car" && <CarPopup car={selected.data as Car} />}
           </Popup>

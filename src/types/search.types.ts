@@ -63,6 +63,13 @@ export interface SearchFiltersState {
   propertyType: "hotel" | "apartment" | "both";
   hotelFilters: HotelFiltersInput;
   appartmentFilters: AppartmentFiltersInput;
+  // Date and guest filters from navigation state
+  destination?: string;
+  checkInDate?: string | null;
+  checkOutDate?: string | null;
+  adults?: number;
+  children?: number;
+  rooms?: number;
 }
 
 /**
@@ -96,6 +103,12 @@ export const defaultSearchFilters: SearchFiltersState = {
     bathrooms: { min: undefined, max: undefined },
     amenities: [],
   },
+  destination: "",
+  checkInDate: null,
+  checkOutDate: null,
+  adults: 2,
+  children: 0,
+  rooms: 1,
 };
 
 /**

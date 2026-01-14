@@ -2,8 +2,19 @@ import React from "react";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import { useQuery } from "@tanstack/react-query";
 import bookingService from "@/services/api/bookingService";
+import paymentService from "@/services/api/paymentService";
 import { Booking } from "@/types/booking.type";
-import { Loader2, Calendar, Car, Building2, Home, AlertCircle } from "lucide-react";
+import {
+  Loader2,
+  Calendar,
+  Car,
+  Building2,
+  Home,
+  AlertCircle,
+  CreditCard,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const getPropertyIcon = (type: Booking["propertyType"]) => {
   switch (type) {
@@ -18,6 +29,8 @@ const getPropertyIcon = (type: Booking["propertyType"]) => {
 };
 
 export default function BookingsSummary() {
+  const { toast } = useToast();
+
   const {
     data: bookings,
     isLoading,
@@ -27,6 +40,24 @@ export default function BookingsSummary() {
     queryKey: ["bookings", "currentUser"],
     queryFn: bookingService.getCurrentUserBookings,
   });
+
+  const handlePayment = async (booking: Booking) => {
+    try {
+      const response = await paymentService.createCheckoutSession({
+        bookingId: booking.id,
+        amount: Math.round(booking.totalPrice), // assuming totalPrice is in dollars
+        currency: "usd", // or get from user preference
+      });
+      window.location.href = response.url;
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast({
+        title: "Payment Error",
+        description: "Failed to initiate payment. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div>
@@ -39,7 +70,8 @@ export default function BookingsSummary() {
               My Bookings
             </h1>
             <p className="mt-2 text-slate-600">
-              Review all your bookings across cars, hotels, and apartments in one place.
+              Review all your bookings across cars, hotels, and apartments in
+              one place.
             </p>
           </div>
 
@@ -65,7 +97,8 @@ export default function BookingsSummary() {
                 You don't have any bookings yet.
               </p>
               <p className="text-slate-500 text-sm">
-                Start exploring properties and cars to create your first booking.
+                Start exploring properties and cars to create your first
+                booking.
               </p>
             </div>
           )}
@@ -96,10 +129,12 @@ export default function BookingsSummary() {
                           </span>
                         </div>
                         <p className="text-sm text-slate-600">
-                          {start.toLocaleDateString()} – {end.toLocaleDateString()}
+                          {start.toLocaleDateString()} –{" "}
+                          {end.toLocaleDateString()}
                         </p>
                         <p className="text-xs text-slate-500 mt-1">
-                          Contact: {booking.requesterName} • {booking.contactMail}
+                          Contact: {booking.requesterName} •{" "}
+                          {booking.contactMail}
                         </p>
                       </div>
                     </div>
@@ -108,19 +143,45 @@ export default function BookingsSummary() {
                       <span className="text-sm font-semibold text-slate-900">
                         Total: ${booking.totalPrice.toFixed(2)}
                       </span>
-                      <span
-                        className={`text-xs px-3 py-1 rounded-full font-semibold capitalize ${
-                          booking.status === "confirmed"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : booking.status === "pending"
-                            ? "bg-amber-50 text-amber-700 border border-amber-200"
-                            : booking.status === "canceled"
-                            ? "bg-red-50 text-red-700 border border-red-200"
-                            : "bg-slate-50 text-slate-700 border border-slate-200"
-                        }`}
-                      >
-                        {booking.status}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-xs px-3 py-1 rounded-full font-semibold capitalize ${
+                            booking.status === "confirmed"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : booking.status === "pending"
+                                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                : booking.status === "canceled"
+                                  ? "bg-red-50 text-red-700 border border-red-200"
+                                  : "bg-slate-50 text-slate-700 border border-slate-200"
+                          }`}
+                        >
+                          {booking.status}
+                        </span>
+                        {booking.payment_status && (
+                          <span
+                            className={`text-xs px-2 py-1 rounded-full font-semibold capitalize ${
+                              booking.payment_status === "paid"
+                                ? "bg-green-50 text-green-700 border border-green-200"
+                                : booking.payment_status === "pending"
+                                  ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                                  : "bg-red-50 text-red-700 border border-red-200"
+                            }`}
+                          >
+                            {booking.payment_status}
+                          </span>
+                        )}
+                      </div>
+                      {booking.status === "pending" &&
+                        booking.payment_status !== "paid" && (
+                          <Button
+                            onClick={() => handlePayment(booking)}
+                            size="sm"
+                            className="mt-2"
+                          >
+                            <CreditCard className="w-4 h-4 mr-2" />
+                            Pay Now
+                          </Button>
+                        )}
                     </div>
                   </div>
                 );
@@ -132,4 +193,3 @@ export default function BookingsSummary() {
     </div>
   );
 }
-

@@ -15,6 +15,9 @@ export interface Booking {
   contactPhone: string;
   requesterName: string;
   status: "pending" | "confirmed" | "canceled" | "completed";
+  payment_status: "pending" | "paid" | "failed";
+  payment_intent_id?: string;
+  paid_at?: string;
   createdAt: string;
   updatedAt: string;
 }
