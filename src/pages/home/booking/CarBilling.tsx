@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Calendar,
   User,
   Mail,
   Phone,
@@ -9,28 +8,27 @@ import {
   CreditCard,
   Check,
 } from "lucide-react";
+import { DateRange } from "react-day-picker";
 import { Car } from "@/types/car.types";
 import { getCarById } from "@/services/api/carService";
+import { getCarUnavailabilityDates } from "@/services/api/carService";
 import { useNavigate, useParams } from "react-router";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import "react-phone-number-input/style.css";
 import PhoneInput, {
-  formatPhoneNumber,
-  formatPhoneNumberIntl,
-  isPossiblePhoneNumber,
   isValidPhoneNumber,
 } from "react-phone-number-input";
 import { useMutation } from "@tanstack/react-query";
 import { createBooking } from "@/services/api/bookingService";
 import Swal from "sweetalert2";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 
 export default function CarBilling() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState<string[]>([]);
-  const [photoIndex, setPhotoIndex] = useState(0);
-  const [isOpen, setIsOpen] = useState(false);
+  const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
 
   const [car, setCar] = useState<Car | null>(null);
 
@@ -47,6 +45,11 @@ export default function CarBilling() {
           setCar(data);
           // If car has a single image string, convert to array
           setImages(data.imageUrls || []);
+          const unavailable = await getCarUnavailabilityDates(data.id);
+          setUnavailableDates(unavailable);
+          console.log('====================================');
+          console.log(unavailable);
+          console.log('====================================');
         }
       } catch (error) {
         console.error("Error fetching car:", error);
@@ -57,12 +60,11 @@ export default function CarBilling() {
 
     fetchCar();
   }, [id]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
-    pickUpDate: "",
-    dropOffDate: "",
     pickUpTime: "10:00",
     dropOffTime: "10:00",
     pickUpLocation: car?.pickUpLocation || "",
@@ -96,16 +98,17 @@ export default function CarBilling() {
 
   useEffect(() => {
     if (!car) return;
-    if (formData.pickUpDate && formData.dropOffDate) {
-      const pickup = new Date(formData.pickUpDate);
-      const dropoff = new Date(formData.dropOffDate);
-      const diffTime = Math.abs(dropoff.getTime() - pickup.getTime());
+    if (dateRange?.from && dateRange?.to) {
+      const diffTime = Math.abs(dateRange.to.getTime() - dateRange.from.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       const days = diffDays || 1;
       setTotalDays(days);
       setTotalPrice(days * car.pricePerDay);
+    } else {
+      setTotalDays(0);
+      setTotalPrice(0);
     }
-  }, [formData.pickUpDate, formData.dropOffDate, car]);
+  }, [dateRange, car]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -128,12 +131,21 @@ export default function CarBilling() {
       return;
     }
 
+    if (!dateRange?.from || !dateRange?.to) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing dates",
+        text: "Please select pick-up and drop-off dates.",
+      });
+      return;
+    }
+
     bookingMutation.mutate({
       propertyId: String(car.id),
       providerId: car.providerId,
       propertyType: "car",
-      startDate: formData.pickUpDate,
-      endDate: formData.dropOffDate,
+      startDate: dateRange.from.toISOString().split("T")[0],
+      endDate: dateRange.to.toISOString().split("T")[0],
       pickUpLocation: formData.pickUpLocation || car.pickUpLocation,
       dropOffLocation: formData.dropOffLocation || formData.pickUpLocation,
       pickUpTime: formData.pickUpTime,
@@ -231,7 +243,6 @@ export default function CarBilling() {
                         <PhoneInput
                           international
                           countryCallingCodeEditable={false}
-                          
                           placeholder="Enter phone number"
                           value={formData.phone}
                           onChange={handlePhoneChange}
@@ -251,118 +262,103 @@ export default function CarBilling() {
 
               {/* Rental Period */}
               <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
-                <h2 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-blue-600" />
+                <h2 className="text-xl font-semibold text-slate-800 mb-6">
                   Rental Period
                 </h2>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Pick-up Date *
-                      </label>
-                      <input
-                        type="date"
-                        name="pickUpDate"
-                        value={formData.pickUpDate}
-                        onChange={handleInputChange}
-                        min={new Date().toISOString().split("T")[0]}
-                        className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Pick-up Time
-                      </label>
-                      <div className="relative">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                        <input
-                          type="time"
-                          name="pickUpTime"
-                          value={formData.pickUpTime}
-                          onChange={handleInputChange}
-                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                        />
+                <div className="space-y-6">
+                  {/* Date Range Picker */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Pick-up & Drop-off Dates *
+                    </label>
+                    <DateRangePicker
+                      dateRange={dateRange}
+                      onDateRangeChange={setDateRange}
+                      placeholder="Select rental dates"
+                      minDate={new Date()}
+                      disabledDates={unavailableDates.map((date) => new Date(date))}
+                    />
+                  </div>
+
+                  {/* Time and Location Grid */}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Pick-up Time
+                        </label>
+                        <div className="relative">
+                          <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                          <input
+                            type="time"
+                            name="pickUpTime"
+                            value={formData.pickUpTime}
+                            onChange={handleInputChange}
+                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Pick-up Location
+                        </label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                          <input
+                            type="text"
+                            name="pickUpLocation"
+                            value={formData.pickUpLocation}
+                            onChange={handleInputChange}
+                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                          />
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Pick-up Location
-                      </label>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                        <input
-                          type="text"
-                          name="pickUpLocation"
-                          value={formData.pickUpLocation}
-                          onChange={handleInputChange}
-                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                        />
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Drop-off Time
+                        </label>
+                        <div className="relative">
+                          <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                          <input
+                            type="time"
+                            name="dropOffTime"
+                            value={formData.dropOffTime}
+                            onChange={handleInputChange}
+                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Drop-off Location
+                        </label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                          <input
+                            type="text"
+                            name="dropOffLocation"
+                            value={formData.dropOffLocation}
+                            onChange={handleInputChange}
+                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Drop-off Date *
-                      </label>
-                      <input
-                        type="date"
-                        name="dropOffDate"
-                        value={formData.dropOffDate}
-                        onChange={handleInputChange}
-                        min={
-                          formData.pickUpDate ||
-                          new Date().toISOString().split("T")[0]
-                        }
-                        className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                        required
-                      />
+                  {totalDays > 0 && (
+                    <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm text-blue-800">
+                        <span className="font-semibold">Rental Duration:</span>{" "}
+                        {totalDays} {totalDays === 1 ? "day" : "days"}
+                      </p>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Drop-off Time
-                      </label>
-                      <div className="relative">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                        <input
-                          type="time"
-                          name="dropOffTime"
-                          value={formData.dropOffTime}
-                          onChange={handleInputChange}
-                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Drop-off Location
-                      </label>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                        <input
-                          type="text"
-                          name="dropOffLocation"
-                          value={formData.dropOffLocation}
-                          onChange={handleInputChange}
-                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
-
-                {totalDays > 0 && (
-                  <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-sm text-blue-800">
-                      <span className="font-semibold">Rental Duration:</span>{" "}
-                      {totalDays} {totalDays === 1 ? "day" : "days"}
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -451,13 +447,15 @@ export default function CarBilling() {
                       !formData.fullName ||
                       !formData.email ||
                       !formData.phone ||
-                      !formData.pickUpDate ||
-                      !formData.dropOffDate
+                      !dateRange?.from ||
+                      !dateRange?.to
                     }
                     className="w-full mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30"
                   >
                     <Check className="w-5 h-5" />
-                    {bookingMutation.isPending ? "Processing..." : "Confirm Booking"}
+                    {bookingMutation.isPending
+                      ? "Processing..."
+                      : "Confirm Booking"}
                   </button>
 
                   <p className="text-xs text-slate-500 text-center mt-4">

@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router";
+import { updateBookingStatus } from "@/services/api/bookingService";
+import Swal from "sweetalert2";
 
 const getPropertyIcon = (type: Booking["propertyType"]) => {
   switch (type) {
@@ -30,7 +33,7 @@ const getPropertyIcon = (type: Booking["propertyType"]) => {
 
 export default function BookingsSummary() {
   const { toast } = useToast();
-
+  const navigate = useNavigate();
   const {
     data: bookings,
     isLoading,
@@ -40,6 +43,49 @@ export default function BookingsSummary() {
     queryKey: ["bookings", "currentUser"],
     queryFn: bookingService.getCurrentUserBookings,
   });
+
+  const getPropertyRoute = (booking: Booking) => {
+    const id = booking.propertyId;
+    switch (booking.propertyType) {
+      case "apartment":
+        return `/appartmentReservation/${id}`;
+      case "hotel":
+        return `/hotelReservation/${id}`;
+      case "car":
+        return `/carReservation/${id}`;
+      default:
+        return "";
+    }
+  };
+
+  const handlePendingBookingCancel = async (booking: Booking) => {
+    try {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, cancel it!",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          updateBookingStatus(booking.id, "canceled");
+          toast({
+            title: "Booking Cancelled",
+            description: "Your booking has been cancelled.",
+          });
+        }
+      });
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      toast({
+        title: "Error",
+        description: "Failed to cancel booking. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handlePayment = async (booking: Booking) => {
     try {
@@ -61,6 +107,7 @@ export default function BookingsSummary() {
 
   return (
     <div>
+      <script src="https://www.paypal.com/sdk/js?client-id=J7TPX9YWLSBEQ"></script>
       <PrimarySearchAppBar />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-10 px-4">
         <div className="max-w-5xl mx-auto">
@@ -115,17 +162,32 @@ export default function BookingsSummary() {
                     key={booking.id}
                     className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                   >
-                    <div className="flex items-start gap-4">
+                    <div
+                      className="flex items-start gap-4 hover:bg-red-50 transition-colors cursor-pointer"
+                      onClick={() => navigate(getPropertyRoute(booking))}
+                    >
+                      <div className="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                        <img
+                          src={
+                            booking.propertyData?.imageUrls?.[0] ||
+                            "/images/placeholder.png"
+                          }
+                          alt={booking.propertyData?.name || "Property Image"}
+                          className="w-11 h-11 rounded-full object-cover"
+                        />
+                      </div>
                       <div className="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
                         <Icon className="w-5 h-5 text-blue-600" />
                       </div>
+
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm uppercase tracking-wide text-slate-500 font-semibold">
-                            {booking.propertyType}
+                            {booking.propertyType} ,{" "}
+                            {booking.propertyData?.name}
                           </span>
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">
-                            Ref: {booking.propertyId}
+                            Ref: {booking.id}
                           </span>
                         </div>
                         <p className="text-sm text-slate-600">
@@ -145,43 +207,53 @@ export default function BookingsSummary() {
                       </span>
                       <div className="flex items-center gap-2">
                         <span
-                          className={`text-xs px-3 py-1 rounded-full font-semibold capitalize ${
-                            booking.status === "confirmed"
+                          className={`text-xs px-3 py-1 rounded-full font-semibold capitalize ${booking.status === "confirmed"
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                               : booking.status === "pending"
                                 ? "bg-amber-50 text-amber-700 border border-amber-200"
                                 : booking.status === "canceled"
                                   ? "bg-red-50 text-red-700 border border-red-200"
                                   : "bg-slate-50 text-slate-700 border border-slate-200"
-                          }`}
+                            }`}
                         >
-                          {booking.status}
+                          Booking status: {booking.status}
                         </span>
                         {booking.payment_status && (
                           <span
-                            className={`text-xs px-2 py-1 rounded-full font-semibold capitalize ${
-                              booking.payment_status === "paid"
+                            className={`text-xs px-2 py-1 rounded-full font-semibold capitalize ${booking.payment_status === "paid"
                                 ? "bg-green-50 text-green-700 border border-green-200"
                                 : booking.payment_status === "pending"
                                   ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
                                   : "bg-red-50 text-red-700 border border-red-200"
-                            }`}
+                              }`}
                           >
-                            {booking.payment_status}
+                            Payment status: {booking.payment_status}
                           </span>
                         )}
                       </div>
-                      {booking.status === "pending" &&
-                        booking.payment_status !== "paid" && (
+                      <div className="flex items-center gap-2">
+                        {booking.status === "pending" &&
+                          booking.payment_status !== "paid" && (
+                            <Button
+                              onClick={() => handlePayment(booking)}
+                              size="sm"
+                              className="mt-2 bg-green-500"
+                            >
+                              <CreditCard className="w-4 h-4 mr-2" />
+                              Pay Now
+                            </Button>
+                          )}
+                        {booking.status === "pending" &&
                           <Button
-                            onClick={() => handlePayment(booking)}
+                            onClick={() => handlePendingBookingCancel(booking)}
                             size="sm"
                             className="mt-2"
                           >
                             <CreditCard className="w-4 h-4 mr-2" />
-                            Pay Now
+                            Cancel
                           </Button>
-                        )}
+                        }
+                      </div>
                     </div>
                   </div>
                 );

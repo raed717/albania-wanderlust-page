@@ -1,3 +1,13 @@
+/**
+ * Booking Type Definitions
+ *
+ * TypeScript interfaces for booking data models and API operations
+ */
+
+import { Car } from "./car.types";
+import { Appartment } from "./appartment.type";
+import { Hotel } from "./hotel.types";
+
 export interface Booking {
   id: string;
   userId: string;
@@ -20,6 +30,7 @@ export interface Booking {
   paid_at?: string;
   createdAt: string;
   updatedAt: string;
+  propertyData?: Car | Appartment | Hotel | null;
 }
 
 export interface CreateBookingDto {

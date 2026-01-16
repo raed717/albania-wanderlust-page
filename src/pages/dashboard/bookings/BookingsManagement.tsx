@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Booking } from "@/types/booking.type";
-import { getBookingsByProviderId, updateBookingStatus } from "@/services/api/bookingService";
+import {
+  getBookingsByProviderId,
+  updateBookingStatus,
+} from "@/services/api/bookingService";
 import Hsidebar from "@/components/dashboard/hsidebar";
+import { getCarById } from "@/services/api/carService";
+import { getAppartmentById } from "@/services/api/appartmentService";
+import { getHotelById } from "@/services/api/hotelService";
 import {
   Search,
   Calendar,
@@ -65,14 +72,33 @@ const getStatusIcon = (status: Booking["status"]) => {
   }
 };
 
+const getPropertyRoute = (booking: Booking) => {
+  const id = booking.propertyId;
+  switch (booking.propertyType) {
+    case "apartment":
+      return `/dashboard/appartments/${id}`;
+    case "hotel":
+      return `/dashboard/hotels/${id}`;
+    case "car":
+      return `/dashboard/carInfo/${id}`;
+    default:
+      return "";
+  }
+};
+
 export default function BookingsManagement() {
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUser, setUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | Booking["status"]>("all");
-  const [propertyTypeFilter, setPropertyTypeFilter] = useState<"all" | Booking["propertyType"]>("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | Booking["status"]>(
+    "all"
+  );
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState<
+    "all" | Booking["propertyType"]
+  >("all");
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
   // Fetch current user
@@ -95,12 +121,46 @@ export default function BookingsManagement() {
       setError(null);
       const data = await getBookingsByProviderId();
       setBookings(data);
+      await fetchPropertiesData(data);
     } catch (err) {
       console.error("Error fetching bookings:", err);
       setError("Failed to load bookings. Please try again later.");
     } finally {
       setLoading(false);
     }
+  };
+
+  // fetch properties data
+  const fetchPropertiesData = async (bookings: Booking[]) => {
+    const bookingsWithPropertyData = await Promise.all(
+      bookings.map(async (booking) => {
+        if (booking.propertyType === "car") {
+          const car = await getCarById(parseInt(booking.propertyId));
+          return {
+            ...booking,
+            propertyData: car || null,
+          };
+        }
+        if (booking.propertyType === "apartment") {
+          const appartment = await getAppartmentById(
+            parseInt(booking.propertyId)
+          );
+          return {
+            ...booking,
+            propertyData: appartment || null,
+          };
+        }
+        if (booking.propertyType === "hotel") {
+          const hotel = await getHotelById(parseInt(booking.propertyId));
+          return {
+            ...booking,
+            propertyData: hotel || null,
+          };
+        }
+        return { ...booking, propertyData: null };
+      })
+    );
+    setBookings(bookingsWithPropertyData);
   };
 
   useEffect(() => {
@@ -113,21 +173,31 @@ export default function BookingsManagement() {
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => {
       const matchesSearch =
-        booking.requesterName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.requesterName
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
         booking.contactMail.toLowerCase().includes(searchTerm.toLowerCase()) ||
         booking.propertyId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        booking.contactPhone.toLowerCase().includes(searchTerm.toLowerCase());
+        booking.contactPhone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.propertyData?.name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
 
-      const matchesStatus = statusFilter === "all" || booking.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "all" || booking.status === statusFilter;
       const matchesPropertyType =
-        propertyTypeFilter === "all" || booking.propertyType === propertyTypeFilter;
+        propertyTypeFilter === "all" ||
+        booking.propertyType === propertyTypeFilter;
 
       return matchesSearch && matchesStatus && matchesPropertyType;
     });
   }, [bookings, searchTerm, statusFilter, propertyTypeFilter]);
 
   // Handle status update
-  const handleStatusUpdate = async (bookingId: string, newStatus: Booking["status"]) => {
+  const handleStatusUpdate = async (
+    bookingId: string,
+    newStatus: Booking["status"]
+  ) => {
     const result = await Swal.fire({
       title: "Update Booking Status?",
       text: `Are you sure you want to change the status to "${newStatus}"?`,
@@ -209,7 +279,9 @@ export default function BookingsManagement() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Bookings</p>
-                <p className="text-2xl font-bold text-gray-900">{bookings.length}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {bookings.length}
+                </p>
               </div>
               <Calendar className="w-8 h-8 text-blue-600" />
             </div>
@@ -241,7 +313,10 @@ export default function BookingsManagement() {
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
                 <p className="text-2xl font-bold text-green-600">
-                  ${bookings.reduce((sum, b) => sum + b.totalPrice, 0).toFixed(2)}
+                  $
+                  {bookings
+                    .reduce((sum, b) => sum + b.totalPrice, 0)
+                    .toFixed(2)}
                 </p>
               </div>
               <DollarSign className="w-8 h-8 text-green-600" />
@@ -252,7 +327,10 @@ export default function BookingsManagement() {
         {/* Filters */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8 flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={18}
+            />
             <input
               className="w-full pl-10 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               placeholder="Search by customer name, email, phone, or property ID..."
@@ -291,7 +369,9 @@ export default function BookingsManagement() {
             <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 font-medium mb-2">No bookings found</p>
             <p className="text-gray-500 text-sm">
-              {searchTerm || statusFilter !== "all" || propertyTypeFilter !== "all"
+              {searchTerm ||
+              statusFilter !== "all" ||
+              propertyTypeFilter !== "all"
                 ? "Try adjusting your filters"
                 : "You don't have any bookings yet"}
             </p>
@@ -330,23 +410,39 @@ export default function BookingsManagement() {
                     const endDate = new Date(booking.endDate);
 
                     return (
-                      <tr key={booking.id} className="hover:bg-gray-50 transition-colors">
+                      <tr
+                        key={booking.id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-                              <PropertyIcon className="w-5 h-5 text-blue-600" />
+                          <div
+                            className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition-colors"
+                            onClick={() => navigate(getPropertyRoute(booking))}
+                          >
+                            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center overflow-hidden">
+                              {booking.propertyData?.imageUrls?.[0] ? (
+                                <img
+                                  src={booking.propertyData.imageUrls[0]}
+                                  alt={booking.propertyData.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <PropertyIcon className="w-5 h-5 text-blue-600" />
+                              )}
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-gray-900 capitalize">
-                                {booking.propertyType}
+                              <p className="text-sm font-medium text-gray-900">
+                                {booking.propertyData?.name ||
+                                  `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}`}
                               </p>
-                              <p className="text-xs text-gray-500">ID: {booking.propertyId}</p>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-sm">
-                            <p className="font-medium text-gray-900">{booking.requesterName}</p>
+                            <p className="font-medium text-gray-900">
+                              {booking.requesterName}
+                            </p>
                             <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
                               <Mail className="w-3 h-3" />
                               <span>{booking.contactMail}</span>

@@ -2,6 +2,9 @@ import { apiClient } from "./apiClient";
 import { authService } from "./authService";
 import { Booking } from "@/types/booking.type";
 import { CreateBookingDto } from "@/types/booking.type";
+import { getCarById } from "@/services/api/carService";
+import { getAppartmentById } from "@/services/api/appartmentService";
+import { getHotelById } from "@/services/api/hotelService";
 
 /**
  * Create a new booking for the currently authenticated user
@@ -35,7 +38,7 @@ export const createBooking = async (
 };
 
 /**
- * Get all bookings for the currently authenticated user
+ * Get all bookings for the currently authenticated user (customer bookings)
  */
 export const getCurrentUserBookings = async (): Promise<Booking[]> => {
   const userId = await authService.getCurrentUserId();
@@ -54,12 +57,21 @@ export const getCurrentUserBookings = async (): Promise<Booking[]> => {
     console.error("[Booking Service] Error fetching user bookings:", error);
     throw error;
   }
-
+  // get properties data for each booking
+  for (const booking of data || []) {
+    if (booking.propertyType === "car") {
+      booking.propertyData = await getCarById(booking.propertyId);
+    } else if (booking.propertyType === "apartment") {
+      booking.propertyData = await getAppartmentById(booking.propertyId);
+    } else if (booking.propertyType === "hotel") {
+      booking.propertyData = await getHotelById(booking.propertyId);
+    }
+  }
   return data || [];
 };
 
 /*
- * Get all bookings for a specific provider
+ * Get all bookings for a specific provider (provider bookings)
  */
 export const getBookingsByProviderId = async (): Promise<Booking[]> => {
   const providerId = await authService.getCurrentUserId();

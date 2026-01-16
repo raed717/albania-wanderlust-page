@@ -47,6 +47,31 @@ export const getAppartmentById = async (
   return data;
 };
 
+/*
+* Get appartment unavailability dates by appartment id using booking service getBookingByPropertyIdAndType
+*/
+export const getAppartmentUnavailabilityDates = async (apId: number): Promise<string[]> => {
+  const bookings = await getBookingsByPropertyIdAndType(apId.toString(), "apartment");
+
+  if (!bookings || bookings.length === 0) {
+    return [];
+  }
+
+  const unavailabilityDates: string[] = []; // Declare outside the loop
+
+  bookings.forEach(booking => {
+    const startDate = new Date(booking.startDate);
+    const endDate = new Date(booking.endDate);
+
+    while (startDate <= endDate) {
+      unavailabilityDates.push(startDate.toISOString().split('T')[0]);
+      startDate.setDate(startDate.getDate() + 1);
+    }
+  });
+
+  return unavailabilityDates; // Return the accumulated dates
+};
+
 /**
  * create a new appartment with image uploads
  */

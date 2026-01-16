@@ -100,7 +100,7 @@ const CarReservation = () => {
             The car you're looking for doesn't exist or has been removed.
           </p>
           <Button
-            onClick={() => navigate("/searchResults")}
+            onClick={() => navigate("/searchCarResults")}
             className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
           >
             <ArrowLeft className="mr-2" size={16} />
@@ -160,7 +160,7 @@ const CarReservation = () => {
         {/* Back Button */}
         <Button
           variant="ghost"
-          onClick={() => navigate("/searchResults")}
+          onClick={() => navigate("/searchCarResults")}
           className="mb-6 hover:bg-white/50"
         >
           <ArrowLeft className="mr-2" size={16} />
