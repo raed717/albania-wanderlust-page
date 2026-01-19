@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Index from "./pages/home/Index";
 import OAuthSignInPage from "./pages/home/Auth";
 import NotFound from "./pages/NotFound";
@@ -35,13 +36,23 @@ import BookingsManagement from "./pages/dashboard/bookings/BookingsManagement";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+// PayPal Client ID - use sandbox for development, production for live
+const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID || "";
 
-      <BrowserRouter>
+const App = () => (
+  <PayPalScriptProvider
+    options={{
+      clientId: paypalClientId,
+      currency: "USD",
+      intent: "capture",
+    }}
+  >
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+
+        <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<OAuthSignInPage />} />
@@ -94,6 +105,7 @@ const App = () => (
     </TooltipProvider>
     <SpeedInsights />
   </QueryClientProvider>
+  </PayPalScriptProvider>
 );
 
 export default App;
