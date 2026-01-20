@@ -33,6 +33,8 @@ import CarBilling from "./pages/home/booking/CarBilling";
 import BookingsSummary from "./pages/home/BookingsSummary";
 import ApartmentBilling from "./pages/home/booking/ApartmentBilling";
 import BookingsManagement from "./pages/dashboard/bookings/BookingsManagement";
+import ProviderRequest from "./pages/home/ProviderRequest";
+import RequestsManagement from "./pages/dashboard/Requests/RequestsManagement";
 
 const queryClient = new QueryClient();
 
@@ -53,58 +55,60 @@ const App = () => (
         <Sonner />
 
         <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<OAuthSignInPage />} />
-          <Route path="/myAccount" element={<MyAccount />} />
-          <Route path="/CultureDetails" element={<CultureDetails />} />
-          <Route path="/hotels-map" element={<HotelMapPage />} />
-          <Route path="/searchResults" element={<SearchPropertyResults />} />
-          <Route path="/searchCarResults" element={<SearchCarResults />} />
-          <Route path="/hotelReservation/:id" element={<HotelReservation />} />
-          <Route
-            path="/appartmentReservation/:id"
-            element={<ApartmentReservation />}
-          />
-          <Route path="/carReservation/:id" element={<CarReservation />} />
-          <Route path="/carBilling/:id" element={<CarBilling />} />
-          <Route path="/apartmentBilling/:id" element={<ApartmentBilling />} />
-          <Route path="/myBookings" element={<BookingsSummary />} />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<OAuthSignInPage />} />
+            <Route path="/myAccount" element={<MyAccount />} />
+            <Route path="/CultureDetails" element={<CultureDetails />} />
+            <Route path="/hotels-map" element={<HotelMapPage />} />
+            <Route path="/searchResults" element={<SearchPropertyResults />} />
+            <Route path="/searchCarResults" element={<SearchCarResults />} />
+            <Route path="/hotelReservation/:id" element={<HotelReservation />} />
+            <Route
+              path="/appartmentReservation/:id"
+              element={<ApartmentReservation />}
+            />
+            <Route path="/carReservation/:id" element={<CarReservation />} />
+            <Route path="/carBilling/:id" element={<CarBilling />} />
+            <Route path="/apartmentBilling/:id" element={<ApartmentBilling />} />
+            <Route path="/myBookings" element={<BookingsSummary />} />
+            <Route path="/ProviderRequest" element={<ProviderRequest />} />
 
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard/HotelsList" element={<AllHotels />} />
-            <Route path="/dashboard/hotels/:id" element={<HotelDetails />} />
-            <Route
-              path="/dashboard/AppartmentsList"
-              element={<AllAppartments />}
-            />
-            <Route
-              path="/dashboard/appartments/:id"
-              element={<AppartmentDetails />}
-            />
-            <Route path="/dashboard/carsList" element={<AllCars />} />
-            <Route path="/dashboard/carInfo/:id" element={<CarDetails />} />
-            <Route
-              path="/dashboard/userManagement"
-              element={<UserManagement />}
-            />
-            <Route
-              path="/dashboard/user-details/:userId"
-              element={<UserDetails />}
-            />
-            <Route path="/dashboard/bookings" element={<BookingsManagement />} />
-          </Route>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-          <Route path="unauthorized" element={<Unauthorized />} />
-          <Route path="/suspended" element={<SuspendedPage />} />
-        </Routes>
-        <Footer />
-      </BrowserRouter>
-    </TooltipProvider>
-    <SpeedInsights />
-  </QueryClientProvider>
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard/HotelsList" element={<AllHotels />} />
+              <Route path="/dashboard/hotels/:id" element={<HotelDetails />} />
+              <Route
+                path="/dashboard/AppartmentsList"
+                element={<AllAppartments />}
+              />
+              <Route
+                path="/dashboard/appartments/:id"
+                element={<AppartmentDetails />}
+              />
+              <Route path="/dashboard/carsList" element={<AllCars />} />
+              <Route path="/dashboard/carInfo/:id" element={<CarDetails />} />
+              <Route
+                path="/dashboard/userManagement"
+                element={<UserManagement />}
+              />
+              <Route path="/dashboard/requestsManagement" element={<RequestsManagement />} />
+              <Route
+                path="/dashboard/user-details/:userId"
+                element={<UserDetails />}
+              />
+              <Route path="/dashboard/bookings" element={<BookingsManagement />} />
+            </Route>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+            <Route path="unauthorized" element={<Unauthorized />} />
+            <Route path="/suspended" element={<SuspendedPage />} />
+          </Routes>
+          <Footer />
+        </BrowserRouter>
+      </TooltipProvider>
+      <SpeedInsights />
+    </QueryClientProvider>
   </PayPalScriptProvider>
 );
 

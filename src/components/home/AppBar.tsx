@@ -170,6 +170,10 @@ export default function PrimarySearchAppBar() {
     return userRole?.role === "provider" || userRole === "provider";
   }, [userRole]);
 
+  const isUser = React.useMemo(() => {
+    return userRole?.role === "user" || userRole === "user";
+  }, [userRole]);
+
   const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
@@ -222,7 +226,7 @@ export default function PrimarySearchAppBar() {
             </ListItemIcon>
             My Bookings
           </MenuItem>
-          {(isProvider && isProfileComplete) && (
+          {isProvider && isProfileComplete && (
             <MenuItem onClick={handleDashboard} sx={{ py: 1.5 }}>
               <ListItemIcon>
                 <Home fontSize="small" />
@@ -419,6 +423,15 @@ export default function PrimarySearchAppBar() {
                 sx={{ textTransform: "none", mr: 1 }}
               >
                 My Bookings
+              </Button>
+            )}
+            {isUser && (
+              <Button
+                color="inherit"
+                onClick={() => navigate("/ProviderRequest")}
+                sx={{ textTransform: "none", mr: 1 }}
+              >
+                Become a Provider
               </Button>
             )}
             <Tooltip title="Account">

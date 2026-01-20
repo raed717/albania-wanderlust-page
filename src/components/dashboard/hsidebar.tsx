@@ -96,7 +96,7 @@ const ROUTES = {
   },
   users: {
     management: "/dashboard/userManagement",
-    roles: "/users/roles",
+    roles: "/dashboard/requestsManagement",
   },
   calendar: "/calendar",
   finance: {
