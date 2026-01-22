@@ -340,20 +340,100 @@ export default function BookingsSummary() {
                         )}
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                        {booking.status === "pending" &&
-                          booking.payment_status !== "paid" && (
-                            <PayPalPaymentButton booking={booking} />
+                        {/* CASE 1: Booking Confirmed + Payment Pending - Show Payment Button */}
+                        {booking.status === "confirmed" &&
+                          booking.payment_status === "pending" && (
+                            <>
+                              <div className="flex items-center gap-1 text-xs text-amber-600 mb-1">
+                                <CreditCard className="w-3 h-3" />
+                                <span>Payment Required</span>
+                              </div>
+                              <PayPalPaymentButton booking={booking} />
+                              <Button
+                                onClick={() =>
+                                  handlePendingBookingCancel(booking)
+                                }
+                                size="sm"
+                                variant="outline"
+                                className="mt-2"
+                              >
+                                Cancel Booking
+                              </Button>
+                            </>
                           )}
-                        {booking.status === "pending" && (
-                          <Button
-                            onClick={() => handlePendingBookingCancel(booking)}
-                            size="sm"
-                            variant="outline"
-                            className="mt-2"
-                          >
-                            Cancel Booking
-                          </Button>
+
+                        {/* CASE 2: Booking Pending - Only Cancel Button (Awaiting Confirmation) */}
+                        {booking.status === "pending" &&
+                          booking.payment_status === "pending" && (
+                            <>
+                              <div className="text-xs text-slate-500 mb-1">
+                                Awaiting confirmation
+                              </div>
+                              <Button
+                                onClick={() =>
+                                  handlePendingBookingCancel(booking)
+                                }
+                                size="sm"
+                                variant="outline"
+                              >
+                                Cancel Booking
+                              </Button>
+                            </>
+                          )}
+
+                        {/* CASE 3: Payment Completed - Show Success Message */}
+                        {booking.payment_status === "paid" &&
+                          booking.status !== "canceled" && (
+                            <div className="flex flex-col items-end gap-1">
+                              <div className="flex items-center gap-1 text-xs text-green-600">
+                                <CreditCard className="w-3 h-3" />
+                                <span className="font-semibold">
+                                  Payment Completed ✓
+                                </span>
+                              </div>
+                              {booking.status === "confirmed" && (
+                                <div className="text-xs text-slate-500">
+                                  Booking confirmed
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                        {/* CASE 4: Booking Canceled - Show Info */}
+                        {booking.status === "canceled" && (
+                          <div className="flex flex-col items-end gap-1">
+                            <div className="text-xs text-red-600 font-semibold">
+                              Booking Canceled
+                            </div>
+                            {booking.payment_status === "paid" && (
+                              <div className="text-xs text-slate-500">
+                                Refund will be processed
+                              </div>
+                            )}
+                          </div>
                         )}
+
+                        {/* CASE 5: Payment Failed - Show Retry Option */}
+                        {booking.payment_status === "failed" &&
+                          booking.status === "confirmed" && (
+                            <>
+                              <div className="flex items-center gap-1 text-xs text-red-600 mb-1">
+                                <AlertCircle className="w-3 h-3" />
+                                <span>Payment Failed</span>
+                              </div>
+                              <PayPalPaymentButton booking={booking} />
+                              <Button
+                                onClick={() =>
+                                  handlePendingBookingCancel(booking)
+                                }
+                                size="sm"
+                                variant="outline"
+                                className="mt-2"
+                              >
+                                Cancel Booking
+                              </Button>
+                            </>
+                          )}
                       </div>
                     </div>
                   </div>
