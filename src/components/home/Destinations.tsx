@@ -1,51 +1,48 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, ArrowRight } from "lucide-react";
-import beratImage from "@/assets/destinations/berat.jpg";
-import gjirokasterImage from "@/assets/destinations/gjirokaster.jpg";
-import ksamilImage from "@/assets/destinations/ksamil.jpg";
-import thethImage from "@/assets/destinations/theth.jpg";
+import { MapPin, ArrowRight, Loader2 } from "lucide-react";
+import { Destination } from "@/types/destination.types";
+import { getAllDestinations } from "@/services/api/destinationService";
+import { addDestinationToCurrentUserWishlist } from "@/services/api/destinationService";
+import { Heart } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-const destinations = [
-  {
-    name: "Berat",
-    description:
-      "The 'City of a Thousand Windows' - a UNESCO World Heritage site with stunning Ottoman architecture",
-    image: beratImage,
-    tag: "Historic",
-  },
-  {
-    name: "Gjirokastër",
-    description:
-      "Stone city perched on a mountain, home to an imposing fortress and rich cultural heritage",
-    image: gjirokasterImage,
-    tag: "UNESCO Site",
-  },
-  {
-    name: "Ksamil",
-    description:
-      "Paradise beaches with crystal-clear turquoise waters and small islands just offshore",
-    image: ksamilImage,
-    tag: "Beach",
-  },
-  {
-    name: "Theth",
-    description:
-      "Remote mountain village in the Albanian Alps, perfect for hiking and nature lovers",
-    image: thethImage,
-    tag: "Adventure",
-  },
-];
 
 const Destinations = () => {
   const sectionRef = useRef(null);
   const headingRef = useRef(null);
   const subtitleRef = useRef(null);
-  const cardsRef = useRef([]);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [wishlistLoadingId, setWishlistLoadingId] = useState<string | null>(null);
+  const { toast } = useToast();
 
+  // Fetch destinations from API
   useEffect(() => {
-    // Import GSAP from npm package
+    const fetchDestinations = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getAllDestinations();
+        setDestinations(data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching destinations:", err);
+        setError("Failed to load destinations");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDestinations();
+  }, []);
+
+  // GSAP Animations
+  useEffect(() => {
+    if (isLoading || destinations.length === 0) return;
+
     const loadGSAP = async () => {
       const { default: gsap } = await import("gsap");
       const { default: ScrollTrigger } = await import("gsap/ScrollTrigger");
@@ -252,7 +249,34 @@ const Destinations = () => {
     };
 
     loadGSAP();
-  }, []);
+  }, [isLoading, destinations]);
+
+  const handleAddToWishlist = async (destinationId: string) => {
+    try {
+      setWishlistLoadingId(destinationId);
+      await addDestinationToCurrentUserWishlist(destinationId);
+      toast({
+        title: "Success",
+        description: "Destination added to wishlist.",
+      });
+    } catch (err) {
+      console.error("Failed to add to wishlist:", err);
+      if (err.code == 23505) {
+        toast({
+          title: "Warning",
+          description: "Destination already added to wishlist.",
+        })
+      } else {
+        toast({
+          title: "Warning",
+          description: "Please login to add to wishlist.",
+        })
+      }
+    } finally {
+      setWishlistLoadingId(null);
+    }
+  };
+
 
   return (
     <section
@@ -283,48 +307,101 @@ const Destinations = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {destinations.map((destination, index) => (
-            <Card
-              key={destination.name}
-              ref={(el) => (cardsRef.current[index] = el)}
-              className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-card/80 backdrop-blur-sm"
-            >
-              <div className="relative h-64 overflow-hidden">
-                <img
-                  src={destination.image}
-                  alt={destination.name}
-                  className="destination-image w-full h-full object-cover"
-                />
-                <div className="destination-tag absolute top-4 right-4 z-20">
-                  <span className="bg-primary text-primary-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm">
-                    {destination.tag}
-                  </span>
-                </div>
-                <div className="destination-overlay absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-              </div>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        )}
 
-              <CardContent className="destination-content p-6">
-                <div className="flex items-start gap-2 mb-3">
-                  <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-1 group-hover:scale-110 transition-transform duration-300" />
-                  <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
-                    {destination.name}
-                  </h3>
+        {/* Error State */}
+        {error && !isLoading && (
+          <div className="text-center py-20">
+            <p className="text-destructive text-lg">{error}</p>
+            <Button
+              onClick={() => window.location.reload()}
+              className="mt-4"
+              variant="outline"
+            >
+              Try Again
+            </Button>
+          </div>
+        )}
+
+        {/* Destinations Grid */}
+        {!isLoading && !error && destinations.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {destinations.map((destination, index) => (
+              <Card
+                key={destination.id}
+                ref={(el) => (cardsRef.current[index] = el)}
+                className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-card/80 backdrop-blur-sm"
+              >
+                <div className="relative h-64 overflow-hidden">
+                  <img
+                    src={destination.imageUrls[0] || "/images/placeholder.png"}
+                    alt={destination.name}
+                    className="destination-image w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = "/images/placeholder.png";
+                    }}
+                  />
+                  <div className="destination-tag absolute top-4 right-4 z-20">
+                    <span className="bg-primary text-primary-foreground px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm">
+                      {destination.category}
+                    </span>
+                  </div>
+                  <div className="destination-overlay absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                 </div>
-                <p className="text-muted-foreground mb-4 line-clamp-3 leading-relaxed">
-                  {destination.description}
-                </p>
-                <Button
-                  variant="outline"
-                  className="w-full border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground group/btn transition-all duration-300 hover:border-primary font-semibold"
-                >
-                  <span>Learn More</span>
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform duration-300" />
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+
+                <CardContent className="destination-content p-6">
+                  <div className="flex items-start gap-2 mb-3">
+                    <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-1 group-hover:scale-110 transition-transform duration-300" />
+                    <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                      {destination.name}
+                    </h3>
+                  </div>
+                  <p className="text-muted-foreground mb-4 line-clamp-3 leading-relaxed">
+                    {destination.description}
+                  </p>
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:border-primary font-semibold"
+                    >
+                      <span>Learn More</span>
+                      <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-300" />
+                    </Button>
+
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleAddToWishlist(destination.id)}
+                      disabled={wishlistLoadingId === destination.id}
+                      className="border border-primary/30 hover:bg-primary/10"
+                    >
+                      {wishlistLoadingId === destination.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Heart className="w-5 h-5 text-primary" />
+                      )}
+                    </Button>
+                  </div>
+
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && !error && destinations.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-muted-foreground text-lg">
+              No destinations available at the moment.
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );

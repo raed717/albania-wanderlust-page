@@ -57,6 +57,32 @@ const getStatusColor = (status: Booking["status"]) => {
   }
 };
 
+const getPaymentStatusColor = (status: Booking["payment_status"]) => {
+  switch (status) {
+    case "paid":
+      return "bg-emerald-100 text-emerald-700 border-emerald-200";
+    case "pending":
+      return "bg-amber-100 text-amber-700 border-amber-200";
+    case "failed":
+      return "bg-red-100 text-red-700 border-red-200";
+    default:
+      return "bg-gray-100 text-gray-700 border-gray-200";
+  }
+};
+
+const getPaymentStatusIcon = (status: Booking["payment_status"]) => {
+  switch (status) {
+    case "paid":
+      return CheckCircle2;
+    case "pending":
+      return Clock;
+    case "failed":
+      return XCircle;
+    default:
+      return AlertCircle;
+  }
+};
+
 const getStatusIcon = (status: Booking["status"]) => {
   switch (status) {
     case "confirmed":
@@ -395,7 +421,10 @@ export default function BookingsManagement() {
                       Price
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Status
+                      Booking Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      Payment Status
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                       Actions
@@ -406,6 +435,9 @@ export default function BookingsManagement() {
                   {filteredBookings.map((booking) => {
                     const PropertyIcon = getPropertyIcon(booking.propertyType);
                     const StatusIcon = getStatusIcon(booking.status);
+                    const PaymentStatusIcon = getPaymentStatusIcon(
+                      booking.payment_status
+                    );
                     const startDate = new Date(booking.startDate);
                     const endDate = new Date(booking.endDate);
 
@@ -479,11 +511,21 @@ export default function BookingsManagement() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
                             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
-                              booking.status
+                              booking.status,
                             )}`}
                           >
                             <StatusIcon className="w-3.5 h-3.5" />
                             {booking.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getPaymentStatusColor(
+                              booking.payment_status,
+                            )}`}
+                          >
+                            <PaymentStatusIcon className="w-3.5 h-3.5" />
+                            {booking.payment_status}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -493,7 +535,7 @@ export default function BookingsManagement() {
                               onChange={(e) =>
                                 handleStatusUpdate(
                                   booking.id,
-                                  e.target.value as Booking["status"]
+                                  e.target.value as Booking["status"],
                                 )
                               }
                               disabled={updatingStatus === booking.id}

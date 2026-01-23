@@ -53,7 +53,7 @@ const Hero = () => {
             </span>
           </div>
 
-          <h1 className="mb-4 md:mb-6 text-3xl md:text-5xl lg:text-6xl font-bold text-balance">Discover Albania</h1>
+          <h1 className="mb-4 md:mb-6 text-3xl md:text-5xl lg:text-6xl font-bold text-balance">BookinAL</h1>
 
           <p className="text-base md:text-xl lg:text-2xl mb-6 md:mb-8 max-w-3xl mx-auto text-balance opacity-90 px-2">
             From the Alps to the Adriatic — a land of wonder, ancient history,

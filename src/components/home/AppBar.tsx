@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { authService } from "@/services/api/authService";
 import { userService } from "@/services/api/userService";
 import { User } from "@/types/user.types";
-import { Home } from "lucide-react";
+import { Heart, Home } from "lucide-react";
 
 export default function PrimarySearchAppBar() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -122,7 +122,7 @@ export default function PrimarySearchAppBar() {
 
   const handleDashboard = () => {
     handleMenuClose();
-    navigate("/dashboard");
+    navigate("/dashboard/bookings");
   };
 
   const handleMyBookings = () => {
@@ -423,6 +423,16 @@ export default function PrimarySearchAppBar() {
                 sx={{ textTransform: "none", mr: 1 }}
               >
                 My Bookings
+              </Button>
+            )}
+            {user && (
+              <Button
+                color="inherit"
+                startIcon={<Heart />}
+                onClick={() => navigate("/wishlist")}
+                sx={{ textTransform: "none", mr: 1 }}
+              >
+                My Wishlist
               </Button>
             )}
             {isUser && (

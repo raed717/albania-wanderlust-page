@@ -35,6 +35,7 @@ import ApartmentBilling from "./pages/home/booking/ApartmentBilling";
 import BookingsManagement from "./pages/dashboard/bookings/BookingsManagement";
 import ProviderRequest from "./pages/home/ProviderRequest";
 import RequestsManagement from "./pages/dashboard/Requests/RequestsManagement";
+import Wishlist from "./pages/home/Wishlist";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/auth" element={<OAuthSignInPage />} />
             <Route path="/myAccount" element={<MyAccount />} />
             <Route path="/CultureDetails" element={<CultureDetails />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/hotels-map" element={<HotelMapPage />} />
             <Route path="/searchResults" element={<SearchPropertyResults />} />
             <Route path="/searchCarResults" element={<SearchCarResults />} />
