@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-  User,
+  User as UserIcon,
   Mail,
   Phone,
   MapPin,
@@ -22,12 +22,15 @@ import { useMutation } from "@tanstack/react-query";
 import { createBooking } from "@/services/api/bookingService";
 import Swal from "sweetalert2";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { userService } from '@/services/api/userService';
+import { User } from "@/types/user.types";
 
 export default function CarBilling() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState<string[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
 
   const [car, setCar] = useState<Car | null>(null);
@@ -57,7 +60,20 @@ export default function CarBilling() {
         setLoading(false);
       }
     };
-
+    const fetchUser = async () => {
+      try {
+        const data = await userService.getCurrentUser();
+        if (!data) {
+          setUser(null);
+        } else {
+          setUser(data);
+          console.log("user:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+    fetchUser();
     fetchCar();
   }, [id]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -67,9 +83,32 @@ export default function CarBilling() {
     phone: "",
     pickUpTime: "10:00",
     dropOffTime: "10:00",
-    pickUpLocation: car?.pickUpLocation || "",
+    pickUpLocation: "",
     dropOffLocation: "",
   });
+
+  // Sync formData with user data when it arrives
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.full_name || "",
+        email: prev.email || user.email || "",
+        phone: prev.phone || user.phone || "",
+      }));
+    }
+  }, [user]);
+
+  // Sync formData with car data when it arrives
+  useEffect(() => {
+    if (car) {
+      setFormData((prev) => ({
+        ...prev,
+        pickUpLocation: prev.pickUpLocation || car.pickUpLocation || "",
+        dropOffLocation: prev.pickUpLocation || car.pickUpLocation || "",
+      }));
+    }
+  }, [car]);
 
   const [totalDays, setTotalDays] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -196,7 +235,7 @@ export default function CarBilling() {
               {/* Personal Information */}
               <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
                 <h2 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
-                  <User className="w-5 h-5 text-blue-600" />
+                  <UserIcon className="w-5 h-5 text-blue-600" />
                   Personal Information
                 </h2>
 
@@ -408,27 +447,50 @@ export default function CarBilling() {
                     Price Summary
                   </h3>
 
-                  <div className="space-y-3 mb-4">
-                    <div className="flex justify-between text-slate-600">
-                      <span>
-                        ${car.pricePerDay} × {totalDays || 0} days
-                      </span>
-                      <span className="font-medium">
-                        ${totalPrice.toFixed(2)}
-                      </span>
+                  <div className="space-y-4 mb-4 text-sm">
+                    {/* Base Price */}
+                    <div>
+                      <div className="flex justify-between text-slate-700">
+                        <span>
+                          ${car.pricePerDay} × {totalDays || 0} days
+                        </span>
+                        <span className="font-medium">
+                          ${totalPrice.toFixed(2)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Base rental price for the selected vehicle and dates.
+                      </p>
                     </div>
-                    <div className="flex justify-between text-slate-600">
-                      <span>Service fee</span>
-                      <span className="font-medium">
-                        ${serviceFee.toFixed(2)}
-                      </span>
+
+                    {/* Service Fee */}
+                    <div>
+                      <div className="flex justify-between text-slate-700">
+                        <span>Service fee</span>
+                        <span className="font-medium">
+                          ${serviceFee.toFixed(2)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Covers platform operations, customer support, and booking protection.
+                      </p>
                     </div>
-                    <div className="flex justify-between text-slate-600">
-                      <span>Tax (10%)</span>
-                      <span className="font-medium">${tax.toFixed(2)}</span>
+
+                    {/* Tax */}
+                    <div>
+                      <div className="flex justify-between text-slate-700">
+                        <span>Tax (10%)</span>
+                        <span className="font-medium">
+                          ${tax.toFixed(2)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Local and government tax applied to your rental.
+                      </p>
                     </div>
                   </div>
 
+                  {/* Total */}
                   <div className="pt-4 border-t border-slate-200">
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold text-slate-800">
@@ -438,6 +500,9 @@ export default function CarBilling() {
                         ${finalTotal.toFixed(2)}
                       </span>
                     </div>
+                    <p className="text-xs text-slate-500 mt-1">
+                      This is the full amount you’ll pay if you confirm the booking.
+                    </p>
                   </div>
 
                   <button
@@ -453,15 +518,14 @@ export default function CarBilling() {
                     className="w-full mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30"
                   >
                     <Check className="w-5 h-5" />
-                    {bookingMutation.isPending
-                      ? "Processing..."
-                      : "Confirm Booking"}
+                    {bookingMutation.isPending ? "Processing..." : "Confirm Booking"}
                   </button>
 
                   <p className="text-xs text-slate-500 text-center mt-4">
-                    You won't be charged yet
+                    You won’t be charged yet. Payment is completed after confirmation.
                   </p>
                 </div>
+
               </div>
             </div>
           </div>
