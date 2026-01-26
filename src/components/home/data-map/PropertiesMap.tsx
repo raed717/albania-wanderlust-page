@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
 import { getAllHotels } from "@/services/api/hotelService";
 import { getAllCars } from "@/services/api/carService";
 import { getAllAppartments } from "@/services/api/appartmentService";
@@ -14,6 +14,7 @@ import carIcon from "@/assets/map/car_icon.png";
 import { HotelPopup } from "./HotelPopup";
 import { ApartmentPopup } from "./ApartmentPopup";
 import { CarPopup } from "./CarPopup";
+import { MapFilters } from "./MapFilters";
 
 const HotelIcon = new L.Icon({
   iconUrl: hotelIcon,
@@ -45,6 +46,14 @@ export default function PropertiesMap() {
     type: "hotel" | "apartment" | "car";
     data: Hotel | Appartment | Car;
   } | null>(null);
+
+  // Filter states
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([
+    "hotel",
+    "apartment",
+    "car",
+  ]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -94,8 +103,42 @@ export default function PropertiesMap() {
     fetchApartments();
   }, []);
 
+  // Filter data based on selected types and price range
+  const filteredHotels = hotelsData.filter(
+    (hotel) =>
+      selectedTypes.includes("hotel") &&
+      hotel.price >= priceRange[0] &&
+      hotel.price <= priceRange[1],
+  );
+
+  const filteredApartments = apartmentsData.filter(
+    (apartment) =>
+      selectedTypes.includes("apartment") &&
+      apartment.price >= priceRange[0] &&
+      apartment.price <= priceRange[1],
+  );
+
+  const filteredCars = carsData.filter(
+    (car) =>
+      selectedTypes.includes("car") &&
+      car.pricePerDay >= priceRange[0] &&
+      car.pricePerDay <= priceRange[1],
+  );
+
+  const handleResetFilters = () => {
+    setSelectedTypes(["hotel", "apartment", "car"]);
+    setPriceRange([0, 500]);
+  };
+
   return (
     <div className="w-full h-full">
+      <MapFilters
+        selectedTypes={selectedTypes}
+        onTypesChange={setSelectedTypes}
+        priceRange={priceRange}
+        onPriceRangeChange={setPriceRange}
+        onReset={handleResetFilters}
+      />
       <MapContainer
         center={ALBANIA_CENTER}
         zoom={8}
@@ -109,7 +152,7 @@ export default function PropertiesMap() {
         />
 
         {/* Markers */}
-        {hotelsData?.map((hotel: Hotel) => (
+        {filteredHotels?.map((hotel: Hotel) => (
           <Marker
             key={`hotel-${hotel.id}`}
             position={[hotel.lat || 0, hotel.lng || 0]}
@@ -117,10 +160,18 @@ export default function PropertiesMap() {
             eventHandlers={{
               click: () => setSelected({ type: "hotel", data: hotel }),
             }}
-          />
+          >
+            {hotel.price && (
+              <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent>
+                {typeof hotel.price === "number"
+                  ? `$${hotel.price}`
+                  : hotel.price}
+              </Tooltip>
+            )}
+          </Marker>
         ))}
 
-        {apartmentsData?.map((apartment: Appartment) => (
+        {filteredApartments?.map((apartment: Appartment) => (
           <Marker
             key={`apartment-${apartment.id}`}
             position={[apartment.lat, apartment.lng]}
@@ -128,10 +179,18 @@ export default function PropertiesMap() {
             eventHandlers={{
               click: () => setSelected({ type: "apartment", data: apartment }),
             }}
-          />
+          >
+            {apartment.price && (
+              <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent>
+                {typeof apartment.price === "number"
+                  ? `$${apartment.price}`
+                  : apartment.price}
+              </Tooltip>
+            )}
+          </Marker>
         ))}
 
-        {carsData?.map((car: Car) => (
+        {filteredCars?.map((car: Car) => (
           <Marker
             key={`car-${car.id}`}
             position={[car.lat || 0, car.lng || 0]}
@@ -139,7 +198,15 @@ export default function PropertiesMap() {
             eventHandlers={{
               click: () => setSelected({ type: "car", data: car }),
             }}
-          />
+          >
+            {car.pricePerDay && (
+              <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent>
+                {typeof car.pricePerDay === "number"
+                  ? `$${car.pricePerDay}`
+                  : car.pricePerDay}
+              </Tooltip>
+            )}
+          </Marker>
         ))}
 
         {/* Popup */}

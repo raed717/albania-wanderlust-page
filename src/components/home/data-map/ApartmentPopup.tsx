@@ -50,7 +50,7 @@ export function ApartmentPopup({ apartment }: ApartmentPopupProps) {
         )}
       </div>
 
-      <Link to={`/hotelReservation/${apartment.id}`}>
+      <Link to={`/appartmentReservation/${apartment.id}`}>
         <button className="w-full bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition font-medium text-sm">
           View Details
         </button>
