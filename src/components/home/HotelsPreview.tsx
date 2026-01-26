@@ -67,13 +67,19 @@ const HotelsPreview = () => {
           Premier Hotels
         </h2>
         <p className="text-muted-foreground leading-relaxed">
-          The finest selection of high-quality hotels across Albania's most iconic cities.
+          The finest selection of high-quality hotels across Albania's most
+          iconic cities.
         </p>
       </div>
 
       {isLoading ? (
         <div className="flex-grow flex items-center justify-center py-20">
-          <ClipLoader color="#3b82f6" loading={isLoading} cssOverride={override} size={60} />
+          <ClipLoader
+            color="#3b82f6"
+            loading={isLoading}
+            cssOverride={override}
+            size={60}
+          />
         </div>
       ) : availableTopHotels.length === 0 ? (
         <div className="flex-grow flex flex-col items-center justify-center p-8 bg-white/50 rounded-2xl border border-dashed border-slate-200">
@@ -107,7 +113,7 @@ const HotelsPreview = () => {
           </div>
 
           <div className="mt-8">
-            <Link to="/hotels-map">
+            <Link to="/searchResults">
               <Button
                 variant="ghost"
                 className="group p-0 hover:bg-transparent text-blue-600 font-semibold gap-2"

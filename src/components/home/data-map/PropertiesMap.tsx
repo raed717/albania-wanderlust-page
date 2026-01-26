@@ -36,7 +36,7 @@ const CarIcon = new L.Icon({
 // Center of Albania (Tirana)
 const ALBANIA_CENTER: [number, number] = [41.3275, 19.8187];
 
-export default function HotelMap() {
+export default function PropertiesMap() {
   const [hotelsData, setHotelsData] = useState<Hotel[]>([]);
   const [carsData, setCarsData] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);

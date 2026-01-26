@@ -64,7 +64,7 @@ async function getPayPalAccessToken(): Promise<string> {
  */
 async function capturePayPalOrder(
   accessToken: string,
-  orderId: string
+  orderId: string,
 ): Promise<PayPalCaptureResponse> {
   const response = await fetch(
     `${PAYPAL_BASE_URL}/v2/checkout/orders/${orderId}/capture`,
@@ -74,13 +74,31 @@ async function capturePayPalOrder(
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {
-    const error = await response.text();
-    console.error("[PayPal] Failed to capture order:", error);
-    throw new Error("Failed to capture PayPal order");
+    const errorText = await response.text();
+    const errorData = (() => {
+      try {
+        return JSON.parse(errorText);
+      } catch {
+        return { message: errorText };
+      }
+    })();
+
+    console.error("[PayPal] Failed to capture order. Status:", response.status);
+    console.error(
+      "[PayPal] Error response:",
+      JSON.stringify(errorData, null, 2),
+    );
+    console.error("[PayPal] Order ID:", orderId);
+
+    throw new Error(
+      errorData?.message ||
+        errorData?.details?.[0]?.issue ||
+        `PayPal API Error (${response.status}): Failed to capture order`,
+    );
   }
 
   return await response.json();
@@ -106,7 +124,7 @@ Deno.serve(async (req: Request) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: "Missing authorization header" }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
+        { status: 401, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -139,7 +157,7 @@ Deno.serve(async (req: Request) => {
     if (!orderId || !bookingId) {
       return new Response(
         JSON.stringify({ error: "Missing orderId or bookingId" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -166,7 +184,7 @@ Deno.serve(async (req: Request) => {
       });
       return new Response(
         JSON.stringify({ error: "Unauthorized: You don't own this booking" }),
-        { status: 403, headers: { "Content-Type": "application/json" } }
+        { status: 403, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -174,7 +192,7 @@ Deno.serve(async (req: Request) => {
     if (booking.paypal_order_id !== orderId) {
       return new Response(
         JSON.stringify({ error: "PayPal order ID mismatch" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -195,7 +213,7 @@ Deno.serve(async (req: Request) => {
             message: "Payment already processed",
             captureId: existingTransaction.paypal_capture_id,
           }),
-          { status: 200, headers: { "Content-Type": "application/json" } }
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
     }
@@ -207,7 +225,7 @@ Deno.serve(async (req: Request) => {
     } catch (error) {
       console.error(
         "[Capture PayPal Order] Failed to get PayPal access token:",
-        error
+        error,
       );
       return new Response(
         JSON.stringify({
@@ -220,7 +238,7 @@ Deno.serve(async (req: Request) => {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
           },
-        }
+        },
       );
     }
 
@@ -231,7 +249,7 @@ Deno.serve(async (req: Request) => {
     } catch (error) {
       console.error(
         "[Capture PayPal Order] Failed to capture PayPal order:",
-        error
+        error,
       );
       return new Response(
         JSON.stringify({
@@ -244,7 +262,7 @@ Deno.serve(async (req: Request) => {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
           },
-        }
+        },
       );
     }
 
@@ -252,7 +270,7 @@ Deno.serve(async (req: Request) => {
     if (captureResponse.status !== "COMPLETED") {
       console.error(
         "[Capture PayPal Order] Capture not completed:",
-        captureResponse
+        captureResponse,
       );
 
       // Update transaction status
@@ -266,7 +284,7 @@ Deno.serve(async (req: Request) => {
           error: "Payment capture failed",
           status: captureResponse.status,
         }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -292,7 +310,7 @@ Deno.serve(async (req: Request) => {
           error:
             "Amount mismatch. Payment amount does not match booking price.",
         }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -315,7 +333,7 @@ Deno.serve(async (req: Request) => {
           message: "Payment already processed",
           captureId: captureId,
         }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
+        { status: 200, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -338,12 +356,12 @@ Deno.serve(async (req: Request) => {
             message: "Payment already processed",
             captureId: captureId,
           }),
-          { status: 200, headers: { "Content-Type": "application/json" } }
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
       console.error(
         "[Capture PayPal Order] Failed to update transaction:",
-        transactionError
+        transactionError,
       );
       throw transactionError;
     }
@@ -364,7 +382,7 @@ Deno.serve(async (req: Request) => {
     if (bookingUpdateError) {
       console.error(
         "[Capture PayPal Order] Failed to update booking:",
-        bookingUpdateError
+        bookingUpdateError,
       );
       // Transaction was recorded, but booking update failed
       // This is a critical error - we should log and alert
@@ -383,7 +401,7 @@ Deno.serve(async (req: Request) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
-      }
+      },
     );
   } catch (error) {
     console.error("[Capture PayPal Order] Error:", error);
@@ -398,7 +416,7 @@ Deno.serve(async (req: Request) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
-      }
+      },
     );
   }
 });

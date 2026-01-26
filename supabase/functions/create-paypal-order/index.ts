@@ -8,14 +8,17 @@ const PAYPAL_BASE_URL =
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-
 // Validate required environment variables
 if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
-  console.error("[Create PayPal Order] Missing PayPal credentials. Please set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET in Supabase secrets.");
+  console.error(
+    "[Create PayPal Order] Missing PayPal credentials. Please set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET in Supabase secrets.",
+  );
 }
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-  console.error("[Create PayPal Order] Missing Supabase credentials. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY should be auto-set.");
+  console.error(
+    "[Create PayPal Order] Missing Supabase credentials. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY should be auto-set.",
+  );
 }
 
 interface CreateOrderRequest {
@@ -32,12 +35,12 @@ interface PayPalOrderResponse {
  */
 async function getPayPalAccessToken(): Promise<string> {
   const auth = btoa(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`);
-  
+
   const response = await fetch(`${PAYPAL_BASE_URL}/v1/oauth2/token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": `Basic ${auth}`,
+      Authorization: `Basic ${auth}`,
     },
     body: "grant_type=client_credentials",
   });
@@ -55,12 +58,35 @@ async function getPayPalAccessToken(): Promise<string> {
 /**
  * Create PayPal order
  */
-async function createPayPalOrder(accessToken: string, amount: number, currency: string = "USD"): Promise<PayPalOrderResponse> {
+async function createPayPalOrder(
+  accessToken: string,
+  amount: number,
+  currency: string = "USD",
+): Promise<PayPalOrderResponse> {
+  // Get the frontend origin for return URLs
+  const frontendUrl = Deno.env.get("FRONTEND_URL") || "http://localhost:8081";
+
+  // Validate amount
+  if (!amount || amount <= 0) {
+    console.error("[PayPal] Invalid amount:", amount);
+    throw new Error(
+      `Invalid amount: ${amount}. Amount must be greater than 0.`,
+    );
+  }
+
+  const formattedAmount = amount.toFixed(2);
+
+  console.log("[PayPal] Creating order with:", {
+    amount: formattedAmount,
+    currency,
+    frontendUrl,
+  });
+
   const response = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
       "PayPal-Request-Id": crypto.randomUUID(), // Idempotency
     },
     body: JSON.stringify({
@@ -69,20 +95,55 @@ async function createPayPalOrder(accessToken: string, amount: number, currency: 
         {
           amount: {
             currency_code: currency,
-            value: amount.toFixed(2),
+            value: formattedAmount,
           },
         },
       ],
+      application_context: {
+        brand_name: "Albania Travels",
+        locale: "en-US",
+        landing_page: "LOGIN",
+        user_action: "PAY_NOW",
+        return_url: `${frontendUrl}/myBookings`,
+        cancel_url: `${frontendUrl}/myBookings`,
+      },
     }),
   });
 
+  console.log("[PayPal] Order creation response status:", response.status);
+
   if (!response.ok) {
-    const error = await response.text();
-    console.error("[PayPal] Failed to create order:", error);
-    throw new Error("Failed to create PayPal order");
+    const errorText = await response.text();
+    const errorData = (() => {
+      try {
+        return JSON.parse(errorText);
+      } catch {
+        return { message: errorText };
+      }
+    })();
+
+    console.error("[PayPal] Failed to create order. Status:", response.status);
+    console.error(
+      "[PayPal] Error response:",
+      JSON.stringify(errorData, null, 2),
+    );
+    console.error("[PayPal] Full error details:", errorData);
+
+    throw new Error(
+      errorData?.message ||
+        errorData?.details?.[0]?.issue ||
+        `PayPal API Error (${response.status}): Failed to create order`,
+    );
   }
 
-  return await response.json();
+  const result = await response.json();
+  console.log(
+    "[PayPal] Order created successfully:",
+    result.id,
+    "Status:",
+    result.status,
+  );
+  return result;
 }
 
 Deno.serve(async (req: Request) => {
@@ -93,7 +154,8 @@ Deno.serve(async (req: Request) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "authorization, content-type, x-client-info, apikey",
+        "Access-Control-Allow-Headers":
+          "authorization, content-type, x-client-info, apikey",
       },
     });
   }
@@ -103,34 +165,36 @@ Deno.serve(async (req: Request) => {
     if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
       console.error("[Create PayPal Order] PayPal credentials not configured");
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: "Payment service not configured. Please contact support.",
-          details: "PayPal credentials missing"
+          details: "PayPal credentials missing",
         }),
-        { 
-          status: 500, 
-          headers: { 
+        {
+          status: 500,
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
-          } 
-        }
+          },
+        },
       );
     }
 
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-      console.error("[Create PayPal Order] Supabase credentials not configured");
+      console.error(
+        "[Create PayPal Order] Supabase credentials not configured",
+      );
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: "Server configuration error. Please contact support.",
-          details: "Supabase credentials missing"
+          details: "Supabase credentials missing",
         }),
-        { 
-          status: 500, 
-          headers: { 
+        {
+          status: 500,
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
-          } 
-        }
+          },
+        },
       );
     }
 
@@ -139,13 +203,13 @@ Deno.serve(async (req: Request) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: "Missing authorization header" }),
-        { 
-          status: 401, 
-          headers: { 
+        {
+          status: 401,
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
-          } 
-        }
+          },
+        },
       );
     }
 
@@ -166,16 +230,13 @@ Deno.serve(async (req: Request) => {
 
     if (authError || !user) {
       console.error("[Create PayPal Order] Auth error:", authError);
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { 
-          status: 401, 
-          headers: { 
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          } 
-        }
-      );
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
     }
 
     // Parse request body
@@ -183,16 +244,13 @@ Deno.serve(async (req: Request) => {
     const { bookingId } = body;
 
     if (!bookingId) {
-      return new Response(
-        JSON.stringify({ error: "Missing bookingId" }),
-        { 
-          status: 400, 
-          headers: { 
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          } 
-        }
-      );
+      return new Response(JSON.stringify({ error: "Missing bookingId" }), {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
     }
 
     // Fetch booking from database
@@ -204,17 +262,24 @@ Deno.serve(async (req: Request) => {
 
     if (bookingError || !booking) {
       console.error("[Create PayPal Order] Booking not found:", bookingError);
-      return new Response(
-        JSON.stringify({ error: "Booking not found" }),
-        { 
-          status: 404, 
-          headers: { 
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          } 
-        }
-      );
+      return new Response(JSON.stringify({ error: "Booking not found" }), {
+        status: 404,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
     }
+
+    // Log booking details for debugging
+    console.log("[Create PayPal Order] Booking found:", {
+      id: booking.id,
+      userId: booking.userId,
+      status: booking.status,
+      payment_status: booking.payment_status,
+      totalPrice: booking.totalPrice,
+      type: typeof booking.totalPrice,
+    });
 
     // Validate booking ownership
     if (booking.userId !== user.id) {
@@ -224,29 +289,29 @@ Deno.serve(async (req: Request) => {
       });
       return new Response(
         JSON.stringify({ error: "Unauthorized: You don't own this booking" }),
-        { 
-          status: 403, 
-          headers: { 
+        {
+          status: 403,
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
-          } 
-        }
+          },
+        },
       );
     }
 
     // Validate booking status
-    if (booking.status !== "pending") {
+    if (booking.status !== "confirmed") {
       return new Response(
-        JSON.stringify({ 
-          error: `Booking is not pending. Current status: ${booking.status}` 
+        JSON.stringify({
+          error: `Booking is not confirmed. Current status: ${booking.status}`,
         }),
-        { 
-          status: 400, 
-          headers: { 
+        {
+          status: 400,
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
-          } 
-        }
+          },
+        },
       );
     }
 
@@ -254,13 +319,13 @@ Deno.serve(async (req: Request) => {
     if (booking.payment_status === "paid") {
       return new Response(
         JSON.stringify({ error: "Booking is already paid" }),
-        { 
-          status: 400, 
-          headers: { 
+        {
+          status: 400,
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
-          } 
-        }
+          },
+        },
       );
     }
 
@@ -269,19 +334,22 @@ Deno.serve(async (req: Request) => {
     try {
       accessToken = await getPayPalAccessToken();
     } catch (error) {
-      console.error("[Create PayPal Order] Failed to get PayPal access token:", error);
+      console.error(
+        "[Create PayPal Order] Failed to get PayPal access token:",
+        error,
+      );
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: "Failed to authenticate with PayPal",
-          details: error instanceof Error ? error.message : "Unknown error"
+          details: error instanceof Error ? error.message : "Unknown error",
         }),
-        { 
-          status: 500, 
-          headers: { 
+        {
+          status: 500,
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
-          } 
-        }
+          },
+        },
       );
     }
 
@@ -291,22 +359,25 @@ Deno.serve(async (req: Request) => {
       paypalOrder = await createPayPalOrder(
         accessToken,
         Number(booking.totalPrice),
-        "USD"
+        "USD",
       );
     } catch (error) {
-      console.error("[Create PayPal Order] Failed to create PayPal order:", error);
+      console.error(
+        "[Create PayPal Order] Failed to create PayPal order:",
+        error,
+      );
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: "Failed to create PayPal order",
-          details: error instanceof Error ? error.message : "Unknown error"
+          details: error instanceof Error ? error.message : "Unknown error",
         }),
-        { 
-          status: 500, 
-          headers: { 
+        {
+          status: 500,
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
-          } 
-        }
+          },
+        },
       );
     }
 
@@ -317,7 +388,10 @@ Deno.serve(async (req: Request) => {
       .eq("id", bookingId);
 
     if (updateError) {
-      console.error("[Create PayPal Order] Failed to update booking:", updateError);
+      console.error(
+        "[Create PayPal Order] Failed to update booking:",
+        updateError,
+      );
       // Don't fail the request, but log the error
     }
 
@@ -333,28 +407,31 @@ Deno.serve(async (req: Request) => {
       });
 
     if (transactionError) {
-      console.error("[Create PayPal Order] Failed to create transaction record:", transactionError);
+      console.error(
+        "[Create PayPal Order] Failed to create transaction record:",
+        transactionError,
+      );
       // Don't fail the request, but log the error
     }
 
-    return new Response(
-      JSON.stringify({ orderId: paypalOrder.id }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
+    return new Response(JSON.stringify({ orderId: paypalOrder.id }), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
   } catch (error) {
     console.error("[Create PayPal Order] Unexpected error:", error);
-    console.error("[Create PayPal Order] Error stack:", error instanceof Error ? error.stack : "No stack trace");
+    console.error(
+      "[Create PayPal Order] Error stack:",
+      error instanceof Error ? error.stack : "No stack trace",
+    );
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: "Internal server error",
         message: error instanceof Error ? error.message : "Unknown error",
-        type: error instanceof Error ? error.constructor.name : typeof error
+        type: error instanceof Error ? error.constructor.name : typeof error,
       }),
       {
         status: 500,
@@ -362,7 +439,7 @@ Deno.serve(async (req: Request) => {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
-      }
+      },
     );
   }
 });

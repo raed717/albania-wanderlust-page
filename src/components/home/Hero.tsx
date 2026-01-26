@@ -53,7 +53,9 @@ const Hero = () => {
             </span>
           </div>
 
-          <h1 className="mb-4 md:mb-6 text-3xl md:text-5xl lg:text-6xl font-bold text-balance">BookinAL</h1>
+          <h1 className="mb-4 md:mb-6 text-3xl md:text-5xl lg:text-6xl font-bold text-balance">
+            BookinAL
+          </h1>
 
           <p className="text-base md:text-xl lg:text-2xl mb-6 md:mb-8 max-w-3xl mx-auto text-balance opacity-90 px-2">
             From the Alps to the Adriatic — a land of wonder, ancient history,
@@ -65,7 +67,6 @@ const Hero = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
-
             <Button
               size="lg"
               className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm md:text-lg px-6 py-4 md:px-8 md:py-6 rounded-full shadow-xl hover:shadow-2xl transition-all hover:scale-105 w-full sm:w-auto"
@@ -86,7 +87,7 @@ const Hero = () => {
           </div>
           <div className="flex justify-center mt-4 md:mt-6">
             <Link
-              to="/hotels-map"
+              to="/properties-map"
               className="px-6 py-3 bg-foreground text-background rounded-full font-semibold hover:bg-foreground/90 transition inline-block text-center"
             >
               Explore Map

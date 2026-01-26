@@ -10,7 +10,7 @@ import OAuthSignInPage from "./pages/home/Auth";
 import NotFound from "./pages/NotFound";
 import Footer from "./components/home/Footer";
 import CultureDetails from "./pages/home/CultureDetails";
-import HotelMapPage from "./pages/home/HotelMapPage";
+import PropertiesMapPage from "./pages/home/PropertiesMapPage";
 import Dashboard from "./pages/dashboard/dashboard";
 import AllHotels from "./pages/dashboard/Hotels/all-hotels";
 import HotelDetails from "./pages/dashboard/Hotels/HotelDetails";
@@ -62,17 +62,23 @@ const App = () => (
             <Route path="/myAccount" element={<MyAccount />} />
             <Route path="/CultureDetails" element={<CultureDetails />} />
             <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/hotels-map" element={<HotelMapPage />} />
+            <Route path="/properties-map" element={<PropertiesMapPage />} />
             <Route path="/searchResults" element={<SearchPropertyResults />} />
             <Route path="/searchCarResults" element={<SearchCarResults />} />
-            <Route path="/hotelReservation/:id" element={<HotelReservation />} />
+            <Route
+              path="/hotelReservation/:id"
+              element={<HotelReservation />}
+            />
             <Route
               path="/appartmentReservation/:id"
               element={<ApartmentReservation />}
             />
             <Route path="/carReservation/:id" element={<CarReservation />} />
             <Route path="/carBilling/:id" element={<CarBilling />} />
-            <Route path="/apartmentBilling/:id" element={<ApartmentBilling />} />
+            <Route
+              path="/apartmentBilling/:id"
+              element={<ApartmentBilling />}
+            />
             <Route path="/myBookings" element={<BookingsSummary />} />
             <Route path="/ProviderRequest" element={<ProviderRequest />} />
 
@@ -94,12 +100,18 @@ const App = () => (
                 path="/dashboard/userManagement"
                 element={<UserManagement />}
               />
-              <Route path="/dashboard/requestsManagement" element={<RequestsManagement />} />
+              <Route
+                path="/dashboard/requestsManagement"
+                element={<RequestsManagement />}
+              />
               <Route
                 path="/dashboard/user-details/:userId"
                 element={<UserDetails />}
               />
-              <Route path="/dashboard/bookings" element={<BookingsManagement />} />
+              <Route
+                path="/dashboard/bookings"
+                element={<BookingsManagement />}
+              />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
