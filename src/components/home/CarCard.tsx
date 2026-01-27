@@ -1,4 +1,12 @@
-import { Fuel, Users, Gauge, MapPin, Settings, TrendingUp } from "lucide-react";
+import {
+  Fuel,
+  Users,
+  Gauge,
+  MapPin,
+  Settings,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -49,6 +57,8 @@ export const CarCard = ({
   const displayPrice = currentMonthPrice ?? pricePerDay;
   const hasSeasonalPrice =
     currentMonthPrice !== undefined && currentMonthPrice !== pricePerDay;
+  const isPriceHigher = hasSeasonalPrice && currentMonthPrice > pricePerDay;
+  const isPriceLower = hasSeasonalPrice && currentMonthPrice < pricePerDay;
   const isAvailable = status.toLowerCase() === "available";
 
   const getStatusVariant = () => {
@@ -174,16 +184,22 @@ export const CarCard = ({
         <div className="mt-auto pt-3 border-t">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-1">
-              <span className="text-xs text-gray-600">per day</span>
-              {hasSeasonalPrice && (
-                <TrendingUp
-                  className="w-3 h-3 text-amber-500"
-                  title="Seasonal pricing"
-                />
+              <span className="text-xs text-gray-600">per day (for this month)</span>
+              {isPriceHigher && (
+                <div title="Peak season pricing">
+                  <TrendingUp className="w-3 h-3 text-amber-500" />
+                </div>
+              )}
+              {isPriceLower && (
+                <div title="Off-season discount">
+                  <TrendingDown className="w-3 h-3 text-green-500" />
+                </div>
               )}
             </div>
             <div className="text-right">
-              <span className="text-lg font-bold text-blue-600">
+              <span
+                className={`text-lg font-bold ${isPriceLower ? "text-green-600" : "text-red-600"}`}
+              >
                 €{displayPrice}
               </span>
               {hasSeasonalPrice && (

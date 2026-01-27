@@ -133,7 +133,7 @@ if (searchType === "stay") {
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
             variant="outlined"
-            sx={{ minWidth: { xs: "100%", sm: 200 } }}
+            sx={{ minWidth: { xs: "100%", sm: 100 } }}
           />
 
           <DatePicker

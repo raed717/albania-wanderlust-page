@@ -7,7 +7,7 @@ import { ClipLoader } from "react-spinners";
 import { useNavigate, Link } from "react-router-dom";
 import { CarCard } from "./CarCard";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Car } from "lucide-react";
 
 // Helper to get current month as Month type
 const getCurrentMonth = (): Month => {
@@ -70,40 +70,45 @@ const CarsPreview = () => {
   };
 
   return (
-    <div className="flex flex-col w-full mt-24 pt-24 border-t border-slate-200/60">
-      <div className="mb-12 animate-fade-in">
-        <h2 className="mb-3 text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">
-          Premium Car Fleet
+    <div className="flex flex-col w-full">
+      {/* Section Header */}
+      <div className="text-center mb-8 md:mb-10 animate-fade-in">
+        <span className="inline-block px-4 py-1.5 bg-red-100 text-red-700 font-semibold tracking-wider uppercase text-xs rounded-full mb-3">
+          Explore On Your Terms
+        </span>
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-3">
+          Premium Car Rentals
         </h2>
-        <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">
-          Curated selection of high-quality vehicles for your road trip through
-          Albania's stunning landscapes.
+        <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          Curated selection of quality vehicles for your road trip through
+          Albania's stunning landscapes
         </p>
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
+        <div className="flex items-center justify-center py-16">
           <ClipLoader
-            color="#3b82f6"
+            color="#dc2626"
             loading={isLoading}
             cssOverride={override}
-            size={60}
+            size={50}
           />
         </div>
       ) : availableTopCars.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-8 bg-white/50 rounded-2xl border border-dashed border-slate-200">
-          <p className="text-muted-foreground">
+        <div className="flex flex-col items-center justify-center p-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+          <Car className="w-10 h-10 text-slate-300 mb-3" />
+          <p className="text-muted-foreground text-base">
             No cars are currently available.
           </p>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {availableTopCars.map((car, index) => (
               <div
                 key={car.id}
                 className="animate-fade-in-up"
-                style={{ animationDelay: `${index * 150}ms` }}
+                style={{ animationDelay: `${index * 100}ms` }}
               >
                 <CarCard
                   id={car.id}
@@ -129,14 +134,13 @@ const CarsPreview = () => {
             ))}
           </div>
 
-          <div className="mt-12 flex justify-start">
+          <div className="mt-8 flex justify-center">
             <Link to="/searchCarResults">
               <Button
-                variant="ghost"
-                className="group p-0 hover:bg-transparent text-blue-600 font-semibold gap-2 text-base"
+                size="lg"
+                className="px-6 py-3 bg-foreground text-background rounded-full font-semibold hover:bg-foreground/90 transition inline-block text-center"
               >
-                Explore All Cars
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Explore All Vehicles
               </Button>
             </Link>
           </div>

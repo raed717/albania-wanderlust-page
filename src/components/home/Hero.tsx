@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight, MapPin, ChevronDown } from "lucide-react";
 import slide1 from "@/assets/home/slide1.jpg";
 import slide2 from "@/assets/home/slide2.jpg";
 import slide3 from "@/assets/home/slide3.jpg";
 import ReservationPickerValue from "./reservationPicker";
 import { Link } from "react-router";
-import { Slide } from 'react-slideshow-image';
-import 'react-slideshow-image/dist/styles.css'
+import { Slide } from "react-slideshow-image";
+import "react-slideshow-image/dist/styles.css";
 
 const Hero = () => {
   const scrollToSection = (id: string) => {
@@ -22,14 +22,19 @@ const Hero = () => {
     },
     {
       image: slide3,
-    }
+    },
   ];
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <Slide duration={2000}>
+        <Slide
+          duration={4000}
+          transitionDuration={1000}
+          arrows={false}
+          pauseOnHover={false}
+        >
           {slideImages.map((slideImage, index) => (
             <div key={index} className="w-full h-screen">
               <img
@@ -40,68 +45,76 @@ const Hero = () => {
             </div>
           ))}
         </Slide>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
       </div>
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-        <div className="animate-fade-in-up">
-          <div className="flex items-center justify-center gap-2 mb-4 md:mb-6">
-            <MapPin className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-            <span className="text-sm md:text-lg font-medium">
+        <div className="animate-fade-in-up max-w-4xl mx-auto">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2 rounded-full mb-6 border border-white/20">
+            <MapPin className="w-4 h-4 text-red-400" />
+            <span className="text-sm font-medium tracking-wide">
               Southeast Europe's Hidden Gem
             </span>
           </div>
 
-          <h1 className="mb-4 md:mb-6 text-3xl md:text-5xl lg:text-6xl font-bold text-balance">
-            BookinAL
+          {/* Main Heading */}
+          <h1 className="mb-4 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
+            <span className="block">Discover</span>
+            <span className="block bg-gradient-to-r from-red-700 via-red-500 to-red-700 bg-clip-text text-transparent">
+              Albania
+            </span>
           </h1>
 
-          <p className="text-base md:text-xl lg:text-2xl mb-6 md:mb-8 max-w-3xl mx-auto text-balance opacity-90 px-2">
-            From the Alps to the Adriatic — a land of wonder, ancient history,
-            and breathtaking beauty
+          {/* Subheading */}
+          <p className="text-base sm:text-lg md:text-xl mb-8 max-w-2xl mx-auto text-white/85 leading-relaxed">
+            Book hotels, apartments, and cars for your perfect Albanian
+            adventure. From the Albanian Alps to the Riviera coast.
           </p>
 
-          <div>
+          {/* Search Widget */}
+          <div className="mb-8">
             <ReservationPickerValue />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm md:text-lg px-6 py-4 md:px-8 md:py-6 rounded-full shadow-xl hover:shadow-2xl transition-all hover:scale-105 w-full sm:w-auto"
-              onClick={() => scrollToSection("destinations")}
-            >
-              Explore Destinations
-              <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
-            </Button>
-
-            <Button
-              size="lg"
-              variant="outline"
-              className="bg-white/10 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-foreground text-sm md:text-lg px-6 py-4 md:px-8 md:py-6 rounded-full transition-all hover:scale-105 w-full sm:w-auto"
-              onClick={() => scrollToSection("culture")}
-            >
-              Discover Culture
-            </Button>
-          </div>
-          <div className="flex justify-center mt-4 md:mt-6">
-            <Link
-              to="/properties-map"
-              className="px-6 py-3 bg-foreground text-background rounded-full font-semibold hover:bg-foreground/90 transition inline-block text-center"
-            >
-              Explore Map
+          {/* Secondary Actions */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <Link to="/properties-map">
+              <Button
+                size="lg"
+                className="bg-white/10 backdrop-blur-sm border border-white/30 text-white hover:bg-white hover:text-slate-900 px-6 py-5 rounded-full transition-all duration-300 hover:scale-105 group"
+              >
+                <MapPin className="w-4 h-4 mr-2" />
+                Explore Map
+              </Button>
             </Link>
+            <Button
+              size="lg"
+              variant="ghost"
+              className="text-white/90 hover:text-white hover:bg-white/10 px-6 py-5 rounded-full transition-all group"
+              onClick={() => scrollToSection("hotels")}
+            >
+              Browse Properties
+              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
-        <div className="w-6 h-10 border-2 border-white/50 rounded-full flex items-start justify-center p-2">
-          <div className="w-1.5 h-3 bg-white/70 rounded-full" />
+      <button
+        onClick={() => scrollToSection("hotels")}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce cursor-pointer group"
+        aria-label="Scroll down"
+      >
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-xs text-white/60 uppercase tracking-widest group-hover:text-white/80 transition-colors">
+            Scroll
+          </span>
+          <ChevronDown className="w-6 h-6 text-white/60 group-hover:text-white/80 transition-colors" />
         </div>
-      </div>
+      </button>
     </section>
   );
 };
