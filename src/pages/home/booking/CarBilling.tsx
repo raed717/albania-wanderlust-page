@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   User as UserIcon,
   Mail,
@@ -7,22 +7,22 @@ import {
   Clock,
   CreditCard,
   Check,
+  TrendingUp,
 } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { Car } from "@/types/car.types";
+import { Month, MONTHS, MONTH_NAMES } from "@/types/price.type";
 import { getCarById } from "@/services/api/carService";
 import { getCarUnavailabilityDates } from "@/services/api/carService";
 import { useNavigate, useParams } from "react-router";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import "react-phone-number-input/style.css";
-import PhoneInput, {
-  isValidPhoneNumber,
-} from "react-phone-number-input";
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { useMutation } from "@tanstack/react-query";
 import { createBooking } from "@/services/api/bookingService";
 import Swal from "sweetalert2";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { userService } from '@/services/api/userService';
+import { userService } from "@/services/api/userService";
 import { User } from "@/types/user.types";
 
 export default function CarBilling() {
@@ -50,9 +50,9 @@ export default function CarBilling() {
           setImages(data.imageUrls || []);
           const unavailable = await getCarUnavailabilityDates(data.id);
           setUnavailableDates(unavailable);
-          console.log('====================================');
+          console.log("====================================");
           console.log(unavailable);
-          console.log('====================================');
+          console.log("====================================");
         }
       } catch (error) {
         console.error("Error fetching car:", error);
@@ -112,6 +112,9 @@ export default function CarBilling() {
 
   const [totalDays, setTotalDays] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [priceBreakdown, setPriceBreakdown] = useState<
+    { month: Month; days: number; pricePerDay: number; subtotal: number }[]
+  >([]);
 
   const bookingMutation = useMutation({
     mutationFn: createBooking,
@@ -138,14 +141,53 @@ export default function CarBilling() {
   useEffect(() => {
     if (!car) return;
     if (dateRange?.from && dateRange?.to) {
-      const diffTime = Math.abs(dateRange.to.getTime() - dateRange.from.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const days = diffDays || 1;
+      // Calculate total price using monthly pricing
+      const breakdown: Map<Month, { days: number; pricePerDay: number }> =
+        new Map();
+      let total = 0;
+      let days = 0;
+
+      const currentDate = new Date(dateRange.from);
+      const endDate = new Date(dateRange.to);
+
+      while (currentDate <= endDate) {
+        const monthIndex = currentDate.getMonth();
+        const month = MONTHS[monthIndex];
+
+        // Get monthly price or fall back to base price
+        const monthlyPrice = car.monthlyPrices?.find((p) => p.month === month);
+        const pricePerDay = monthlyPrice?.pricePerDay ?? car.pricePerDay;
+
+        // Accumulate breakdown
+        const existing = breakdown.get(month);
+        if (existing) {
+          existing.days += 1;
+        } else {
+          breakdown.set(month, { days: 1, pricePerDay });
+        }
+
+        total += pricePerDay;
+        days += 1;
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      // Convert map to array for display
+      const breakdownArray = Array.from(breakdown.entries()).map(
+        ([month, data]) => ({
+          month,
+          days: data.days,
+          pricePerDay: data.pricePerDay,
+          subtotal: data.days * data.pricePerDay,
+        }),
+      );
+
       setTotalDays(days);
-      setTotalPrice(days * car.pricePerDay);
+      setTotalPrice(total);
+      setPriceBreakdown(breakdownArray);
     } else {
       setTotalDays(0);
       setTotalPrice(0);
+      setPriceBreakdown([]);
     }
   }, [dateRange, car]);
 
@@ -316,7 +358,9 @@ export default function CarBilling() {
                       onDateRangeChange={setDateRange}
                       placeholder="Select rental dates"
                       minDate={new Date()}
-                      disabledDates={unavailableDates.map((date) => new Date(date))}
+                      disabledDates={unavailableDates.map(
+                        (date) => new Date(date),
+                      )}
                     />
                   </div>
 
@@ -448,20 +492,54 @@ export default function CarBilling() {
                   </h3>
 
                   <div className="space-y-4 mb-4 text-sm">
-                    {/* Base Price */}
-                    <div>
-                      <div className="flex justify-between text-slate-700">
-                        <span>
-                          ${car.pricePerDay} × {totalDays || 0} days
-                        </span>
-                        <span className="font-medium">
-                          ${totalPrice.toFixed(2)}
-                        </span>
+                    {/* Monthly Price Breakdown */}
+                    {priceBreakdown.length > 0 ? (
+                      <div className="space-y-2">
+                        {priceBreakdown.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="flex justify-between text-slate-700"
+                          >
+                            <span className="flex items-center gap-1">
+                              {item.pricePerDay !== car.pricePerDay && (
+                                <TrendingUp className="w-3 h-3 text-amber-500" />
+                              )}
+                              {MONTH_NAMES[item.month]}: ${item.pricePerDay} ×{" "}
+                              {item.days} {item.days === 1 ? "day" : "days"}
+                            </span>
+                            <span className="font-medium">
+                              ${item.subtotal.toFixed(2)}
+                            </span>
+                          </div>
+                        ))}
+                        <div className="pt-2 border-t border-slate-100">
+                          <div className="flex justify-between text-slate-700 font-medium">
+                            <span>
+                              Subtotal ({totalDays}{" "}
+                              {totalDays === 1 ? "day" : "days"})
+                            </span>
+                            <span>${totalPrice.toFixed(2)}</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-slate-500">
+                          Prices vary by month based on seasonal rates.
+                        </p>
                       </div>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Base rental price for the selected vehicle and dates.
-                      </p>
-                    </div>
+                    ) : (
+                      <div>
+                        <div className="flex justify-between text-slate-700">
+                          <span>
+                            ${car.pricePerDay} × {totalDays || 0} days
+                          </span>
+                          <span className="font-medium">
+                            ${totalPrice.toFixed(2)}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Select dates to see price breakdown.
+                        </p>
+                      </div>
+                    )}
 
                     {/* Service Fee */}
                     <div>
@@ -472,7 +550,8 @@ export default function CarBilling() {
                         </span>
                       </div>
                       <p className="text-xs text-slate-500 mt-1">
-                        Covers platform operations, customer support, and booking protection.
+                        Covers platform operations, customer support, and
+                        booking protection.
                       </p>
                     </div>
 
@@ -480,9 +559,7 @@ export default function CarBilling() {
                     <div>
                       <div className="flex justify-between text-slate-700">
                         <span>Tax (10%)</span>
-                        <span className="font-medium">
-                          ${tax.toFixed(2)}
-                        </span>
+                        <span className="font-medium">${tax.toFixed(2)}</span>
                       </div>
                       <p className="text-xs text-slate-500 mt-1">
                         Local and government tax applied to your rental.
@@ -501,7 +578,8 @@ export default function CarBilling() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
-                      This is the full amount you’ll pay if you confirm the booking.
+                      This is the full amount you’ll pay if you confirm the
+                      booking.
                     </p>
                   </div>
 
@@ -518,14 +596,16 @@ export default function CarBilling() {
                     className="w-full mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30"
                   >
                     <Check className="w-5 h-5" />
-                    {bookingMutation.isPending ? "Processing..." : "Confirm Booking"}
+                    {bookingMutation.isPending
+                      ? "Processing..."
+                      : "Confirm Booking"}
                   </button>
 
                   <p className="text-xs text-slate-500 text-center mt-4">
-                    You won’t be charged yet. Payment is completed after confirmation.
+                    You won’t be charged yet. Payment is completed after
+                    confirmation.
                   </p>
                 </div>
-
               </div>
             </div>
           </div>

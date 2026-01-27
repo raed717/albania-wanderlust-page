@@ -527,7 +527,7 @@ const AllCars = () => {
                   {/* Price and Actions */}
                   <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                     <div>
-                      <div className="text-xs text-gray-500">Daily Rate</div>
+                      <div className="text-xs text-gray-500">Base Price</div>
                       <div className="text-xl sm:text-2xl font-bold text-gray-900">
                         ${car.pricePerDay}
                       </div>

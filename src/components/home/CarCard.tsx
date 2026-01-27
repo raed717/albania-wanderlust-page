@@ -1,7 +1,6 @@
-import { Fuel, Users, Gauge, MapPin, Settings } from "lucide-react";
+import { Fuel, Users, Gauge, MapPin, Settings, TrendingUp } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
 
 interface CarCardProps {
   id: number;
@@ -14,6 +13,7 @@ interface CarCardProps {
   seats: number;
   mileage: number;
   pricePerDay: number;
+  currentMonthPrice?: number; // Dynamic price based on current month
   status: "available" | "rented" | "maintenance";
   color: string;
   plateNumber: string;
@@ -37,6 +37,7 @@ export const CarCard = ({
   seats,
   mileage,
   pricePerDay,
+  currentMonthPrice,
   status,
   color,
   features = [],
@@ -44,6 +45,10 @@ export const CarCard = ({
   pickUpLocation,
   onClick,
 }: CarCardProps) => {
+  // Use current month price if available, otherwise fall back to base price
+  const displayPrice = currentMonthPrice ?? pricePerDay;
+  const hasSeasonalPrice =
+    currentMonthPrice !== undefined && currentMonthPrice !== pricePerDay;
   const isAvailable = status.toLowerCase() === "available";
 
   const getStatusVariant = () => {
@@ -168,10 +173,25 @@ export const CarCard = ({
         {/* Price */}
         <div className="mt-auto pt-3 border-t">
           <div className="flex justify-between items-center">
-            <span className="text-xs text-gray-600">per day</span>
-            <span className="text-lg font-bold text-blue-600">
-              €{pricePerDay}
-            </span>
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-600">per day</span>
+              {hasSeasonalPrice && (
+                <TrendingUp
+                  className="w-3 h-3 text-amber-500"
+                  title="Seasonal pricing"
+                />
+              )}
+            </div>
+            <div className="text-right">
+              <span className="text-lg font-bold text-blue-600">
+                €{displayPrice}
+              </span>
+              {hasSeasonalPrice && (
+                <span className="text-xs text-gray-400 line-through ml-1">
+                  €{pricePerDay}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>

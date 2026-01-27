@@ -3,12 +3,23 @@ import { useLocation } from "react-router";
 import { AlertCircle, Car as CarIcon } from "lucide-react";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import { CarCard } from "@/components/home/CarCard";
-import { getAllCars, getCarUnavailabilityDates } from "@/services/api/carService";
+import {
+  getAllCars,
+  getCarUnavailabilityDates,
+} from "@/services/api/carService";
+import { getMonthlyPrices } from "@/services/api/monthlyPriceService";
 import { Car } from "@/types/car.types";
+import { Month, MONTHS } from "@/types/price.type";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { CarFilterBar, CarFilterState } from "./CarFilterBar";
+
+// Helper to get current month as Month type
+const getCurrentMonth = (): Month => {
+  const monthIndex = new Date().getMonth();
+  return MONTHS[monthIndex];
+};
 
 interface LocationState {
   type?: string;
@@ -22,9 +33,17 @@ const SearchCarResults = () => {
   const state = location.state as LocationState | null;
 
   const [cars, setCars] = useState<Car[]>([]);
-  const [carUnavailability, setCarUnavailability] = useState<Record<number, string[]>>({});
+  const [carUnavailability, setCarUnavailability] = useState<
+    Record<number, string[]>
+  >({});
+  const [carMonthlyPrices, setCarMonthlyPrices] = useState<
+    Record<number, number | null>
+  >({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Get current month for pricing
+  const currentMonth = getCurrentMonth();
 
   // Extract search params from navigation state
   const initialDestination = state?.destination || "";
@@ -42,12 +61,41 @@ const SearchCarResults = () => {
     features: [],
     seats: undefined,
     pickupDate: pickupDate,
-    returnDate: returnDate
+    returnDate: returnDate,
   });
 
   useEffect(() => {
     fetchCars();
   }, []);
+
+  // Fetch monthly prices for all cars when loaded
+  useEffect(() => {
+    const fetchMonthlyPrices = async () => {
+      if (cars.length === 0) return;
+
+      const pricesMap: Record<number, number | null> = {};
+      await Promise.all(
+        cars.map(async (car) => {
+          try {
+            const prices = await getMonthlyPrices(car.id, "car");
+            const currentMonthPrice = prices.find(
+              (p) => p.month === currentMonth,
+            );
+            pricesMap[car.id] = currentMonthPrice?.pricePerDay ?? null;
+          } catch (err) {
+            console.error(
+              `Error fetching monthly prices for car ${car.id}:`,
+              err,
+            );
+            pricesMap[car.id] = null;
+          }
+        }),
+      );
+      setCarMonthlyPrices(pricesMap);
+    };
+
+    fetchMonthlyPrices();
+  }, [cars, currentMonth]);
 
   // Fetch unavailability dates when cars are loaded or date filters change
   useEffect(() => {
@@ -65,10 +113,13 @@ const SearchCarResults = () => {
             const dates = await getCarUnavailabilityDates(car.id);
             unavailabilityMap[car.id] = dates;
           } catch (err) {
-            console.error(`Error fetching unavailability for car ${car.id}:`, err);
+            console.error(
+              `Error fetching unavailability for car ${car.id}:`,
+              err,
+            );
             unavailabilityMap[car.id] = [];
           }
-        })
+        }),
       );
       setCarUnavailability(unavailabilityMap);
     };
@@ -90,18 +141,21 @@ const SearchCarResults = () => {
     }
   };
 
-
   // Extract unique features from all cars
   const availableFeatures = useMemo(() => {
     const featuresSet = new Set<string>();
-    cars.forEach(car => {
-      car.features?.forEach(feature => featuresSet.add(feature));
+    cars.forEach((car) => {
+      car.features?.forEach((feature) => featuresSet.add(feature));
     });
     return Array.from(featuresSet).sort();
   }, [cars]);
 
   // Helper function to check if car is available for the selected date range
-  const isCarAvailableForDateRange = (carId: number, pickup: Date | null, returnD: Date | null): boolean => {
+  const isCarAvailableForDateRange = (
+    carId: number,
+    pickup: Date | null,
+    returnD: Date | null,
+  ): boolean => {
     if (!pickup || !returnD) return true; // No date filter applied
 
     const unavailableDates = carUnavailability[carId] || [];
@@ -111,12 +165,12 @@ const SearchCarResults = () => {
     const requestedDates: string[] = [];
     const currentDate = new Date(pickup);
     while (currentDate <= returnD) {
-      requestedDates.push(currentDate.toISOString().split('T')[0]);
+      requestedDates.push(currentDate.toISOString().split("T")[0]);
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
     // Check if any requested date is unavailable
-    return !requestedDates.some(date => unavailableDates.includes(date));
+    return !requestedDates.some((date) => unavailableDates.includes(date));
   };
 
   // Filter logic
@@ -132,20 +186,41 @@ const SearchCarResults = () => {
       }
 
       // Status
-      if (filters.status && filters.status !== "all" && car.status !== filters.status) return false;
+      if (
+        filters.status &&
+        filters.status !== "all" &&
+        car.status !== filters.status
+      )
+        return false;
 
       // Type
-      if (filters.type && filters.type !== "all" && car.type !== filters.type) return false;
+      if (filters.type && filters.type !== "all" && car.type !== filters.type)
+        return false;
 
       // Transmission
-      if (filters.transmission && filters.transmission !== "all" && car.transmission !== filters.transmission) return false;
+      if (
+        filters.transmission &&
+        filters.transmission !== "all" &&
+        car.transmission !== filters.transmission
+      )
+        return false;
 
       // Fuel Type
-      if (filters.fuelType && filters.fuelType !== "all" && car.fuelType !== filters.fuelType) return false;
+      if (
+        filters.fuelType &&
+        filters.fuelType !== "all" &&
+        car.fuelType !== filters.fuelType
+      )
+        return false;
 
-      // Price Range
+      // Price Range (use current month price if available, otherwise base price)
       if (filters.priceRange) {
-        if (car.pricePerDay < filters.priceRange.min || car.pricePerDay > filters.priceRange.max) return false;
+        const effectivePrice = carMonthlyPrices[car.id] ?? car.pricePerDay;
+        if (
+          effectivePrice < filters.priceRange.min ||
+          effectivePrice > filters.priceRange.max
+        )
+          return false;
       }
 
       // Seats
@@ -153,23 +228,31 @@ const SearchCarResults = () => {
 
       // Features (Must have all selected features)
       if (filters.features && filters.features.length > 0) {
-        const hasAllFeatures = filters.features.every(f => car.features?.includes(f));
+        const hasAllFeatures = filters.features.every((f) =>
+          car.features?.includes(f),
+        );
         if (!hasAllFeatures) return false;
       }
 
       // Date Availability
       if (filters.pickupDate || filters.returnDate) {
-        if (!isCarAvailableForDateRange(car.id, filters.pickupDate ?? null, filters.returnDate ?? null)) {
+        if (
+          !isCarAvailableForDateRange(
+            car.id,
+            filters.pickupDate ?? null,
+            filters.returnDate ?? null,
+          )
+        ) {
           return false;
         }
       }
 
       return true;
     });
-  }, [cars, filters, carUnavailability]);
+  }, [cars, filters, carUnavailability, carMonthlyPrices]);
 
   const handleFilterChange = (newFilters: Partial<CarFilterState>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
   const handleResetFilters = () => {
@@ -183,7 +266,7 @@ const SearchCarResults = () => {
       features: [],
       seats: undefined,
       pickupDate: null,
-      returnDate: null
+      returnDate: null,
     });
   };
 
@@ -245,7 +328,8 @@ const SearchCarResults = () => {
                 </h1>
                 {!loading && (
                   <p className="text-gray-600">
-                    Found <span className="font-semibold">{filteredCars.length}</span>{" "}
+                    Found{" "}
+                    <span className="font-semibold">{filteredCars.length}</span>{" "}
                     cars available for rent
                   </p>
                 )}
@@ -287,7 +371,11 @@ const SearchCarResults = () => {
                 <p className="text-gray-600 max-w-sm mx-auto">
                   We couldn't find any cars matching your current filters.
                 </p>
-                <Button onClick={handleResetFilters} variant="outline" className="mt-6">
+                <Button
+                  onClick={handleResetFilters}
+                  variant="outline"
+                  className="mt-6"
+                >
                   Clear Filters
                 </Button>
               </div>
@@ -300,6 +388,7 @@ const SearchCarResults = () => {
                   <CarCard
                     key={car.id}
                     {...car}
+                    currentMonthPrice={carMonthlyPrices[car.id] ?? undefined}
                     onClick={() => handleCarClick(car.id)}
                   />
                 ))}

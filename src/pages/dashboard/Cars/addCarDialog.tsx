@@ -13,9 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Loader2 } from "lucide-react";
 import { CreateCarDto } from "@/types/car.types";
+import { MonthlyPriceInput } from "@/types/price.type";
 import { addCar } from "@/services/api/carService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
+import { MonthlyPricingEditor } from "@/components/dashboard/MonthlyPricingEditor";
 
 interface AddCarDialogProps {
   onCarAdded: (car: any) => void;
@@ -26,6 +28,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
   const [loading, setLoading] = useState(false);
   const [selectedImageFiles, setSelectedImageFiles] = useState<File[]>([]);
   const featureInputRef = React.useRef<HTMLInputElement>(null);
+  const [monthlyPrices, setMonthlyPrices] = useState<MonthlyPriceInput[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     brand: "",
@@ -49,16 +52,16 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]:
         name === "year" ||
-          name === "seats" ||
-          name === "mileage" ||
-          name === "pricePerDay"
+        name === "seats" ||
+        name === "mileage" ||
+        name === "pricePerDay"
           ? parseFloat(value) || 0
           : value,
     }));
@@ -115,6 +118,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
         pickUpLocation: formData.pickUpLocation,
         lat: formData.lat,
         lng: formData.lng,
+        monthlyPrices: monthlyPrices.length > 0 ? monthlyPrices : undefined,
       };
 
       const newCar = await addCar(carData, selectedImageFiles);
@@ -142,6 +146,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
         lng: undefined,
       });
       setSelectedImageFiles([]);
+      setMonthlyPrices([]);
     } catch (error) {
       console.error("Error adding car:", error);
       alert("Failed to add car. Please try again.");
@@ -309,7 +314,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
             {/* Price Per Day */}
             <div className="space-y-2">
               <Label htmlFor="pricePerDay" className="text-sm font-medium">
-                Price per Day ($) <span className="text-red-500">*</span>
+                Base Price per Day ($) <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="pricePerDay"
@@ -321,6 +326,9 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 placeholder="89"
                 className="w-full"
               />
+              <p className="text-xs text-gray-500">
+                This is the default price. You can set seasonal prices below.
+              </p>
             </div>
 
             {/* Status */}
@@ -370,7 +378,16 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 className="w-full"
               />
             </div>
+          </div>
 
+          {/* Monthly Pricing Editor */}
+          <div className="border-t pt-6">
+            <MonthlyPricingEditor
+              prices={monthlyPrices}
+              onChange={setMonthlyPrices}
+              basePrice={formData.pricePerDay}
+              disabled={loading}
+            />
           </div>
 
           {/* Image Upload Component */}
@@ -381,7 +398,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
             selectedFiles={selectedImageFiles}
             onRemoveFile={(index) => {
               setSelectedImageFiles((prev) =>
-                prev.filter((_, i) => i !== index)
+                prev.filter((_, i) => i !== index),
               );
             }}
             maxImages={10}

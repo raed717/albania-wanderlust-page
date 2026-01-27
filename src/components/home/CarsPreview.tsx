@@ -1,11 +1,19 @@
-import { useMemo, CSSProperties } from "react";
+import { useMemo, useState, useEffect, CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllCars } from "@/services/api/carService";
+import { getMonthlyPrices } from "@/services/api/monthlyPriceService";
+import { Month, MONTHS } from "@/types/price.type";
 import { ClipLoader } from "react-spinners";
 import { useNavigate, Link } from "react-router-dom";
 import { CarCard } from "./CarCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+
+// Helper to get current month as Month type
+const getCurrentMonth = (): Month => {
+  const monthIndex = new Date().getMonth();
+  return MONTHS[monthIndex];
+};
 
 const override: CSSProperties = {
   display: "block",
@@ -14,6 +22,10 @@ const override: CSSProperties = {
 
 const CarsPreview = () => {
   const navigate = useNavigate();
+  const currentMonth = getCurrentMonth();
+  const [carMonthlyPrices, setCarMonthlyPrices] = useState<
+    Record<number, number | null>
+  >({});
 
   const { data: cars = [], isLoading } = useQuery({
     queryKey: ["cars"],
@@ -21,10 +33,37 @@ const CarsPreview = () => {
   });
 
   const availableTopCars = useMemo(() => {
-    return cars
-      .filter((car) => car.status === "available")
-      .slice(0, 4);
+    return cars.filter((car) => car.status === "available").slice(0, 4);
   }, [cars]);
+
+  // Fetch monthly prices for displayed cars
+  useEffect(() => {
+    const fetchMonthlyPrices = async () => {
+      if (availableTopCars.length === 0) return;
+
+      const pricesMap: Record<number, number | null> = {};
+      await Promise.all(
+        availableTopCars.map(async (car) => {
+          try {
+            const prices = await getMonthlyPrices(car.id, "car");
+            const currentMonthPrice = prices.find(
+              (p) => p.month === currentMonth,
+            );
+            pricesMap[car.id] = currentMonthPrice?.pricePerDay ?? null;
+          } catch (err) {
+            console.error(
+              `Error fetching monthly prices for car ${car.id}:`,
+              err,
+            );
+            pricesMap[car.id] = null;
+          }
+        }),
+      );
+      setCarMonthlyPrices(pricesMap);
+    };
+
+    fetchMonthlyPrices();
+  }, [availableTopCars, currentMonth]);
 
   const handleCarClick = (carId: number) => {
     navigate(`/carReservation/${carId}`);
@@ -37,17 +76,25 @@ const CarsPreview = () => {
           Premium Car Fleet
         </h2>
         <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">
-          Curated selection of high-quality vehicles for your road trip through Albania's stunning landscapes.
+          Curated selection of high-quality vehicles for your road trip through
+          Albania's stunning landscapes.
         </p>
       </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <ClipLoader color="#3b82f6" loading={isLoading} cssOverride={override} size={60} />
+          <ClipLoader
+            color="#3b82f6"
+            loading={isLoading}
+            cssOverride={override}
+            size={60}
+          />
         </div>
       ) : availableTopCars.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 bg-white/50 rounded-2xl border border-dashed border-slate-200">
-          <p className="text-muted-foreground">No cars are currently available.</p>
+          <p className="text-muted-foreground">
+            No cars are currently available.
+          </p>
         </div>
       ) : (
         <>
@@ -69,6 +116,7 @@ const CarsPreview = () => {
                   seats={car.seats}
                   mileage={car.mileage}
                   pricePerDay={car.pricePerDay}
+                  currentMonthPrice={carMonthlyPrices[car.id] ?? undefined}
                   status={car.status}
                   color={car.color}
                   plateNumber={car.plateNumber}
@@ -99,7 +147,3 @@ const CarsPreview = () => {
 };
 
 export default CarsPreview;
-
-
-
-

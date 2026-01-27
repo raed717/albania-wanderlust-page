@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -22,9 +22,17 @@ import {
   Hash,
   Package,
   MapPinned,
+  TrendingUp,
 } from "lucide-react";
 import { Car } from "@/types/car.types";
+import { Month, MONTHS, MONTH_NAMES } from "@/types/price.type";
 import { getCarById } from "@/services/api/carService";
+
+// Helper to get current month as Month type
+const getCurrentMonth = (): Month => {
+  const monthIndex = new Date().getMonth();
+  return MONTHS[monthIndex];
+};
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import Lightbox from "yet-another-react-lightbox";
@@ -187,7 +195,7 @@ const CarReservation = () => {
                     <button
                       onClick={() =>
                         setPhotoIndex(
-                          (photoIndex + images.length - 1) % images.length
+                          (photoIndex + images.length - 1) % images.length,
                         )
                       }
                       className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
@@ -338,16 +346,42 @@ const CarReservation = () => {
           {/* Left Column - Reservation Card */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl p-6 sticky top-8 border border-gray-100">
-              <div className="text-center mb-6">
-                <p className="text-gray-600 text-sm mb-2">Price per day</p>
-                <div className="flex items-center justify-center gap-2">
-                  <DollarSign size={32} className="text-emerald-600" />
-                  <span className="text-5xl font-bold text-gray-900">
-                    {car.pricePerDay}
-                  </span>
-                </div>
-                <p className="text-gray-500 text-sm mt-2">+ insurance</p>
-              </div>
+              {(() => {
+                const currentMonth = getCurrentMonth();
+                const monthlyPrice = car.monthlyPrices?.find(
+                  (p) => p.month === currentMonth,
+                );
+                const displayPrice =
+                  monthlyPrice?.pricePerDay ?? car.pricePerDay;
+                const hasSeasonalPrice =
+                  monthlyPrice && monthlyPrice.pricePerDay !== car.pricePerDay;
+
+                return (
+                  <div className="text-center mb-6">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <p className="text-gray-600 text-sm">Price per day</p>
+                      {hasSeasonalPrice && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
+                          <TrendingUp size={12} />
+                          {MONTH_NAMES[currentMonth]}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <DollarSign size={32} className="text-emerald-600" />
+                      <span className="text-5xl font-bold text-gray-900">
+                        {displayPrice}
+                      </span>
+                    </div>
+                    {hasSeasonalPrice && (
+                      <p className="text-gray-400 text-sm mt-1 line-through">
+                        Base: ${car.pricePerDay}/day
+                      </p>
+                    )}
+                    <p className="text-gray-500 text-sm mt-2">+ insurance</p>
+                  </div>
+                );
+              })()}
 
               <div className="space-y-4 mb-6">
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">

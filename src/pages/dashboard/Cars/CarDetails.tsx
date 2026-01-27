@@ -23,9 +23,11 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { Car, UpdateCarDto } from "@/types/car.types";
+import { MonthlyPriceInput, MONTHS, MONTH_NAMES } from "@/types/price.type";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
 import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
+import { MonthlyPricingEditor } from "@/components/dashboard/MonthlyPricingEditor";
 import Swal from "sweetalert2";
 import { getCarById, updateCar } from "@/services/api/carService";
 
@@ -40,6 +42,7 @@ const CarDetails = () => {
   const [isEditing, setIsEditing] = useState(editMode);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<UpdateCarDto>({});
+  const [monthlyPrices, setMonthlyPrices] = useState<MonthlyPriceInput[]>([]);
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const featureInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -51,7 +54,11 @@ const CarDetails = () => {
       try {
         const data = await getCarById(parseInt(id));
         setCar(data);
-        setFormData(data);
+        setFormData(data || {});
+        // Initialize monthly prices from car data
+        if (data?.monthlyPrices) {
+          setMonthlyPrices(data.monthlyPrices);
+        }
       } catch (error) {
         console.error("Error fetching car:", error);
       } finally {
@@ -97,6 +104,7 @@ const CarDetails = () => {
     setIsEditing(false);
     if (car) {
       setFormData(car);
+      setMonthlyPrices(car.monthlyPrices || []);
     }
     setNewImageFiles([]);
   };
@@ -106,9 +114,18 @@ const CarDetails = () => {
 
     setSaving(true);
     try {
-      const updatedCar = await updateCar(parseInt(id), formData, newImageFiles);
+      const updatePayload: UpdateCarDto = {
+        ...formData,
+        monthlyPrices: monthlyPrices.length > 0 ? monthlyPrices : undefined,
+      };
+      const updatedCar = await updateCar(
+        parseInt(id),
+        updatePayload,
+        newImageFiles,
+      );
       setCar(updatedCar);
       setFormData(updatedCar);
+      setMonthlyPrices(updatedCar.monthlyPrices || []);
       setIsEditing(false);
       setNewImageFiles([]);
       Swal.fire({
@@ -553,20 +570,25 @@ const CarDetails = () => {
                   )}
                 </div>
 
-                {/* Price per Day */}
+                {/* Base Price per Day */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <DollarSign size={16} className="text-emerald-500" />
-                    Price per Day
+                    Base Price per Day
                   </Label>
                   {isEditing ? (
-                    <Input
-                      name="pricePerDay"
-                      type="number"
-                      min="0"
-                      value={formData.pricePerDay || 0}
-                      onChange={handleChange}
-                    />
+                    <>
+                      <Input
+                        name="pricePerDay"
+                        type="number"
+                        min="0"
+                        value={formData.pricePerDay || 0}
+                        onChange={handleChange}
+                      />
+                      <p className="text-xs text-gray-500">
+                        Default price used when no monthly price is set
+                      </p>
+                    </>
                   ) : (
                     <p className="text-lg font-semibold text-gray-900">
                       ${car.pricePerDay}
@@ -574,6 +596,65 @@ const CarDetails = () => {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Monthly Pricing Section */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">
+                Monthly Pricing
+              </h2>
+              {isEditing ? (
+                <MonthlyPricingEditor
+                  prices={monthlyPrices}
+                  onChange={setMonthlyPrices}
+                  basePrice={formData.pricePerDay || 0}
+                  disabled={saving}
+                />
+              ) : (
+                <div className="space-y-4">
+                  {monthlyPrices && monthlyPrices.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                      {MONTHS.map((month) => {
+                        const monthPrice = monthlyPrices.find(
+                          (p) => p.month === month,
+                        );
+                        const price =
+                          monthPrice?.pricePerDay ?? car.pricePerDay;
+                        const isDifferent =
+                          monthPrice &&
+                          monthPrice.pricePerDay !== car.pricePerDay;
+
+                        return (
+                          <div
+                            key={month}
+                            className={`p-3 rounded-lg border text-center ${
+                              isDifferent
+                                ? "bg-blue-50 border-blue-200"
+                                : "bg-gray-50 border-gray-200"
+                            }`}
+                          >
+                            <div className="text-xs font-medium text-gray-500 mb-1">
+                              {MONTH_NAMES[month]}
+                            </div>
+                            <div
+                              className={`text-lg font-bold ${
+                                isDifferent ? "text-blue-600" : "text-gray-700"
+                              }`}
+                            >
+                              ${price}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">
+                      No seasonal pricing configured. Using base price of $
+                      {car.pricePerDay}/day for all months.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Vehicle Details */}
