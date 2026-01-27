@@ -25,6 +25,7 @@ import {
 import { Car, UpdateCarDto } from "@/types/car.types";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
+import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
 import Swal from "sweetalert2";
 import { getCarById, updateCar } from "@/services/api/carService";
 
@@ -64,17 +65,17 @@ const CarDetails = () => {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]:
         name === "year" ||
-          name === "seats" ||
-          name === "pricePerDay" ||
-          name === "lat" ||
-          name === "lng"
+        name === "seats" ||
+        name === "pricePerDay" ||
+        name === "lat" ||
+        name === "lng"
           ? parseFloat(value) || 0
           : value,
     }));
@@ -238,7 +239,7 @@ const CarDetails = () => {
                     selectedFiles={newImageFiles}
                     onRemoveFile={(index) => {
                       setNewImageFiles((prev) =>
-                        prev.filter((_, i) => i !== index)
+                        prev.filter((_, i) => i !== index),
                       );
                     }}
                     existingImages={formData.imageUrls}
@@ -258,10 +259,11 @@ const CarDetails = () => {
                     <div className="grid grid-cols-4 grid-rows-2 gap-1 h-[300px]">
                       {/* First large image */}
                       <div
-                        className={`bg-cover bg-center cursor-pointer relative group ${car.imageUrls.length === 1
+                        className={`bg-cover bg-center cursor-pointer relative group ${
+                          car.imageUrls.length === 1
                             ? "col-span-4 row-span-2"
                             : "col-span-2 row-span-2"
-                          }`}
+                        }`}
                         style={{
                           backgroundImage: `url(${car.imageUrls[0]})`,
                         }}
@@ -317,16 +319,25 @@ const CarDetails = () => {
                 </select>
               ) : (
                 <span
-                  className={`inline-block px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider ${car.status === "available"
+                  className={`inline-block px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider ${
+                    car.status === "available"
                       ? "bg-emerald-500 text-white"
                       : car.status === "rented"
                         ? "bg-blue-500 text-white"
                         : "bg-amber-500 text-white"
-                    }`}
+                  }`}
                 >
                   {car.status}
                 </span>
               )}
+            </div>
+
+            {/* Availability Calendar */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <AvailabilityCalendar
+                propertyId={parseInt(id!)}
+                propertyType="car"
+              />
             </div>
           </div>
 
@@ -663,7 +674,7 @@ const CarDetails = () => {
                             setFormData((prev) => ({
                               ...prev,
                               features: prev.features.filter(
-                                (_, i) => i !== index
+                                (_, i) => i !== index,
                               ),
                             }))
                           }
@@ -764,7 +775,7 @@ const CarDetails = () => {
                   <MapPicker
                     lat={car.lat}
                     lng={car.lng}
-                    onLocationSelect={() => { }}
+                    onLocationSelect={() => {}}
                     label=""
                     defaultCenter={[car.lat, car.lng]}
                     defaultZoom={15}

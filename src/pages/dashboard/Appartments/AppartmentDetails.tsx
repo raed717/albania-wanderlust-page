@@ -26,6 +26,7 @@ import {
 } from "@/services/api/appartmentService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
+import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
 import Swal from "sweetalert2";
 
 const AppartmentDetails = () => {
@@ -72,7 +73,7 @@ const AppartmentDetails = () => {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
 
@@ -94,7 +95,11 @@ const AppartmentDetails = () => {
 
     setSaving(true);
     try {
-      const updated = await updateAppartment(Number(id), formData, newImageFiles.length > 0 ? newImageFiles : undefined);
+      const updated = await updateAppartment(
+        Number(id),
+        formData,
+        newImageFiles.length > 0 ? newImageFiles : undefined,
+      );
       setAppartment(updated);
       setFormData(updated);
       setNewImageFiles([]);
@@ -217,7 +222,7 @@ const AppartmentDetails = () => {
                     selectedFiles={newImageFiles}
                     onRemoveFile={(index) => {
                       setNewImageFiles((prev) =>
-                        prev.filter((_, i) => i !== index)
+                        prev.filter((_, i) => i !== index),
                       );
                     }}
                     existingImages={formData.imageUrls}
@@ -271,9 +276,7 @@ const AppartmentDetails = () => {
                       )}
                     </div>
                   ) : appartment.imageUrls[0] ? (
-                    <div
-                      className="h-64 bg-cover bg-center"
-                    />
+                    <div className="h-64 bg-cover bg-center" />
                   ) : (
                     <div className="h-64 bg-gray-100 flex items-center justify-center text-gray-400">
                       <div className="text-center">
@@ -304,6 +307,14 @@ const AppartmentDetails = () => {
                   {appartment.status}
                 </span>
               )}
+            </div>
+
+            {/* Availability Calendar */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <AvailabilityCalendar
+                propertyId={Number(id)}
+                propertyType="apartment"
+              />
             </div>
           </div>
 
