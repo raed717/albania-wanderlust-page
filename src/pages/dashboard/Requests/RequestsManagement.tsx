@@ -11,15 +11,15 @@ import {
   FileText,
   Filter,
 } from "lucide-react";
-import { requestService } from "@/services/api/requestService";
+import { roleRequestService } from "@/services/api/roleRequestService";
 import { authService } from "@/services/api/authService";
-import { Request } from "@/types/request.type";
+import { RoleRequest } from "@/types/request.type";
 import Hsidebar from "../../../components/dashboard/hsidebar";
 
 export default function RequestsManagement() {
   const [loading, setLoading] = useState(true);
-  const [requests, setRequests] = useState<Request[]>([]);
-  const [filteredRequests, setFilteredRequests] = useState<Request[]>([]);
+  const [requests, setRequests] = useState<RoleRequest[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<RoleRequest[]>([]);
   const [filter, setFilter] = useState<
     "all" | "pending" | "approved" | "rejected"
   >("pending");
@@ -42,7 +42,7 @@ export default function RequestsManagement() {
       const id = await authService.getCurrentUserId();
       setReviewerId(id);
 
-      const allRequests = await requestService.getAllRequests();
+      const allRequests = await roleRequestService.getAllRequests();
       setRequests(allRequests);
     } catch (err) {
       console.error("Error loading requests:", err);
@@ -63,7 +63,7 @@ export default function RequestsManagement() {
   const handleApprove = async (requestId: string) => {
     if (
       !window.confirm(
-        "Are you sure you want to approve this request? The user will be upgraded to provider status."
+        "Are you sure you want to approve this request? The user will be upgraded to provider status.",
       )
     ) {
       return;
@@ -73,9 +73,9 @@ export default function RequestsManagement() {
       setProcessing(requestId);
       setError(null);
 
-      await requestService.approveRequest(requestId, reviewerId);
+      await roleRequestService.approveRequest(requestId, reviewerId);
       setSuccess(
-        "Request approved successfully! User has been upgraded to provider."
+        "Request approved successfully! User has been upgraded to provider.",
       );
 
       // Refresh requests
@@ -99,7 +99,7 @@ export default function RequestsManagement() {
       setProcessing(requestId);
       setError(null);
 
-      await requestService.rejectRequest(requestId, reviewerId);
+      await roleRequestService.rejectRequest(requestId, reviewerId);
       setSuccess("Request rejected successfully.");
 
       // Refresh requests
@@ -262,7 +262,7 @@ export default function RequestsManagement() {
                             month: "short",
                             day: "numeric",
                             year: "numeric",
-                          }
+                          },
                         )}
                       </div>
                     </div>
@@ -276,7 +276,7 @@ export default function RequestsManagement() {
                             month: "short",
                             day: "numeric",
                             year: "numeric",
-                          }
+                          },
                         )}
                       </div>
                     )}

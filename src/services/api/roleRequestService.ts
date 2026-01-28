@@ -1,11 +1,11 @@
 import { apiClient } from "./apiClient";
-import { Request, CreateRequestDto } from "@/types/request.type";
+import { RoleRequest, CreateRoleRequestDto } from "@/types/request.type";
 
-class RequestService {
+class RoleRequestService {
     /**
      * Create a new provider/admin role request
      */
-    async createRequest(requestData: CreateRequestDto): Promise<Request> {
+    async createRequest(requestData: CreateRoleRequestDto): Promise<RoleRequest> {
         // Check if user already has a pending request
         const existingRequest = await this.getUserPendingRequest(requestData.userId);
         if (existingRequest) {
@@ -13,7 +13,7 @@ class RequestService {
         }
 
         const { data, error } = await apiClient
-            .from("requests")
+            .from("role_requests")
             .insert({
                 user_id: requestData.userId,
                 roleRequested: requestData.roleRequested,
@@ -41,9 +41,9 @@ class RequestService {
     /**
      * Get user's pending request
      */
-    async getUserPendingRequest(userId: string): Promise<Request | null> {
+    async getUserPendingRequest(userId: string): Promise<RoleRequest | null> {
         const { data, error } = await apiClient
-            .from("requests")
+            .from("role_requests")
             .select("*")
             .eq("user_id", userId)
             .eq("status", "pending")
@@ -72,9 +72,9 @@ class RequestService {
     /**
      * Get user's request history
      */
-    async getUserRequests(userId: string): Promise<Request[]> {
+    async getUserRequests(userId: string): Promise<RoleRequest[]> {
         const { data, error } = await apiClient
-            .from("requests")
+            .from("role_requests")
             .select("*")
             .eq("user_id", userId)
             .order("submittedAt", { ascending: false });
@@ -96,9 +96,9 @@ class RequestService {
     /**
      * Get all requests (admin only)
      */
-    async getAllRequests(): Promise<Request[]> {
+    async getAllRequests(): Promise<RoleRequest[]> {
         const { data, error } = await apiClient
-            .from("requests")
+            .from("role_requests")
             .select(`
         *,
         users!requests_user_id_fkey (
@@ -127,9 +127,9 @@ class RequestService {
     /**
      * Get pending requests (admin only)
      */
-    async getPendingRequests(): Promise<Request[]> {
+    async getPendingRequests(): Promise<RoleRequest[]> {
         const { data, error } = await apiClient
-            .from("requests")
+            .from("role_requests")
             .select(`
         *,
         users!requests_user_id_fkey (
@@ -159,10 +159,10 @@ class RequestService {
     /**
      * Approve a request (admin only)
      */
-    async approveRequest(requestId: string, reviewerId: string): Promise<Request> {
+    async approveRequest(requestId: string, reviewerId: string): Promise<RoleRequest> {
         // Get the request first
         const { data: requestData, error: fetchError } = await apiClient
-            .from("requests")
+            .from("role_requests")
             .select("*")
             .eq("id", requestId)
             .single();
@@ -179,7 +179,7 @@ class RequestService {
 
         // Update request status
         const { data, error } = await apiClient
-            .from("requests")
+            .from("role_requests")
             .update({
                 status: "approved",
                 reviewed_at: new Date().toISOString(),
@@ -206,9 +206,9 @@ class RequestService {
     /**
      * Reject a request (admin only)
      */
-    async rejectRequest(requestId: string, reviewerId: string): Promise<Request> {
+    async rejectRequest(requestId: string, reviewerId: string): Promise<RoleRequest> {
         const { data, error } = await apiClient
-            .from("requests")
+            .from("role_requests")
             .update({
                 status: "rejected",
                 reviewed_at: new Date().toISOString(),
@@ -237,7 +237,7 @@ class RequestService {
      */
     async cancelRequest(requestId: string, userId: string): Promise<void> {
         const { error } = await apiClient
-            .from("requests")
+            .from("role_requests")
             .delete()
             .eq("id", requestId)
             .eq("user_id", userId)
@@ -247,4 +247,4 @@ class RequestService {
     }
 }
 
-export const requestService = new RequestService();
+export const roleRequestService = new RoleRequestService();

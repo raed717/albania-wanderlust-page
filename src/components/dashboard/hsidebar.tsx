@@ -55,7 +55,6 @@ const COLORS = {
   disabled: "#6b7280", // muted gray, readable on black
 };
 
-
 // Icon mapping for consistent usage
 const ICONS = {
   dashboard: <LayoutDashboard size={20} />,
@@ -97,6 +96,7 @@ const ROUTES = {
   users: {
     management: "/dashboard/userManagement",
     roles: "/dashboard/requestsManagement",
+    propertyRequests: "/dashboard/propertyRequestsManagement",
   },
   calendar: "/calendar",
   finance: {
@@ -229,8 +229,13 @@ const MENU_ITEMS = {
           roles: ["admin"],
         },
         {
-          label: "Roles & Permissions",
+          label: "Provider Requests",
           route: ROUTES.users.roles,
+          roles: ["admin"],
+        },
+        {
+          label: "Property Requests",
+          route: ROUTES.users.propertyRequests,
           roles: ["admin"],
         },
       ],
@@ -362,7 +367,7 @@ const Hsidebar = ({ children }) => {
       .map((submenu, index) => {
         // Filter submenu items based on role
         const accessibleItems = submenu.items.filter((item) =>
-          hasAccess(item.roles, userRole)
+          hasAccess(item.roles, userRole),
         );
 
         // Only render submenu if it has accessible items
@@ -410,7 +415,9 @@ const Hsidebar = ({ children }) => {
             <div className="flex items-center gap-3">
               <Hotel size={32} style={{ color: COLORS.primary }} />
 
-              <span className="text-xl font-semibold text-white">VisitAlbania</span>
+              <span className="text-xl font-semibold text-white">
+                VisitAlbania
+              </span>
             </div>
           ) : (
             <Hotel size={28} style={{ color: COLORS.primary }} />

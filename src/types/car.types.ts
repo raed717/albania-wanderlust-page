@@ -11,7 +11,7 @@ export interface Car {
   seats: number;
   mileage: number;
   pricePerDay: number; // Base/default price (can be used as fallback)
-  status: "available" | "rented" | "maintenance";
+  status: "available" | "rented" | "maintenance" | "review";
   providerId: string;
   color: string;
   plateNumber: string;
@@ -33,7 +33,7 @@ export interface CreateCarDto {
   seats: number;
   mileage: number;
   pricePerDay: number; // Base/default price
-  status: "available" | "rented" | "maintenance";
+  status: "available" | "rented" | "maintenance" | "review";
   providerId?: string;
   color: string;
   plateNumber: string;
@@ -56,7 +56,7 @@ export interface UpdateCarDto {
   mileage?: number;
   pricePerDay?: number;
   imageUrls?: string[];
-  status?: "available" | "rented" | "maintenance";
+  status?: "available" | "rented" | "maintenance" | "review";
   color?: string;
   plateNumber?: string;
   features?: string[];
@@ -68,7 +68,7 @@ export interface UpdateCarDto {
 
 export interface CarFilters {
   searchTerm?: string;
-  status?: "all" | "available" | "rented" | "maintenance";
+  status?: "all" | "available" | "rented" | "maintenance" | "review";
   type?: "all" | "Sedan" | "SUV" | "Sports";
   transmission?: "all" | "Automatic" | "Manual";
   fuelType?: "all" | "Petrol" | "Diesel" | "Hybrid" | "Electric";

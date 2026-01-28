@@ -35,6 +35,7 @@ import ApartmentBilling from "./pages/home/booking/ApartmentBilling";
 import BookingsManagement from "./pages/dashboard/bookings/BookingsManagement";
 import ProviderRequest from "./pages/home/ProviderRequest";
 import RequestsManagement from "./pages/dashboard/Requests/RequestsManagement";
+import PropertyRequestsManagement from "./pages/dashboard/Requests/PropertyRequestsManagement";
 import Wishlist from "./pages/home/Wishlist";
 
 const queryClient = new QueryClient();
@@ -103,6 +104,10 @@ const App = () => (
               <Route
                 path="/dashboard/requestsManagement"
                 element={<RequestsManagement />}
+              />
+              <Route
+                path="/dashboard/propertyRequestsManagement"
+                element={<PropertyRequestsManagement />}
               />
               <Route
                 path="/dashboard/user-details/:userId"
