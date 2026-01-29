@@ -5,26 +5,31 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-
-    /* Linting */
     "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitAny": false,
     "noFallthroughCasesInSwitch": false,
-
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./apps/web/src/*"],
+      "@albania/shared-types": ["./packages/shared-types/src"],
+      "@albania/api-client": ["./packages/api-client/src"],
+      "@albania/hooks": ["./packages/hooks/src"],
+      "@albania/utils": ["./packages/utils/src"]
     }
   },
-  "include": ["src"]
+  "include": [
+    "apps/web/src",
+    "packages/shared-types/src",
+    "packages/api-client/src",
+    "packages/hooks/src",
+    "packages/utils/src"
+  ]
 }
