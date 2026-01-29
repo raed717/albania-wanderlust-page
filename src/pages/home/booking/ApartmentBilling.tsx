@@ -16,9 +16,7 @@ import { getAppartmentUnavailabilityDates } from "@/services/api/appartmentServi
 import { useNavigate, useParams } from "react-router";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import "react-phone-number-input/style.css";
-import PhoneInput, {
-  isValidPhoneNumber,
-} from "react-phone-number-input";
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { useMutation } from "@tanstack/react-query";
 import { createBooking } from "@/services/api/bookingService";
 import Swal from "sweetalert2";
@@ -97,7 +95,9 @@ export default function ApartmentBilling() {
   useEffect(() => {
     if (!apartment) return;
     if (dateRange?.from && dateRange?.to) {
-      const diffTime = Math.abs(dateRange.to.getTime() - dateRange.from.getTime());
+      const diffTime = Math.abs(
+        dateRange.to.getTime() - dateRange.from.getTime(),
+      );
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       const days = diffDays || 1;
 
@@ -115,6 +115,14 @@ export default function ApartmentBilling() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  // Helper function to format date in local timezone (YYYY-MM-DD)
+  const formatDateLocal = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -144,8 +152,8 @@ export default function ApartmentBilling() {
       propertyId: String(apartment.id),
       providerId: apartment.providerId,
       propertyType: "apartment",
-      startDate: dateRange.from.toISOString().split("T")[0],
-      endDate: dateRange.to.toISOString().split("T")[0],
+      startDate: formatDateLocal(dateRange.from),
+      endDate: formatDateLocal(dateRange.to),
       pickUpLocation: apartment.address || apartment.location || "",
       dropOffLocation: apartment.address || apartment.location || "",
       pickUpTime: formData.checkInTime,
@@ -283,7 +291,9 @@ export default function ApartmentBilling() {
                       onDateRangeChange={setDateRange}
                       placeholder="Select stay dates"
                       minDate={new Date()}
-                      disabledDates={unavailabilityDates.map((date) => new Date(date))}
+                      disabledDates={unavailabilityDates.map(
+                        (date) => new Date(date),
+                      )}
                     />
                   </div>
 
@@ -350,7 +360,9 @@ export default function ApartmentBilling() {
                       {apartment.name}
                     </h3>
                     <p className="text-sm text-slate-600 mb-4">
-                      {apartment.location || apartment.address || "Location not specified"}
+                      {apartment.location ||
+                        apartment.address ||
+                        "Location not specified"}
                     </p>
 
                     <div className="space-y-2 mb-4">
@@ -364,18 +376,21 @@ export default function ApartmentBilling() {
                           <span>{apartment.beds} Beds</span>
                         </div>
                       )}
-                      {apartment.amenities && apartment.amenities.length > 0 && (
-                        <div className="flex gap-2 flex-wrap mt-2">
-                          {apartment.amenities.slice(0, 3).map((amenity, idx) => (
-                            <span
-                              key={idx}
-                              className="text-xs px-2 py-1 bg-slate-100 text-slate-700 rounded-full"
-                            >
-                              {amenity}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                      {apartment.amenities &&
+                        apartment.amenities.length > 0 && (
+                          <div className="flex gap-2 flex-wrap mt-2">
+                            {apartment.amenities
+                              .slice(0, 3)
+                              .map((amenity, idx) => (
+                                <span
+                                  key={idx}
+                                  className="text-xs px-2 py-1 bg-slate-100 text-slate-700 rounded-full"
+                                >
+                                  {amenity}
+                                </span>
+                              ))}
+                          </div>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -390,7 +405,8 @@ export default function ApartmentBilling() {
                   <div className="space-y-3 mb-4">
                     <div className="flex justify-between text-slate-600">
                       <span>
-                        ${apartment.price}/day × {totalDays || 1} {totalDays === 1 ? "day" : "days"}
+                        ${apartment.price}/day × {totalDays || 1}{" "}
+                        {totalDays === 1 ? "day" : "days"}
                       </span>
                       <span className="font-medium">
                         ${totalPrice.toFixed(2)}
@@ -432,7 +448,9 @@ export default function ApartmentBilling() {
                     className="w-full mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30"
                   >
                     <Check className="w-5 h-5" />
-                    {bookingMutation.isPending ? "Processing..." : "Confirm Booking"}
+                    {bookingMutation.isPending
+                      ? "Processing..."
+                      : "Confirm Booking"}
                   </button>
 
                   <p className="text-xs text-slate-500 text-center mt-4">

@@ -198,6 +198,14 @@ export default function CarBilling() {
     });
   };
 
+  // Helper function to format date in local timezone (YYYY-MM-DD)
+  const formatDateLocal = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -225,8 +233,8 @@ export default function CarBilling() {
       propertyId: String(car.id),
       providerId: car.providerId,
       propertyType: "car",
-      startDate: dateRange.from.toISOString().split("T")[0],
-      endDate: dateRange.to.toISOString().split("T")[0],
+      startDate: formatDateLocal(dateRange.from),
+      endDate: formatDateLocal(dateRange.to),
       pickUpLocation: formData.pickUpLocation || car.pickUpLocation,
       dropOffLocation: formData.dropOffLocation || formData.pickUpLocation,
       pickUpTime: formData.pickUpTime,

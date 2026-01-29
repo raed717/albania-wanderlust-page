@@ -379,17 +379,6 @@ export default function PrimarySearchAppBar() {
         }}
       >
         <Toolbar>
-          <Tooltip title="Menu">
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
-          </Tooltip>
           <Typography
             variant="h6"
             noWrap

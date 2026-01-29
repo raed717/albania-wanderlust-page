@@ -5,6 +5,8 @@ import { uploadCarImages } from "./storageService";
 import { getBookingsByPropertyIdAndType } from "./bookingService";
 import { getMonthlyPrices, setMonthlyPrices } from "./monthlyPriceService";
 import { MonthlyPriceInput } from "@/types/price.type";
+import { Logs } from "lucide-react";
+import { start } from "repl";
 
 /**
  * Fetch all cars

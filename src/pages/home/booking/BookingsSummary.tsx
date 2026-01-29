@@ -34,7 +34,12 @@ const getPropertyIcon = (type: Booking["propertyType"]) => {
   }
 };
 
-const formatDate = (d: Date) => d.toLocaleDateString();
+const formatDate = (d: Date) => {
+  const day = d.getDate();
+  const month = d.toLocaleDateString("en-US", { month: "short" });
+  const year = d.getFullYear();
+  return `${day} ${month} ${year}`;
+};
 
 // PayPal Button Component for individual booking
 function PayPalPaymentButton({ booking }: { booking: Booking }) {
@@ -115,7 +120,7 @@ function PayPalPaymentButton({ booking }: { booking: Booking }) {
     console.error("[PayPal] Payment error:", err);
     console.error(
       "[PayPal] Payment error details:",
-      JSON.stringify(err, null, 2)
+      JSON.stringify(err, null, 2),
     );
     toast({
       title: "Payment Error",
@@ -295,7 +300,8 @@ export default function BookingsSummary() {
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <span className="text-sm uppercase tracking-wide text-slate-500 font-semibold">
                             {booking.propertyType}
-                            {booking.propertyData?.name && `, ${booking.propertyData.name}`}
+                            {booking.propertyData?.name &&
+                              `, ${booking.propertyData.name}`}
                           </span>
 
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">
@@ -312,18 +318,21 @@ export default function BookingsSummary() {
 
                           <p className="text-sm text-slate-600 flex items-center gap-2">
                             <MapPin className="w-5 h-5 text-blue-600" />
-                            Pick up: {booking.pickUpLocation} • Drop off: {booking.dropOffLocation}
+                            Pick up: {booking.pickUpLocation} • Drop off:{" "}
+                            {booking.dropOffLocation}
                           </p>
 
                           <p className="text-sm text-slate-600 flex items-center gap-2">
                             <Clock className="w-5 h-5 text-blue-600" />
-                            Pick up: {booking.pickUpTime} • Drop off: {booking.dropOffTime}
+                            Pick up: {booking.pickUpTime} • Drop off:{" "}
+                            {booking.dropOffTime}
                           </p>
                         </div>
 
                         {/* Contact */}
                         <p className="text-xs text-slate-500 mt-2">
-                          Contact: {booking.requesterName} • {booking.contactMail}
+                          Contact: {booking.requesterName} •{" "}
+                          {booking.contactMail}
                         </p>
                       </div>
                     </div>
@@ -334,25 +343,27 @@ export default function BookingsSummary() {
                       </span>
                       <div className="flex items-center gap-2">
                         <span
-                          className={`text-xs px-3 py-1 rounded-full font-semibold capitalize ${booking.status === "confirmed"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : booking.status === "pending"
-                              ? "bg-amber-50 text-amber-700 border border-amber-200"
-                              : booking.status === "canceled"
-                                ? "bg-red-50 text-red-700 border border-red-200"
-                                : "bg-slate-50 text-slate-700 border border-slate-200"
-                            }`}
+                          className={`text-xs px-3 py-1 rounded-full font-semibold capitalize ${
+                            booking.status === "confirmed"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : booking.status === "pending"
+                                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                : booking.status === "canceled"
+                                  ? "bg-red-50 text-red-700 border border-red-200"
+                                  : "bg-slate-50 text-slate-700 border border-slate-200"
+                          }`}
                         >
                           Booking status: {booking.status}
                         </span>
                         {booking.payment_status && (
                           <span
-                            className={`text-xs px-2 py-1 rounded-full font-semibold capitalize ${booking.payment_status === "paid"
-                              ? "bg-green-50 text-green-700 border border-green-200"
-                              : booking.payment_status === "pending"
-                                ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
-                                : "bg-red-50 text-red-700 border border-red-200"
-                              }`}
+                            className={`text-xs px-2 py-1 rounded-full font-semibold capitalize ${
+                              booking.payment_status === "paid"
+                                ? "bg-green-50 text-green-700 border border-green-200"
+                                : booking.payment_status === "pending"
+                                  ? "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                                  : "bg-red-50 text-red-700 border border-red-200"
+                            }`}
                           >
                             Payment status: {booking.payment_status}
                           </span>

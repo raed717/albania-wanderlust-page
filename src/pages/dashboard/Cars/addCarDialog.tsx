@@ -42,14 +42,14 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
     seats: 5,
     mileage: 0,
     pricePerDay: 10,
-    status: "available" as "available" | "rented" | "maintenance",
+    status: "review" as "available" | "rented" | "maintenance" | "review",
     color: "",
     plateNumber: "",
     features: [] as string[],
     imageUrls: [] as string[],
-    pickUpLocation: "",
-    lat: undefined as number | undefined,
-    lng: undefined as number | undefined,
+    pickUpLocation: "Tirana International Airport",
+    lat: 41.4167 as number | undefined,
+    lng: 19.7125 as number | undefined,
   });
 
   const handleChange = (
@@ -155,7 +155,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
         seats: 5,
         mileage: 0,
         pricePerDay: 10,
-        status: "available",
+        status: "review",
         color: "",
         plateNumber: "",
         features: [],
@@ -282,6 +282,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                     id="type"
                     name="type"
                     value={formData.type}
+                    onChange={handleChange}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <option value="Sedan">Sedan</option>
@@ -449,6 +450,144 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                   />
                 </div>
               </div>
+              {/* Features */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Features</Label>
+                <div className="space-y-3">
+                  {/* Suggested Features */}
+                  <div className="space-y-2">
+                    <p className="text-xs text-gray-500">
+                      Click to add common features:
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        "Air Conditioning",
+                        "GPS Navigation",
+                        "Bluetooth",
+                        "USB Charging",
+                        "Backup Camera",
+                        "Cruise Control",
+                        "Heated Seats",
+                        "Leather Seats",
+                        "Sunroof",
+                        "Apple CarPlay",
+                        "Android Auto",
+                        "Parking Sensors",
+                        "Keyless Entry",
+                        "Push Start",
+                        "ABS",
+                        "Airbags",
+                        "Child Seat",
+                        "Roof Rack",
+                        "4WD/AWD",
+                        "Automatic Windows",
+                      ]
+                        .filter(
+                          (feature) => !formData.features.includes(feature),
+                        )
+                        .map((feature) => (
+                          <button
+                            key={feature}
+                            type="button"
+                            onClick={() =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                features: [...prev.features, feature],
+                              }))
+                            }
+                            className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-blue-100 hover:text-blue-700 transition-colors border border-gray-200"
+                          >
+                            + {feature}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+
+                  {/* Selected Features */}
+                  {formData.features.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs text-gray-500">
+                        Selected features:
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {formData.features.map((feature, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
+                          >
+                            <span>{feature}</span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  features: prev.features.filter(
+                                    (_, i) => i !== index,
+                                  ),
+                                }))
+                              }
+                              className="hover:bg-blue-100 rounded-full p-0.5"
+                            >
+                              <svg
+                                className="w-3.5 h-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Custom Feature Input */}
+                  <div className="flex gap-2">
+                    <Input
+                      ref={featureInputRef}
+                      placeholder="Add a custom feature..."
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && e.currentTarget.value.trim()) {
+                          e.preventDefault();
+                          const newFeature = e.currentTarget.value.trim();
+                          setFormData((prev) => ({
+                            ...prev,
+                            features: [...prev.features, newFeature],
+                          }));
+                          e.currentTarget.value = "";
+                        }
+                      }}
+                      className="flex-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const inputValue =
+                          featureInputRef.current?.value.trim();
+                        if (inputValue) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            features: [...prev.features, inputValue],
+                          }));
+                          if (featureInputRef.current) {
+                            featureInputRef.current.value = "";
+                          }
+                        }
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
 
               {/* Monthly Pricing Editor */}
               <div className="border-t pt-6">
@@ -488,86 +627,6 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                   placeholder="Tirana Airport, Albania"
                   className="w-full"
                 />
-              </div>
-
-              {/* Features */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Features</Label>
-                <div className="space-y-3">
-                  <div className="flex flex-wrap gap-2">
-                    {formData.features.map((feature, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
-                      >
-                        <span>{feature}</span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              features: prev.features.filter(
-                                (_, i) => i !== index,
-                              ),
-                            }))
-                          }
-                          className="hover:bg-blue-100 rounded-full p-0.5"
-                        >
-                          <svg
-                            className="w-3.5 h-3.5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <Input
-                      ref={featureInputRef}
-                      placeholder="Add a new feature (e.g., GPS, Air Conditioning)"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && e.currentTarget.value.trim()) {
-                          e.preventDefault();
-                          const newFeature = e.currentTarget.value.trim();
-                          setFormData((prev) => ({
-                            ...prev,
-                            features: [...prev.features, newFeature],
-                          }));
-                          e.currentTarget.value = "";
-                        }
-                      }}
-                      className="flex-1"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const inputValue =
-                          featureInputRef.current?.value.trim();
-                        if (inputValue) {
-                          setFormData((prev) => ({
-                            ...prev,
-                            features: [...prev.features, inputValue],
-                          }));
-                          if (featureInputRef.current) {
-                            featureInputRef.current.value = "";
-                          }
-                        }
-                      }}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
               </div>
 
               {/* Map Picker Component */}

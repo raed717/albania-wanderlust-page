@@ -2,9 +2,11 @@ import { MapContainer, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
 import { getAllHotels } from "@/services/api/hotelService";
 import { getAllCars } from "@/services/api/carService";
 import { getAllAppartments } from "@/services/api/appartmentService";
+import { getAllDestinations } from "@/services/api/destinationService";
 import { Appartment } from "@/types/appartment.type";
 import { Hotel } from "@/types/hotel.types";
 import { Car } from "@/types/car.types";
+import { Destination } from "@/types/destination.types";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useState, useEffect } from "react";
@@ -14,6 +16,7 @@ import carIcon from "@/assets/map/car_icon.png";
 import { HotelPopup } from "./HotelPopup";
 import { ApartmentPopup } from "./ApartmentPopup";
 import { CarPopup } from "./CarPopup";
+import { DestinationPopup } from "./DestinationPopup";
 import { MapFilters } from "./MapFilters";
 
 const HotelIcon = new L.Icon({
@@ -34,6 +37,18 @@ const CarIcon = new L.Icon({
   iconAnchor: [12, 41],
 });
 
+// Destination icon using a colored marker
+const DestinationIcon = new L.Icon({
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
 // Center of Albania (Tirana)
 const ALBANIA_CENTER: [number, number] = [41.3275, 19.8187];
 
@@ -42,9 +57,10 @@ export default function PropertiesMap() {
   const [carsData, setCarsData] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [apartmentsData, setApartmentsData] = useState<Appartment[]>([]);
+  const [destinationsData, setDestinationsData] = useState<Destination[]>([]);
   const [selected, setSelected] = useState<{
-    type: "hotel" | "apartment" | "car";
-    data: Hotel | Appartment | Car;
+    type: "hotel" | "apartment" | "car" | "destination";
+    data: Hotel | Appartment | Car | Destination;
   } | null>(null);
 
   // Filter states
@@ -52,8 +68,14 @@ export default function PropertiesMap() {
     "hotel",
     "apartment",
     "car",
+    "destination",
   ]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([
+    "Adventure",
+    "Historic",
+    "Beach",
+  ]);
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -103,6 +125,22 @@ export default function PropertiesMap() {
     fetchApartments();
   }, []);
 
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        const data = await getAllDestinations();
+        setDestinationsData(data || []);
+      } catch (error) {
+        console.error("Failed to fetch destinations:", error);
+        setDestinationsData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDestinations();
+  }, []);
+
   // Filter data based on selected types and price range
   const filteredHotels = hotelsData.filter(
     (hotel) =>
@@ -125,9 +163,17 @@ export default function PropertiesMap() {
       car.pricePerDay <= priceRange[1],
   );
 
+  const filteredDestinations = destinationsData.filter(
+    (destination) =>
+      selectedTypes.includes("destination") &&
+      (selectedCategories.length === 0 ||
+        selectedCategories.includes(destination.category)),
+  );
+
   const handleResetFilters = () => {
-    setSelectedTypes(["hotel", "apartment", "car"]);
+    setSelectedTypes(["hotel", "apartment", "car", "destination"]);
     setPriceRange([0, 500]);
+    setSelectedCategories(["Adventure", "Historic", "Beach"]);
   };
 
   return (
@@ -138,6 +184,8 @@ export default function PropertiesMap() {
         priceRange={priceRange}
         onPriceRangeChange={setPriceRange}
         onReset={handleResetFilters}
+        selectedCategories={selectedCategories}
+        onCategoriesChange={setSelectedCategories}
       />
       <MapContainer
         center={ALBANIA_CENTER}
@@ -209,6 +257,22 @@ export default function PropertiesMap() {
           </Marker>
         ))}
 
+        {filteredDestinations?.map((destination: Destination) => (
+          <Marker
+            key={`destination-${destination.id}`}
+            position={[destination.lat || 0, destination.lng || 0]}
+            icon={DestinationIcon}
+            eventHandlers={{
+              click: () =>
+                setSelected({ type: "destination", data: destination }),
+            }}
+          >
+            <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent>
+              {destination.category}
+            </Tooltip>
+          </Marker>
+        ))}
+
         {/* Popup */}
         {selected && (
           <Popup position={[selected.data.lat || 0, selected.data.lng || 0]}>
@@ -219,6 +283,9 @@ export default function PropertiesMap() {
               <ApartmentPopup apartment={selected.data as Appartment} />
             )}
             {selected.type === "car" && <CarPopup car={selected.data as Car} />}
+            {selected.type === "destination" && (
+              <DestinationPopup destination={selected.data as Destination} />
+            )}
           </Popup>
         )}
       </MapContainer>
