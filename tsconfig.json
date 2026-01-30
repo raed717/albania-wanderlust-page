@@ -18,19 +18,41 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@albania/shared-types": ["./packages/shared-types/src"],
-      "@albania/api-client": ["./packages/api-client/src"],
-      "@albania/hooks": ["./packages/hooks/src"],
-      "@albania/utils": ["./packages/utils/src"]
+      "@albania/shared-types": [
+        "./packages/shared-types/src"
+      ],
+      "@albania/api-client": [
+        "./packages/api-client/src"
+      ],
+      "@albania/hooks": [
+        "./packages/hooks/src"
+      ],
+      "@albania/utils": [
+        "./packages/utils/src"
+      ]
     }
   },
   "references": [
-    { "path": "./apps/web/tsconfig.json" },
-    { "path": "./packages/shared-types" },
-    { "path": "./packages/api-client" },
-    { "path": "./packages/hooks" },
-    { "path": "./packages/utils" }
+    {
+      "path": "./apps/web/tsconfig.json"
+    },
+    {
+      "path": "./packages/shared-types"
+    },
+    {
+      "path": "./packages/api-client"
+    },
+    {
+      "path": "./packages/hooks"
+    },
+    {
+      "path": "./packages/utils"
+    }
   ],
   "include": [],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "extends": "expo/tsconfig.base"
 }

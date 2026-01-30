@@ -19,7 +19,7 @@ export const getAllCars = async (): Promise<Car[]> => {
     console.error("[Car Service] Error fetching cars:", error);
     throw error;
   }
-  console.log("[Car Service] Successfully fetched cars:", data);
+  console.log("[Car Service] Successfully fetched cars:");
   return data;
 };
 

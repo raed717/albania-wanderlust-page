@@ -18,7 +18,7 @@ export const getAllDestinations = async (): Promise<Destination[]> => {
     console.error("[Destination Service] Error fetching destinations:", error);
     throw error;
   }
-  console.log("[Destination Service] Successfully fetched destinations:", data);
+  //console.log("[Destination Service] Successfully fetched destinations:", data);
   return data;
 };
 
