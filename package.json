@@ -5,13 +5,13 @@
   "type": "module",
   "packageManager": "npm@10.0.0",
   "workspaces": [
-    "apps/*",
+    "apps/web",
     "packages/*"
   ],
   "scripts": {
     "dev": "npm run dev --workspace=@albania/web",
     "dev:web": "npm run dev --workspace=@albania/web",
-    "dev:mobile": "npm run start --workspace=@albania/mobile",
+    "dev:mobile": "cd apps/mobile/BookinAl && npm run start",
     "build": "npm run build --workspace=@albania/web",
     "build:web": "npm run build --workspace=@albania/web",
     "lint": "npm run lint --workspaces --if-present",

@@ -1,1 +1,0 @@
-export { CarCard } from "./CarCard";

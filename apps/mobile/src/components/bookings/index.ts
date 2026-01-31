@@ -1,1 +1,0 @@
-export { BookingCard } from "./BookingCard";
