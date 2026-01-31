@@ -26,9 +26,6 @@ export const getMonthlyPrices = async (
   propertyId: number,
   propertyType: PropertyType,
 ): Promise<MonthlyPrice[]> => {
-  console.log(
-    `[Monthly Price Service] Fetching prices for ${propertyType} ID: ${propertyId}`,
-  );
 
   const { data, error } = await apiClient
     .from("monthly_prices")
@@ -45,10 +42,6 @@ export const getMonthlyPrices = async (
     throw error;
   }
 
-  console.log(
-    "[Monthly Price Service] Successfully fetched monthly prices:",
-    data,
-  );
   return (data || []).map(mapDbToMonthlyPrice);
 };
 
@@ -91,9 +84,6 @@ export const setMonthlyPrices = async (
   propertyType: PropertyType,
   prices: MonthlyPriceInput[],
 ): Promise<MonthlyPrice[]> => {
-  console.log(
-    `[Monthly Price Service] Setting prices for ${propertyType} ID: ${propertyId}`,
-  );
 
   // Prepare data for upsert
   const records = prices.map((price) => ({
@@ -119,7 +109,6 @@ export const setMonthlyPrices = async (
     throw error;
   }
 
-  console.log("[Monthly Price Service] Successfully set monthly prices:", data);
   return (data || []).map(mapDbToMonthlyPrice);
 };
 
@@ -130,9 +119,6 @@ export const deleteMonthlyPrices = async (
   propertyId: number,
   propertyType: PropertyType,
 ): Promise<void> => {
-  console.log(
-    `[Monthly Price Service] Deleting prices for ${propertyType} ID: ${propertyId}`,
-  );
 
   const { error } = await apiClient
     .from("monthly_prices")
@@ -147,8 +133,6 @@ export const deleteMonthlyPrices = async (
     );
     throw error;
   }
-
-  console.log("[Monthly Price Service] Successfully deleted monthly prices");
 };
 
 /**

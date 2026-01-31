@@ -6,21 +6,94 @@ import {
   UpdateHotelDto,
   HotelFilters,
 } from "@albania/shared-types";
-import {
-  uploadHotelImages,
-  deleteHotelImages,
-} from "./storageService";
+import { uploadHotelImages, deleteHotelImages } from "./storageService";
+
+// In-memory cache for hotels with TTL
+let hotelsCache: { data: Hotel[]; timestamp: number } | null = null;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_KEY = "hotels_cache";
 
 /**
- * Fetch all hotels
+ * Load cache from localStorage
+ */
+const loadCacheFromStorage = (): {
+  data: Hotel[];
+  timestamp: number;
+} | null => {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      // Validate cache hasn't expired
+      if (Date.now() - parsed.timestamp < CACHE_TTL) {
+        console.log("[Hotel Service] Loaded cache from localStorage");
+        return parsed;
+      } else {
+        console.log("[Hotel Service] localStorage cache expired, clearing");
+        localStorage.removeItem(CACHE_KEY);
+      }
+    }
+  } catch (err) {
+    console.warn("[Hotel Service] Error loading cache from localStorage:", err);
+  }
+  return null;
+};
+
+/**
+ * Save cache to localStorage
+ */
+const saveCacheToStorage = (data: Hotel[], timestamp: number): void => {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp }));
+  } catch (err) {
+    console.warn("[Hotel Service] Error saving cache to localStorage:", err);
+  }
+};
+
+/**
+ * Invalidate the hotels cache (call after creating, updating, or deleting hotels)
+ */
+export const invalidateHotelsCache = (): void => {
+  console.log("[Hotel Service] 🗑️ Invalidating hotels cache");
+  hotelsCache = null;
+  try {
+    localStorage.removeItem(CACHE_KEY);
+  } catch (err) {
+    console.warn("[Hotel Service] Error clearing localStorage cache:", err);
+  }
+};
+
+/**
+ * Fetch all hotels (with persistent caching using localStorage)
  */
 export const getAllHotels = async (): Promise<Hotel[]> => {
-  //console.log("[Hotel Service] Fetching all hotels...");
+  // Try loading from memory cache first
+  if (!hotelsCache) {
+    hotelsCache = loadCacheFromStorage();
+  }
+
+  // Check if cache is valid
+  if (hotelsCache && Date.now() - hotelsCache.timestamp < CACHE_TTL) {
+    console.log(
+      "[Hotel Service] 🎯 Returning cached hotels data (age: " +
+        Math.round((Date.now() - hotelsCache.timestamp) / 1000) +
+        "s)",
+    );
+    return hotelsCache.data;
+  }
+
+  console.log("[Hotel Service] 🔄 Fetching all hotels from database...");
   const { data, error } = await apiClient.from("hotel").select("*");
   if (error) {
     console.error("[Hotel Service] Error fetching hotels:", error);
     throw error;
   }
+
+  // Update cache
+  const timestamp = Date.now();
+  hotelsCache = { data: data || [], timestamp };
+  saveCacheToStorage(data || [], timestamp);
+  console.log("[Hotel Service] ✅ Successfully fetched and cached hotels");
   return data || [];
 };
 
@@ -117,6 +190,10 @@ export const createHotel = async (
   }
 
   console.log("[Hotel Service] Successfully created hotel:", newHotel);
+
+  // Invalidate cache after creating hotel
+  invalidateHotelsCache();
+
   return newHotel;
 };
 
@@ -181,6 +258,10 @@ export const updateHotel = async (
   }
 
   console.log("[Hotel Service] Successfully updated hotel:", updatedHotel[0]);
+
+  // Invalidate cache after updating hotel
+  invalidateHotelsCache();
+
   return updatedHotel[0];
 };
 
@@ -198,6 +279,9 @@ export const deleteHotel = async (id: number): Promise<void> => {
   }
 
   console.log(`[Hotel Service] Successfully deleted hotel ID: ${id}`);
+
+  // Invalidate cache after deleting hotel
+  invalidateHotelsCache();
 };
 
 /**

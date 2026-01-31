@@ -38,7 +38,22 @@ import RequestsManagement from "./pages/dashboard/Requests/RequestsManagement";
 import PropertyRequestsManagement from "./pages/dashboard/Requests/PropertyRequestsManagement";
 import Wishlist from "./pages/home/Wishlist";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Cache data for 5 minutes by default
+      staleTime: 5 * 60 * 1000,
+      // Keep unused data in cache for 10 minutes
+      gcTime: 10 * 60 * 1000,
+      // Retry failed requests
+      retry: 1,
+      // Don't refetch on window focus by default (can override per query)
+      refetchOnWindowFocus: false,
+      // Don't refetch on reconnect by default
+      refetchOnReconnect: false,
+    },
+  },
+});
 
 // PayPal Client ID - use sandbox for development, production for live
 const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID || "";

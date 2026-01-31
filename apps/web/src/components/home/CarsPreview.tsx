@@ -30,6 +30,12 @@ const CarsPreview = () => {
   const { data: cars = [], isLoading } = useQuery({
     queryKey: ["cars"],
     queryFn: getAllCars,
+    // Cache cars data for 10 minutes before refetching
+    staleTime: 10 * 60 * 1000,
+    // Keep data in cache for 15 minutes even when unused
+    gcTime: 15 * 60 * 1000,
+    // Refetch when window regains focus for fresh car availability
+    refetchOnWindowFocus: true,
   });
 
   const availableTopCars = useMemo(() => {

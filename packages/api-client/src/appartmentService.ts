@@ -6,15 +6,102 @@ import {
   AppartmentFilters,
 } from "@albania/shared-types";
 import { uploadImages } from "./storageService";
-import { authService } from "./authService"; 
+import { authService } from "./authService";
 import { getBookingsByPropertyIdAndType } from "./bookingService";
 
+// In-memory cache for apartments with TTL
+let apartmentsCache: { data: Appartment[]; timestamp: number } | null = null;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_KEY = "apartments_cache";
+
 /**
- * fetch all appatments
+ * Load cache from localStorage
+ */
+const loadCacheFromStorage = (): {
+  data: Appartment[];
+  timestamp: number;
+} | null => {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      // Validate cache hasn't expired
+      if (Date.now() - parsed.timestamp < CACHE_TTL) {
+        console.log("[Apartment Service] Loaded cache from localStorage");
+        return parsed;
+      } else {
+        console.log("[Apartment Service] localStorage cache expired, clearing");
+        localStorage.removeItem(CACHE_KEY);
+      }
+    }
+  } catch (err) {
+    console.warn(
+      "[Apartment Service] Error loading cache from localStorage:",
+      err,
+    );
+  }
+  return null;
+};
+
+/**
+ * Save cache to localStorage
+ */
+const saveCacheToStorage = (data: Appartment[], timestamp: number): void => {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp }));
+  } catch (err) {
+    console.warn(
+      "[Apartment Service] Error saving cache to localStorage:",
+      err,
+    );
+  }
+};
+
+/**
+ * Invalidate the apartments cache (call after creating, updating, or deleting apartments)
+ */
+export const invalidateApartmentsCache = (): void => {
+  console.log("[Apartment Service] 🗑️ Invalidating apartments cache");
+  apartmentsCache = null;
+  try {
+    localStorage.removeItem(CACHE_KEY);
+  } catch (err) {
+    console.warn("[Apartment Service] Error clearing localStorage cache:", err);
+  }
+};
+
+/**
+ * Fetch all apartments (with persistent caching using localStorage)
  */
 export const getAllAppartments = async (): Promise<Appartment[]> => {
+  // Try loading from memory cache first
+  if (!apartmentsCache) {
+    apartmentsCache = loadCacheFromStorage();
+  }
+
+  // Check if cache is valid
+  if (apartmentsCache && Date.now() - apartmentsCache.timestamp < CACHE_TTL) {
+    console.log(
+      "[Apartment Service] 🎯 Returning cached apartments data (age: " +
+        Math.round((Date.now() - apartmentsCache.timestamp) / 1000) +
+        "s)",
+    );
+    return apartmentsCache.data;
+  }
+
+  console.log(
+    "[Apartment Service] 🔄 Fetching all apartments from database...",
+  );
   const { data, error } = await apiClient.from("appartment").select("*");
   if (error) throw error;
+
+  // Update cache
+  const timestamp = Date.now();
+  apartmentsCache = { data: data || [], timestamp };
+  saveCacheToStorage(data || [], timestamp);
+  console.log(
+    "[Apartment Service] ✅ Successfully fetched and cached apartments",
+  );
   return data || [];
 };
 
@@ -129,6 +216,10 @@ export const createAppartment = async (
     "[Apartment Service] Successfully created apartment:",
     newAppartment,
   );
+
+  // Invalidate cache after creating apartment
+  invalidateApartmentsCache();
+
   return newAppartment;
 };
 
@@ -189,6 +280,10 @@ export const updateAppartment = async (
   }
 
   console.log("[Apartment Service] Successfully updated apartment:", data);
+
+  // Invalidate cache after updating apartment
+  invalidateApartmentsCache();
+
   return data;
 };
 
@@ -198,6 +293,9 @@ export const updateAppartment = async (
 export const deleteAppartment = async (id: number): Promise<void> => {
   const { error } = await apiClient.from("appartment").delete().eq("id", id);
   if (error) throw error;
+
+  // Invalidate cache after deleting apartment
+  invalidateApartmentsCache();
 };
 
 /*
