@@ -31,3 +31,4 @@ vite.config.*.mjs
 *.sw?
 
 .env
+.env.production
