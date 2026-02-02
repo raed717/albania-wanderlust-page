@@ -30,17 +30,38 @@ export interface CapturePayPalOrderResponse {
   message?: string;
 }
 
+// Stripe interfaces
+export interface CreateStripePaymentIntentRequest {
+  bookingId: string;
+}
+
+export interface CreateStripePaymentIntentResponse {
+  clientSecret: string;
+  paymentIntentId: string;
+}
+
+export interface ConfirmStripePaymentRequest {
+  paymentIntentId: string;
+  bookingId: string;
+}
+
+export interface ConfirmStripePaymentResponse {
+  success: boolean;
+  message?: string;
+  status?: string;
+}
+
 /**
  * Create a Stripe Checkout Session for a booking
  */
 export const createCheckoutSession = async (
-  payload: CreateCheckoutSessionRequest
+  payload: CreateCheckoutSessionRequest,
 ): Promise<CreateCheckoutSessionResponse> => {
   const { data, error } = await apiClient.functions.invoke(
     "create-checkout-session",
     {
       body: payload,
-    }
+    },
   );
 
   if (error) {
@@ -56,7 +77,7 @@ export const createCheckoutSession = async (
  * Server-side validation ensures price integrity and booking ownership
  */
 export const createPayPalOrder = async (
-  payload: CreatePayPalOrderRequest
+  payload: CreatePayPalOrderRequest,
 ): Promise<CreatePayPalOrderResponse> => {
   const {
     data: { session },
@@ -73,7 +94,7 @@ export const createPayPalOrder = async (
       headers: {
         Authorization: `Bearer ${session.access_token}`,
       },
-    }
+    },
   );
 
   if (error) {
@@ -85,10 +106,10 @@ export const createPayPalOrder = async (
   if (data?.error) {
     console.error(
       "[Payment Service] PayPal order creation failed:",
-      data.error
+      data.error,
     );
     throw new Error(
-      data.error || data.message || "Failed to create PayPal order"
+      data.error || data.message || "Failed to create PayPal order",
     );
   }
 
@@ -100,7 +121,7 @@ export const createPayPalOrder = async (
  * Server-side validation ensures payment integrity
  */
 export const capturePayPalOrder = async (
-  payload: CapturePayPalOrderRequest
+  payload: CapturePayPalOrderRequest,
 ): Promise<CapturePayPalOrderResponse> => {
   const {
     data: { session },
@@ -117,7 +138,7 @@ export const capturePayPalOrder = async (
       headers: {
         Authorization: `Bearer ${session.access_token}`,
       },
-    }
+    },
   );
 
   if (error) {
@@ -129,17 +150,99 @@ export const capturePayPalOrder = async (
   if (data?.error) {
     console.error("[Payment Service] PayPal order capture failed:", data.error);
     throw new Error(
-      data.error || data.message || "Failed to capture PayPal order"
+      data.error || data.message || "Failed to capture PayPal order",
     );
   }
 
   return data as CapturePayPalOrderResponse;
 };
 
+/**
+ * Create a Stripe PaymentIntent for a booking
+ * Returns a client secret for use with Stripe Elements
+ */
+export const createStripePaymentIntent = async (
+  payload: CreateStripePaymentIntentRequest,
+): Promise<CreateStripePaymentIntentResponse> => {
+  const {
+    data: { session },
+  } = await apiClient.auth.getSession();
+
+  if (!session) {
+    throw new Error("User not authenticated");
+  }
+
+  const { data, error } = await apiClient.functions.invoke(
+    "create-stripe-payment-intent",
+    {
+      body: payload,
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    },
+  );
+
+  if (error) {
+    console.error(
+      "[Payment Service] Error creating Stripe PaymentIntent:",
+      error,
+    );
+    throw error;
+  }
+
+  // Check if response contains an error field
+  if (data?.error) {
+    console.error(
+      "[Payment Service] Stripe PaymentIntent creation failed:",
+      data.error,
+    );
+    throw new Error(
+      data.error || data.message || "Failed to create Stripe PaymentIntent",
+    );
+  }
+
+  return data as CreateStripePaymentIntentResponse;
+};
+
+/**
+ * Confirm a Stripe payment after user completes payment
+ * This is a fallback for when webhooks are delayed
+ */
+export const confirmStripePayment = async (
+  payload: ConfirmStripePaymentRequest,
+): Promise<ConfirmStripePaymentResponse> => {
+  const {
+    data: { session },
+  } = await apiClient.auth.getSession();
+
+  if (!session) {
+    throw new Error("User not authenticated");
+  }
+
+  const { data, error } = await apiClient.functions.invoke(
+    "confirm-stripe-payment",
+    {
+      body: payload,
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    },
+  );
+
+  if (error) {
+    console.error("[Payment Service] Error confirming Stripe payment:", error);
+    throw error;
+  }
+
+  return data as ConfirmStripePaymentResponse;
+};
+
 const paymentService = {
   createCheckoutSession,
   createPayPalOrder,
   capturePayPalOrder,
+  createStripePaymentIntent,
+  confirmStripePayment,
 };
 
 export default paymentService;

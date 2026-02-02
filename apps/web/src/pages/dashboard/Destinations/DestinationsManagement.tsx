@@ -220,7 +220,7 @@ export default function DestinationsManagement() {
 
     setSaving(true);
     try {
-      let imageUrls = formData.imageUrls;
+      let {imageUrls} = formData;
 
       // Upload new images if any
       if (selectedImageFiles.length > 0) {

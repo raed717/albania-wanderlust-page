@@ -21,6 +21,7 @@ import { useNavigate } from "react-router";
 import { updateBookingStatus } from "@/services/api/bookingService";
 import Swal from "sweetalert2";
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
+import StripePaymentButton from "@/components/payments/StripePaymentButton";
 
 const getPropertyIcon = (type: Booking["propertyType"]) => {
   switch (type) {
@@ -378,7 +379,13 @@ export default function BookingsSummary() {
                                 <CreditCard className="w-3 h-3" />
                                 <span>Payment Required</span>
                               </div>
-                              <PayPalPaymentButton booking={booking} />
+                              <div className="flex flex-col items-end gap-2">
+                                <StripePaymentButton booking={booking} />
+                                <div className="text-xs text-slate-400 my-1">
+                                  or
+                                </div>
+                                <PayPalPaymentButton booking={booking} />
+                              </div>
                               <Button
                                 onClick={() =>
                                   handlePendingBookingCancel(booking)
@@ -451,7 +458,13 @@ export default function BookingsSummary() {
                                 <AlertCircle className="w-3 h-3" />
                                 <span>Payment Failed</span>
                               </div>
-                              <PayPalPaymentButton booking={booking} />
+                              <div className="flex flex-col items-end gap-2">
+                                <StripePaymentButton booking={booking} />
+                                <div className="text-xs text-slate-400 my-1">
+                                  or
+                                </div>
+                                <PayPalPaymentButton booking={booking} />
+                              </div>
                               <Button
                                 onClick={() =>
                                   handlePendingBookingCancel(booking)
