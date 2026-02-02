@@ -268,3 +268,6 @@ npm install <package-name> --workspace=@albania/web
 ## 📞 Support
 
 For issues or questions, please open an issue on the GitHub repository.
+
+
+cd c:\Users\wolow\Desktop\Albania\FE-albania\packages\api-client ; npx tsc --build

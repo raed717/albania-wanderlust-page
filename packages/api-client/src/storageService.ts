@@ -6,7 +6,7 @@ import { apiClient } from "./apiClient";
  */
 
 // Supported entity types for storage organization
-export type StorageEntityType = "hotel" | "apartment" | "car";
+export type StorageEntityType = "hotel" | "apartment" | "car" | "destination";
 
 const BUCKET_NAME = "hotel-images"; // Main bucket for all property images
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -28,12 +28,12 @@ export interface UploadResult {
 export const uploadImage = async (
   file: File,
   entityType: StorageEntityType,
-  entityId?: string | number
+  entityId?: string | number,
 ): Promise<UploadResult> => {
   // Validate file type
   if (!ALLOWED_TYPES.includes(file.type)) {
     throw new Error(
-      `Invalid file type. Allowed types: ${ALLOWED_TYPES.join(", ")}`
+      `Invalid file type. Allowed types: ${ALLOWED_TYPES.join(", ")}`,
     );
   }
 
@@ -51,7 +51,9 @@ export const uploadImage = async (
       .replace(/[^\w\-\.]/g, "");
 
     // Create folder structure: {entityType}-{entityId}/{timestamp}-{fileName}
-    const folderPath = entityId ? `${entityType}-${entityId}` : `${entityType}-temp`;
+    const folderPath = entityId
+      ? `${entityType}-${entityId}`
+      : `${entityType}-temp`;
     const filePath = `${folderPath}/${timestamp}-${randomString}-${sanitizedFileName}`;
 
     console.log("[Storage Service] Uploading file:", filePath);
@@ -78,15 +80,15 @@ export const uploadImage = async (
       // Provide helpful error messages
       if ((error as any).status === 400) {
         throw new Error(
-          `Bad Request: The storage bucket may not exist or RLS policies are not configured. Make sure '${BUCKET_NAME}' bucket exists and has proper RLS policies. Details: ${error.message}`
+          `Bad Request: The storage bucket may not exist or RLS policies are not configured. Make sure '${BUCKET_NAME}' bucket exists and has proper RLS policies. Details: ${error.message}`,
         );
       } else if ((error as any).status === 403) {
         throw new Error(
-          `Access Denied: RLS policies are blocking the upload. Verify bucket permissions. Details: ${error.message}`
+          `Access Denied: RLS policies are blocking the upload. Verify bucket permissions. Details: ${error.message}`,
         );
       } else if ((error as any).status === 404) {
         throw new Error(
-          `Storage bucket '${BUCKET_NAME}' not found. Please create it in Supabase Dashboard > Storage. Details: ${error.message}`
+          `Storage bucket '${BUCKET_NAME}' not found. Please create it in Supabase Dashboard > Storage. Details: ${error.message}`,
         );
       }
 
@@ -126,10 +128,12 @@ export const uploadImage = async (
 export const uploadImages = async (
   files: File[],
   entityType: StorageEntityType,
-  entityId?: string | number
+  entityId?: string | number,
 ): Promise<UploadResult[]> => {
   try {
-    const uploadPromises = files.map((file) => uploadImage(file, entityType, entityId));
+    const uploadPromises = files.map((file) =>
+      uploadImage(file, entityType, entityId),
+    );
     const results = await Promise.all(uploadPromises);
     console.log("[Storage Service] Batch upload completed:", results.length);
     return results;
@@ -210,7 +214,7 @@ export const getPublicUrl = (filePath: string): string => {
  */
 export const uploadHotelImage = async (
   file: File,
-  hotelId?: string | number
+  hotelId?: string | number,
 ): Promise<UploadResult> => {
   return uploadImage(file, "hotel", hotelId);
 };
@@ -221,7 +225,7 @@ export const uploadHotelImage = async (
  */
 export const uploadHotelImages = async (
   files: File[],
-  hotelId?: string | number
+  hotelId?: string | number,
 ): Promise<UploadResult[]> => {
   return uploadImages(files, "hotel", hotelId);
 };
@@ -251,7 +255,7 @@ export const deleteHotelImages = async (filePaths: string[]): Promise<void> => {
  */
 export const uploadCarImage = async (
   file: File,
-  carId?: string | number
+  carId?: string | number,
 ): Promise<UploadResult> => {
   return uploadImage(file, "car", carId);
 };
@@ -261,7 +265,7 @@ export const uploadCarImage = async (
  */
 export const uploadCarImages = async (
   files: File[],
-  carId?: string | number
+  carId?: string | number,
 ): Promise<UploadResult[]> => {
   return uploadImages(files, "car", carId);
 };

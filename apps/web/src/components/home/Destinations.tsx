@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, ArrowRight, Loader2 } from "lucide-react";
@@ -9,6 +10,7 @@ import { Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Destinations = () => {
+  const navigate = useNavigate();
   const sectionRef = useRef(null);
   const headingRef = useRef(null);
   const subtitleRef = useRef(null);
@@ -368,6 +370,7 @@ const Destinations = () => {
                     <Button
                       variant="outline"
                       className="flex-1 border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:border-primary font-semibold"
+                      onClick={() => navigate(`/destination/${destination.id}`)}
                     >
                       <span>Learn More</span>
                       <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-300" />

@@ -8,6 +8,16 @@ export default defineConfig(({ mode }) => {
   // Load env from monorepo root directory
   const env = loadEnv(mode, path.resolve(__dirname, "../.."), "");
 
+  // Helper to get package path - use dist in production, src in development
+  const getPackagePath = (packageName: string) => {
+    const isProduction = mode === "production";
+    const basePath = `../../packages/${packageName}`;
+    return path.resolve(
+      __dirname,
+      isProduction ? `${basePath}/dist` : `${basePath}/src`,
+    );
+  };
+
   return {
     server: {
       host: "::",
@@ -24,14 +34,11 @@ export default defineConfig(({ mode }) => {
       alias: [
         {
           find: "@/services/api",
-          replacement: path.resolve(__dirname, "../../packages/api-client/src"),
+          replacement: getPackagePath("api-client"),
         },
         {
           find: "@/types",
-          replacement: path.resolve(
-            __dirname,
-            "../../packages/shared-types/src",
-          ),
+          replacement: getPackagePath("shared-types"),
         },
         {
           find: "@",
@@ -39,22 +46,19 @@ export default defineConfig(({ mode }) => {
         },
         {
           find: "@albania/shared-types",
-          replacement: path.resolve(
-            __dirname,
-            "../../packages/shared-types/src",
-          ),
+          replacement: getPackagePath("shared-types"),
         },
         {
           find: "@albania/api-client",
-          replacement: path.resolve(__dirname, "../../packages/api-client/src"),
+          replacement: getPackagePath("api-client"),
         },
         {
           find: "@albania/hooks",
-          replacement: path.resolve(__dirname, "../../packages/hooks/src"),
+          replacement: getPackagePath("hooks"),
         },
         {
           find: "@albania/utils",
-          replacement: path.resolve(__dirname, "../../packages/utils/src"),
+          replacement: getPackagePath("utils"),
         },
       ],
     },

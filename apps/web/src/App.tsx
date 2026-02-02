@@ -10,6 +10,7 @@ import OAuthSignInPage from "./pages/home/Auth";
 import NotFound from "./pages/NotFound";
 import Footer from "./components/home/Footer";
 import CultureDetails from "./pages/home/CultureDetails";
+import DestinationDetails from "./pages/home/DestinationDetails";
 import PropertiesMapPage from "./pages/home/PropertiesMapPage";
 import Dashboard from "./pages/dashboard/dashboard";
 import AllHotels from "./pages/dashboard/Hotels/all-hotels";
@@ -37,6 +38,7 @@ import ProviderRequest from "./pages/home/ProviderRequest";
 import RequestsManagement from "./pages/dashboard/Requests/RequestsManagement";
 import PropertyRequestsManagement from "./pages/dashboard/Requests/PropertyRequestsManagement";
 import Wishlist from "./pages/home/Wishlist";
+import DestinationsManagement from "./pages/dashboard/Destinations/DestinationsManagement";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,6 +79,7 @@ const App = () => (
             <Route path="/auth" element={<OAuthSignInPage />} />
             <Route path="/myAccount" element={<MyAccount />} />
             <Route path="/CultureDetails" element={<CultureDetails />} />
+            <Route path="/destination/:id" element={<DestinationDetails />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/properties-map" element={<PropertiesMapPage />} />
             <Route path="/searchResults" element={<SearchPropertyResults />} />
@@ -131,6 +134,10 @@ const App = () => (
               <Route
                 path="/dashboard/bookings"
                 element={<BookingsManagement />}
+              />
+              <Route
+                path="/dashboard/destinations"
+                element={<DestinationsManagement />}
               />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

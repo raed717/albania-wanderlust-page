@@ -18,7 +18,10 @@ const PropertiesMapPage = () => {
         </div>
 
         {/* Map Container */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden p-4">
+        <div
+          className="bg-white rounded-2xl shadow-xl overflow-hidden"
+          style={{ height: "700px" }}
+        >
           <PropertiesMap />
         </div>
 

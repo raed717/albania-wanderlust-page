@@ -112,6 +112,9 @@ const ROUTES = {
   bookings: {
     list: "/dashboard/bookings",
   },
+  destinations: {
+    management: "/dashboard/destinations",
+  },
   reviews: "/reviews",
   inventory: "/inventory",
   notifications: "/notifications",
@@ -215,6 +218,18 @@ const MENU_ITEMS = {
           label: "All Bookings",
           route: ROUTES.bookings.list,
           roles: ["admin", "provider"],
+        },
+      ],
+    },
+    {
+      label: "Destinations",
+      icon: ICONS.settings,
+      roles: ["admin"],
+      items: [
+        {
+          label: "Destinations Management",
+          route: ROUTES.destinations.management,
+          roles: ["admin"],
         },
       ],
     },

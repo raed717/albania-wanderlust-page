@@ -1,21 +1,17 @@
 import { MapContainer, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
 import { getAllHotels } from "@/services/api/hotelService";
-import { getAllCars } from "@/services/api/carService";
 import { getAllAppartments } from "@/services/api/appartmentService";
 import { getAllDestinations } from "@/services/api/destinationService";
 import { Appartment } from "@/types/appartment.type";
 import { Hotel } from "@/types/hotel.types";
-import { Car } from "@/types/car.types";
 import { Destination } from "@/types/destination.types";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useState, useEffect } from "react";
 import hotelIcon from "@/assets/map/hotel_icon.png";
 import apartmentIcon from "@/assets/map/home.png";
-import carIcon from "@/assets/map/car_icon.png";
 import { HotelPopup } from "./HotelPopup";
 import { ApartmentPopup } from "./ApartmentPopup";
-import { CarPopup } from "./CarPopup";
 import { DestinationPopup } from "./DestinationPopup";
 import { MapFilters } from "./MapFilters";
 
@@ -27,12 +23,6 @@ const HotelIcon = new L.Icon({
 
 const ApartmentIcon = new L.Icon({
   iconUrl: apartmentIcon,
-  iconSize: [30, 30],
-  iconAnchor: [12, 41],
-});
-
-const CarIcon = new L.Icon({
-  iconUrl: carIcon,
   iconSize: [30, 30],
   iconAnchor: [12, 41],
 });
@@ -54,20 +44,18 @@ const ALBANIA_CENTER: [number, number] = [41.3275, 19.8187];
 
 export default function PropertiesMap() {
   const [hotelsData, setHotelsData] = useState<Hotel[]>([]);
-  const [carsData, setCarsData] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [apartmentsData, setApartmentsData] = useState<Appartment[]>([]);
   const [destinationsData, setDestinationsData] = useState<Destination[]>([]);
   const [selected, setSelected] = useState<{
-    type: "hotel" | "apartment" | "car" | "destination";
-    data: Hotel | Appartment | Car | Destination;
+    type: "hotel" | "apartment" | "destination";
+    data: Hotel | Appartment | Destination;
   } | null>(null);
 
   // Filter states
   const [selectedTypes, setSelectedTypes] = useState<string[]>([
     "hotel",
     "apartment",
-    "car",
     "destination",
   ]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
@@ -91,22 +79,6 @@ export default function PropertiesMap() {
     };
 
     fetchHotels();
-  }, []);
-
-  useEffect(() => {
-    const fetchCars = async () => {
-      try {
-        const data = await getAllCars();
-        setCarsData(data || []);
-      } catch (error) {
-        console.error("Failed to fetch cars:", error);
-        setCarsData([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCars();
   }, []);
 
   useEffect(() => {
@@ -156,13 +128,6 @@ export default function PropertiesMap() {
       apartment.price <= priceRange[1],
   );
 
-  const filteredCars = carsData.filter(
-    (car) =>
-      selectedTypes.includes("car") &&
-      car.pricePerDay >= priceRange[0] &&
-      car.pricePerDay <= priceRange[1],
-  );
-
   const filteredDestinations = destinationsData.filter(
     (destination) =>
       selectedTypes.includes("destination") &&
@@ -171,28 +136,34 @@ export default function PropertiesMap() {
   );
 
   const handleResetFilters = () => {
-    setSelectedTypes(["hotel", "apartment", "car", "destination"]);
+    setSelectedTypes(["hotel", "apartment", "destination"]);
     setPriceRange([0, 500]);
     setSelectedCategories(["Adventure", "Historic", "Beach"]);
   };
 
   return (
-    <div className="w-full h-full">
-      <MapFilters
-        selectedTypes={selectedTypes}
-        onTypesChange={setSelectedTypes}
-        priceRange={priceRange}
-        onPriceRangeChange={setPriceRange}
-        onReset={handleResetFilters}
-        selectedCategories={selectedCategories}
-        onCategoriesChange={setSelectedCategories}
-      />
-      <MapContainer
-        center={ALBANIA_CENTER}
-        zoom={8}
-        className="w-full h-[600px] rounded-xl shadow-lg"
-        attributionControl={false}
-      >
+    <div className="w-full h-full flex">
+      {/* Sidebar Filters */}
+      <div className="w-80 bg-white shadow-lg border-r border-gray-200 p-4 overflow-y-auto">
+        <MapFilters
+          selectedTypes={selectedTypes}
+          onTypesChange={setSelectedTypes}
+          priceRange={priceRange}
+          onPriceRangeChange={setPriceRange}
+          onReset={handleResetFilters}
+          selectedCategories={selectedCategories}
+          onCategoriesChange={setSelectedCategories}
+        />
+      </div>
+
+      {/* Map Container */}
+      <div className="flex-1 relative">
+        <MapContainer
+          center={ALBANIA_CENTER}
+          zoom={8}
+          className="w-full h-full"
+          attributionControl={false}
+        >
         {/* Base map */}
         <TileLayer
           attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
@@ -238,25 +209,6 @@ export default function PropertiesMap() {
           </Marker>
         ))}
 
-        {filteredCars?.map((car: Car) => (
-          <Marker
-            key={`car-${car.id}`}
-            position={[car.lat || 0, car.lng || 0]}
-            icon={CarIcon}
-            eventHandlers={{
-              click: () => setSelected({ type: "car", data: car }),
-            }}
-          >
-            {car.pricePerDay && (
-              <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent>
-                {typeof car.pricePerDay === "number"
-                  ? `$${car.pricePerDay}`
-                  : car.pricePerDay}
-              </Tooltip>
-            )}
-          </Marker>
-        ))}
-
         {filteredDestinations?.map((destination: Destination) => (
           <Marker
             key={`destination-${destination.id}`}
@@ -282,13 +234,13 @@ export default function PropertiesMap() {
             {selected.type === "apartment" && (
               <ApartmentPopup apartment={selected.data as Appartment} />
             )}
-            {selected.type === "car" && <CarPopup car={selected.data as Car} />}
             {selected.type === "destination" && (
               <DestinationPopup destination={selected.data as Destination} />
             )}
           </Popup>
         )}
       </MapContainer>
+      </div>
     </div>
   );
 }

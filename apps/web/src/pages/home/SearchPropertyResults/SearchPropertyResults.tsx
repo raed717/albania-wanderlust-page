@@ -10,6 +10,7 @@ import { Hotel } from "@/types/hotel.types";
 import { Appartment } from "@/types/appartment.type";
 import { useLocation } from "react-router-dom";
 import { defaultSearchFilters } from "@/types/search.types";
+import MapPreviewCard from "./MapPreviewCard";
 
 const SearchPropertyResults = () => {
   const location = useLocation();
@@ -234,18 +235,21 @@ const SearchPropertyResults = () => {
 
       <main className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Filter Sidebar */}
-          <FilterBar
-            filters={filters}
-            onPropertyTypeChange={setPropertyType}
-            onHotelFiltersChange={setHotelFilters}
-            onAppartmentFiltersChange={setAppartmentFilters}
-            onDateChange={handleDateChange}
-            onGuestsChange={handleGuestsChange}
-            onResetFilters={resetFilters}
-            onApplyFilters={applyFilters}
-            loading={loading}
-          />
+          {/* Filter Sidebar & Map Preview */}
+          <div className="w-full lg:max-w-xs space-y-6">
+            <MapPreviewCard />
+            <FilterBar
+              filters={filters}
+              onPropertyTypeChange={setPropertyType}
+              onHotelFiltersChange={setHotelFilters}
+              onAppartmentFiltersChange={setAppartmentFilters}
+              onDateChange={handleDateChange}
+              onGuestsChange={handleGuestsChange}
+              onResetFilters={resetFilters}
+              onApplyFilters={applyFilters}
+              loading={loading}
+            />
+          </div>
 
           {/* Results Section */}
           <div className="flex-1 w-full">

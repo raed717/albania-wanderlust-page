@@ -23,6 +23,24 @@ export const getAllDestinations = async (): Promise<Destination[]> => {
 };
 
 /**
+ * Get a destination by ID
+ */
+export const getDestinationById = async (id: string): Promise<Destination> => {
+  console.log("[Destination Service] Fetching destination by ID:", id);
+  const { data, error } = await apiClient
+    .from("destination")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (error) {
+    console.error("[Destination Service] Error fetching destination:", error);
+    throw error;
+  }
+  console.log("[Destination Service] Successfully fetched destination:", data);
+  return data;
+};
+
+/**
  * Create a new destination
  */
 export const createDestination = async (
@@ -47,9 +65,11 @@ export const createDestination = async (
 
 /**
  * Update a destination
+ * @param id - Destination UUID (string)
+ * @param data - Destination data to update
  */
 export const updateDestination = async (
-  id: number,
+  id: string,
   data: DestinationDto,
 ): Promise<Destination> => {
   console.log("[Destination Service] Updating destination:", data);
@@ -72,8 +92,9 @@ export const updateDestination = async (
 
 /**
  * Delete a destination
+ * @param id - Destination UUID (string)
  */
-export const deleteDestination = async (id: number): Promise<void> => {
+export const deleteDestination = async (id: string): Promise<void> => {
   console.log("[Destination Service] Deleting destination:", id);
   const { error } = await apiClient.from("destination").delete().eq("id", id);
   if (error) {
