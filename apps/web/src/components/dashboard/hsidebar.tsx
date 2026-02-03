@@ -115,6 +115,9 @@ const ROUTES = {
   destinations: {
     management: "/dashboard/destinations",
   },
+  support: {
+    chat: "/dashboard/support",
+  },
   reviews: "/reviews",
   inventory: "/inventory",
   notifications: "/notifications",
@@ -234,6 +237,18 @@ const MENU_ITEMS = {
       ],
     },
     {
+      label: "Support Chat",
+      icon: ICONS.messages,
+      roles: ["admin"],
+      items: [
+        {
+          label: "Chat Dashboard",
+          route: ROUTES.support.chat,
+          roles: ["admin"],
+        },
+      ],
+    },
+    {
       label: "Users",
       icon: ICONS.users,
       roles: ["admin"], // Only admin can see users
@@ -255,50 +270,50 @@ const MENU_ITEMS = {
         },
       ],
     },
-    {
-      label: "Finance",
-      icon: ICONS.finance,
-      roles: ["admin"], // Only admin can see finance
-      items: [
-        {
-          label: "Revenue",
-          route: ROUTES.finance.revenue,
-          roles: ["admin"],
-        },
-        {
-          label: "Invoices",
-          route: ROUTES.finance.invoices,
-          roles: ["admin"],
-        },
-        {
-          label: "Financial Reports",
-          route: ROUTES.finance.reports,
-          roles: ["admin"],
-        },
-      ],
-    },
-    {
-      label: "Analytics",
-      icon: ICONS.analytics,
-      roles: ["admin"], // Only admin can see analytics
-      items: [
-        {
-          label: "Overview",
-          route: ROUTES.analytics.overview,
-          roles: ["admin"],
-        },
-        {
-          label: "Performance",
-          route: ROUTES.analytics.performance,
-          roles: ["admin"],
-        },
-        {
-          label: "Trends",
-          route: ROUTES.analytics.trends,
-          roles: ["admin"],
-        },
-      ],
-    },
+    // {
+    //   label: "Finance",
+    //   icon: ICONS.finance,
+    //   roles: ["admin"], // Only admin can see finance
+    //   items: [
+    //     {
+    //       label: "Revenue",
+    //       route: ROUTES.finance.revenue,
+    //       roles: ["admin"],
+    //     },
+    //     {
+    //       label: "Invoices",
+    //       route: ROUTES.finance.invoices,
+    //       roles: ["admin"],
+    //     },
+    //     {
+    //       label: "Financial Reports",
+    //       route: ROUTES.finance.reports,
+    //       roles: ["admin"],
+    //     },
+    //   ],
+    // },
+    // {
+    //   label: "Analytics",
+    //   icon: ICONS.analytics,
+    //   roles: ["admin"], // Only admin can see analytics
+    //   items: [
+    //     {
+    //       label: "Overview",
+    //       route: ROUTES.analytics.overview,
+    //       roles: ["admin"],
+    //     },
+    //     {
+    //       label: "Performance",
+    //       route: ROUTES.analytics.performance,
+    //       roles: ["admin"],
+    //     },
+    //     {
+    //       label: "Trends",
+    //       route: ROUTES.analytics.trends,
+    //       roles: ["admin"],
+    //     },
+    //   ],
+    // },
   ],
 };
 

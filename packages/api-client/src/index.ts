@@ -4,6 +4,7 @@ export * from "./appartmentService";
 export * from "./authService";
 export * from "./bookingService";
 export * from "./carService";
+export * from "./chatService";
 export * from "./destinationService";
 export * from "./emailService";
 export * from "./hotelService";

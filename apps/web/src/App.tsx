@@ -39,6 +39,8 @@ import RequestsManagement from "./pages/dashboard/Requests/RequestsManagement";
 import PropertyRequestsManagement from "./pages/dashboard/Requests/PropertyRequestsManagement";
 import Wishlist from "./pages/home/Wishlist";
 import DestinationsManagement from "./pages/dashboard/Destinations/DestinationsManagement";
+import SupportChat from "./pages/dashboard/SupportChat";
+import { UserChatWidget } from "./components/chat/UserChatWidget";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -139,12 +141,14 @@ const App = () => (
                 path="/dashboard/destinations"
                 element={<DestinationsManagement />}
               />
+              <Route path="/dashboard/support" element={<SupportChat />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
             <Route path="unauthorized" element={<Unauthorized />} />
             <Route path="/suspended" element={<SuspendedPage />} />
           </Routes>
+          <UserChatWidget />
           <Footer />
         </BrowserRouter>
       </TooltipProvider>

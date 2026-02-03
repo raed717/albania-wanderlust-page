@@ -9,6 +9,7 @@ export {
   type CreateCarDto,
   type UpdateCarDto,
 } from "./car.types";
+export * from "./chat.types";
 export * from "./destination.types";
 export * from "./email.types";
 // Exclude duplicate PaginationParams from hotel.types
