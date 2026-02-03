@@ -384,7 +384,7 @@ export default function PrimarySearchAppBar() {
             noWrap
             component="div"
             sx={{
-              display: { xs: "none", sm: "block" },
+              display: { xs: "block", sm: "block" },
               cursor: "pointer",
               fontWeight: 600,
               transition: "opacity 0.2s",

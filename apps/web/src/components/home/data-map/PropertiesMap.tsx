@@ -14,6 +14,9 @@ import { HotelPopup } from "./HotelPopup";
 import { ApartmentPopup } from "./ApartmentPopup";
 import { DestinationPopup } from "./DestinationPopup";
 import { MapFilters } from "./MapFilters";
+import { IconButton } from "@mui/material";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import CloseIcon from "@mui/icons-material/Close";
 
 const HotelIcon = new L.Icon({
   iconUrl: hotelIcon,
@@ -51,6 +54,7 @@ export default function PropertiesMap() {
     type: "hotel" | "apartment" | "destination";
     data: Hotel | Appartment | Destination;
   } | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Filter states
   const [selectedTypes, setSelectedTypes] = useState<string[]>([
@@ -142,9 +146,46 @@ export default function PropertiesMap() {
   };
 
   return (
-    <div className="w-full h-full flex">
+    <div className="w-full h-full flex relative">
+      {/* Mobile Filter Toggle Button */}
+      <IconButton
+        onClick={() => setIsFilterOpen(!isFilterOpen)}
+        className="lg:hidden"
+        sx={{
+          position: "absolute",
+          top: 16,
+          left: 16,
+          zIndex: 1000,
+          backgroundColor: "white",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+          "&:hover": {
+            backgroundColor: "white",
+          },
+        }}
+      >
+        <FilterListIcon />
+      </IconButton>
+
       {/* Sidebar Filters */}
-      <div className="w-80 bg-white shadow-lg border-r border-gray-200 p-4 overflow-y-auto">
+      <div
+        className={`
+          ${isFilterOpen ? "translate-x-0" : "-translate-x-full"}
+          lg:translate-x-0
+          fixed lg:relative
+          top-0 left-0
+          w-80 h-full
+          bg-white shadow-lg border-r border-gray-200 p-4 overflow-y-auto
+          transition-transform duration-300 ease-in-out
+          z-[999]
+        `}
+      >
+        {/* Mobile Close Button */}
+        <div className="lg:hidden flex justify-end mb-2">
+          <IconButton onClick={() => setIsFilterOpen(false)} size="small">
+            <CloseIcon />
+          </IconButton>
+        </div>
+
         <MapFilters
           selectedTypes={selectedTypes}
           onTypesChange={setSelectedTypes}
@@ -156,90 +197,109 @@ export default function PropertiesMap() {
         />
       </div>
 
+      {/* Overlay for mobile when sidebar is open */}
+      {isFilterOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-[998]"
+          onClick={() => setIsFilterOpen(false)}
+        />
+      )}
+
       {/* Map Container */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative w-full h-full">
         <MapContainer
           center={ALBANIA_CENTER}
           zoom={8}
           className="w-full h-full"
           attributionControl={false}
         >
-        {/* Base map */}
-        <TileLayer
-          attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+          {/* Base map */}
+          <TileLayer
+            attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
 
-        {/* Markers */}
-        {filteredHotels?.map((hotel: Hotel) => (
-          <Marker
-            key={`hotel-${hotel.id}`}
-            position={[hotel.lat || 0, hotel.lng || 0]}
-            icon={HotelIcon}
-            eventHandlers={{
-              click: () => setSelected({ type: "hotel", data: hotel }),
-            }}
-          >
-            {hotel.price && (
+          {/* Markers */}
+          {filteredHotels?.map((hotel: Hotel) => (
+            <Marker
+              key={`hotel-${hotel.id}`}
+              position={[hotel.lat || 0, hotel.lng || 0]}
+              icon={HotelIcon}
+              eventHandlers={{
+                click: () => setSelected({ type: "hotel", data: hotel }),
+              }}
+            >
+              {hotel.price && (
+                <Tooltip
+                  direction="top"
+                  offset={[0, -20]}
+                  opacity={1}
+                  permanent
+                >
+                  {typeof hotel.price === "number"
+                    ? `$${hotel.price}`
+                    : hotel.price}
+                </Tooltip>
+              )}
+            </Marker>
+          ))}
+
+          {filteredApartments?.map((apartment: Appartment) => (
+            <Marker
+              key={`apartment-${apartment.id}`}
+              position={[apartment.lat, apartment.lng]}
+              icon={ApartmentIcon}
+              eventHandlers={{
+                click: () =>
+                  setSelected({ type: "apartment", data: apartment }),
+              }}
+            >
+              {apartment.price && (
+                <Tooltip
+                  direction="top"
+                  offset={[0, -20]}
+                  opacity={1}
+                  permanent
+                >
+                  {typeof apartment.price === "number"
+                    ? `$${apartment.price}`
+                    : apartment.price}
+                </Tooltip>
+              )}
+            </Marker>
+          ))}
+
+          {filteredDestinations?.map((destination: Destination) => (
+            <Marker
+              key={`destination-${destination.id}`}
+              position={[destination.lat || 0, destination.lng || 0]}
+              icon={DestinationIcon}
+              eventHandlers={{
+                click: () =>
+                  setSelected({ type: "destination", data: destination }),
+              }}
+            >
               <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent>
-                {typeof hotel.price === "number"
-                  ? `$${hotel.price}`
-                  : hotel.price}
+                {destination.category}
               </Tooltip>
-            )}
-          </Marker>
-        ))}
+            </Marker>
+          ))}
 
-        {filteredApartments?.map((apartment: Appartment) => (
-          <Marker
-            key={`apartment-${apartment.id}`}
-            position={[apartment.lat, apartment.lng]}
-            icon={ApartmentIcon}
-            eventHandlers={{
-              click: () => setSelected({ type: "apartment", data: apartment }),
-            }}
-          >
-            {apartment.price && (
-              <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent>
-                {typeof apartment.price === "number"
-                  ? `$${apartment.price}`
-                  : apartment.price}
-              </Tooltip>
-            )}
-          </Marker>
-        ))}
-
-        {filteredDestinations?.map((destination: Destination) => (
-          <Marker
-            key={`destination-${destination.id}`}
-            position={[destination.lat || 0, destination.lng || 0]}
-            icon={DestinationIcon}
-            eventHandlers={{
-              click: () =>
-                setSelected({ type: "destination", data: destination }),
-            }}
-          >
-            <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent>
-              {destination.category}
-            </Tooltip>
-          </Marker>
-        ))}
-
-        {/* Popup */}
-        {selected && (
-          <Popup position={[selected.data.lat || 0, selected.data.lng || 0]}>
-            {selected.type === "hotel" && (
-              <HotelPopup hotel={selected.data as Hotel} />
-            )}
-            {selected.type === "apartment" && (
-              <ApartmentPopup apartment={selected.data as Appartment} />
-            )}
-            {selected.type === "destination" && (
-              <DestinationPopup destination={selected.data as Destination} />
-            )}
-          </Popup>
-        )}
-      </MapContainer>
+          {/* Popup */}
+          {selected && (
+            <Popup position={[selected.data.lat || 0, selected.data.lng || 0]}>
+              {selected.type === "hotel" && (
+                <HotelPopup hotel={selected.data as Hotel} />
+              )}
+              {selected.type === "apartment" && (
+                <ApartmentPopup apartment={selected.data as Appartment} />
+              )}
+              {selected.type === "destination" && (
+                <DestinationPopup destination={selected.data as Destination} />
+              )}
+            </Popup>
+          )}
+        </MapContainer>
       </div>
     </div>
   );
