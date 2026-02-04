@@ -14,6 +14,8 @@ import {
   CreditCard,
   MapPin,
   Clock,
+  FileText,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +24,8 @@ import { updateBookingStatus } from "@/services/api/bookingService";
 import Swal from "sweetalert2";
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import StripePaymentButton from "@/components/payments/StripePaymentButton";
+import { jsPDF } from "jspdf";
+import logoImage from "@/assets/logo/logoBOOKinAL.png";
 
 const getPropertyIcon = (type: Booking["propertyType"]) => {
   switch (type) {
@@ -40,6 +44,156 @@ const formatDate = (d: Date) => {
   const month = d.toLocaleDateString("en-US", { month: "short" });
   const year = d.getFullYear();
   return `${day} ${month} ${year}`;
+};
+
+// Invoice PDF Generator
+const generateInvoicePDF = async (booking: Booking) => {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  // Add logo
+  try {
+    const img = new Image();
+    img.src = logoImage;
+    await new Promise((resolve) => {
+      img.onload = resolve;
+    });
+    const logoWidth = 50;
+    const logoHeight = (img.height / img.width) * logoWidth;
+    doc.addImage(
+      img,
+      "PNG",
+      (pageWidth - logoWidth) / 2,
+      10,
+      logoWidth,
+      logoHeight,
+    );
+  } catch (error) {
+    console.error("Failed to load logo:", error);
+  }
+
+  // Title
+  doc.setFontSize(22);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(30, 58, 138); // Blue color
+  doc.text("INVOICE", pageWidth / 2, 55, { align: "center" });
+
+  // Invoice details box
+  doc.setDrawColor(200, 200, 200);
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(15, 65, pageWidth - 30, 25, 3, 3, "FD");
+
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100, 116, 139);
+  doc.text(
+    `Invoice Number: INV-${booking.id.slice(0, 8).toUpperCase()}`,
+    20,
+    75,
+  );
+  doc.text(`Date: ${formatDate(new Date())}`, 20, 82);
+  doc.text(`Booking Reference: ${booking.id}`, pageWidth / 2 + 10, 75);
+  doc.text(`Status: ${booking.status.toUpperCase()}`, pageWidth / 2 + 10, 82);
+
+  // Customer Information
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(30, 41, 59);
+  doc.text("Customer Information", 15, 105);
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(71, 85, 105);
+  doc.text(`Name: ${booking.requesterName}`, 15, 115);
+  doc.text(`Email: ${booking.contactMail}`, 15, 123);
+
+  // Booking Details
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(30, 41, 59);
+  doc.text("Booking Details", 15, 140);
+
+  // Details table header
+  doc.setFillColor(30, 58, 138);
+  doc.rect(15, 145, pageWidth - 30, 10, "F");
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(255, 255, 255);
+  doc.text("Description", 20, 151);
+  doc.text("Details", pageWidth - 60, 151);
+
+  // Table content
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(71, 85, 105);
+  let yPos = 165;
+
+  const addTableRow = (label: string, value: string, highlight = false) => {
+    if (highlight) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(15, yPos - 6, pageWidth - 30, 10, "F");
+    }
+    doc.setTextColor(71, 85, 105);
+    doc.text(label, 20, yPos);
+    doc.setTextColor(30, 41, 59);
+    doc.text(value, pageWidth - 60, yPos);
+    yPos += 12;
+  };
+
+  addTableRow(
+    "Property Type",
+    booking.propertyType.charAt(0).toUpperCase() +
+      booking.propertyType.slice(1),
+    true,
+  );
+  addTableRow("Property Name", booking.propertyData?.name || "N/A");
+  addTableRow("Check-in Date", formatDate(new Date(booking.startDate)), true);
+  addTableRow("Check-out Date", formatDate(new Date(booking.endDate)));
+  addTableRow("Pick-up Location", booking.pickUpLocation || "N/A", true);
+  addTableRow("Drop-off Location", booking.dropOffLocation || "N/A");
+  addTableRow("Pick-up Time", booking.pickUpTime || "N/A", true);
+  addTableRow("Drop-off Time", booking.dropOffTime || "N/A");
+
+  // Total section
+  yPos += 10;
+  doc.setFillColor(16, 185, 129); // Green
+  doc.roundedRect(pageWidth - 85, yPos, 70, 20, 3, 3, "F");
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(255, 255, 255);
+  doc.text("TOTAL", pageWidth - 80, yPos + 8);
+  doc.setFontSize(14);
+  doc.text(`$${booking.totalPrice.toFixed(2)}`, pageWidth - 80, yPos + 16);
+
+  // Payment status
+  yPos += 35;
+  const paymentColor =
+    booking.payment_status === "paid" ? [16, 185, 129] : [245, 158, 11];
+  doc.setFillColor(paymentColor[0], paymentColor[1], paymentColor[2]);
+  doc.roundedRect(15, yPos, 60, 8, 2, 2, "F");
+  doc.setFontSize(9);
+  doc.setTextColor(255, 255, 255);
+  doc.text(
+    `Payment: ${(booking.payment_status || "pending").toUpperCase()}`,
+    20,
+    yPos + 5.5,
+  );
+
+  // Footer
+  doc.setFontSize(9);
+  doc.setTextColor(148, 163, 184);
+  doc.text("Thank you for booking with BOOKinAL!", pageWidth / 2, 270, {
+    align: "center",
+  });
+  doc.text(
+    "For any questions, please contact us at support@bookinal.com",
+    pageWidth / 2,
+    277,
+    { align: "center" },
+  );
+
+  // Download the PDF
+  const fileName = `Invoice-${booking.propertyType}-${booking.id.slice(0, 8)}.pdf`;
+  doc.save(fileName);
 };
 
 // PayPal Button Component for individual booking
@@ -335,6 +489,23 @@ export default function BookingsSummary() {
                           Contact: {booking.requesterName} •{" "}
                           {booking.contactMail}
                         </p>
+
+                        {/* Invoice Download Button - Only shown when payment is completed */}
+                        {booking.payment_status === "paid" && (
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              generateInvoicePDF(booking);
+                            }}
+                            variant="outline"
+                            size="sm"
+                            className="mt-3 text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+                          >
+                            <FileText className="w-4 h-4 mr-2" />
+                            Download Invoice
+                            <Download className="w-3 h-3 ml-1" />
+                          </Button>
+                        )}
                       </div>
                     </div>
 

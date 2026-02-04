@@ -103,7 +103,7 @@ const Hero = () => {
       </div>
 
       {/* Scroll Indicator */}
-      <button
+      {/* <button
         onClick={() => scrollToSection("hotels")}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce cursor-pointer group"
         aria-label="Scroll down"
@@ -114,7 +114,7 @@ const Hero = () => {
           </span>
           <ChevronDown className="w-6 h-6 text-white/60 group-hover:text-white/80 transition-colors" />
         </div>
-      </button>
+      </button> */}
     </section>
   );
 };

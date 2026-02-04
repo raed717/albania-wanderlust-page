@@ -239,7 +239,7 @@ export default function CarBilling() {
       dropOffLocation: formData.dropOffLocation || formData.pickUpLocation,
       pickUpTime: formData.pickUpTime,
       dropOffTime: formData.dropOffTime,
-      totalPrice,
+      totalPrice: finalTotal,
       contactMail: formData.email,
       contactPhone: formData.phone,
       requesterName: formData.fullName,
