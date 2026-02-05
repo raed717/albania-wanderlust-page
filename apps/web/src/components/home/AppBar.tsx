@@ -394,7 +394,7 @@ export default function PrimarySearchAppBar() {
             }}
             onClick={() => navigate("/")}
           >
-            BOOKinAL
+            BOOKinAL.
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Box
