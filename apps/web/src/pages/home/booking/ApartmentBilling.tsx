@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-  User,
+  User as userIcon,
   Mail,
   Phone,
   MapPin,
@@ -8,6 +8,7 @@ import {
   CreditCard,
   Check,
   Home,
+  UserIcon,
 } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { Appartment } from "@/types/appartment.type";
@@ -21,6 +22,8 @@ import { useMutation } from "@tanstack/react-query";
 import { createBooking } from "@/services/api/bookingService";
 import Swal from "sweetalert2";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { userService } from "@/services/api/userService";
+import { User } from "@/types/user.types";
 
 export default function ApartmentBilling() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +31,7 @@ export default function ApartmentBilling() {
   const [loading, setLoading] = useState(true);
   const [apartment, setApartment] = useState<Appartment | null>(null);
   const [unavailabilityDates, setUnavailabilityDates] = useState<string[]>([]);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchApartment = async () => {
@@ -57,7 +61,18 @@ export default function ApartmentBilling() {
 
     fetchApartment();
   }, [id]);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData = await userService.getCurrentUser();
+        setUser(userData);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
 
+    fetchUser();
+  }, []);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [formData, setFormData] = useState({
     fullName: "",
@@ -66,6 +81,17 @@ export default function ApartmentBilling() {
     checkInTime: "14:00",
     checkOutTime: "11:00",
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.full_name || "",
+        email: prev.email || user.email || "",
+        phone: prev.phone || user.phone || "",
+      }));
+    }
+  }, [user]);
 
   const [totalDays, setTotalDays] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -158,7 +184,7 @@ export default function ApartmentBilling() {
       dropOffLocation: apartment.address || apartment.location || "",
       pickUpTime: formData.checkInTime,
       dropOffTime: formData.checkOutTime,
-      totalPrice,
+      totalPrice: Math.round(finalTotal),
       contactMail: formData.email,
       contactPhone: formData.phone,
       requesterName: formData.fullName,
@@ -210,7 +236,7 @@ export default function ApartmentBilling() {
               {/* Personal Information */}
               <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
                 <h2 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
-                  <User className="w-5 h-5 text-blue-600" />
+                  <UserIcon className="w-5 h-5 text-blue-600" />
                   Personal Information
                 </h2>
 
