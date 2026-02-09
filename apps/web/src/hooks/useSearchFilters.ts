@@ -54,9 +54,10 @@ export const useSearchFilters = (
   const filterHotel = (hotel: Hotel): boolean => {
     const f = filters.hotelFilters;
 
-    // Search term filter
-    if (f.searchTerm && f.searchTerm.trim()) {
-      const term = f.searchTerm.toLowerCase();
+    // Search term filter - use destination if provided
+    const searchTerm = f.searchTerm || filters.destination || "";
+    if (searchTerm && searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
       if (
         !hotel.name.toLowerCase().includes(term) &&
         !hotel.location?.toLowerCase().includes(term) &&
@@ -132,6 +133,7 @@ export const useSearchFilters = (
       const term = searchTerm.toLowerCase();
       if (
         !apartment.name.toLowerCase().includes(term) &&
+        !apartment.location?.toLowerCase().includes(term) &&
         !apartment.address?.toLowerCase().includes(term)
       ) {
         return false;
@@ -223,9 +225,6 @@ export const useSearchFilters = (
           }))
         : [];
 
-    console.log("[useSearchFilters] Filtered hotels:", filteredHotels);
-    console.log("[useSearchFilters] Filtered apartments:", filteredApartments);
-
     return {
       hotels: filteredHotels,
       apartments: filteredApartments,
@@ -301,9 +300,6 @@ export const useSearchFilters = (
         shouldFetchHotels ? getAllHotels() : Promise.resolve([]),
         shouldFetchApartments ? getAllAppartments() : Promise.resolve([]),
       ]);
-
-      console.log("[useSearchFilters] Fetched hotels:", hotelsData);
-      console.log("[useSearchFilters] Fetched apartments:", apartmentsData);
 
       setAllHotels(hotelsData);
       setAllApartments(apartmentsData);

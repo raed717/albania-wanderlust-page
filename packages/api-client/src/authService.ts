@@ -24,8 +24,6 @@ export const authService = {
 
     // Create user profile in public.users table with default role
     if (data.user && !error) {
-      console.log("Creating user profile for new user:", data.user.id);
-      console.log("Creating user data:", data);
       await this.ensureUserProfile(data.user.id, data.user.user_metadata || "");
     }
 
@@ -66,7 +64,6 @@ export const authService = {
         console.error("Sign out error:", error);
         return { error, success: false };
       }
-      console.log("User signed out successfully");
       return { error: null, success: true };
     } catch (err: any) {
       console.error("Unexpected error during sign out:", err);
@@ -79,7 +76,6 @@ export const authService = {
    */
   async getSession() {
     const { data, error } = await apiClient.auth.getSession();
-    console.log(data, error);
     return { session: data.session, error };
   },
 
@@ -89,7 +85,6 @@ export const authService = {
   async getCurrentUser() {
     const { data, error } = await apiClient.auth.getUser();
     if (error) throw error;
-    console.log(data.user);
 
     return data.user;
   },
@@ -113,7 +108,6 @@ export const authService = {
       return "user"; // Default role
     }
 
-    console.log("current user role:", profile?.role);
     return profile?.role || "user";
   },
 
@@ -123,7 +117,6 @@ export const authService = {
   async getCurrentUserId() {
     const { data, error } = await apiClient.auth.getUser();
     if (error) throw error;
-    console.log(data.user.id);
     return data.user.id;
   },
 
@@ -147,7 +140,6 @@ export const authService = {
         console.error("Error creating user profile:", error);
         throw error;
       }
-      console.log("User profile created successfully with default role 'user'");
     } catch (err) {
       console.error("Error in ensureUserProfile:", err);
       // Don't throw - allow signup to complete even if profile creation fails

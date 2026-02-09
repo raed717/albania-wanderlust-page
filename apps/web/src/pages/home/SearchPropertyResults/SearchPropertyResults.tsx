@@ -185,7 +185,6 @@ const SearchPropertyResults = () => {
   // Handle property click
   const handlePropertyClick = (id: number, isHotel: boolean) => {
     // Navigate to property details page
-    console.log("Navigate to property details:", id);
     if (isHotel) {
       window.open(`/hotelReservation/${id}`, "_blank", "noopener,noreferrer");
     } else {

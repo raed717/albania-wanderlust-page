@@ -50,9 +50,6 @@ export default function CarBilling() {
           setImages(data.imageUrls || []);
           const unavailable = await getCarUnavailabilityDates(data.id);
           setUnavailableDates(unavailable);
-          console.log("====================================");
-          console.log(unavailable);
-          console.log("====================================");
         }
       } catch (error) {
         console.error("Error fetching car:", error);

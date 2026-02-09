@@ -12,13 +12,11 @@ import { authService } from "./authService";
  * Get all destinations
  */
 export const getAllDestinations = async (): Promise<Destination[]> => {
-  console.log("[Destination Service] Fetching all destinations...");
   const { data, error } = await apiClient.from("destination").select("*");
   if (error) {
     console.error("[Destination Service] Error fetching destinations:", error);
     throw error;
   }
-  //console.log("[Destination Service] Successfully fetched destinations:", data);
   return data;
 };
 
@@ -26,7 +24,6 @@ export const getAllDestinations = async (): Promise<Destination[]> => {
  * Get a destination by ID
  */
 export const getDestinationById = async (id: string): Promise<Destination> => {
-  console.log("[Destination Service] Fetching destination by ID:", id);
   const { data, error } = await apiClient
     .from("destination")
     .select("*")
@@ -36,7 +33,6 @@ export const getDestinationById = async (id: string): Promise<Destination> => {
     console.error("[Destination Service] Error fetching destination:", error);
     throw error;
   }
-  console.log("[Destination Service] Successfully fetched destination:", data);
   return data;
 };
 
@@ -46,7 +42,6 @@ export const getDestinationById = async (id: string): Promise<Destination> => {
 export const createDestination = async (
   data: DestinationDto,
 ): Promise<Destination> => {
-  console.log("[Destination Service] Creating new destination:", data);
   const { data: newDestination, error } = await apiClient
     .from("destination")
     .insert([data])
@@ -56,10 +51,6 @@ export const createDestination = async (
     console.error("[Destination Service] Error creating destination:", error);
     throw error;
   }
-  console.log(
-    "[Destination Service] Successfully created destination:",
-    newDestination,
-  );
   return newDestination;
 };
 
@@ -72,7 +63,6 @@ export const updateDestination = async (
   id: string,
   data: DestinationDto,
 ): Promise<Destination> => {
-  console.log("[Destination Service] Updating destination:", data);
   const { data: updatedDestination, error } = await apiClient
     .from("destination")
     .update(data)
@@ -83,10 +73,6 @@ export const updateDestination = async (
     console.error("[Destination Service] Error updating destination:", error);
     throw error;
   }
-  console.log(
-    "[Destination Service] Successfully updated destination:",
-    updatedDestination,
-  );
   return updatedDestination;
 };
 
@@ -95,22 +81,16 @@ export const updateDestination = async (
  * @param id - Destination UUID (string)
  */
 export const deleteDestination = async (id: string): Promise<void> => {
-  console.log("[Destination Service] Deleting destination:", id);
   const { error } = await apiClient.from("destination").delete().eq("id", id);
   if (error) {
     console.error("[Destination Service] Error deleting destination:", error);
     throw error;
   }
-  console.log("[Destination Service] Successfully deleted destination:", id);
 };
 
 export const addDestinationToCurrentUserWishlist = async (
   destinationId: string,
 ): Promise<Wishlist> => {
-  console.log(
-    "[Destination Service] Adding destination to wishlist:",
-    destinationId,
-  );
 
   const userId = await authService.getCurrentUserId();
   if (!userId) throw new Error("User not authenticated");
@@ -147,20 +127,12 @@ export const addDestinationToCurrentUserWishlist = async (
 
   if (linkError) throw linkError;
 
-  console.log(
-    "[Destination Service] Destination added to wishlist:",
-    wishlist.id,
-  );
   return wishlist;
 };
 
 export const removeDestinationFromCurrentUserWishlist = async (
   destinationId: string,
 ): Promise<void> => {
-  console.log(
-    "[Wishlist Service] Removing destination from wishlist:",
-    destinationId,
-  );
 
   const userId = await authService.getCurrentUserId();
   if (!userId) throw new Error("User not authenticated");
@@ -184,11 +156,6 @@ export const removeDestinationFromCurrentUserWishlist = async (
     .eq("destination_id", destinationId);
 
   if (deleteError) throw deleteError;
-
-  console.log(
-    "[Wishlist Service] Destination removed from wishlist:",
-    destinationId,
-  );
 };
 
 export const getCurrentUserWishlist = async (): Promise<Wishlist | null> => {

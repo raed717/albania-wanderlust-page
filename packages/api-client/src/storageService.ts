@@ -56,12 +56,6 @@ export const uploadImage = async (
       : `${entityType}-temp`;
     const filePath = `${folderPath}/${timestamp}-${randomString}-${sanitizedFileName}`;
 
-    console.log("[Storage Service] Uploading file:", filePath);
-    console.log("[Storage Service] Bucket name:", BUCKET_NAME);
-    console.log("[Storage Service] Entity type:", entityType);
-    console.log("[Storage Service] File size:", file.size, "bytes");
-    console.log("[Storage Service] File type:", file.type);
-
     // Upload to Supabase Storage
     const { data, error } = await apiClient.storage
       .from(BUCKET_NAME)
@@ -104,9 +98,6 @@ export const uploadImage = async (
       .from(BUCKET_NAME)
       .getPublicUrl(data.path);
 
-    console.log("[Storage Service] File uploaded successfully:", data.path);
-    console.log("[Storage Service] Public URL:", publicUrlData.publicUrl);
-
     return {
       path: data.path,
       publicUrl: publicUrlData.publicUrl,
@@ -134,9 +125,7 @@ export const uploadImages = async (
     const uploadPromises = files.map((file) =>
       uploadImage(file, entityType, entityId),
     );
-    const results = await Promise.all(uploadPromises);
-    console.log("[Storage Service] Batch upload completed:", results.length);
-    return results;
+    return await Promise.all(uploadPromises);
   } catch (err) {
     console.error("[Storage Service] Error during batch upload:", err);
     throw err;
@@ -149,8 +138,6 @@ export const uploadImages = async (
  */
 export const deleteImage = async (filePath: string): Promise<void> => {
   try {
-    console.log("[Storage Service] Deleting file:", filePath);
-
     const { error } = await apiClient.storage
       .from(BUCKET_NAME)
       .remove([filePath]);
@@ -160,7 +147,6 @@ export const deleteImage = async (filePath: string): Promise<void> => {
       throw error;
     }
 
-    console.log("[Storage Service] File deleted successfully:", filePath);
   } catch (err) {
     console.error("[Storage Service] Error deleting file:", err);
     throw err;
@@ -175,8 +161,6 @@ export const deleteImages = async (filePaths: string[]): Promise<void> => {
   try {
     if (filePaths.length === 0) return;
 
-    console.log("[Storage Service] Deleting files:", filePaths);
-
     const { error } = await apiClient.storage
       .from(BUCKET_NAME)
       .remove(filePaths);
@@ -186,7 +170,6 @@ export const deleteImages = async (filePaths: string[]): Promise<void> => {
       throw error;
     }
 
-    console.log("[Storage Service] Files deleted successfully");
   } catch (err) {
     console.error("[Storage Service] Error during batch delete:", err);
     throw err;

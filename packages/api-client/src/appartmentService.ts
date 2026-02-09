@@ -27,7 +27,6 @@ const loadCacheFromStorage = (): {
       const parsed = JSON.parse(cached);
       // Validate cache hasn't expired
       if (Date.now() - parsed.timestamp < CACHE_TTL) {
-        console.log("[Apartment Service] Loaded cache from localStorage");
         return parsed;
       } else {
         console.log("[Apartment Service] localStorage cache expired, clearing");
@@ -61,7 +60,6 @@ const saveCacheToStorage = (data: Appartment[], timestamp: number): void => {
  * Invalidate the apartments cache (call after creating, updating, or deleting apartments)
  */
 export const invalidateApartmentsCache = (): void => {
-  console.log("[Apartment Service] 🗑️ Invalidating apartments cache");
   apartmentsCache = null;
   try {
     localStorage.removeItem(CACHE_KEY);
@@ -89,9 +87,6 @@ export const getAllAppartments = async (): Promise<Appartment[]> => {
     return apartmentsCache.data;
   }
 
-  console.log(
-    "[Apartment Service] 🔄 Fetching all apartments from database...",
-  );
   const { data, error } = await apiClient.from("appartment").select("*");
   if (error) throw error;
 
@@ -99,9 +94,6 @@ export const getAllAppartments = async (): Promise<Appartment[]> => {
   const timestamp = Date.now();
   apartmentsCache = { data: data || [], timestamp };
   saveCacheToStorage(data || [], timestamp);
-  console.log(
-    "[Apartment Service] ✅ Successfully fetched and cached apartments",
-  );
   return data || [];
 };
 
@@ -171,22 +163,16 @@ export const createAppartment = async (
   data: CreateAppartmentDto,
   imageFiles?: File[],
 ): Promise<Appartment> => {
-  console.log("[Apartment Service] Creating new apartment:", data);
-
   const providerId = await authService.getCurrentUserId();
-
   if (!providerId) {
     throw new Error("User not authenticated");
   }
-
   // Upload images first if provided
   let imageUrls: string[] = [];
   if (imageFiles && imageFiles.length > 0) {
     try {
-      console.log("[Apartment Service] Uploading images...");
       const uploadResults = await uploadImages(imageFiles, "apartment");
       imageUrls = uploadResults.map((result) => result.publicUrl);
-      console.log("[Apartment Service] Images uploaded successfully");
     } catch (err) {
       console.error("[Apartment Service] Error uploading images:", err);
       throw new Error(
@@ -211,12 +197,6 @@ export const createAppartment = async (
     console.error("[Apartment Service] Error creating apartment:", error);
     throw error;
   }
-
-  console.log(
-    "[Apartment Service] Successfully created apartment:",
-    newAppartment,
-  );
-
   // Invalidate cache after creating apartment
   invalidateApartmentsCache();
 
@@ -231,8 +211,6 @@ export const updateAppartment = async (
   updates: UpdateAppartmentDto,
   newImageFiles?: File[],
 ): Promise<Appartment> => {
-  console.log(`[Apartment Service] Updating apartment ID: ${id}`, updates);
-
   // Remove system fields that shouldn't be updated
   const updateData = { ...updates };
   delete (updateData as any).id;
@@ -241,7 +219,6 @@ export const updateAppartment = async (
   // Handle new image uploads
   if (newImageFiles && newImageFiles.length > 0) {
     try {
-      console.log("[Apartment Service] Uploading new images...");
       const uploadResults = await uploadImages(newImageFiles, "apartment", id);
       const newImageUrls = uploadResults.map((result) => result.publicUrl);
 
@@ -255,7 +232,6 @@ export const updateAppartment = async (
         updateData.imageUrls = newImageUrls;
       }
 
-      console.log("[Apartment Service] New images uploaded successfully");
     } catch (err) {
       console.error("[Apartment Service] Error uploading images:", err);
       throw new Error(
@@ -278,8 +254,6 @@ export const updateAppartment = async (
     );
     throw error;
   }
-
-  console.log("[Apartment Service] Successfully updated apartment:", data);
 
   // Invalidate cache after updating apartment
   invalidateApartmentsCache();

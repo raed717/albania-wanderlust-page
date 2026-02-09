@@ -8,6 +8,9 @@ import { getAllDestinations } from "@/services/api/destinationService";
 import { addDestinationToCurrentUserWishlist } from "@/services/api/destinationService";
 import { Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  getCurrentUserWishlist
+} from "@/services/api/destinationService";
 
 const Destinations = () => {
   const navigate = useNavigate();
@@ -40,6 +43,19 @@ const Destinations = () => {
     };
 
     fetchDestinations();
+  }, []);
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const wishlist = await getCurrentUserWishlist();
+        // Handle the wishlist data as needed
+      } catch (error) {
+        console.error("Error fetching wishlist:", error);
+      }
+    };
+
+    fetchWishlist();
   }, []);
 
   // GSAP Animations

@@ -26,10 +26,8 @@ const loadCacheFromStorage = (): {
       const parsed = JSON.parse(cached);
       // Validate cache hasn't expired
       if (Date.now() - parsed.timestamp < CACHE_TTL) {
-        console.log("[Hotel Service] Loaded cache from localStorage");
         return parsed;
       } else {
-        console.log("[Hotel Service] localStorage cache expired, clearing");
         localStorage.removeItem(CACHE_KEY);
       }
     }
@@ -54,7 +52,6 @@ const saveCacheToStorage = (data: Hotel[], timestamp: number): void => {
  * Invalidate the hotels cache (call after creating, updating, or deleting hotels)
  */
 export const invalidateHotelsCache = (): void => {
-  console.log("[Hotel Service] 🗑️ Invalidating hotels cache");
   hotelsCache = null;
   try {
     localStorage.removeItem(CACHE_KEY);
@@ -82,7 +79,6 @@ export const getAllHotels = async (): Promise<Hotel[]> => {
     return hotelsCache.data;
   }
 
-  console.log("[Hotel Service] 🔄 Fetching all hotels from database...");
   const { data, error } = await apiClient.from("hotel").select("*");
   if (error) {
     console.error("[Hotel Service] Error fetching hotels:", error);
@@ -93,7 +89,6 @@ export const getAllHotels = async (): Promise<Hotel[]> => {
   const timestamp = Date.now();
   hotelsCache = { data: data || [], timestamp };
   saveCacheToStorage(data || [], timestamp);
-  console.log("[Hotel Service] ✅ Successfully fetched and cached hotels");
   return data || [];
 };
 
@@ -103,7 +98,6 @@ export const getAllHotels = async (): Promise<Hotel[]> => {
 export const getAllHotelsByProviderId = async (
   providerId: string,
 ): Promise<Hotel[]> => {
-  //console.log("[Hotel Service] Fetching all hotels...");
   const { data, error } = await apiClient
     .from("hotel")
     .select("*")
@@ -119,7 +113,6 @@ export const getAllHotelsByProviderId = async (
  * Fetch a single hotel by ID
  */
 export const getHotelById = async (id: number): Promise<Hotel | null> => {
-  console.log(`[Hotel Service] Fetching hotel with ID: ${id}`);
 
   const { data, error } = await apiClient
     .from("hotel")
@@ -141,7 +134,6 @@ export const createHotel = async (
   data: CreateHotelDto,
   imageFiles?: File[],
 ): Promise<Hotel> => {
-  console.log("[Hotel Service] Creating new hotel:", data);
 
   const providerId = await authService.getCurrentUserId();
 
@@ -153,10 +145,8 @@ export const createHotel = async (
   let imageUrls: string[] = [];
   if (imageFiles && imageFiles.length > 0) {
     try {
-      console.log("[Hotel Service] Uploading images...");
       const uploadResults = await uploadHotelImages(imageFiles);
       imageUrls = uploadResults.map((result) => result.publicUrl);
-      console.log("[Hotel Service] Images uploaded successfully");
     } catch (err) {
       console.error("[Hotel Service] Error uploading images:", err);
       throw new Error(
@@ -189,8 +179,6 @@ export const createHotel = async (
     throw error;
   }
 
-  console.log("[Hotel Service] Successfully created hotel:", newHotel);
-
   // Invalidate cache after creating hotel
   invalidateHotelsCache();
 
@@ -205,7 +193,6 @@ export const updateHotel = async (
   data: UpdateHotelDto,
   newImageFiles?: File[],
 ): Promise<Hotel> => {
-  console.log(`[Hotel Service] Updating hotel ID: ${id}`, data);
 
   // Remove system fields that shouldn't be updated
   const updateData = { ...data };
@@ -215,7 +202,6 @@ export const updateHotel = async (
   // Handle new image uploads
   if (newImageFiles && newImageFiles.length > 0) {
     try {
-      console.log("[Hotel Service] Uploading new images...");
       const uploadResults = await uploadHotelImages(newImageFiles, id);
       const newImageUrls = uploadResults.map((result) => result.publicUrl);
 
@@ -229,7 +215,6 @@ export const updateHotel = async (
         updateData.imageUrls = newImageUrls;
       }
 
-      console.log("[Hotel Service] New images uploaded successfully");
     } catch (err) {
       console.error("[Hotel Service] Error uploading images:", err);
       throw new Error(
@@ -257,8 +242,6 @@ export const updateHotel = async (
     throw error;
   }
 
-  console.log("[Hotel Service] Successfully updated hotel:", updatedHotel[0]);
-
   // Invalidate cache after updating hotel
   invalidateHotelsCache();
 
@@ -269,7 +252,6 @@ export const updateHotel = async (
  * Delete a hotel
  */
 export const deleteHotel = async (id: number): Promise<void> => {
-  console.log(`[Hotel Service] Deleting hotel ID: ${id}`);
 
   const { error } = await apiClient.from("hotel").delete().eq("id", id);
 
@@ -277,8 +259,6 @@ export const deleteHotel = async (id: number): Promise<void> => {
     console.error(`[Hotel Service] Error deleting hotel ID ${id}:`, error);
     throw error;
   }
-
-  console.log(`[Hotel Service] Successfully deleted hotel ID: ${id}`);
 
   // Invalidate cache after deleting hotel
   invalidateHotelsCache();

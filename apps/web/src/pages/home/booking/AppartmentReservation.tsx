@@ -35,6 +35,7 @@ import PrimarySearchAppBar from "@/components/home/AppBar";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 
 const ApartmentReservation = () => {
@@ -179,7 +180,7 @@ const ApartmentReservation = () => {
                     <button
                       onClick={() =>
                         setPhotoIndex(
-                          (photoIndex + images.length - 1) % images.length
+                          (photoIndex + images.length - 1) % images.length,
                         )
                       }
                       className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
@@ -491,6 +492,13 @@ const ApartmentReservation = () => {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <AvailabilityCalendar
+                propertyId={parseInt(id!)}
+                propertyType="apartment"
+              />
             </div>
 
             {/* Map Location */}

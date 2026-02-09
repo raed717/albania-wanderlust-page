@@ -117,8 +117,9 @@ export const FilterBar = ({
 
       {/* Filter Sidebar */}
       <aside
-        className={`${isOpen ? "block" : "hidden"
-          } lg:block w-full lg:w-64 lg:border-r lg:pr-6 space-y-6`}
+        className={`${
+          isOpen ? "block" : "hidden"
+        } lg:block w-full lg:w-64 lg:border-r lg:pr-6 space-y-6`}
       >
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -178,12 +179,20 @@ export const FilterBar = ({
                   value={
                     filters.propertyType === "hotel"
                       ? filters.hotelFilters.searchTerm || ""
-                      : filters.appartmentFilters.searchTerm || ""
+                      : filters.propertyType === "apartment"
+                        ? filters.appartmentFilters.searchTerm || ""
+                        : filters.hotelFilters.searchTerm ||
+                          filters.appartmentFilters.searchTerm ||
+                          ""
                   }
                   onChange={(e) => {
                     if (filters.propertyType === "hotel") {
                       onHotelFiltersChange({ searchTerm: e.target.value });
+                    } else if (filters.propertyType === "apartment") {
+                      onAppartmentFiltersChange({ searchTerm: e.target.value });
                     } else {
+                      // Property type is "both" - update both filters
+                      onHotelFiltersChange({ searchTerm: e.target.value });
                       onAppartmentFiltersChange({ searchTerm: e.target.value });
                     }
                   }}
@@ -208,8 +217,8 @@ export const FilterBar = ({
                     value={
                       filters.checkInDate
                         ? new Date(filters.checkInDate)
-                          .toISOString()
-                          .split("T")[0]
+                            .toISOString()
+                            .split("T")[0]
                         : ""
                     }
                     onChange={(e) => {
@@ -230,15 +239,15 @@ export const FilterBar = ({
                     value={
                       filters.checkOutDate
                         ? new Date(filters.checkOutDate)
-                          .toISOString()
-                          .split("T")[0]
+                            .toISOString()
+                            .split("T")[0]
                         : ""
                     }
                     min={
                       filters.checkInDate
                         ? new Date(filters.checkInDate)
-                          .toISOString()
-                          .split("T")[0]
+                            .toISOString()
+                            .split("T")[0]
                         : undefined
                     }
                     onChange={(e) => {
@@ -444,7 +453,15 @@ export const FilterBar = ({
                         onHotelFiltersChange({
                           priceRange: { min: value[0], max: value[1] },
                         });
+                      } else if (filters.propertyType === "apartment") {
+                        onAppartmentFiltersChange({
+                          priceRange: { min: value[0], max: value[1] },
+                        });
                       } else {
+                        // Property type is "both" - update both filters
+                        onHotelFiltersChange({
+                          priceRange: { min: value[0], max: value[1] },
+                        });
                         onAppartmentFiltersChange({
                           priceRange: { min: value[0], max: value[1] },
                         });
@@ -475,7 +492,15 @@ export const FilterBar = ({
                       onHotelFiltersChange({
                         rating: value as any,
                       });
+                    } else if (filters.propertyType === "apartment") {
+                      onAppartmentFiltersChange({
+                        rating: value as any,
+                      });
                     } else {
+                      // Property type is "both" - update both filters
+                      onHotelFiltersChange({
+                        rating: value as any,
+                      });
                       onAppartmentFiltersChange({
                         rating: value as any,
                       });
@@ -513,7 +538,15 @@ export const FilterBar = ({
                       onHotelFiltersChange({
                         status: value as any,
                       });
+                    } else if (filters.propertyType === "apartment") {
+                      onAppartmentFiltersChange({
+                        status: value as any,
+                      });
                     } else {
+                      // Property type is "both" - update both filters
+                      onHotelFiltersChange({
+                        status: value as any,
+                      });
                       onAppartmentFiltersChange({
                         status: value as any,
                       });
@@ -545,7 +578,109 @@ export const FilterBar = ({
             {/* Rooms (if hotel or both) */}
             {(filters.propertyType === "hotel" ||
               filters.propertyType === "both") && (
-                <AccordionItem value="rooms">
+              <AccordionItem value="rooms">
+                <AccordionTrigger className="text-sm font-semibold">
+                  Rooms
+                </AccordionTrigger>
+                <AccordionContent className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-xs mb-1 block">Min</Label>
+                      <Input
+                        type="number"
+                        placeholder="Min"
+                        value={filters.hotelFilters.rooms?.min || ""}
+                        onChange={(e) =>
+                          onHotelFiltersChange({
+                            rooms: {
+                              min: e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined,
+                              max: filters.hotelFilters.rooms?.max,
+                            },
+                          })
+                        }
+                        className="text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs mb-1 block">Max</Label>
+                      <Input
+                        type="number"
+                        placeholder="Max"
+                        value={filters.hotelFilters.rooms?.max || ""}
+                        onChange={(e) =>
+                          onHotelFiltersChange({
+                            rooms: {
+                              min: filters.hotelFilters.rooms?.min,
+                              max: e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined,
+                            },
+                          })
+                        }
+                        className="text-sm"
+                      />
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            {/* Hotel Amenities (if hotel or both) */}
+            {(filters.propertyType === "hotel" ||
+              filters.propertyType === "both") && (
+              <AccordionItem value="hotel-amenities">
+                <AccordionTrigger className="text-sm font-semibold">
+                  Amenities
+                </AccordionTrigger>
+                <AccordionContent className="space-y-3">
+                  {[
+                    { id: "wifi", label: "WiFi" },
+                    { id: "parking", label: "Parking" },
+                    { id: "pool", label: "Swimming Pool" },
+                    { id: "gym", label: "Gym" },
+                    { id: "spa", label: "Spa" },
+                    { id: "restaurant", label: "Restaurant" },
+                    { id: "bar", label: "Bar" },
+                  ].map((amenity) => (
+                    <div
+                      key={amenity.id}
+                      className="flex items-center space-x-2"
+                    >
+                      <Checkbox
+                        id={amenity.id}
+                        checked={
+                          filters.hotelFilters.amenities?.[
+                            amenity.id as keyof typeof filters.hotelFilters.amenities
+                          ] || false
+                        }
+                        onCheckedChange={(checked) =>
+                          onHotelFiltersChange({
+                            amenities: {
+                              ...filters.hotelFilters.amenities,
+                              [amenity.id]: checked,
+                            },
+                          })
+                        }
+                      />
+                      <Label
+                        htmlFor={amenity.id}
+                        className="text-sm font-normal cursor-pointer"
+                      >
+                        {amenity.label}
+                      </Label>
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            {/* Apartment Rooms (if apartment or both) */}
+            {(filters.propertyType === "apartment" ||
+              filters.propertyType === "both") && (
+              <>
+                <AccordionItem value="apt-rooms">
                   <AccordionTrigger className="text-sm font-semibold">
                     Rooms
                   </AccordionTrigger>
@@ -556,14 +691,18 @@ export const FilterBar = ({
                         <Input
                           type="number"
                           placeholder="Min"
-                          value={filters.hotelFilters.rooms?.min || ""}
+                          value={
+                            filters.appartmentFilters.rooms?.min ||
+                            filters.rooms ||
+                            ""
+                          }
                           onChange={(e) =>
-                            onHotelFiltersChange({
+                            onAppartmentFiltersChange({
                               rooms: {
                                 min: e.target.value
                                   ? parseInt(e.target.value)
                                   : undefined,
-                                max: filters.hotelFilters.rooms?.max,
+                                max: filters.appartmentFilters.rooms?.max,
                               },
                             })
                           }
@@ -575,11 +714,11 @@ export const FilterBar = ({
                         <Input
                           type="number"
                           placeholder="Max"
-                          value={filters.hotelFilters.rooms?.max || ""}
+                          value={filters.appartmentFilters.rooms?.max || ""}
                           onChange={(e) =>
-                            onHotelFiltersChange({
+                            onAppartmentFiltersChange({
                               rooms: {
-                                min: filters.hotelFilters.rooms?.min,
+                                min: filters.appartmentFilters.rooms?.min,
                                 max: e.target.value
                                   ? parseInt(e.target.value)
                                   : undefined,
@@ -592,210 +731,104 @@ export const FilterBar = ({
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-              )}
 
-            {/* Hotel Amenities (if hotel or both) */}
-            {(filters.propertyType === "hotel" ||
-              filters.propertyType === "both") && (
-                <AccordionItem value="hotel-amenities">
+                <AccordionItem value="apt-beds">
                   <AccordionTrigger className="text-sm font-semibold">
-                    Amenities
+                    Beds
                   </AccordionTrigger>
                   <AccordionContent className="space-y-3">
-                    {[
-                      { id: "wifi", label: "WiFi" },
-                      { id: "parking", label: "Parking" },
-                      { id: "pool", label: "Swimming Pool" },
-                      { id: "gym", label: "Gym" },
-                      { id: "spa", label: "Spa" },
-                      { id: "restaurant", label: "Restaurant" },
-                      { id: "bar", label: "Bar" },
-                    ].map((amenity) => (
-                      <div
-                        key={amenity.id}
-                        className="flex items-center space-x-2"
-                      >
-                        <Checkbox
-                          id={amenity.id}
-                          checked={
-                            filters.hotelFilters.amenities?.[
-                            amenity.id as keyof typeof filters.hotelFilters.amenities
-                            ] || false
-                          }
-                          onCheckedChange={(checked) =>
-                            onHotelFiltersChange({
-                              amenities: {
-                                ...filters.hotelFilters.amenities,
-                                [amenity.id]: checked,
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs mb-1 block">Min</Label>
+                        <Input
+                          type="number"
+                          placeholder="Min"
+                          value={filters.appartmentFilters.beds?.min || ""}
+                          onChange={(e) =>
+                            onAppartmentFiltersChange({
+                              beds: {
+                                min: e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                                max: filters.appartmentFilters.beds?.max,
                               },
                             })
                           }
+                          className="text-sm"
                         />
-                        <Label
-                          htmlFor={amenity.id}
-                          className="text-sm font-normal cursor-pointer"
-                        >
-                          {amenity.label}
-                        </Label>
                       </div>
-                    ))}
+                      <div>
+                        <Label className="text-xs mb-1 block">Max</Label>
+                        <Input
+                          type="number"
+                          placeholder="Max"
+                          value={filters.appartmentFilters.beds?.max || ""}
+                          onChange={(e) =>
+                            onAppartmentFiltersChange({
+                              beds: {
+                                min: filters.appartmentFilters.beds?.min,
+                                max: e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                              },
+                            })
+                          }
+                          className="text-sm"
+                        />
+                      </div>
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
-              )}
 
-            {/* Apartment Rooms (if apartment or both) */}
-            {(filters.propertyType === "apartment" ||
-              filters.propertyType === "both") && (
-                <>
-                  <AccordionItem value="apt-rooms">
-                    <AccordionTrigger className="text-sm font-semibold">
-                      Rooms
-                    </AccordionTrigger>
-                    <AccordionContent className="space-y-3">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <Label className="text-xs mb-1 block">Min</Label>
-                          <Input
-                            type="number"
-                            placeholder="Min"
-                            value={
-                              filters.appartmentFilters.rooms?.min ||
-                              filters.rooms ||
-                              ""
-                            }
-                            onChange={(e) =>
-                              onAppartmentFiltersChange({
-                                rooms: {
-                                  min: e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined,
-                                  max: filters.appartmentFilters.rooms?.max,
-                                },
-                              })
-                            }
-                            className="text-sm"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-xs mb-1 block">Max</Label>
-                          <Input
-                            type="number"
-                            placeholder="Max"
-                            value={filters.appartmentFilters.rooms?.max || ""}
-                            onChange={(e) =>
-                              onAppartmentFiltersChange({
-                                rooms: {
-                                  min: filters.appartmentFilters.rooms?.min,
-                                  max: e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined,
-                                },
-                              })
-                            }
-                            className="text-sm"
-                          />
-                        </div>
+                <AccordionItem value="apt-bathrooms">
+                  <AccordionTrigger className="text-sm font-semibold">
+                    Bathrooms
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs mb-1 block">Min</Label>
+                        <Input
+                          type="number"
+                          placeholder="Min"
+                          value={filters.appartmentFilters.bathrooms?.min || ""}
+                          onChange={(e) =>
+                            onAppartmentFiltersChange({
+                              bathrooms: {
+                                min: e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                                max: filters.appartmentFilters.bathrooms?.max,
+                              },
+                            })
+                          }
+                          className="text-sm"
+                        />
                       </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="apt-beds">
-                    <AccordionTrigger className="text-sm font-semibold">
-                      Beds
-                    </AccordionTrigger>
-                    <AccordionContent className="space-y-3">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <Label className="text-xs mb-1 block">Min</Label>
-                          <Input
-                            type="number"
-                            placeholder="Min"
-                            value={filters.appartmentFilters.beds?.min || ""}
-                            onChange={(e) =>
-                              onAppartmentFiltersChange({
-                                beds: {
-                                  min: e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined,
-                                  max: filters.appartmentFilters.beds?.max,
-                                },
-                              })
-                            }
-                            className="text-sm"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-xs mb-1 block">Max</Label>
-                          <Input
-                            type="number"
-                            placeholder="Max"
-                            value={filters.appartmentFilters.beds?.max || ""}
-                            onChange={(e) =>
-                              onAppartmentFiltersChange({
-                                beds: {
-                                  min: filters.appartmentFilters.beds?.min,
-                                  max: e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined,
-                                },
-                              })
-                            }
-                            className="text-sm"
-                          />
-                        </div>
+                      <div>
+                        <Label className="text-xs mb-1 block">Max</Label>
+                        <Input
+                          type="number"
+                          placeholder="Max"
+                          value={filters.appartmentFilters.bathrooms?.max || ""}
+                          onChange={(e) =>
+                            onAppartmentFiltersChange({
+                              bathrooms: {
+                                min: filters.appartmentFilters.bathrooms?.min,
+                                max: e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                              },
+                            })
+                          }
+                          className="text-sm"
+                        />
                       </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="apt-bathrooms">
-                    <AccordionTrigger className="text-sm font-semibold">
-                      Bathrooms
-                    </AccordionTrigger>
-                    <AccordionContent className="space-y-3">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <Label className="text-xs mb-1 block">Min</Label>
-                          <Input
-                            type="number"
-                            placeholder="Min"
-                            value={filters.appartmentFilters.bathrooms?.min || ""}
-                            onChange={(e) =>
-                              onAppartmentFiltersChange({
-                                bathrooms: {
-                                  min: e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined,
-                                  max: filters.appartmentFilters.bathrooms?.max,
-                                },
-                              })
-                            }
-                            className="text-sm"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-xs mb-1 block">Max</Label>
-                          <Input
-                            type="number"
-                            placeholder="Max"
-                            value={filters.appartmentFilters.bathrooms?.max || ""}
-                            onChange={(e) =>
-                              onAppartmentFiltersChange({
-                                bathrooms: {
-                                  min: filters.appartmentFilters.bathrooms?.min,
-                                  max: e.target.value
-                                    ? parseInt(e.target.value)
-                                    : undefined,
-                                },
-                              })
-                            }
-                            className="text-sm"
-                          />
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </>
-              )}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </>
+            )}
           </Accordion>
         </div>
 

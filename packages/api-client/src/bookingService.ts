@@ -66,8 +66,6 @@ export const createBooking = async (
   }
 
   const booking = data as Booking;
-  console.log("[Booking Service] ✅ Booking created:", booking.id);
-
   // Send email notification to provider
   try {
     console.log("[Booking Service] 📧 Starting email notification process...");

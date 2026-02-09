@@ -21,10 +21,8 @@ const loadCacheFromStorage = (): { data: Car[]; timestamp: number } | null => {
       const parsed = JSON.parse(cached);
       // Validate cache hasn't expired
       if (Date.now() - parsed.timestamp < CACHE_TTL) {
-        console.log("[Car Service] Loaded cache from localStorage");
         return parsed;
       } else {
-        console.log("[Car Service] localStorage cache expired, clearing");
         localStorage.removeItem(CACHE_KEY);
       }
     }
@@ -56,15 +54,9 @@ export const getAllCars = async (): Promise<Car[]> => {
 
   // Check if cache is valid
   if (carsCache && Date.now() - carsCache.timestamp < CACHE_TTL) {
-    console.log(
-      "[Car Service] 🎯 Returning cached cars data (age: " +
-        Math.round((Date.now() - carsCache.timestamp) / 1000) +
-        "s)",
-    );
     return carsCache.data;
   }
 
-  console.log("[Car Service] 🔄 Fetching all cars from database...");
   const { data, error } = await apiClient.from("car").select("*");
   if (error) {
     console.error("[Car Service] Error fetching cars:", error);
@@ -75,7 +67,6 @@ export const getAllCars = async (): Promise<Car[]> => {
   const timestamp = Date.now();
   carsCache = { data, timestamp };
   saveCacheToStorage(data, timestamp);
-  console.log("[Car Service] ✅ Successfully fetched and cached cars");
   return data;
 };
 
@@ -83,7 +74,6 @@ export const getAllCars = async (): Promise<Car[]> => {
  * Invalidate the cars cache (call after creating, updating, or deleting cars)
  */
 export const invalidateCarsCache = (): void => {
-  console.log("[Car Service] 🗑️ Invalidating cars cache");
   carsCache = null;
   try {
     localStorage.removeItem(CACHE_KEY);
@@ -96,7 +86,6 @@ export const invalidateCarsCache = (): void => {
  * fetch cars by owner id
  */
 export const getCarsByOwnerId = async (providerId: string): Promise<Car[]> => {
-  console.log(`[Car Service] Fetching cars for owner ID: ${providerId}`);
   const { data, error } = await apiClient
     .from("car")
     .select("*")
@@ -108,10 +97,6 @@ export const getCarsByOwnerId = async (providerId: string): Promise<Car[]> => {
     );
     throw error;
   }
-  console.log(
-    `[Car Service] Successfully fetched cars for owner ID: ${providerId}`,
-    data,
-  );
   return data;
 };
 
@@ -119,7 +104,6 @@ export const getCarsByOwnerId = async (providerId: string): Promise<Car[]> => {
  * Fetch car by id (includes monthly prices)
  */
 export const getCarById = async (id: number): Promise<Car | null> => {
-  console.log(`[Car Service] Fetching car with ID: ${id}`);
 
   const { data, error } = await apiClient
     .from("car")
@@ -147,7 +131,6 @@ export const getCarById = async (id: number): Promise<Car | null> => {
     );
   }
 
-  console.log(`[Car Service] Successfully fetched car ID: ${id}`, data);
   return { ...data, monthlyPrices };
 };
 
@@ -188,8 +171,6 @@ export const addCar = async (
   car: CreateCarDto,
   imageFiles?: File[],
 ): Promise<Car> => {
-  console.log("[Car Service] Adding new car...");
-
   const providerId = await authService.getCurrentUserId();
 
   if (!providerId) {
@@ -200,10 +181,8 @@ export const addCar = async (
   let imageUrls: string[] = [];
   if (imageFiles && imageFiles.length > 0) {
     try {
-      console.log("[Car Service] Uploading images...");
       const uploadResults = await uploadCarImages(imageFiles);
       imageUrls = uploadResults.map((result) => result.publicUrl);
-      console.log("[Car Service] Images uploaded successfully");
     } catch (err) {
       console.error("[Car Service] Error uploading images:", err);
       throw new Error(
@@ -235,16 +214,12 @@ export const addCar = async (
   // Save monthly prices if provided
   if (monthlyPrices && monthlyPrices.length > 0 && data?.id) {
     try {
-      console.log("[Car Service] Saving monthly prices...");
       await setMonthlyPrices(data.id, "car", monthlyPrices);
-      console.log("[Car Service] Monthly prices saved successfully");
     } catch (priceError) {
       console.error("[Car Service] Error saving monthly prices:", priceError);
       // Don't throw - car was created successfully, just log the error
     }
   }
-
-  console.log("[Car Service] Successfully added car:", data);
 
   // Invalidate cache after adding new car
   invalidateCarsCache();
@@ -260,7 +235,6 @@ export const updateCar = async (
   car: UpdateCarDto,
   newImageFiles?: File[],
 ): Promise<Car> => {
-  console.log(`[Car Service] Updating car with ID: ${id}`);
 
   // Remove system fields that shouldn't be updated
   const { monthlyPrices, ...updateData } = car;
@@ -270,14 +244,11 @@ export const updateCar = async (
   // Handle new image uploads
   if (newImageFiles && newImageFiles.length > 0) {
     try {
-      console.log("[Car Service] Uploading new images...");
       const uploadResults = await uploadCarImages(newImageFiles, id);
       const newImageUrls = uploadResults.map((result) => result.publicUrl);
-
       // Append new images to existing ones
       updateData.imageUrls = [...(updateData.imageUrls || []), ...newImageUrls];
 
-      console.log("[Car Service] New images uploaded successfully");
     } catch (err) {
       console.error("[Car Service] Error uploading images:", err);
       throw new Error(
@@ -301,16 +272,13 @@ export const updateCar = async (
   // Update monthly prices if provided
   if (monthlyPrices && monthlyPrices.length > 0) {
     try {
-      console.log("[Car Service] Updating monthly prices...");
       await setMonthlyPrices(id, "car", monthlyPrices);
-      console.log("[Car Service] Monthly prices updated successfully");
     } catch (priceError) {
       console.error("[Car Service] Error updating monthly prices:", priceError);
       // Don't throw - car was updated successfully, just log the error
     }
   }
 
-  console.log(`[Car Service] Successfully updated car ID: ${id}`, data);
   // Invalidate cache after updating car
   invalidateCarsCache();
   return { ...data, monthlyPrices: monthlyPrices || [] };
@@ -320,7 +288,6 @@ export const updateCar = async (
  * delete car by id
  */
 export const deleteCar = async (id: number): Promise<void> => {
-  console.log(`[Car Service] Deleting car with ID: ${id}`);
 
   const { error } = await apiClient.from("car").delete().eq("id", id);
 
@@ -328,8 +295,6 @@ export const deleteCar = async (id: number): Promise<void> => {
     console.error(`[Car Service] Error deleting car ID ${id}:`, error);
     throw error;
   }
-
-  console.log(`[Car Service] Successfully deleted car ID: ${id}`);
 
   // Invalidate cache after deleting car
   invalidateCarsCache();

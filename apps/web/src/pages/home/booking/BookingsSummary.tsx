@@ -552,10 +552,10 @@ export default function BookingsSummary() {
                               </div>
                               <div className="flex flex-col items-end gap-2">
                                 <StripePaymentButton booking={booking} />
-                                <div className="text-xs text-slate-400 my-1">
+                                {/* <div className="text-xs text-slate-400 my-1">
                                   or
                                 </div>
-                                <PayPalPaymentButton booking={booking} />
+                                <PayPalPaymentButton booking={booking} /> */}
                               </div>
                               <Button
                                 onClick={() =>

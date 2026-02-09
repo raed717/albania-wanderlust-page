@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { userService } from "@/services/api/userService";
 import { User } from "@/types/user.types";
+import { sendEmailDirect } from "@/services/api/emailService";
 import Swal from "sweetalert2";
 
 const getPropertyIcon = (type: Booking["propertyType"]) => {
@@ -120,7 +121,7 @@ export default function BookingsManagement() {
   const [currentUser, setUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | Booking["status"]>(
-    "all"
+    "all",
   );
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<
     "all" | Booking["propertyType"]
@@ -169,7 +170,7 @@ export default function BookingsManagement() {
         }
         if (booking.propertyType === "apartment") {
           const appartment = await getAppartmentById(
-            parseInt(booking.propertyId)
+            parseInt(booking.propertyId),
           );
           return {
             ...booking,
@@ -184,7 +185,7 @@ export default function BookingsManagement() {
           };
         }
         return { ...booking, propertyData: null };
-      })
+      }),
     );
     setBookings(bookingsWithPropertyData);
   };
@@ -222,7 +223,7 @@ export default function BookingsManagement() {
   // Handle status update
   const handleStatusUpdate = async (
     bookingId: string,
-    newStatus: Booking["status"]
+    newStatus: Booking["status"],
   ) => {
     const result = await Swal.fire({
       title: "Update Booking Status?",
@@ -240,8 +241,45 @@ export default function BookingsManagement() {
       setUpdatingStatus(bookingId);
       const updatedBooking = await updateBookingStatus(bookingId, newStatus);
       setBookings((prev) =>
-        prev.map((b) => (b.id === bookingId ? updatedBooking : b))
+        prev.map((b) => (b.id === bookingId ? updatedBooking : b)),
       );
+
+      // Send confirmation email if status changed to confirmed
+      if (newStatus === "confirmed") {
+        const booking = bookings.find((b) => b.id === bookingId);
+        if (booking) {
+          try {
+            const emailSubject = `Booking Confirmed - ${booking.propertyData?.name || booking.propertyType}`;
+            const emailHtml = `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #2563eb;">Booking Confirmed!</h2>
+                <p>Dear ${booking.requesterName},</p>
+                <p>Your booking has been confirmed please proceed to payment. Here are the details:</p>
+                <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h3 style="margin-top: 0; color: #1f2937;">${booking.propertyData?.name || `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}`}</h3>
+                  <p><strong>Check-in:</strong> ${new Date(booking.startDate).toLocaleDateString()}</p>
+                  <p><strong>Check-out:</strong> ${new Date(booking.endDate).toLocaleDateString()}</p>
+                  ${booking.pickUpTime && booking.dropOffTime ? `<p><strong>Time:</strong> ${booking.pickUpTime} - ${booking.dropOffTime}</p>` : ""}
+                  <p><strong>Total Price:</strong> $${booking.totalPrice.toFixed(2)}</p>
+                  <p><strong>Status:</strong> Confirmed</p>
+                </div>
+                <p>If you have any questions, please contact us.</p>
+                <p>Best regards,<br>The Albania Team</p>
+              </div>
+            `;
+
+            await sendEmailDirect({
+              to: booking.contactMail,
+              subject: emailSubject,
+              html: emailHtml,
+            });
+          } catch (emailError) {
+            console.error("Error sending confirmation email:", emailError);
+            // Don't show error to user as the booking update was successful
+          }
+        }
+      }
+
       await Swal.fire({
         icon: "success",
         title: "Status Updated",
@@ -436,7 +474,7 @@ export default function BookingsManagement() {
                     const PropertyIcon = getPropertyIcon(booking.propertyType);
                     const StatusIcon = getStatusIcon(booking.status);
                     const PaymentStatusIcon = getPaymentStatusIcon(
-                      booking.payment_status
+                      booking.payment_status,
                     );
                     const startDate = new Date(booking.startDate);
                     const endDate = new Date(booking.endDate);
@@ -538,7 +576,10 @@ export default function BookingsManagement() {
                                   e.target.value as Booking["status"],
                                 )
                               }
-                              disabled={updatingStatus === booking.id}
+                              disabled={
+                                updatingStatus === booking.id ||
+                                booking.payment_status === "paid"
+                              }
                               className="text-xs px-3 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <option value="pending">Pending</option>

@@ -27,6 +27,7 @@ import {
 import { Car } from "@/types/car.types";
 import { Month, MONTHS, MONTH_NAMES } from "@/types/price.type";
 import { getCarById } from "@/services/api/carService";
+import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
 
 // Helper to get current month as Month type
 const getCurrentMonth = (): Month => {
@@ -586,6 +587,13 @@ const CarReservation = () => {
                 </div>
               </div>
             )}
+
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <AvailabilityCalendar
+                propertyId={parseInt(id!)}
+                propertyType="car"
+              />
+            </div>
 
             {/* Rental Terms */}
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-100">
