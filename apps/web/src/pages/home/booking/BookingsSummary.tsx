@@ -26,6 +26,7 @@ import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import StripePaymentButton from "@/components/payments/StripePaymentButton";
 import { jsPDF } from "jspdf";
 import logoImage from "@/assets/logo/logoBOOKinAL.png";
+import { useTranslation } from "react-i18next";
 
 const getPropertyIcon = (type: Booking["propertyType"]) => {
   switch (type) {
@@ -321,6 +322,7 @@ function PayPalPaymentButton({ booking }: { booking: Booking }) {
 }
 
 export default function BookingsSummary() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
   const {
@@ -384,11 +386,10 @@ export default function BookingsSummary() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
               <Calendar className="w-7 h-7 text-blue-600" />
-              My Bookings
+              {t("booking.myBookings")}
             </h1>
             <p className="mt-2 text-slate-600">
-              Review all your bookings across cars, hotels, and apartments in
-              one place.
+              {t("booking.bookingSummaryDescription")}
             </p>
           </div>
 
@@ -411,11 +412,10 @@ export default function BookingsSummary() {
           {!isLoading && !isError && (!bookings || bookings.length === 0) && (
             <div className="p-8 bg-white border border-slate-200 rounded-2xl text-center shadow-sm">
               <p className="text-slate-700 font-medium mb-2">
-                You don't have any bookings yet.
+                {t("booking.noBookings")}
               </p>
               <p className="text-slate-500 text-sm">
-                Start exploring properties and cars to create your first
-                booking.
+                {t("booking.startExploring")}
               </p>
             </div>
           )}
@@ -502,7 +502,7 @@ export default function BookingsSummary() {
                             className="mt-3 text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
                           >
                             <FileText className="w-4 h-4 mr-2" />
-                            Download Invoice
+                            {t("booking.downloadInvoice")}
                             <Download className="w-3 h-3 ml-1" />
                           </Button>
                         )}
@@ -525,7 +525,7 @@ export default function BookingsSummary() {
                                   : "bg-slate-50 text-slate-700 border border-slate-200"
                           }`}
                         >
-                          Booking status: {booking.status}
+                          {t("booking.bookingStatus")}: {booking.status}
                         </span>
                         {booking.payment_status && (
                           <span
@@ -537,7 +537,7 @@ export default function BookingsSummary() {
                                   : "bg-red-50 text-red-700 border border-red-200"
                             }`}
                           >
-                            Payment status: {booking.payment_status}
+                            {t("booking.paymentStatus")}: {booking.payment_status}
                           </span>
                         )}
                       </div>
@@ -548,12 +548,12 @@ export default function BookingsSummary() {
                             <>
                               <div className="flex items-center gap-1 text-xs text-amber-600 mb-1">
                                 <CreditCard className="w-3 h-3" />
-                                <span>Payment Required</span>
+                                <span>{t("booking.paymentRequired")}</span>
                               </div>
                               <div className="flex flex-col items-end gap-2">
                                 <StripePaymentButton booking={booking} />
                                 {/* <div className="text-xs text-slate-400 my-1">
-                                  or
+                                  {t("common.or")}
                                 </div>
                                 <PayPalPaymentButton booking={booking} /> */}
                               </div>
@@ -565,7 +565,7 @@ export default function BookingsSummary() {
                                 variant="outline"
                                 className="mt-2"
                               >
-                                Cancel Booking
+                                {t("booking.cancelBooking")}
                               </Button>
                             </>
                           )}
@@ -575,7 +575,7 @@ export default function BookingsSummary() {
                           booking.payment_status === "pending" && (
                             <>
                               <div className="text-xs text-slate-500 mb-1">
-                                Awaiting confirmation
+                                {t("booking.awaitingConfirmation")}
                               </div>
                               <Button
                                 onClick={() =>
@@ -584,7 +584,7 @@ export default function BookingsSummary() {
                                 size="sm"
                                 variant="outline"
                               >
-                                Cancel Booking
+                                {t("booking.cancelBooking")}
                               </Button>
                             </>
                           )}
@@ -596,12 +596,12 @@ export default function BookingsSummary() {
                               <div className="flex items-center gap-1 text-xs text-green-600">
                                 <CreditCard className="w-3 h-3" />
                                 <span className="font-semibold">
-                                  Payment Completed ✓
+                                  {t("booking.paymentCompleted")} ✓
                                 </span>
                               </div>
                               {booking.status === "confirmed" && (
                                 <div className="text-xs text-slate-500">
-                                  Booking confirmed
+                                  {t("booking.confirmed")}
                                 </div>
                               )}
                             </div>
@@ -611,11 +611,11 @@ export default function BookingsSummary() {
                         {booking.status === "canceled" && (
                           <div className="flex flex-col items-end gap-1">
                             <div className="text-xs text-red-600 font-semibold">
-                              Booking Canceled
+                              {t("booking.cancelled")}
                             </div>
                             {booking.payment_status === "paid" && (
                               <div className="text-xs text-slate-500">
-                                Refund will be processed
+                                {t("booking.refundWillBeProcessed")}
                               </div>
                             )}
                           </div>
@@ -627,12 +627,12 @@ export default function BookingsSummary() {
                             <>
                               <div className="flex items-center gap-1 text-xs text-red-600 mb-1">
                                 <AlertCircle className="w-3 h-3" />
-                                <span>Payment Failed</span>
+                                <span>{t("booking.paymentFailed")}</span>
                               </div>
                               <div className="flex flex-col items-end gap-2">
                                 <StripePaymentButton booking={booking} />
                                 <div className="text-xs text-slate-400 my-1">
-                                  or
+                                  {t("common.or")}
                                 </div>
                                 <PayPalPaymentButton booking={booking} />
                               </div>
@@ -644,7 +644,7 @@ export default function BookingsSummary() {
                                 variant="outline"
                                 className="mt-2"
                               >
-                                Cancel Booking
+                                {t("booking.cancelBooking")}
                               </Button>
                             </>
                           )}

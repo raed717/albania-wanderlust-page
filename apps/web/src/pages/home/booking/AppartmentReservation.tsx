@@ -37,8 +37,10 @@ import "yet-another-react-lightbox/styles.css";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import { useTranslation } from "react-i18next";
 
 const ApartmentReservation = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -110,7 +112,7 @@ const ApartmentReservation = () => {
             className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
           >
             <ArrowLeft className="mr-2" size={16} />
-            Back to Apartments
+            {t("navigation.backToApartments")}
           </Button>
         </div>
       </div>
@@ -157,7 +159,7 @@ const ApartmentReservation = () => {
           className="mb-6 hover:bg-white/50"
         >
           <ArrowLeft className="mr-2" size={16} />
-          Back to Apartments
+          {t("navigation.backToApartments")}
         </Button>
 
         {/* Hero Section with Image Gallery */}
@@ -249,7 +251,7 @@ const ApartmentReservation = () => {
                         <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
                           <Home size={20} />
                           <span className="font-medium">
-                            {apartment.rooms} Rooms
+                            {apartment.rooms} {t("searchResults.filters.rooms")}
                           </span>
                         </div>
                       </div>
@@ -310,7 +312,9 @@ const ApartmentReservation = () => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl p-6 sticky top-8 border border-gray-100">
               <div className="text-center mb-6">
-                <p className="text-gray-600 text-sm mb-2">Price per month</p>
+                <p className="text-gray-600 text-sm mb-2">
+                  {t("billing.pricePerDay")}
+                </p>
                 <div className="flex items-center justify-center gap-2">
                   <DollarSign size={32} className="text-emerald-600" />
                   <span className="text-5xl font-bold text-gray-900">
@@ -324,7 +328,9 @@ const ApartmentReservation = () => {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <Home size={20} className="text-blue-600" />
-                    <span className="font-medium text-gray-700">Rooms</span>
+                    <span className="font-medium text-gray-700">
+                      {t("searchResults.filters.rooms")}
+                    </span>
                   </div>
                   <span className="font-bold text-gray-900">
                     {apartment.rooms}
@@ -335,7 +341,9 @@ const ApartmentReservation = () => {
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                     <div className="flex items-center gap-3">
                       <Bed size={20} className="text-blue-600" />
-                      <span className="font-medium text-gray-700">Beds</span>
+                      <span className="font-medium text-gray-700">
+                        {t("searchResults.filters.beds")}
+                      </span>
                     </div>
                     <span className="font-bold text-gray-900">
                       {apartment.beds}
@@ -348,7 +356,7 @@ const ApartmentReservation = () => {
                     <div className="flex items-center gap-3">
                       <Bath size={20} className="text-blue-600" />
                       <span className="font-medium text-gray-700">
-                        Bathrooms
+                        {t("searchResults.filters.bathrooms")}
                       </span>
                     </div>
                     <span className="font-bold text-gray-900">
@@ -362,7 +370,7 @@ const ApartmentReservation = () => {
                     <div className="flex items-center gap-3">
                       <ChefHat size={20} className="text-blue-600" />
                       <span className="font-medium text-gray-700">
-                        Kitchens
+                        {t("searchResults.filters.kitchens")}
                       </span>
                     </div>
                     <span className="font-bold text-gray-900">
@@ -376,7 +384,7 @@ const ApartmentReservation = () => {
                     <div className="flex items-center gap-3">
                       <Sofa size={20} className="text-blue-600" />
                       <span className="font-medium text-gray-700">
-                        Living Rooms
+                        {t("searchResults.filters.livingRooms")}
                       </span>
                     </div>
                     <span className="font-bold text-gray-900">
@@ -393,7 +401,7 @@ const ApartmentReservation = () => {
               >
                 <Calendar className="mr-2" size={20} />
                 {apartment.status === "available"
-                  ? "Book Viewing"
+                  ? t("booking.bookNow")
                   : apartment.status === "rented"
                     ? "Already Rented"
                     : "Under Maintenance"}
@@ -401,7 +409,7 @@ const ApartmentReservation = () => {
 
               {apartment.status === "available" && (
                 <p className="text-center text-xs text-gray-500 mt-4">
-                  Schedule a viewing to see this apartment
+                  {t("billing.flexibleCancellation")}
                 </p>
               )}
             </div>
@@ -413,7 +421,7 @@ const ApartmentReservation = () => {
             <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <Home className="text-blue-600" size={24} />
-                About This Apartment
+                {t("billing.aboutThisApartment")}
               </h2>
               <p className="text-gray-700 leading-relaxed text-lg">
                 {apartment.description ||
@@ -425,7 +433,7 @@ const ApartmentReservation = () => {
             {availableAmenities.length > 0 && (
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Amenities & Features
+                  {t("billing.featuresAndEquipment")}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {availableAmenities.map((amenity, index) => (
@@ -446,7 +454,7 @@ const ApartmentReservation = () => {
             {/* Contact Information */}
             <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Contact Information
+                {t("billing.pickUpAndContactInformation")}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
@@ -506,7 +514,7 @@ const ApartmentReservation = () => {
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                   <MapPin className="text-blue-600" size={24} />
-                  Location
+                  {t("map.locationOnMap")}
                 </h2>
                 <div className="rounded-xl overflow-hidden shadow-md">
                   <MapPicker

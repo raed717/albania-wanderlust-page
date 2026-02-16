@@ -28,12 +28,14 @@ import { MapPicker } from "@/components/dashboard/mapPicker";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
 import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 const AppartmentDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editMode = searchParams.get("edit") === "true";
+  const { t } = useTranslation();
 
   const [appartment, setAppartment] = useState<Appartment | null>(null);
   const [loading, setLoading] = useState(true);
@@ -107,14 +109,14 @@ const AppartmentDetails = () => {
 
       Swal.fire({
         icon: "success",
-        title: "Updated",
-        text: "Apartment updated successfully!",
+        title: t("apartment.save"),
+        text: t("apartment.updateSuccess"),
       });
     } catch {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Failed to update apartment.",
+        title: t("common.error"),
+        text: t("apartment.updateFailed"),
       });
     } finally {
       setSaving(false);
@@ -139,10 +141,12 @@ const AppartmentDetails = () => {
     return (
       <Hsidebar>
         <div className="text-center py-20">
-          <h3 className="text-2xl font-bold">Apartment Not Found</h3>
+          <h3 className="text-2xl font-bold">
+            {t("apartment.apartmentNotFound")}
+          </h3>
           <Button onClick={() => navigate("/dashboard/AppartmentsList")}>
             <ArrowLeft className="mr-2" size={16} />
-            Back
+            {t("apartment.backToApartments")}
           </Button>
         </div>
       </Hsidebar>
@@ -165,16 +169,18 @@ const AppartmentDetails = () => {
               className="mb-4 -ml-4"
             >
               <ArrowLeft className="mr-2" size={16} />
-              Back to Appartments
+              {t("apartment.backToApartments")}
             </Button>
 
             <h1 className="text-3xl font-bold">
-              {isEditing ? "Edit Apartment" : "Apartment Details"}
+              {isEditing
+                ? t("apartment.editApartment")
+                : t("apartment.apartmentDetails")}
             </h1>
             <p className="text-gray-500 mt-1">
               {isEditing
-                ? "Update apartment information"
-                : "View complete apartment details"}
+                ? t("apartment.updateInfo")
+                : t("apartment.viewDetails")}
             </p>
           </div>
 
@@ -183,18 +189,18 @@ const AppartmentDetails = () => {
               <>
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
                   <X className="mr-2" size={16} />
-                  Cancel
+                  {t("apartment.cancel")}
                 </Button>
                 <Button onClick={handleSave} disabled={saving}>
                   {saving ? (
                     <>
                       <Loader2 className="mr-2 animate-spin" size={16} />
-                      Saving...
+                      {t("apartment.saving")}
                     </>
                   ) : (
                     <>
                       <Save className="mr-2" size={16} />
-                      Save
+                      {t("apartment.save")}
                     </>
                   )}
                 </Button>
@@ -202,7 +208,7 @@ const AppartmentDetails = () => {
             ) : (
               <Button onClick={() => setIsEditing(true)}>
                 <Edit className="mr-2" size={16} />
-                Edit Apartment
+                {t("apartment.editApartment")}
               </Button>
             )}
           </div>
@@ -281,7 +287,7 @@ const AppartmentDetails = () => {
                     <div className="h-64 bg-gray-100 flex items-center justify-center text-gray-400">
                       <div className="text-center">
                         <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                        <p>No images available</p>
+                        <p>{t("apartment.noImages")}</p>
                       </div>
                     </div>
                   )}
@@ -290,7 +296,7 @@ const AppartmentDetails = () => {
             </div>
 
             <div className="bg-white p-6 rounded-xl">
-              <Label>Status</Label>
+              <Label>{t("apartment.status")}</Label>
               {isEditing ? (
                 <select
                   name="status"
@@ -298,9 +304,11 @@ const AppartmentDetails = () => {
                   onChange={handleChange}
                   className="w-full mt-2 border rounded-md px-3 py-2"
                 >
-                  <option value="available">Available</option>
-                  <option value="rented">Rented</option>
-                  <option value="maintenance">Maintenance</option>
+                  <option value="available">{t("apartment.available")}</option>
+                  <option value="rented">{t("apartment.rented")}</option>
+                  <option value="maintenance">
+                    {t("apartment.maintenance")}
+                  </option>
                 </select>
               ) : (
                 <span className="inline-block mt-2 px-4 py-2 rounded-full bg-blue-600 text-white">
@@ -321,12 +329,14 @@ const AppartmentDetails = () => {
           {/* Right */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white p-6 rounded-xl">
-              <h2 className="text-xl font-bold mb-6">Basic Information</h2>
+              <h2 className="text-xl font-bold mb-6">
+                {t("apartment.basicInformation")}
+              </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <Label>
-                    <Home size={16} /> Name
+                    <Home size={16} /> {t("apartment.name")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -341,7 +351,7 @@ const AppartmentDetails = () => {
 
                 <div>
                   <Label>
-                    <MapPin size={16} /> Address
+                    <MapPin size={16} /> {t("apartment.address")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -356,7 +366,7 @@ const AppartmentDetails = () => {
 
                 <div>
                   <Label>
-                    <Star size={16} /> Rating
+                    <Star size={16} /> {t("apartment.rating")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -373,7 +383,7 @@ const AppartmentDetails = () => {
 
                 <div>
                   <Label>
-                    <DollarSign size={16} /> Price / Day
+                    <DollarSign size={16} /> {t("apartment.pricePerDay")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -389,7 +399,7 @@ const AppartmentDetails = () => {
 
                 <div>
                   <Label>
-                    <Bed size={16} /> Rooms
+                    <Bed size={16} /> {t("apartment.rooms")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -406,12 +416,14 @@ const AppartmentDetails = () => {
             </div>
 
             <div className="bg-white p-6 rounded-xl">
-              <h2 className="text-xl font-bold mb-6">Contact</h2>
+              <h2 className="text-xl font-bold mb-6">
+                {t("apartment.contact")}
+              </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <Label>
-                    <Mail size={16} /> Email
+                    <Mail size={16} /> {t("apartment.email")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -426,7 +438,7 @@ const AppartmentDetails = () => {
 
                 <div>
                   <Label>
-                    <Phone size={16} /> Phone
+                    <Phone size={16} /> {t("apartment.phone")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -445,13 +457,15 @@ const AppartmentDetails = () => {
               lat={formData.lat}
               lng={formData.lng}
               onLocationSelect={handleLocationSelect}
-              label="Apartment Location"
+              label={t("apartment.apartmentLocation")}
               defaultCenter={[appartment.lat || 40.7, appartment.lng || -73.9]}
               showCoordinates
             />
 
             <div className="bg-white p-6 rounded-xl">
-              <h2 className="text-xl font-bold mb-4">Description</h2>
+              <h2 className="text-xl font-bold mb-4">
+                {t("apartment.description")}
+              </h2>
               {isEditing ? (
                 <textarea
                   name="description"
@@ -461,7 +475,7 @@ const AppartmentDetails = () => {
                   className="w-full border rounded-md p-3"
                 />
               ) : (
-                <p>{appartment.description || "No description available."}</p>
+                <p>{appartment.description || t("apartment.noDescription")}</p>
               )}
             </div>
           </div>

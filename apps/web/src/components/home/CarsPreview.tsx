@@ -8,6 +8,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { CarCard } from "./CarCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Car } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // Helper to get current month as Month type
 const getCurrentMonth = (): Month => {
@@ -21,6 +22,7 @@ const override: CSSProperties = {
 };
 
 const CarsPreview = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const currentMonth = getCurrentMonth();
   const [carMonthlyPrices, setCarMonthlyPrices] = useState<
@@ -80,14 +82,13 @@ const CarsPreview = () => {
       {/* Section Header */}
       <div className="text-center mb-8 md:mb-10 animate-fade-in">
         <span className="inline-block px-4 py-1.5 bg-red-100 text-red-700 font-semibold tracking-wider uppercase text-xs rounded-full mb-3">
-          Explore On Your Terms
+          {t("home.carsPreview.chip")}
         </span>
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-3">
-          Premium Car Rentals
+          {t("home.carsPreview.title")}
         </h2>
         <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Curated selection of quality vehicles for your road trip through
-          Albania's stunning landscapes
+          {t("home.carsPreview.description")}
         </p>
       </div>
 
@@ -104,7 +105,7 @@ const CarsPreview = () => {
         <div className="flex flex-col items-center justify-center p-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
           <Car className="w-10 h-10 text-slate-300 mb-3" />
           <p className="text-muted-foreground text-base">
-            No cars are currently available.
+            {t("home.carsPreview.noCars")}
           </p>
         </div>
       ) : (
@@ -146,7 +147,7 @@ const CarsPreview = () => {
                 size="lg"
                 className="px-6 py-3 bg-foreground text-background rounded-full font-semibold hover:bg-foreground/90 transition inline-block text-center"
               >
-                Explore All Vehicles
+                {t("home.carsPreview.viewAll")}
               </Button>
             </Link>
           </div>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ interface AddHotelDialogProps {
 export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
   onHotelAdded,
 }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedImageFiles, setSelectedImageFiles] = useState<File[]>([]);
@@ -48,7 +50,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -76,12 +78,12 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
 
     // Basic validation
     if (!formData.name || !formData.location || formData.price <= 0) {
-      alert("Please fill in all required fields");
+      alert(t("hotels.addHotelDialog.validation.requiredFields"));
       return;
     }
 
     if (selectedImageFiles.length === 0) {
-      alert("Please upload at least one image");
+      alert(t("hotels.addHotelDialog.validation.imageRequired"));
       return;
     }
 
@@ -113,7 +115,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
     } catch (error) {
       console.error("Error adding hotel:", error);
       alert(
-        `Failed to add hotel: ${error instanceof Error ? error.message : "Please try again."}`
+        `${t("hotels.addHotelDialog.error.addFailed")}: ${error instanceof Error ? error.message : t("common.tryAgain")}`,
       );
     } finally {
       setLoading(false);
@@ -125,16 +127,16 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
       <DialogTrigger asChild>
         <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg">
           <Plus className="mr-2" size={20} />
-          Add Hotel
+          {t("hotels.addHotelDialog.buttons.addHotel")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Add New Hotel
+            {t("hotels.addHotelDialog.title")}
           </DialogTitle>
           <DialogDescription>
-            Fill in the details below to add a new hotel to your property list.
+            {t("hotels.addHotelDialog.subtitle")}
           </DialogDescription>
         </DialogHeader>
 
@@ -143,14 +145,17 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sm font-medium">
-                Hotel Name <span className="text-red-500">*</span>
+                {t("hotels.addHotelDialog.form.hotelName")}{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Grand Plaza Hotel"
+                placeholder={t(
+                  "hotels.addHotelDialog.form.hotelNamePlaceholder",
+                )}
                 required
                 className="w-full"
               />
@@ -159,14 +164,17 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
             {/* Location */}
             <div className="space-y-2">
               <Label htmlFor="location" className="text-sm font-medium">
-                Location <span className="text-red-500">*</span>
+                {t("hotels.addHotelDialog.form.location")}{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="location"
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="Tirana, Albania"
+                placeholder={t(
+                  "hotels.addHotelDialog.form.locationPlaceholder",
+                )}
                 required
                 className="w-full"
               />
@@ -175,7 +183,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
             {/* Rating */}
             <div className="space-y-2">
               <Label htmlFor="rating" className="text-sm font-medium">
-                Rating (0-5)
+                {t("hotels.addHotelDialog.form.rating")}
               </Label>
               <Input
                 id="rating"
@@ -186,7 +194,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
                 max="5"
                 value={formData.rating}
                 onChange={handleChange}
-                placeholder="4.5"
+                placeholder={t("hotels.addHotelDialog.form.ratingPlaceholder")}
                 className="w-full"
               />
             </div>
@@ -194,7 +202,8 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
             {/* Price */}
             <div className="space-y-2">
               <Label htmlFor="price" className="text-sm font-medium">
-                Price per Night ($) <span className="text-red-500">*</span>
+                {t("hotels.addHotelDialog.form.price")}{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="price"
@@ -203,7 +212,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
                 min="0"
                 value={formData.price}
                 onChange={handleChange}
-                placeholder="299"
+                placeholder={t("hotels.addHotelDialog.form.pricePlaceholder")}
                 required
                 className="w-full"
               />
@@ -212,7 +221,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
             {/* Rooms */}
             <div className="space-y-2">
               <Label htmlFor="rooms" className="text-sm font-medium">
-                Total Rooms
+                {t("hotels.addHotelDialog.form.rooms")}
               </Label>
               <Input
                 id="rooms"
@@ -221,7 +230,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
                 min="0"
                 value={formData.rooms}
                 onChange={handleChange}
-                placeholder="150"
+                placeholder={t("hotels.addHotelDialog.form.roomsPlaceholder")}
                 className="w-full"
               />
             </div>
@@ -229,7 +238,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
             {/* Occupancy */}
             <div className="space-y-2">
               <Label htmlFor="occupancy" className="text-sm font-medium">
-                Occupancy (%)
+                {t("hotels.addHotelDialog.form.occupancy")}
               </Label>
               <Input
                 id="occupancy"
@@ -239,7 +248,9 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
                 max="100"
                 value={formData.occupancy}
                 onChange={handleChange}
-                placeholder="85"
+                placeholder={t(
+                  "hotels.addHotelDialog.form.occupancyPlaceholder",
+                )}
                 className="w-full"
               />
             </div>
@@ -247,7 +258,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
             {/* Status */}
             <div className="space-y-2">
               <Label htmlFor="status" className="text-sm font-medium">
-                Status
+                {t("hotels.addHotelDialog.form.status")}
               </Label>
               <select
                 id="status"
@@ -256,15 +267,19 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
                 onChange={handleChange}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <option value="active">Active</option>
-                <option value="maintenance">Maintenance</option>
+                <option value="active">
+                  {t("hotels.addHotelDialog.form.statusActive")}
+                </option>
+                <option value="maintenance">
+                  {t("hotels.addHotelDialog.form.statusMaintenance")}
+                </option>
               </select>
             </div>
 
             {/* Contact Email */}
             <div className="space-y-2">
               <Label htmlFor="contactEmail" className="text-sm font-medium">
-                Contact Email
+                {t("hotels.addHotelDialog.form.contactEmail")}
               </Label>
               <Input
                 id="contactEmail"
@@ -272,7 +287,9 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
                 type="email"
                 value={formData.contactEmail}
                 onChange={handleChange}
-                placeholder="info@hotel.com"
+                placeholder={t(
+                  "hotels.addHotelDialog.form.contactEmailPlaceholder",
+                )}
                 className="w-full"
               />
             </div>
@@ -280,14 +297,16 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
             {/* Contact Phone */}
             <div className="space-y-2">
               <Label htmlFor="contactPhone" className="text-sm font-medium">
-                Contact Phone
+                {t("hotels.addHotelDialog.form.contactPhone")}
               </Label>
               <Input
                 id="contactPhone"
                 name="contactPhone"
                 value={formData.contactPhone}
                 onChange={handleChange}
-                placeholder="+1 234 567 8900"
+                placeholder={t(
+                  "hotels.addHotelDialog.form.contactPhonePlaceholder",
+                )}
                 className="w-full"
               />
             </div>
@@ -301,7 +320,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
             selectedFiles={selectedImageFiles}
             onRemoveFile={(index) => {
               setSelectedImageFiles((prev) =>
-                prev.filter((_, i) => i !== index)
+                prev.filter((_, i) => i !== index),
               );
             }}
             maxImages={10}
@@ -311,14 +330,14 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
           {/* Address */}
           <div className="space-y-2">
             <Label htmlFor="address" className="text-sm font-medium">
-              Full Address
+              {t("hotels.addHotelDialog.form.address")}
             </Label>
             <Input
               id="address"
               name="address"
               value={formData.address}
               onChange={handleChange}
-              placeholder="123 Main Street, City, State, ZIP"
+              placeholder={t("hotels.addHotelDialog.form.addressPlaceholder")}
               className="w-full"
             />
           </div>
@@ -328,7 +347,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
             lat={formData.lat}
             lng={formData.lng}
             onLocationSelect={handleLocationSelect}
-            label="Select Hotel Location on Map"
+            label={t("hotels.addHotelDialog.form.mapLabel")}
             defaultCenter={[41.327953, 19.819025]}
             defaultZoom={8}
             showCoordinates={true}
@@ -337,14 +356,16 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
           {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description" className="text-sm font-medium">
-              Description
+              {t("hotels.addHotelDialog.form.description")}
             </Label>
             <textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Describe the hotel amenities and features..."
+              placeholder={t(
+                "hotels.addHotelDialog.form.descriptionPlaceholder",
+              )}
               rows={3}
               className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
             />
@@ -357,7 +378,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
               onClick={() => setOpen(false)}
               disabled={loading}
             >
-              Cancel
+              {t("hotels.addHotelDialog.buttons.cancel")}
             </Button>
             <Button
               type="submit"
@@ -367,12 +388,12 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
               {loading ? (
                 <>
                   <Loader2 className="mr-2 animate-spin" size={16} />
-                  Adding...
+                  {t("hotels.addHotelDialog.adding")}
                 </>
               ) : (
                 <>
                   <Plus className="mr-2" size={16} />
-                  Add Hotel
+                  {t("hotels.addHotelDialog.buttons.addHotel")}
                 </>
               )}
             </Button>

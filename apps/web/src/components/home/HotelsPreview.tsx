@@ -8,6 +8,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { PropertyCard } from "./PropertyCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Building2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const animation = { duration: 50000, easing: (t: number) => t };
 
@@ -17,6 +18,7 @@ const override: CSSProperties = {
 };
 
 const HotelsPreview = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [sliderRef] = useKeenSlider({
@@ -69,11 +71,11 @@ const HotelsPreview = () => {
             <Building2 className="w-5 h-5 text-red-600" />
           </div>
           <h3 className="text-2xl md:text-3xl font-bold text-slate-900">
-            Hotels
+            {t("home.hotelsPreview.title")}
           </h3>
         </div>
         <p className="text-muted-foreground leading-relaxed text-sm">
-          Premium hotels in Albania's most iconic destinations
+          {t("home.hotelsPreview.description")}
         </p>
       </div>
 
@@ -89,7 +91,7 @@ const HotelsPreview = () => {
       ) : availableTopHotels.length === 0 ? (
         <div className="flex-grow flex flex-col items-center justify-center p-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
           <Building2 className="w-10 h-10 text-slate-300 mb-3" />
-          <p className="text-muted-foreground">No hotels available</p>
+          <p className="text-muted-foreground">{t("home.hotelsPreview.noHotels")}</p>
         </div>
       ) : (
         <>
@@ -127,7 +129,7 @@ const HotelsPreview = () => {
                 variant="ghost"
                 className="group p-0 hover:bg-transparent text-red-600 font-semibold gap-2"
               >
-                View All Hotels
+                {t("home.hotelsPreview.viewAll")}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>

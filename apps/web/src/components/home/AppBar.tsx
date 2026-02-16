@@ -25,8 +25,11 @@ import { authService } from "@/services/api/authService";
 import { userService } from "@/services/api/userService";
 import { User } from "@/types/user.types";
 import { Heart, Home } from "lucide-react";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 export default function PrimarySearchAppBar() {
+  const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     React.useState<null | HTMLElement>(null);
@@ -217,28 +220,30 @@ export default function PrimarySearchAppBar() {
               <ListItemIcon>
                 <DashboardIcon fontSize="small" />
               </ListItemIcon>
-              Dashboard
+              {t("appBar.dashboard")}
             </MenuItem>
           )}
           <MenuItem onClick={handleMyBookings} sx={{ py: 1.5 }}>
             <ListItemIcon>
               <CalendarMonthIcon fontSize="small" />
             </ListItemIcon>
-            My Bookings
+            {t("appBar.myBookings")}
           </MenuItem>
           {isProvider && isProfileComplete && (
             <MenuItem onClick={handleDashboard} sx={{ py: 1.5 }}>
               <ListItemIcon>
                 <Home fontSize="small" />
               </ListItemIcon>
-              Properties Management
+              {t("appBar.propertiesManagement")}
             </MenuItem>
           )}
           <MenuItem onClick={handleMyAccount} sx={{ py: 1.5 }}>
             <ListItemIcon>
               <PersonIcon fontSize="small" />
             </ListItemIcon>
-            {isProfileComplete ? "My Account" : "Complete My Profile"}
+            {isProfileComplete
+              ? t("appBar.myAccount")
+              : t("appBar.completeProfile")}
           </MenuItem>
           <Divider />
           <MenuItem
@@ -248,7 +253,7 @@ export default function PrimarySearchAppBar() {
             <ListItemIcon>
               <LogoutIcon fontSize="small" color="error" />
             </ListItemIcon>
-            Logout
+            {t("appBar.logout")}
           </MenuItem>
         </>
       ) : (
@@ -256,7 +261,7 @@ export default function PrimarySearchAppBar() {
           <ListItemIcon>
             <LoginIcon fontSize="small" color="primary" />
           </ListItemIcon>
-          Login
+          {t("appBar.login")}
         </MenuItem>
       )}
     </Menu>
@@ -316,7 +321,7 @@ export default function PrimarySearchAppBar() {
             </Avatar>
           )}
         </ListItemIcon>
-        Profile
+        {t("appBar.profile")}
       </MenuItem>
     </Menu>
   );
@@ -411,7 +416,7 @@ export default function PrimarySearchAppBar() {
                 onClick={() => navigate("/myBookings")}
                 sx={{ textTransform: "none", mr: 1 }}
               >
-                My Bookings
+                {t("appBar.myBookings")}
               </Button>
             )}
             {user && (
@@ -421,7 +426,7 @@ export default function PrimarySearchAppBar() {
                 onClick={() => navigate("/wishlist")}
                 sx={{ textTransform: "none", mr: 1 }}
               >
-                My Wishlist
+                {t("appBar.myWishlist")}
               </Button>
             )}
             {isUser && (
@@ -430,10 +435,11 @@ export default function PrimarySearchAppBar() {
                 onClick={() => navigate("/ProviderRequest")}
                 sx={{ textTransform: "none", mr: 1 }}
               >
-                Become a Provider
+                {t("appBar.becomeProvider")}
               </Button>
             )}
-            <Tooltip title="Account">
+            <LanguageSwitcher />
+            <Tooltip title={t("appBar.account")}>
               <IconButton
                 size="large"
                 edge="end"
@@ -448,7 +454,14 @@ export default function PrimarySearchAppBar() {
               </IconButton>
             </Tooltip>
           </Box>
-          <Box sx={{ display: { xs: "flex", md: "none" } }}>
+          <Box
+            sx={{
+              display: { xs: "flex", md: "none" },
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <LanguageSwitcher />
             <IconButton
               size="large"
               aria-label="show more"

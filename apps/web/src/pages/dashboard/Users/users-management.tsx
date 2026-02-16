@@ -5,8 +5,10 @@ import { CheckCircle, XCircle, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { userService } from "@/services/api/userService";
 import { User } from "@/types/user.types";
+import { useTranslation } from "react-i18next";
 
 const StatusBadge = ({ status }) => {
+  const { t } = useTranslation();
   const config = {
     active: {
       color: "bg-green-100 text-green-800",
@@ -28,16 +30,19 @@ const StatusBadge = ({ status }) => {
     <span
       className={`flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full capitalize ${color}`}
     >
-      {icon} {status}
+      {icon} {t(`userManagement.status.${status}`)}
     </span>
   );
 };
 
-const RoleTag = ({ role }) => (
-  <span className="px-2 py-1 text-xs font-semibold rounded bg-indigo-50 text-indigo-700 capitalize">
-    {role.replace("_", " ")}
-  </span>
-);
+const RoleTag = ({ role }) => {
+  const { t } = useTranslation();
+  return (
+    <span className="px-2 py-1 text-xs font-semibold rounded bg-indigo-50 text-indigo-700 capitalize">
+      {t(`userManagement.roles.${role}`)}
+    </span>
+  );
+};
 
 // Transform Supabase user data to display format
 function transformUserData(user: User) {
@@ -54,8 +59,9 @@ function transformUserData(user: User) {
 }
 
 function UserManagement() {
+  const { t } = useTranslation();
   const [users, setUsers] = useState<ReturnType<typeof transformUserData>[]>(
-    []
+    [],
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +80,7 @@ function UserManagement() {
         const transformedUsers = allUsers.map(transformUserData);
         setUsers(transformedUsers);
       } catch (err: any) {
-        setError("Failed to load users");
+        setError(t("userManagement.error"));
         console.error(err);
       } finally {
         setLoading(false);
@@ -86,43 +92,43 @@ function UserManagement() {
   const columns = useMemo(
     () => [
       {
-        name: "Name",
+        name: t("userManagement.columns.name"),
         selector: (row) => row.name,
         sortable: true,
       },
       {
-        name: "Email",
+        name: t("userManagement.columns.email"),
         selector: (row) => row.email,
         sortable: true,
       },
       {
-        name: "Role",
+        name: t("userManagement.columns.role"),
         selector: (row) => row.role,
         cell: (row) => <RoleTag role={row.role} />,
       },
       {
-        name: "Status",
+        name: t("userManagement.columns.status"),
         selector: (row) => row.status,
         cell: (row) => <StatusBadge status={row.status} />,
       },
       {
-        name: "Registered",
+        name: t("userManagement.columns.registered"),
         selector: (row) => row.registered,
         sortable: true,
       },
       {
-        name: "Actions",
+        name: t("userManagement.columns.actions"),
         cell: (row) => (
           <Link
             to={`/dashboard/user-details/${row.id}`}
             className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100"
           >
-            View Details
+            {t("userManagement.viewDetails")}
           </Link>
         ),
       },
     ],
-    []
+    [t],
   );
 
   const filteredData = useMemo(() => {
@@ -148,7 +154,9 @@ function UserManagement() {
 
   return (
     <Hsidebar>
-      <h3 className="text-2xl font-semibold mb-6">User Management</h3>
+      <h3 className="text-2xl font-semibold mb-6">
+        {t("userManagement.title")}
+      </h3>
       <div className="p-6 space-y-6 w-full">
         {error && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
@@ -157,19 +165,24 @@ function UserManagement() {
         )}
 
         {loading ? (
-          <div className="p-8 text-center text-gray-600">Loading users...</div>
+          <div className="p-8 text-center text-gray-600">
+            {t("userManagement.loading")}
+          </div>
         ) : (
           <>
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard label="Total Users" value={stats.total} />
               <StatCard
-                label="Active"
+                label={t("userManagement.stats.totalUsers")}
+                value={stats.total}
+              />
+              <StatCard
+                label={t("userManagement.stats.active")}
                 value={stats.active}
                 color="text-green-600"
               />
               <StatCard
-                label="Suspended"
+                label={t("userManagement.stats.suspended")}
                 value={stats.suspended}
                 color="text-red-600"
               />
@@ -180,7 +193,7 @@ function UserManagement() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search by name or email..."
+                  placeholder={t("userManagement.filters.searchPlaceholder")}
                   className="pl-8 pr-3 py-2 border rounded w-full sm:w-64"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -205,9 +218,11 @@ function UserManagement() {
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
               >
-                <option value="">All Roles</option>
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
+                <option value="">{t("userManagement.filters.allRoles")}</option>
+                <option value="user">{t("userManagement.filters.user")}</option>
+                <option value="admin">
+                  {t("userManagement.filters.admin")}
+                </option>
               </select>
 
               <select
@@ -215,10 +230,18 @@ function UserManagement() {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="suspended">Suspended</option>
-                <option value="pending">Pending</option>
+                <option value="">
+                  {t("userManagement.filters.allStatus")}
+                </option>
+                <option value="active">
+                  {t("userManagement.filters.active")}
+                </option>
+                <option value="suspended">
+                  {t("userManagement.filters.suspended")}
+                </option>
+                <option value="pending">
+                  {t("userManagement.filters.pending")}
+                </option>
               </select>
             </div>
 

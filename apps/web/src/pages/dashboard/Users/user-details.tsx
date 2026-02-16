@@ -1,9 +1,19 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Hsidebar from "@/components/dashboard/hsidebar";
-import { ArrowLeft, Edit, Ban, Mail, Calendar, X, Contact, Badge  } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit,
+  Ban,
+  Mail,
+  Calendar,
+  X,
+  Contact,
+  Badge,
+} from "lucide-react";
 import { userService } from "@/services/api/userService";
 import { User, UpdateUserProfileData, UpdateUser } from "@/types/user.types";
+import { useTranslation } from "react-i18next";
 
 // --- Components ---
 
@@ -12,6 +22,7 @@ import { User, UpdateUserProfileData, UpdateUser } from "@/types/user.types";
  * @param {'active' | 'suspended' | 'pending'} status
  */
 const StatusBadge = ({ status }) => {
+  const { t } = useTranslation();
   let colorClass = "";
   let dotColor = "";
 
@@ -38,7 +49,7 @@ const StatusBadge = ({ status }) => {
       className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${colorClass}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full mr-1.5 ${dotColor}`}></span>
-      {status}
+      {t(`userDetails.status.${status}`)}
     </span>
   );
 };
@@ -47,16 +58,20 @@ const StatusBadge = ({ status }) => {
  * Role Tag Component
  * @param {string} role
  */
-const RoleTag = ({ role }) => (
-  <span className="px-3 py-1 text-sm font-semibold rounded-full bg-indigo-100 text-indigo-800 shadow-sm capitalize">
-    <Contact className="inline-block w-4 h-4 mr-1" />
-    {(role || "user").replace("_", " ")}
-  </span>
-);
+const RoleTag = ({ role }) => {
+  const { t } = useTranslation();
+  return (
+    <span className="px-3 py-1 text-sm font-semibold rounded-full bg-indigo-100 text-indigo-800 shadow-sm capitalize">
+      <Contact className="inline-block w-4 h-4 mr-1" />
+      {t(`userDetails.roles.${role}`)}
+    </span>
+  );
+};
 
 // --- Fake Data and Main Component ---
 
 function UserDetails() {
+  const { t } = useTranslation();
   const { userId } = useParams();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +88,7 @@ function UserDetails() {
         const data = await userService.getUserById(userId);
         setUser(data);
       } catch (err: any) {
-        setError("User not found or error fetching user.");
+        setError(t("userDetails.errors.fetchUser"));
       } finally {
         setLoading(false);
       }
@@ -100,35 +115,37 @@ function UserDetails() {
     setSaving(true);
     setError(null);
     try {
-      const updated = await userService.updateProfile(user.id, { status: "suspended" });
+      const updated = await userService.updateProfile(user.id, {
+        status: "suspended",
+      });
       setUser(updated);
     } catch (err: any) {
-      setError("Failed to suspend user.");
+      setError(t("userDetails.errors.suspendUser"));
     } finally {
       setSaving(false);
     }
   };
 
-    const handelActivateUser = async () => {
-      if (!user) return;
-      setSaving(true);
-      setError(null);
-      try {
-        const updated = await userService.updateProfile(user.id, {
-          status: "active",
-        });
-        setUser(updated);
-      } catch (err: any) {
-        setError("Failed to activate user.");
-      } finally {
-        setSaving(false);
-      }
-    };
+  const handelActivateUser = async () => {
+    if (!user) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const updated = await userService.updateProfile(user.id, {
+        status: "active",
+      });
+      setUser(updated);
+    } catch (err: any) {
+      setError(t("userDetails.errors.activateUser"));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleEditChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setEditData((prev) => ({ ...prev, [name]: value }));
@@ -143,7 +160,7 @@ function UserDetails() {
       setUser(updated);
       setEditOpen(false);
     } catch (err: any) {
-      setError("Failed to update user profile.");
+      setError(t("userDetails.errors.updateProfile"));
     } finally {
       setSaving(false);
     }
@@ -153,7 +170,7 @@ function UserDetails() {
     return (
       <Hsidebar>
         <div className="p-8 bg-gray-50 min-h-screen flex items-center justify-center">
-          <p className="text-lg text-gray-600">Loading user...</p>
+          <p className="text-lg text-gray-600">{t("userDetails.loading")}</p>
         </div>
       </Hsidebar>
     );
@@ -162,12 +179,14 @@ function UserDetails() {
     return (
       <Hsidebar>
         <div className="p-8 bg-gray-50 min-h-screen">
-          <p className="text-red-600 text-lg">{error || "User not found."}</p>
+          <p className="text-red-600 text-lg">
+            {error || t("userDetails.errors.userNotFound")}
+          </p>
           <Link
             to="/dashboard/userManagement"
             className="mt-4 inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
           >
-            <ArrowLeft size={16} /> Back to Users
+            <ArrowLeft size={16} /> {t("userDetails.backToUsers")}
           </Link>
         </div>
       </Hsidebar>
@@ -184,10 +203,10 @@ function UserDetails() {
             to="/dashboard/userManagement"
             className="flex items-center gap-1 text-gray-500 hover:text-indigo-600 transition-colors text-sm font-medium"
           >
-            <ArrowLeft size={18} /> Back to User List
+            <ArrowLeft size={18} /> {t("userDetails.backToUserList")}
           </Link>
           <h1 className="text-3xl font-extrabold text-gray-900 hidden sm:block">
-            User Profile
+            {t("userDetails.userProfile")}
           </h1>
         </div>
 
@@ -210,7 +229,7 @@ function UserDetails() {
                 </h2>
                 <div className="mt-2 flex items-center gap-4">
                   <RoleTag role={user.role || "user"} />
-                  <StatusBadge status={user.status } />
+                  <StatusBadge status={user.status} />
                   {/* StatusBadge can be customized if you add status to metadata */}
                 </div>
               </div>
@@ -222,7 +241,9 @@ function UserDetails() {
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-indigo-500" />
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Email</dt>
+                  <dt className="text-sm font-medium text-gray-500">
+                    {t("userDetails.labels.email")}
+                  </dt>
                   <dd className="text-base text-gray-900 break-words">
                     {user.email}
                   </dd>
@@ -248,7 +269,9 @@ function UserDetails() {
                   </svg>
                 </span>
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Phone</dt>
+                  <dt className="text-sm font-medium text-gray-500">
+                    {t("userDetails.labels.phone")}
+                  </dt>
                   <dd className="text-base text-gray-900">
                     {user.phone || user.phone || "-"}
                   </dd>
@@ -260,7 +283,7 @@ function UserDetails() {
                 <Calendar className="w-5 h-5 text-indigo-500" />
                 <div>
                   <dt className="text-sm font-medium text-gray-500">
-                    Registration Date
+                    {t("userDetails.labels.registrationDate")}
                   </dt>
                   <dd className="text-base text-gray-900">
                     {user.created_at
@@ -290,7 +313,7 @@ function UserDetails() {
                 </span>
                 <div>
                   <dt className="text-sm font-medium text-gray-500">
-                    Last Login
+                    {t("userDetails.labels.lastLogin")}
                   </dt>
                   <dd className="text-base text-gray-900">
                     {user.updated_at
@@ -304,7 +327,7 @@ function UserDetails() {
             {/* Address (Full Width Detail) */}
             <div className="mt-6 pt-6 border-t">
               <dt className="text-sm font-medium text-gray-500 mb-1">
-                Address
+                {t("userDetails.labels.address")}
               </dt>
               <dd className="text-base text-gray-900">
                 {user.location || "-"}
@@ -317,7 +340,7 @@ function UserDetails() {
             {/* Actions Card */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-3">
-                Management Actions
+                {t("userDetails.managementActions")}
               </h3>
               <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3">
                 <button
@@ -326,15 +349,23 @@ function UserDetails() {
                   disabled={saving}
                 >
                   <Edit className="w-4 h-4 mr-2" />
-                  Edit Profile
+                  {t("userDetails.buttons.editProfile")}
                 </button>
-                <button className="flex items-center justify-center w-full px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-150 shadow-md" onClick={handelSuspendUser} disabled={saving || user.status === "suspended"}>
+                <button
+                  className="flex items-center justify-center w-full px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-150 shadow-md"
+                  onClick={handelSuspendUser}
+                  disabled={saving || user.status === "suspended"}
+                >
                   <Ban className="w-4 h-4 mr-2" />
-                  Suspend User
+                  {t("userDetails.buttons.suspendUser")}
                 </button>
-                <button className="flex items-center justify-center w-full px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition duration-150 shadow-md" onClick={handelActivateUser} disabled={saving || user.status === "active"}>
+                <button
+                  className="flex items-center justify-center w-full px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition duration-150 shadow-md"
+                  onClick={handelActivateUser}
+                  disabled={saving || user.status === "active"}
+                >
                   <Badge className="w-4 h-4 mr-2" />
-                  Activate User
+                  {t("userDetails.buttons.activateUser")}
                 </button>
               </div>
             </div>
@@ -343,9 +374,9 @@ function UserDetails() {
             {/* You can implement activity tracking if needed */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-3">
-                Recent Activity
+                {t("userDetails.recentActivity")}
               </h3>
-              <p className="text-gray-500">No activity data available.</p>
+              <p className="text-gray-500">{t("userDetails.noActivityData")}</p>
             </div>
           </div>
         </div>
@@ -355,7 +386,9 @@ function UserDetails() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-screen overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Edit User Profile</h2>
+              <h2 className="text-xl font-bold">
+                {t("userDetails.modal.editUserProfile")}
+              </h2>
               <button
                 onClick={() => setEditOpen(false)}
                 disabled={saving}
@@ -378,7 +411,7 @@ function UserDetails() {
             >
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Full Name
+                  {t("userDetails.form.fullName")}
                 </label>
                 <input
                   type="text"
@@ -390,7 +423,7 @@ function UserDetails() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Avatar URL
+                  {t("userDetails.form.avatarUrl")}
                 </label>
                 <input
                   type="text"
@@ -401,7 +434,9 @@ function UserDetails() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Phone</label>
+                <label className="block text-sm font-medium mb-1">
+                  {t("userDetails.form.phone")}
+                </label>
                 <input
                   type="text"
                   name="phone"
@@ -411,7 +446,9 @@ function UserDetails() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Bio</label>
+                <label className="block text-sm font-medium mb-1">
+                  {t("userDetails.form.bio")}
+                </label>
                 <textarea
                   name="bio"
                   value={editData.bio || ""}
@@ -421,7 +458,7 @@ function UserDetails() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Location
+                  {t("userDetails.form.location")}
                 </label>
                 <input
                   type="text"
@@ -432,15 +469,17 @@ function UserDetails() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Role</label>
+                <label className="block text-sm font-medium mb-1">
+                  {t("userDetails.form.role")}
+                </label>
                 <select
                   name="role"
                   value={editData.role || "user"}
                   onChange={handleEditChange}
                   className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
+                  <option value="user">{t("userDetails.form.user")}</option>
+                  <option value="admin">{t("userDetails.form.admin")}</option>
                 </select>
               </div>
               <div className="flex gap-2 mt-6 pt-4 border-t">
@@ -449,7 +488,9 @@ function UserDetails() {
                   className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:bg-gray-400"
                   disabled={saving}
                 >
-                  {saving ? "Saving..." : "Save"}
+                  {saving
+                    ? t("userDetails.form.saving")
+                    : t("userDetails.form.save")}
                 </button>
                 <button
                   type="button"
@@ -457,7 +498,7 @@ function UserDetails() {
                   onClick={() => setEditOpen(false)}
                   disabled={saving}
                 >
-                  Cancel
+                  {t("userDetails.form.cancel")}
                 </button>
               </div>
             </form>

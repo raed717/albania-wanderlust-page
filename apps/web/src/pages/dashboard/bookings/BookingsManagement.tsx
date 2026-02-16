@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Booking } from "@/types/booking.type";
 import {
   getBookingsByProviderId,
@@ -114,6 +115,7 @@ const getPropertyRoute = (booking: Booking) => {
 };
 
 export default function BookingsManagement() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -151,7 +153,7 @@ export default function BookingsManagement() {
       await fetchPropertiesData(data);
     } catch (err) {
       console.error("Error fetching bookings:", err);
-      setError("Failed to load bookings. Please try again later.");
+      setError(t("bookingManagement.errors.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -226,13 +228,15 @@ export default function BookingsManagement() {
     newStatus: Booking["status"],
   ) => {
     const result = await Swal.fire({
-      title: "Update Booking Status?",
-      text: `Are you sure you want to change the status to "${newStatus}"?`,
+      title: t("bookingManagement.confirmations.updateStatusTitle"),
+      text: t("bookingManagement.confirmations.updateStatusText", {
+        status: newStatus,
+      }),
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, update it!",
+      confirmButtonText: t("bookingManagement.confirmations.confirmButton"),
     });
 
     if (!result.isConfirmed) return;
@@ -249,22 +253,24 @@ export default function BookingsManagement() {
         const booking = bookings.find((b) => b.id === bookingId);
         if (booking) {
           try {
-            const emailSubject = `Booking Confirmed - ${booking.propertyData?.name || booking.propertyType}`;
+            const emailSubject = t("bookingManagement.email.subject", {
+              propertyName: booking.propertyData?.name || booking.propertyType,
+            });
             const emailHtml = `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #2563eb;">Booking Confirmed!</h2>
-                <p>Dear ${booking.requesterName},</p>
-                <p>Your booking has been confirmed please proceed to payment. Here are the details:</p>
+                <h2 style="color: #2563eb;">${t("bookingManagement.email.subject", { propertyName: booking.propertyData?.name || `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}` })}</h2>
+                <p>${t("bookingManagement.email.greeting", { requesterName: booking.requesterName })}</p>
+                <p>${t("bookingManagement.email.confirmationMessage")}</p>
                 <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
                   <h3 style="margin-top: 0; color: #1f2937;">${booking.propertyData?.name || `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}`}</h3>
-                  <p><strong>Check-in:</strong> ${new Date(booking.startDate).toLocaleDateString()}</p>
-                  <p><strong>Check-out:</strong> ${new Date(booking.endDate).toLocaleDateString()}</p>
-                  ${booking.pickUpTime && booking.dropOffTime ? `<p><strong>Time:</strong> ${booking.pickUpTime} - ${booking.dropOffTime}</p>` : ""}
-                  <p><strong>Total Price:</strong> $${booking.totalPrice.toFixed(2)}</p>
-                  <p><strong>Status:</strong> Confirmed</p>
+                  <p><strong>${t("bookingManagement.email.checkIn")}</strong> ${new Date(booking.startDate).toLocaleDateString()}</p>
+                  <p><strong>${t("bookingManagement.email.checkOut")}</strong> ${new Date(booking.endDate).toLocaleDateString()}</p>
+                  ${booking.pickUpTime && booking.dropOffTime ? `<p><strong>${t("bookingManagement.email.time")}</strong> ${booking.pickUpTime} - ${booking.dropOffTime}</p>` : ""}
+                  <p><strong>${t("bookingManagement.email.totalPrice")}</strong> $${booking.totalPrice.toFixed(2)}</p>
+                  <p><strong>${t("bookingManagement.email.status")}</strong> ${t("bookingManagement.email.confirmed")}</p>
                 </div>
-                <p>If you have any questions, please contact us.</p>
-                <p>Best regards,<br>The Albania Team</p>
+                <p>${t("bookingManagement.email.questions")}</p>
+                <p>${t("bookingManagement.email.regards")}</p>
               </div>
             `;
 
@@ -282,15 +288,15 @@ export default function BookingsManagement() {
 
       await Swal.fire({
         icon: "success",
-        title: "Status Updated",
-        text: "Booking status has been updated successfully.",
+        title: t("bookingManagement.confirmations.statusUpdated"),
+        text: t("bookingManagement.confirmations.statusUpdatedSuccess"),
       });
     } catch (err) {
       console.error("Error updating booking status:", err);
       await Swal.fire({
         icon: "error",
-        title: "Update Failed",
-        text: "Failed to update booking status. Please try again.",
+        title: t("bookingManagement.confirmations.updateFailed"),
+        text: t("bookingManagement.confirmations.updateFailedText"),
       });
     } finally {
       setUpdatingStatus(null);
@@ -316,7 +322,7 @@ export default function BookingsManagement() {
             onClick={fetchBookings}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
-            Retry
+            {t("bookingManagement.errors.retry")}
           </button>
         </div>
       </Hsidebar>
@@ -330,11 +336,9 @@ export default function BookingsManagement() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
             <Calendar className="w-8 h-8 text-blue-600" />
-            Bookings Management
+            {t("bookingManagement.title")}
           </h1>
-          <p className="text-gray-600">
-            View and manage all booking requests for your properties
-          </p>
+          <p className="text-gray-600">{t("bookingManagement.subtitle")}</p>
         </div>
 
         {/* Stats Cards */}
@@ -342,7 +346,9 @@ export default function BookingsManagement() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Bookings</p>
+                <p className="text-sm text-gray-600 mb-1">
+                  {t("bookingManagement.stats.totalBookings")}
+                </p>
                 <p className="text-2xl font-bold text-gray-900">
                   {bookings.length}
                 </p>
@@ -353,7 +359,9 @@ export default function BookingsManagement() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Pending</p>
+                <p className="text-sm text-gray-600 mb-1">
+                  {t("bookingManagement.stats.pending")}
+                </p>
                 <p className="text-2xl font-bold text-amber-600">
                   {bookings.filter((b) => b.status === "pending").length}
                 </p>
@@ -364,7 +372,9 @@ export default function BookingsManagement() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Confirmed</p>
+                <p className="text-sm text-gray-600 mb-1">
+                  {t("bookingManagement.stats.confirmed")}
+                </p>
                 <p className="text-2xl font-bold text-emerald-600">
                   {bookings.filter((b) => b.status === "confirmed").length}
                 </p>
@@ -375,7 +385,9 @@ export default function BookingsManagement() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
+                <p className="text-sm text-gray-600 mb-1">
+                  {t("bookingManagement.stats.totalRevenue")}
+                </p>
                 <p className="text-2xl font-bold text-green-600">
                   $
                   {bookings
@@ -397,7 +409,7 @@ export default function BookingsManagement() {
             />
             <input
               className="w-full pl-10 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              placeholder="Search by customer name, email, phone, or property ID..."
+              placeholder={t("bookingManagement.filters.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -408,11 +420,21 @@ export default function BookingsManagement() {
             onChange={(e) => setStatusFilter(e.target.value as any)}
             className="px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
           >
-            <option value="all">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="canceled">Canceled</option>
-            <option value="completed">Completed</option>
+            <option value="all">
+              {t("bookingManagement.filters.allStatuses")}
+            </option>
+            <option value="pending">
+              {t("bookingManagement.statusOptions.pending")}
+            </option>
+            <option value="confirmed">
+              {t("bookingManagement.statusOptions.confirmed")}
+            </option>
+            <option value="canceled">
+              {t("bookingManagement.statusOptions.canceled")}
+            </option>
+            <option value="completed">
+              {t("bookingManagement.statusOptions.completed")}
+            </option>
           </select>
 
           <select
@@ -420,10 +442,16 @@ export default function BookingsManagement() {
             onChange={(e) => setPropertyTypeFilter(e.target.value as any)}
             className="px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
           >
-            <option value="all">All Types</option>
-            <option value="car">Cars</option>
-            <option value="apartment">Apartments</option>
-            <option value="hotel">Hotels</option>
+            <option value="all">
+              {t("bookingManagement.filters.allTypes")}
+            </option>
+            <option value="car">{t("bookingManagement.filters.cars")}</option>
+            <option value="apartment">
+              {t("bookingManagement.filters.apartments")}
+            </option>
+            <option value="hotel">
+              {t("bookingManagement.filters.hotels")}
+            </option>
           </select>
         </div>
 
@@ -431,13 +459,15 @@ export default function BookingsManagement() {
         {filteredBookings.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
             <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 font-medium mb-2">No bookings found</p>
+            <p className="text-gray-600 font-medium mb-2">
+              {t("bookingManagement.emptyState.noBookings")}
+            </p>
             <p className="text-gray-500 text-sm">
               {searchTerm ||
               statusFilter !== "all" ||
               propertyTypeFilter !== "all"
-                ? "Try adjusting your filters"
-                : "You don't have any bookings yet"}
+                ? t("bookingManagement.emptyState.adjustFilters")
+                : t("bookingManagement.emptyState.noBookingsYet")}
             </p>
           </div>
         ) : (
@@ -447,25 +477,25 @@ export default function BookingsManagement() {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Property
+                      {t("bookingManagement.table.headers.property")}
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Customer
+                      {t("bookingManagement.table.headers.customer")}
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Dates
+                      {t("bookingManagement.table.headers.dates")}
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Price
+                      {t("bookingManagement.table.headers.price")}
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Booking Status
+                      {t("bookingManagement.table.headers.bookingStatus")}
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Payment Status
+                      {t("bookingManagement.table.headers.paymentStatus")}
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Actions
+                      {t("bookingManagement.table.headers.actions")}
                     </th>
                   </tr>
                 </thead>
@@ -528,7 +558,9 @@ export default function BookingsManagement() {
                             <p className="text-gray-900">
                               {startDate.toLocaleDateString()}
                             </p>
-                            <p className="text-gray-500 text-xs">to</p>
+                            <p className="text-gray-500 text-xs">
+                              {t("bookingManagement.table.to")}
+                            </p>
                             <p className="text-gray-900">
                               {endDate.toLocaleDateString()}
                             </p>
@@ -582,10 +614,18 @@ export default function BookingsManagement() {
                               }
                               className="text-xs px-3 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              <option value="pending">Pending</option>
-                              <option value="confirmed">Confirmed</option>
-                              <option value="canceled">Canceled</option>
-                              <option value="completed">Completed</option>
+                              <option value="pending">
+                                {t("bookingManagement.statusOptions.pending")}
+                              </option>
+                              <option value="confirmed">
+                                {t("bookingManagement.statusOptions.confirmed")}
+                              </option>
+                              <option value="canceled">
+                                {t("bookingManagement.statusOptions.canceled")}
+                              </option>
+                              <option value="completed">
+                                {t("bookingManagement.statusOptions.completed")}
+                              </option>
                             </select>
                             {updatingStatus === booking.id && (
                               <Loader2 className="w-4 h-4 animate-spin text-blue-600" />

@@ -7,8 +7,10 @@ import HotelsPreview from "@/components/home/HotelsPreview";
 import AppartmentsPreview from "@/components/home/AppartmentsPreview";
 import CarsPreview from "@/components/home/CarsPreview";
 import { Building2, Car, MapPin, Star, Users, Shield } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Index = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-background">
       <PrimarySearchAppBar />
@@ -26,7 +28,7 @@ const Index = () => {
                 500+
               </span>
               <span className="text-sm text-white/70 mt-1">
-                Properties Listed
+                {t("home.trustIndicators.propertiesListed")}
               </span>
             </div>
             <div className="flex flex-col items-center text-center p-3">
@@ -36,7 +38,9 @@ const Index = () => {
               <span className="text-2xl md:text-3xl font-bold text-white">
                 10K+
               </span>
-              <span className="text-sm text-white/70 mt-1">Happy Guests</span>
+              <span className="text-sm text-white/70 mt-1">
+                {t("home.trustIndicators.happyGuests")}
+              </span>
             </div>
             <div className="flex flex-col items-center text-center p-3">
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-2">
@@ -45,7 +49,9 @@ const Index = () => {
               <span className="text-2xl md:text-3xl font-bold text-white">
                 4.8
               </span>
-              <span className="text-sm text-white/70 mt-1">Average Rating</span>
+              <span className="text-sm text-white/70 mt-1">
+                {t("home.trustIndicators.averageRating")}
+              </span>
             </div>
             <div className="flex flex-col items-center text-center p-3">
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-2">
@@ -54,7 +60,9 @@ const Index = () => {
               <span className="text-2xl md:text-3xl font-bold text-white">
                 100%
               </span>
-              <span className="text-sm text-white/70 mt-1">Secure Booking</span>
+              <span className="text-sm text-white/70 mt-1">
+                {t("home.trustIndicators.secureBooking")}
+              </span>
             </div>
           </div>
         </div>
@@ -65,14 +73,13 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-10 animate-fade-in">
             <span className="inline-block px-4 py-1.5 bg-red-100 text-red-700 font-semibold tracking-wider uppercase text-xs rounded-full mb-3">
-              Handpicked For You
+              {t("home.accommodations.badge")}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-3">
-              Find Your Perfect Stay
+              {t("home.accommodations.title")}
             </h2>
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-              From luxury hotels to cozy apartments, discover accommodations
-              that match your style and budget
+              {t("home.accommodations.description")}
             </p>
           </div>
 

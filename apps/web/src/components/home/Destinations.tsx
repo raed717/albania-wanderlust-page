@@ -11,8 +11,10 @@ import { useToast } from "@/hooks/use-toast";
 import {
   getCurrentUserWishlist
 } from "@/services/api/destinationService";
+import { useTranslation } from "react-i18next";
 
 const Destinations = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const sectionRef = useRef(null);
   const headingRef = useRef(null);
@@ -275,20 +277,20 @@ const Destinations = () => {
       setWishlistLoadingId(destinationId);
       await addDestinationToCurrentUserWishlist(destinationId);
       toast({
-        title: "Success",
-        description: "Destination added to wishlist.",
+        title: t("common.success"),
+        description: t("home.destinations.addedToWishlist"),
       });
     } catch (err) {
       console.error("Failed to add to wishlist:", err);
       if (err.code == 23505) {
         toast({
-          title: "Warning",
-          description: "Destination already added to wishlist.",
+          title: t("common.warning"),
+          description: t("home.destinations.alreadyInWishlist"),
         });
       } else {
         toast({
-          title: "Warning",
-          description: "Please login to add to wishlist.",
+          title: t("common.warning"),
+          description: t("home.destinations.loginToAddWishlist"),
         });
       }
     } finally {
@@ -314,14 +316,13 @@ const Destinations = () => {
             ref={headingRef}
             className="mb-4 text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70"
           >
-            Top Destinations
+            {t("home.destinations.title")}
           </h2>
           <p
             ref={subtitleRef}
             className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
           >
-            Experience Albania's most captivating locations, from ancient cities
-            to pristine beaches
+            {t("home.destinations.description")}
           </p>
         </div>
 
@@ -341,7 +342,7 @@ const Destinations = () => {
               className="mt-4"
               variant="outline"
             >
-              Try Again
+              {t("common.tryAgain")}
             </Button>
           </div>
         )}
@@ -388,7 +389,7 @@ const Destinations = () => {
                       className="flex-1 border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:border-primary font-semibold"
                       onClick={() => navigate(`/destination/${destination.id}`)}
                     >
-                      <span>Learn More</span>
+                      <span>{t("common.learnMore")}</span>
                       <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-300" />
                     </Button>
 
@@ -416,7 +417,7 @@ const Destinations = () => {
         {!isLoading && !error && destinations.length === 0 && (
           <div className="text-center py-20">
             <p className="text-muted-foreground text-lg">
-              No destinations available at the moment.
+              {t("home.destinations.noDestinations")}
             </p>
           </div>
         )}

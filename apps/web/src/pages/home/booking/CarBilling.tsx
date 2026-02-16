@@ -18,6 +18,7 @@ import { useNavigate, useParams } from "react-router";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import "react-phone-number-input/style.css";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import { useTranslation } from "react-i18next";
 import { useMutation } from "@tanstack/react-query";
 import { createBooking } from "@/services/api/bookingService";
 import Swal from "sweetalert2";
@@ -26,6 +27,7 @@ import { userService } from "@/services/api/userService";
 import { User } from "@/types/user.types";
 
 export default function CarBilling() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -118,8 +120,8 @@ export default function CarBilling() {
     onSuccess: () => {
       Swal.fire({
         icon: "success",
-        title: "Booking confirmed",
-        text: "Your car booking has been created successfully.",
+        title: t("billing.bookingConfirmed"),
+        text: t("billing.carBookingSuccess"),
       });
       navigate("/myBookings");
     },
@@ -127,10 +129,8 @@ export default function CarBilling() {
       console.error("Error creating booking:", error);
       Swal.fire({
         icon: "error",
-        title: "Booking failed",
-        text:
-          error?.message ||
-          "We couldn't create your booking. Please try again or log in again.",
+        title: t("billing.bookingFailed"),
+        text: error?.message || t("billing.bookingFailedMessage"),
       });
     },
   });
@@ -211,8 +211,8 @@ export default function CarBilling() {
     if (!formData.phone || !isValidPhoneNumber(formData.phone)) {
       Swal.fire({
         icon: "warning",
-        title: "Invalid phone number",
-        text: "Please enter a valid phone number before confirming your booking.",
+        title: t("billing.invalidPhoneNumber"),
+        text: t("billing.enterValidPhoneNumber"),
       });
       return;
     }
@@ -220,8 +220,8 @@ export default function CarBilling() {
     if (!dateRange?.from || !dateRange?.to) {
       Swal.fire({
         icon: "warning",
-        title: "Missing dates",
-        text: "Please select pick-up and drop-off dates.",
+        title: t("billing.missingDates"),
+        text: t("billing.selectPickUpDropOffDates"),
       });
       return;
     }
@@ -247,11 +247,13 @@ export default function CarBilling() {
   const tax = totalPrice * 0.1;
   const finalTotal = totalPrice + serviceFee + tax;
   if (loading) {
-    return <div className="p-8 text-center">Loading car details…</div>;
+    return (
+      <div className="p-8 text-center">{t("billing.loadingCarDetails")}</div>
+    );
   }
 
   if (!car) {
-    return <div className="p-8 text-center">Car not found</div>;
+    return <div className="p-8 text-center">{t("billing.carNotFound")}</div>;
   }
 
   function handlePhoneChange(value?: string): void {
@@ -269,11 +271,9 @@ export default function CarBilling() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-800 mb-2">
-              Complete Your Booking
+              {t("booking.completeYourBooking")}
             </h1>
-            <p className="text-slate-600">
-              Just a few more details and you're ready to go
-            </p>
+            <p className="text-slate-600">{t("booking.justAFewMoreDetails")}</p>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6">
@@ -283,20 +283,20 @@ export default function CarBilling() {
               <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
                 <h2 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
                   <UserIcon className="w-5 h-5 text-blue-600" />
-                  Personal Information
+                  {t("booking.personalInformation")}
                 </h2>
 
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Full Name *
+                      {t("user.fullName")} *
                     </label>
                     <input
                       type="text"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
-                      placeholder="John Doe"
+                      placeholder={t("billing.fullNamePlaceholder")}
                       className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                       required
                     />
@@ -305,7 +305,7 @@ export default function CarBilling() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Email Address *
+                        {t("user.email")} *
                       </label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -314,7 +314,7 @@ export default function CarBilling() {
                           name="email"
                           value={formData.email}
                           onChange={handleInputChange}
-                          placeholder="john@example.com"
+                          placeholder={t("billing.emailPlaceholder")}
                           className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                           required
                         />
@@ -323,21 +323,21 @@ export default function CarBilling() {
 
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Phone Number *
+                        {t("user.phone")} *
                       </label>
                       <div className="relative">
                         <PhoneInput
                           international
                           countryCallingCodeEditable={false}
-                          placeholder="Enter phone number"
+                          placeholder={t("billing.phonePlaceholder")}
                           value={formData.phone}
                           onChange={handlePhoneChange}
                           error={
                             formData.phone
                               ? isValidPhoneNumber(formData.phone)
                                 ? undefined
-                                : "Invalid phone number"
-                              : "Phone number required"
+                                : t("billing.invalidPhone")
+                              : t("billing.phoneRequired")
                           }
                         />
                       </div>
@@ -349,19 +349,19 @@ export default function CarBilling() {
               {/* Rental Period */}
               <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
                 <h2 className="text-xl font-semibold text-slate-800 mb-6">
-                  Rental Period
+                  {t("billing.rentalPeriod")}
                 </h2>
 
                 <div className="space-y-6">
                   {/* Date Range Picker */}
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Pick-up & Drop-off Dates *
+                      {t("billing.pickUpDropOffDates")} *
                     </label>
                     <DateRangePicker
                       dateRange={dateRange}
                       onDateRangeChange={setDateRange}
-                      placeholder="Select rental dates"
+                      placeholder={t("billing.selectRentalDates")}
                       minDate={new Date()}
                       disabledDates={unavailableDates.map(
                         (date) => new Date(date),
@@ -374,7 +374,7 @@ export default function CarBilling() {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                          Pick-up Time
+                          {t("billing.pickUpTime")}
                         </label>
                         <div className="relative">
                           <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -389,7 +389,7 @@ export default function CarBilling() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                          Pick-up Location
+                          {t("billing.pickUpLocation")}
                         </label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -407,7 +407,7 @@ export default function CarBilling() {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                          Drop-off Time
+                          {t("billing.dropOffTime")}
                         </label>
                         <div className="relative">
                           <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -422,7 +422,7 @@ export default function CarBilling() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                          Drop-off Location
+                          {t("billing.dropOffLocation")}
                         </label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -441,8 +441,13 @@ export default function CarBilling() {
                   {totalDays > 0 && (
                     <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                       <p className="text-sm text-blue-800">
-                        <span className="font-semibold">Rental Duration:</span>{" "}
-                        {totalDays} {totalDays === 1 ? "day" : "days"}
+                        <span className="font-semibold">
+                          {t("billing.rentalDuration")}:
+                        </span>{" "}
+                        {totalDays}{" "}
+                        {totalDays === 1
+                          ? t("common.day", "day")
+                          : t("common.days", "days")}
                       </p>
                     </div>
                   )}
@@ -493,7 +498,7 @@ export default function CarBilling() {
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
                   <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                     <CreditCard className="w-5 h-5 text-blue-600" />
-                    Price Summary
+                    {t("billing.priceSummary")}
                   </h3>
 
                   <div className="space-y-4 mb-4 text-sm">
@@ -520,14 +525,17 @@ export default function CarBilling() {
                         <div className="pt-2 border-t border-slate-100">
                           <div className="flex justify-between text-slate-700 font-medium">
                             <span>
-                              Subtotal ({totalDays}{" "}
-                              {totalDays === 1 ? "day" : "days"})
+                              {t("billing.subtotal")} ({totalDays}{" "}
+                              {totalDays === 1
+                                ? t("common.day")
+                                : t("common.days")}
+                              )
                             </span>
                             <span>${totalPrice.toFixed(2)}</span>
                           </div>
                         </div>
                         <p className="text-xs text-slate-500">
-                          Prices vary by month based on seasonal rates.
+                          {t("billing.pricesVaryByMonth")}
                         </p>
                       </div>
                     ) : (
@@ -541,7 +549,7 @@ export default function CarBilling() {
                           </span>
                         </div>
                         <p className="text-xs text-slate-500 mt-1">
-                          Select dates to see price breakdown.
+                          {t("billing.selectDatesForBreakdown")}
                         </p>
                       </div>
                     )}
@@ -549,25 +557,24 @@ export default function CarBilling() {
                     {/* Service Fee */}
                     <div>
                       <div className="flex justify-between text-slate-700">
-                        <span>Service fee</span>
+                        <span>{t("billing.serviceFee")}</span>
                         <span className="font-medium">
                           ${serviceFee.toFixed(2)}
                         </span>
                       </div>
                       <p className="text-xs text-slate-500 mt-1">
-                        Covers platform operations, customer support, and
-                        booking protection.
+                        {t("billing.serviceFeeDescription")}
                       </p>
                     </div>
 
                     {/* Tax */}
                     <div>
                       <div className="flex justify-between text-slate-700">
-                        <span>Tax (10%)</span>
+                        <span>{t("billing.tax")}</span>
                         <span className="font-medium">${tax.toFixed(2)}</span>
                       </div>
                       <p className="text-xs text-slate-500 mt-1">
-                        Local and government tax applied to your rental.
+                        {t("billing.taxDescription")}
                       </p>
                     </div>
                   </div>
@@ -576,15 +583,14 @@ export default function CarBilling() {
                   <div className="pt-4 border-t border-slate-200">
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold text-slate-800">
-                        Total
+                        {t("billing.total")}
                       </span>
                       <span className="text-2xl font-bold text-blue-600">
                         ${finalTotal.toFixed(2)}
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
-                      This is the full amount you’ll pay if you confirm the
-                      booking.
+                      {t("billing.totalDescription")}
                     </p>
                   </div>
 
@@ -602,13 +608,12 @@ export default function CarBilling() {
                   >
                     <Check className="w-5 h-5" />
                     {bookingMutation.isPending
-                      ? "Processing..."
-                      : "Confirm Booking"}
+                      ? t("billing.processing")
+                      : t("billing.confirmBooking")}
                   </button>
 
                   <p className="text-xs text-slate-500 text-center mt-4">
-                    You won’t be charged yet. Payment is completed after
-                    confirmation.
+                    {t("billing.paymentNote")}
                   </p>
                 </div>
               </div>

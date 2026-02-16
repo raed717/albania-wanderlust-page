@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
 interface CarCardProps {
   id: number;
@@ -53,7 +54,9 @@ export const CarCard = ({
   pickUpLocation,
   onClick,
 }: CarCardProps) => {
+  const { t } = useTranslation();
   // Use current month price if available, otherwise fall back to base price
+
   const displayPrice = currentMonthPrice ?? pricePerDay;
   const hasSeasonalPrice =
     currentMonthPrice !== undefined && currentMonthPrice !== pricePerDay;
@@ -148,7 +151,7 @@ export const CarCard = ({
         <div className="grid grid-cols-2 gap-2 mb-3 text-sm text-gray-700">
           <div className="flex items-center gap-1">
             <Users className="w-4 h-4 text-gray-500" />
-            <span>{seats} seats</span>
+            <span>{seats} {t("home.carsPreview.seats")}</span>
           </div>
           <div className="flex items-center gap-1">
             <Settings className="w-4 h-4 text-gray-500" />
@@ -174,7 +177,7 @@ export const CarCard = ({
             ))}
             {features.length > 3 && (
               <Badge variant="secondary" className="text-xs">
-                +{features.length - 3} more
+                +{features.length - 3} {t("home.carsPreview.more")}
               </Badge>
             )}
           </div>
@@ -184,7 +187,7 @@ export const CarCard = ({
         <div className="mt-auto pt-3 border-t">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-1">
-              <span className="text-xs text-gray-600">per day (for this month)</span>
+              <span className="text-xs text-gray-600">{t("billing.pricePerDay")}</span>
               {isPriceHigher && (
                 <div title="Peak season pricing">
                   <TrendingUp className="w-3 h-3 text-amber-500" />

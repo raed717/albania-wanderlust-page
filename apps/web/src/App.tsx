@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { I18nextProvider } from "react-i18next";
+import i18n from "./i18n/i18n";
 import Index from "./pages/home/Index";
 import OAuthSignInPage from "./pages/home/Auth";
 import NotFound from "./pages/NotFound";
@@ -63,98 +65,106 @@ const queryClient = new QueryClient({
 const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID || "";
 
 const App = () => (
-  <PayPalScriptProvider
-    options={{
-      clientId: paypalClientId,
-      currency: "USD",
-      intent: "capture",
-    }}
-  >
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
+  <I18nextProvider i18n={i18n}>
+    <PayPalScriptProvider
+      options={{
+        clientId: paypalClientId,
+        currency: "USD",
+        intent: "capture",
+      }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
 
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<OAuthSignInPage />} />
-            <Route path="/myAccount" element={<MyAccount />} />
-            <Route path="/CultureDetails" element={<CultureDetails />} />
-            <Route path="/destination/:id" element={<DestinationDetails />} />
-            <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/properties-map" element={<PropertiesMapPage />} />
-            <Route path="/searchResults" element={<SearchPropertyResults />} />
-            <Route path="/searchCarResults" element={<SearchCarResults />} />
-            <Route
-              path="/hotelReservation/:id"
-              element={<HotelReservation />}
-            />
-            <Route
-              path="/appartmentReservation/:id"
-              element={<ApartmentReservation />}
-            />
-            <Route path="/carReservation/:id" element={<CarReservation />} />
-            <Route path="/carBilling/:id" element={<CarBilling />} />
-            <Route
-              path="/apartmentBilling/:id"
-              element={<ApartmentBilling />}
-            />
-            <Route path="/myBookings" element={<BookingsSummary />} />
-            <Route path="/ProviderRequest" element={<ProviderRequest />} />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<OAuthSignInPage />} />
+              <Route path="/myAccount" element={<MyAccount />} />
+              <Route path="/CultureDetails" element={<CultureDetails />} />
+              <Route path="/destination/:id" element={<DestinationDetails />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/properties-map" element={<PropertiesMapPage />} />
+              <Route
+                path="/searchResults"
+                element={<SearchPropertyResults />}
+              />
+              <Route path="/searchCarResults" element={<SearchCarResults />} />
+              <Route
+                path="/hotelReservation/:id"
+                element={<HotelReservation />}
+              />
+              <Route
+                path="/appartmentReservation/:id"
+                element={<ApartmentReservation />}
+              />
+              <Route path="/carReservation/:id" element={<CarReservation />} />
+              <Route path="/carBilling/:id" element={<CarBilling />} />
+              <Route
+                path="/apartmentBilling/:id"
+                element={<ApartmentBilling />}
+              />
+              <Route path="/myBookings" element={<BookingsSummary />} />
+              <Route path="/ProviderRequest" element={<ProviderRequest />} />
 
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/dashboard/HotelsList" element={<AllHotels />} />
-              <Route path="/dashboard/hotels/:id" element={<HotelDetails />} />
-              <Route
-                path="/dashboard/AppartmentsList"
-                element={<AllAppartments />}
-              />
-              <Route
-                path="/dashboard/appartments/:id"
-                element={<AppartmentDetails />}
-              />
-              <Route path="/dashboard/carsList" element={<AllCars />} />
-              <Route path="/dashboard/carInfo/:id" element={<CarDetails />} />
-              <Route
-                path="/dashboard/userManagement"
-                element={<UserManagement />}
-              />
-              <Route
-                path="/dashboard/requestsManagement"
-                element={<RequestsManagement />}
-              />
-              <Route
-                path="/dashboard/propertyRequestsManagement"
-                element={<PropertyRequestsManagement />}
-              />
-              <Route
-                path="/dashboard/user-details/:userId"
-                element={<UserDetails />}
-              />
-              <Route
-                path="/dashboard/bookings"
-                element={<BookingsManagement />}
-              />
-              <Route
-                path="/dashboard/destinations"
-                element={<DestinationsManagement />}
-              />
-              <Route path="/dashboard/support" element={<SupportChat />} />
-            </Route>
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-            <Route path="unauthorized" element={<Unauthorized />} />
-            <Route path="/suspended" element={<SuspendedPage />} />
-          </Routes>
-          <UserChatWidget />
-          <Footer />
-        </BrowserRouter>
-      </TooltipProvider>
-      <SpeedInsights />
-    </QueryClientProvider>
-  </PayPalScriptProvider>
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/dashboard/HotelsList" element={<AllHotels />} />
+                <Route
+                  path="/dashboard/hotels/:id"
+                  element={<HotelDetails />}
+                />
+                <Route
+                  path="/dashboard/AppartmentsList"
+                  element={<AllAppartments />}
+                />
+                <Route
+                  path="/dashboard/appartments/:id"
+                  element={<AppartmentDetails />}
+                />
+                <Route path="/dashboard/carsList" element={<AllCars />} />
+                <Route path="/dashboard/carInfo/:id" element={<CarDetails />} />
+                <Route
+                  path="/dashboard/userManagement"
+                  element={<UserManagement />}
+                />
+                <Route
+                  path="/dashboard/requestsManagement"
+                  element={<RequestsManagement />}
+                />
+                <Route
+                  path="/dashboard/propertyRequestsManagement"
+                  element={<PropertyRequestsManagement />}
+                />
+                <Route
+                  path="/dashboard/user-details/:userId"
+                  element={<UserDetails />}
+                />
+                <Route
+                  path="/dashboard/bookings"
+                  element={<BookingsManagement />}
+                />
+                <Route
+                  path="/dashboard/destinations"
+                  element={<DestinationsManagement />}
+                />
+                <Route path="/dashboard/support" element={<SupportChat />} />
+              </Route>
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+              <Route path="unauthorized" element={<Unauthorized />} />
+              <Route path="/suspended" element={<SuspendedPage />} />
+            </Routes>
+            <UserChatWidget />
+            <Footer />
+          </BrowserRouter>
+        </TooltipProvider>
+        <SpeedInsights />
+      </QueryClientProvider>
+    </PayPalScriptProvider>
+  </I18nextProvider>
 );
 
 export default App;

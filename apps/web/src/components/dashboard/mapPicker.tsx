@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
 
 // Fix for default marker icon issue in React-Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -54,6 +55,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
   showCoordinates = true,
   openOnGoogleMaps = true,
 }) => {
+  const { t } = useTranslation();
   const mapPosition: [number, number] | null =
     lat !== undefined && lng !== undefined ? [lat, lng] : null;
 
@@ -116,7 +118,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
             rel="noopener noreferrer"
             className="text-blue-600 hover:underline text-sm font-medium"
           > 
-            Open in Google Maps
+            {t("map.openInGoogleMaps")}
           </a>
         </div>
       )}

@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { CarFilterBar, CarFilterState } from "./CarFilterBar";
+import { useTranslation } from "react-i18next";
 
 // Helper to get current month as Month type
 const getCurrentMonth = (): Month => {
@@ -29,6 +30,7 @@ interface LocationState {
 }
 
 const SearchCarResults = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const state = location.state as LocationState | null;
 
@@ -135,7 +137,7 @@ const SearchCarResults = () => {
       setCars(data);
     } catch (err) {
       console.error("Error fetching cars:", err);
-      setError("Failed to fetch available cars. Please try again later.");
+      setError(t("searchResults.cars.errorFetch"));
     } finally {
       setLoading(false);
     }
@@ -324,13 +326,13 @@ const SearchCarResults = () => {
             <div className="mb-6 flex justify-between items-end">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Available Cars
+                  {t("searchResults.cars.title")}
                 </h1>
                 {!loading && (
                   <p className="text-gray-600">
-                    Found{" "}
-                    <span className="font-semibold">{filteredCars.length}</span>{" "}
-                    cars available for rent
+                    {t("searchResults.cars.found", {
+                      count: filteredCars.length,
+                    })}
                   </p>
                 )}
               </div>
@@ -347,7 +349,7 @@ const SearchCarResults = () => {
                   onClick={fetchCars}
                   className="ml-auto bg-white hover:bg-gray-100 text-red-600 border-red-200"
                 >
-                  Try Again
+                  {t("searchResults.cars.tryAgain")}
                 </Button>
               </Alert>
             )}
@@ -366,17 +368,17 @@ const SearchCarResults = () => {
                   <CarIcon className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  No cars found
+                  {t("searchResults.cars.emptyTitle")}
                 </h3>
                 <p className="text-gray-600 max-w-sm mx-auto">
-                  We couldn't find any cars matching your current filters.
+                  {t("searchResults.cars.emptyDescription")}
                 </p>
                 <Button
                   onClick={handleResetFilters}
                   variant="outline"
                   className="mt-6"
                 >
-                  Clear Filters
+                  {t("searchResults.cars.clearFilters")}
                 </Button>
               </div>
             )}

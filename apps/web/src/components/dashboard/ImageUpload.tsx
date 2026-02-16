@@ -254,7 +254,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
         <ImageIcon className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
         <p className="text-xs text-blue-700">
-          Upload multiple high-quality images to showcase your hotel. The first
+          Upload multiple high-quality images to showcase your property. The first
           image will be used as the primary image in listings.
         </p>
       </div>

@@ -10,9 +10,11 @@ import {
   removeDestinationFromCurrentUserWishlist,
 } from "@/services/api/destinationService";
 import PrimarySearchAppBar from "@/components/home/AppBar";
+import { useTranslation } from "react-i18next";
 
 const WishlistPage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [wishlist, setWishlist] = useState<Wishlist | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +26,7 @@ const WishlistPage = () => {
         const data = await getCurrentUserWishlist();
         setWishlist(data);
       } catch (err) {
-        setError("Could not load your wishlist.");
+        setError(t("wishlist.loadError"));
       } finally {
         setIsLoading(false);
       }
@@ -47,7 +49,7 @@ const WishlistPage = () => {
     } catch (err) {
       // Rollback if API fails
       setWishlist(previousWishlist);
-      alert("Failed to remove item. Please try again.");
+      alert(t("wishlist.removeError"));
     }
   };
 
@@ -56,7 +58,7 @@ const WishlistPage = () => {
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
         <p className="text-muted-foreground animate-pulse">
-          Finding your favorites...
+          {t("wishlist.findingFavorites")}
         </p>
       </div>
     );
@@ -70,11 +72,12 @@ const WishlistPage = () => {
         <header className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
             <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
-              Saved for later
+              {t("wishlist.savedForLater")}
             </h1>
             <p className="text-muted-foreground mt-2">
-              You have {wishlist?.destinations.length || 0} destinations saved
-              in your wishlist.
+              {t("wishlist.destinationsCount", {
+                count: wishlist?.destinations.length || 0,
+              })}
             </p>
           </div>
         </header>
@@ -85,14 +88,13 @@ const WishlistPage = () => {
               <Heart className="w-10 h-10 text-slate-400" />
             </div>
             <h3 className="text-xl font-semibold mb-2">
-              Your wishlist is empty
+              {t("wishlist.emptyTitle")}
             </h3>
             <p className="text-muted-foreground mb-8 max-w-xs mx-auto">
-              Start exploring the world and save your favorite spots for your
-              next adventure.
+              {t("wishlist.emptyDescription")}
             </p>
             <Button size="lg" className="rounded-full px-8">
-              Explore Destinations
+              {t("wishlist.exploreDestinations")}
             </Button>
           </div>
         ) : (
@@ -121,7 +123,7 @@ const WishlistPage = () => {
                     </Button>
                   </div>
                   <Badge className="absolute bottom-3 left-3 bg-white/90 text-slate-900 hover:bg-white backdrop-blur-sm border-none">
-                    Top Rated
+                    {t("wishlist.topRated")}
                   </Badge>
                 </div>
 
@@ -129,7 +131,7 @@ const WishlistPage = () => {
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center text-primary font-medium text-sm">
                       <MapPin className="w-3.5 h-3.5 mr-1" />
-                      {destination.name || "International"}
+                      {destination.name || t("wishlist.international")}
                     </div>
                     <div className="flex items-center text-sm font-bold bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded">
                       <Star className="w-3 h-3 mr-1 fill-yellow-700" />
@@ -150,7 +152,7 @@ const WishlistPage = () => {
                       className="rounded-xl shadow-sm hover:shadow-md transition-shadow"
                       onClick={() => navigate(`/destination/${destination.id}`)}
                     >
-                      See More
+                      {t("wishlist.seeMore")}
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </div>

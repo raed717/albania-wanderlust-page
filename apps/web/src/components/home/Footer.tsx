@@ -10,8 +10,10 @@ import {
   Shield,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -27,8 +29,7 @@ const Footer = () => {
               </h3>
             </Link>
             <p className="text-slate-400 mb-5 leading-relaxed text-sm">
-              Your trusted platform for discovering and booking the best
-              accommodations and car rentals in Albania.
+              {t("footer.description")}
             </p>
             <div className="flex gap-3">
               <a
@@ -64,7 +65,9 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-base font-semibold mb-6 text-white">Explore</h4>
+            <h4 className="text-base font-semibold mb-6 text-white">
+              {t("footer.explore")}
+            </h4>
             <ul className="space-y-3">
               <li>
                 <Link
@@ -72,7 +75,7 @@ const Footer = () => {
                   className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-2 group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  Hotels & Apartments
+                  {t("footer.hotelsApartments")}
                 </Link>
               </li>
               <li>
@@ -81,7 +84,7 @@ const Footer = () => {
                   className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-2 group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  Car Rentals
+                  {t("footer.carRentals")}
                 </Link>
               </li>
               <li>
@@ -90,7 +93,7 @@ const Footer = () => {
                   className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-2 group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  Map View
+                  {t("footer.mapView")}
                 </Link>
               </li>
               <li>
@@ -99,7 +102,7 @@ const Footer = () => {
                   className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-2 group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  Culture & Cuisine
+                  {t("footer.cultureCuisine")}
                 </Link>
               </li>
             </ul>
@@ -107,7 +110,9 @@ const Footer = () => {
 
           {/* Support */}
           <div>
-            <h4 className="text-base font-semibold mb-6 text-white">Support</h4>
+            <h4 className="text-base font-semibold mb-6 text-white">
+              {t("footer.support")}
+            </h4>
             <ul className="space-y-3">
               <li>
                 <a
@@ -115,7 +120,7 @@ const Footer = () => {
                   className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-2 group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  Help Center
+                  {t("footer.helpCenter")}
                 </a>
               </li>
               <li>
@@ -124,7 +129,7 @@ const Footer = () => {
                   className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-2 group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  Cancellation Policy
+                  {t("footer.cancellationPolicy")}
                 </a>
               </li>
               <li>
@@ -133,7 +138,7 @@ const Footer = () => {
                   className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-2 group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  Privacy Policy
+                  {t("footer.privacyPolicy")}
                 </a>
               </li>
               <li>
@@ -142,7 +147,7 @@ const Footer = () => {
                   className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-2 group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  Terms of Service
+                  {t("footer.termsOfService")}
                 </a>
               </li>
             </ul>
@@ -151,7 +156,7 @@ const Footer = () => {
           {/* Contact */}
           <div>
             <h4 className="text-base font-semibold mb-6 text-white">
-              Contact Us
+              {t("footer.contactUs")}
             </h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-slate-400">
@@ -159,9 +164,9 @@ const Footer = () => {
                   <MapPin className="w-4 h-4 text-red-400" />
                 </div>
                 <span className="text-sm">
-                  Tirana, Albania
+                  {t("footer.addressCity")}
                   <br />
-                  Rruga e Kavajës
+                  {t("footer.addressStreet")}
                 </span>
               </li>
               <li className="flex items-center gap-3 text-slate-400">
@@ -186,12 +191,12 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-slate-500 text-sm">
-              © {currentYear} BookinAL. All rights reserved.
+              © {currentYear} BookinAL. {t("footer.rightsReserved")}
             </p>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-slate-500 text-xs">
                 <Shield className="w-4 h-4" />
-                <span>Secure Payments</span>
+                <span>{t("footer.securePayments")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-slate-500" />

@@ -32,7 +32,6 @@ export const UserChatWidget: React.FC = () => {
   // Realtime channel
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
 
-
   React.useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -52,11 +51,11 @@ export const UserChatWidget: React.FC = () => {
       }
     };
     fetchUser();
-        return () => {
-          if (channel) {
-            chatService.unsubscribe(channel);
-          }
-        };
+    return () => {
+      if (channel) {
+        chatService.unsubscribe(channel);
+      }
+    };
   }, []);
 
   const loadConversation = async (userId: string) => {
@@ -126,6 +125,8 @@ export const UserChatWidget: React.FC = () => {
   };
 
   const handleSendMessage = async (message: string) => {
+    if (!currentUserId) return;
+
     try {
       let convId = conversation?.id;
 
@@ -245,7 +246,12 @@ export const UserChatWidget: React.FC = () => {
               {/* Input */}
               <MessageInput
                 onSendMessage={handleSendMessage}
-                placeholder="Type your message..."
+                placeholder={
+                  currentUserId
+                    ? "Type your message..."
+                    : "Please log in to send messages"
+                }
+                disabled={!currentUserId}
               />
             </>
           )}

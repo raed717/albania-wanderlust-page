@@ -3,16 +3,18 @@ import { UtensilsCrossed, Music } from "lucide-react";
 import foodImage from "@/assets/food/albanian-food.jpg";
 import cultureImage from "@/assets/culture/albanian-culture.jpg";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Culture = () => {
+  const { t } = useTranslation();
+
   return (
     <section id="culture" className="py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="mb-4 text-foreground">Culture & Cuisine</h2>
+          <h2 className="mb-4 text-foreground">{t("home.culture.title")}</h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Immerse yourself in Albania's rich traditions, flavors, and vibrant
-            cultural heritage
+            {t("home.culture.description")}
           </p>
         </div>
 
@@ -22,7 +24,7 @@ const Culture = () => {
             <div className="relative h-80 overflow-hidden">
               <img
                 src={foodImage}
-                alt="Albanian cuisine"
+                alt={t("home.culture.traditionalCuisine")}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
@@ -35,7 +37,7 @@ const Culture = () => {
 
             <CardContent className="p-8">
               <h3 className="text-3xl mb-4 text-foreground">
-                Traditional Cuisine
+                {t("home.culture.traditionalCuisine")}
               </h3>
               <p className="text-muted-foreground mb-6 leading-relaxed">
                 Savor the flavors of Albania with dishes like Tavë Kosi (baked
@@ -81,7 +83,7 @@ const Culture = () => {
 
             <CardContent className="p-8">
               <h3 className="text-3xl mb-4 text-foreground">
-                Festivals & Traditions
+                {t("home.culture.culturalExperiences")}
               </h3>
               <p className="text-muted-foreground mb-6 leading-relaxed">
                 Experience Albania's vibrant culture through traditional folk
@@ -112,7 +114,7 @@ const Culture = () => {
             to="/CultureDetails"
             className="px-6 py-3 bg-foreground text-background rounded-full font-semibold hover:bg-foreground/90 transition inline-block text-center"
           >
-            Explore More
+            {t("common.explore")}
           </Link>
         </div>
       </div>

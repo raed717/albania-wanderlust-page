@@ -8,6 +8,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { PropertyCard } from "./PropertyCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Home } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const animation = { duration: 50000, easing: (t: number) => t };
 
@@ -17,6 +18,7 @@ const override: CSSProperties = {
 };
 
 const AppartmentsPreview = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [sliderRef] = useKeenSlider({
@@ -72,11 +74,11 @@ const AppartmentsPreview = () => {
             <Home className="w-5 h-5 text-red-600" />
           </div>
           <h3 className="text-2xl md:text-3xl font-bold text-slate-900">
-            Apartments
+            {t("home.apartmentsPreview.title")}
           </h3>
         </div>
         <p className="text-muted-foreground leading-relaxed text-sm">
-          Authentic Albanian hospitality in private residences
+          {t("home.apartmentsPreview.description")}
         </p>
       </div>
 
@@ -92,7 +94,7 @@ const AppartmentsPreview = () => {
       ) : availableTopAppartments.length === 0 ? (
         <div className="flex-grow flex flex-col items-center justify-center p-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
           <Home className="w-10 h-10 text-slate-300 mb-3" />
-          <p className="text-muted-foreground">No apartments available</p>
+          <p className="text-muted-foreground">{t("home.apartmentsPreview.noApartments")}</p>
         </div>
       ) : (
         <>
@@ -130,7 +132,7 @@ const AppartmentsPreview = () => {
                 variant="ghost"
                 className="group p-0 hover:bg-transparent text-red-600 font-semibold gap-2"
               >
-                View All Apartments
+                {t("home.apartmentsPreview.viewAll")}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>

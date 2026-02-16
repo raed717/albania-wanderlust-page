@@ -6,9 +6,11 @@ import slide3 from "@/assets/home/slide3.jpg";
 import ReservationPickerValue from "./reservationPicker";
 import { Link } from "react-router";
 import { Slide } from "react-slideshow-image";
+import { useTranslation } from "react-i18next";
 import "react-slideshow-image/dist/styles.css";
 
 const Hero = () => {
+  const { t } = useTranslation();
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
@@ -55,22 +57,21 @@ const Hero = () => {
           <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md px-4 py-2 rounded-full mb-6 border border-white/20">
             <MapPin className="w-4 h-4 text-red-400" />
             <span className="text-sm font-medium tracking-wide">
-              Southeast Europe's Hidden Gem
+              {t("home.hero.badge")}
             </span>
           </div>
 
           {/* Main Heading */}
           <h1 className="mb-4 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-            <span className="block">Discover</span>
+            <span className="block">{t("home.hero.discover")}</span>
             <span className="block bg-gradient-to-r from-red-700 via-red-500 to-red-700 bg-clip-text text-transparent">
-              Albania
+              {t("home.hero.albania")}
             </span>
           </h1>
 
           {/* Subheading */}
           <p className="text-base sm:text-lg md:text-xl mb-8 max-w-2xl mx-auto text-white/85 leading-relaxed">
-            Book hotels, apartments, and cars for your perfect Albanian
-            adventure. From the Albanian Alps to the Riviera coast.
+            {t("home.hero.subheading")}
           </p>
 
           {/* Search Widget */}
@@ -86,7 +87,7 @@ const Hero = () => {
                 className="bg-white/10 backdrop-blur-sm border border-white/30 text-white hover:bg-white hover:text-slate-900 px-6 py-5 rounded-full transition-all duration-300 hover:scale-105 group"
               >
                 <MapPin className="w-4 h-4 mr-2" />
-                Explore Map
+                {t("home.hero.exploreMap")}
               </Button>
             </Link>
             <Button
@@ -95,7 +96,7 @@ const Hero = () => {
               className="text-white/90 hover:text-white hover:bg-white/10 px-6 py-5 rounded-full transition-all group"
               onClick={() => scrollToSection("hotels")}
             >
-              Browse Properties
+              {t("home.hero.browseProperties")}
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>

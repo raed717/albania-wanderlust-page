@@ -24,8 +24,10 @@ import Swal from "sweetalert2";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { userService } from "@/services/api/userService";
 import { User } from "@/types/user.types";
+import { useTranslation } from "react-i18next";
 
 export default function ApartmentBilling() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -223,10 +225,10 @@ export default function ApartmentBilling() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-800 mb-2">
-              Complete Your Booking
+              {t("booking.completeYourBooking")}
             </h1>
             <p className="text-slate-600">
-              Just a few more details and you're ready to go
+              {t("booking.justAFewMoreDetails")}
             </p>
           </div>
 
@@ -237,13 +239,13 @@ export default function ApartmentBilling() {
               <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
                 <h2 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
                   <UserIcon className="w-5 h-5 text-blue-600" />
-                  Personal Information
+                  {t("booking.personalInformation")}
                 </h2>
 
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Full Name *
+                      {t("user.fullName")} *
                     </label>
                     <input
                       type="text"
@@ -259,7 +261,7 @@ export default function ApartmentBilling() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Email Address *
+                        {t("user.email")} *
                       </label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -277,7 +279,7 @@ export default function ApartmentBilling() {
 
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Phone Number *
+                        {t("user.phone")} *
                       </label>
                       <div className="relative">
                         <PhoneInput
@@ -303,7 +305,7 @@ export default function ApartmentBilling() {
               {/* Stay Period */}
               <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200">
                 <h2 className="text-xl font-semibold text-slate-800 mb-6">
-                  Stay Period
+                  {t("booking.stayPeriod")}
                 </h2>
 
                 <div className="space-y-6">

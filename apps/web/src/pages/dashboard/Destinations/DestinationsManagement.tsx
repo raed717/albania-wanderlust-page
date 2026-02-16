@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Hsidebar from "../../../components/dashboard/hsidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,6 +69,7 @@ const ITEMS_PER_PAGE = 12;
 /* ============================== Main Component ============================== */
 
 export default function DestinationsManagement() {
+  const { t } = useTranslation();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -115,7 +117,7 @@ export default function DestinationsManagement() {
       setError(null);
     } catch (err) {
       console.error("Error fetching destinations:", err);
-      setError("Failed to load destinations");
+      setError(t("destinationsManagement.error"));
     } finally {
       setLoading(false);
     }
@@ -167,23 +169,33 @@ export default function DestinationsManagement() {
 
   const handleDelete = async (destination: Destination) => {
     const result = await Swal.fire({
-      title: "Are you sure?",
-      text: `Delete destination "${destination.name}"?`,
+      title: t("destinationsManagement.delete.confirmTitle"),
+      text: t("destinationsManagement.delete.confirmMessage", {
+        name: destination.name,
+      }),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: t("destinationsManagement.delete.confirmButton"),
     });
 
     if (result.isConfirmed) {
       try {
         await deleteDestination(destination.id);
         setDestinations((prev) => prev.filter((d) => d.id !== destination.id));
-        Swal.fire("Deleted!", "Destination has been deleted.", "success");
+        Swal.fire(
+          t("destinationsManagement.delete.successTitle"),
+          t("destinationsManagement.delete.successMessage"),
+          "success",
+        );
       } catch (err) {
         console.error("Error deleting destination:", err);
-        Swal.fire("Error", "Failed to delete destination", "error");
+        Swal.fire(
+          t("destinationsManagement.errorMessages.deleteFailed"),
+          t("destinationsManagement.errorMessages.deleteFailedMessage"),
+          "error",
+        );
       }
     }
   };
@@ -204,23 +216,35 @@ export default function DestinationsManagement() {
   const handleSave = async () => {
     // Validation
     if (!formData.name || !formData.category) {
-      Swal.fire("Error", "Please fill in all required fields", "error");
+      Swal.fire(
+        t("destinationsManagement.errorMessages.createFailed"),
+        t("destinationsManagement.validation.requiredFields"),
+        "error",
+      );
       return;
     }
 
     if (dialogMode === "create" && selectedImageFiles.length === 0) {
-      Swal.fire("Error", "Please upload at least one image", "error");
+      Swal.fire(
+        t("destinationsManagement.errorMessages.createFailed"),
+        t("destinationsManagement.validation.imageRequired"),
+        "error",
+      );
       return;
     }
 
     if (!formData.lat || !formData.lng) {
-      Swal.fire("Error", "Please select a location on the map", "error");
+      Swal.fire(
+        t("destinationsManagement.errorMessages.createFailed"),
+        t("destinationsManagement.validation.locationRequired"),
+        "error",
+      );
       return;
     }
 
     setSaving(true);
     try {
-      let {imageUrls} = formData;
+      let { imageUrls } = formData;
 
       // Upload new images if any
       if (selectedImageFiles.length > 0) {
@@ -244,7 +268,11 @@ export default function DestinationsManagement() {
       if (dialogMode === "create") {
         const newDestination = await createDestination(destinationData);
         setDestinations((prev) => [newDestination, ...prev]);
-        Swal.fire("Success!", "Destination created successfully", "success");
+        Swal.fire(
+          t("destinationsManagement.success.created"),
+          t("destinationsManagement.success.createdMessage"),
+          "success",
+        );
       } else if (dialogMode === "edit" && selectedDestination) {
         const updated = await updateDestination(
           selectedDestination.id,
@@ -253,14 +281,22 @@ export default function DestinationsManagement() {
         setDestinations((prev) =>
           prev.map((d) => (d.id === selectedDestination.id ? updated : d)),
         );
-        Swal.fire("Success!", "Destination updated successfully", "success");
+        Swal.fire(
+          t("destinationsManagement.success.updated"),
+          t("destinationsManagement.success.updatedMessage"),
+          "success",
+        );
       }
 
       setDialogOpen(false);
       setSelectedImageFiles([]);
     } catch (err) {
       console.error("Error saving destination:", err);
-      Swal.fire("Error", "Failed to save destination", "error");
+      Swal.fire(
+        t("destinationsManagement.errorMessages.createFailed"),
+        t("destinationsManagement.errorMessages.createFailedMessage"),
+        "error",
+      );
     } finally {
       setSaving(false);
     }
@@ -304,10 +340,10 @@ export default function DestinationsManagement() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              Destinations Management
+              {t("destinationsManagement.title")}
             </h1>
             <p className="text-gray-600 mt-1">
-              Manage tourist destinations across Albania
+              {t("destinationsManagement.subtitle")}
             </p>
           </div>
           <Button
@@ -315,7 +351,7 @@ export default function DestinationsManagement() {
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Plus size={20} className="mr-2" />
-            Add Destination
+            {t("destinationsManagement.addDestination")}
           </Button>
         </div>
 
@@ -330,25 +366,33 @@ export default function DestinationsManagement() {
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-4 bg-white rounded-xl shadow">
-            <span className="text-sm text-gray-500">Total Destinations</span>
+            <span className="text-sm text-gray-500">
+              {t("destinationsManagement.stats.total")}
+            </span>
             <span className="text-2xl font-bold text-blue-600 block">
               {destinations.length}
             </span>
           </div>
           <div className="p-4 bg-white rounded-xl shadow">
-            <span className="text-sm text-gray-500">Adventure</span>
+            <span className="text-sm text-gray-500">
+              {t("destinationsManagement.stats.adventure")}
+            </span>
             <span className="text-2xl font-bold text-green-600 block">
               {destinations.filter((d) => d.category === "Adventure").length}
             </span>
           </div>
           <div className="p-4 bg-white rounded-xl shadow">
-            <span className="text-sm text-gray-500">Historic</span>
+            <span className="text-sm text-gray-500">
+              {t("destinationsManagement.stats.historic")}
+            </span>
             <span className="text-2xl font-bold text-purple-600 block">
               {destinations.filter((d) => d.category === "Historic").length}
             </span>
           </div>
           <div className="p-4 bg-white rounded-xl shadow">
-            <span className="text-sm text-gray-500">Beach</span>
+            <span className="text-sm text-gray-500">
+              {t("destinationsManagement.stats.beach")}
+            </span>
             <span className="text-2xl font-bold text-orange-600 block">
               {destinations.filter((d) => d.category === "Beach").length}
             </span>
@@ -361,7 +405,7 @@ export default function DestinationsManagement() {
             <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
             <Input
               type="text"
-              placeholder="Search destinations..."
+              placeholder={t("destinationsManagement.filters.search")}
               className="pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -374,7 +418,9 @@ export default function DestinationsManagement() {
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
-              <option value="all">All Categories</option>
+              <option value="all">
+                {t("destinationsManagement.filters.allCategories")}
+              </option>
               {CATEGORIES.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.label}
@@ -387,7 +433,9 @@ export default function DestinationsManagement() {
         {/* Grid */}
         {filteredDestinations.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-xl">
-            <p className="text-gray-500">No destinations found</p>
+            <p className="text-gray-500">
+              {t("destinationsManagement.empty.message")}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -442,15 +490,20 @@ export default function DestinationsManagement() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {dialogMode === "create" && "Add New Destination"}
-              {dialogMode === "edit" && "Edit Destination"}
-              {dialogMode === "view" && "View Destination"}
+              {dialogMode === "create" &&
+                t("destinationsManagement.dialog.addTitle")}
+              {dialogMode === "edit" &&
+                t("destinationsManagement.dialog.editTitle")}
+              {dialogMode === "view" &&
+                t("destinationsManagement.dialog.viewTitle")}
             </DialogTitle>
             <DialogDescription>
               {dialogMode === "create" &&
-                "Fill in the details to add a new tourist destination"}
-              {dialogMode === "edit" && "Update the destination information"}
-              {dialogMode === "view" && "Destination details"}
+                t("destinationsManagement.dialog.addDescription")}
+              {dialogMode === "edit" &&
+                t("destinationsManagement.dialog.editDescription")}
+              {dialogMode === "view" &&
+                t("destinationsManagement.dialog.viewDescription")}
             </DialogDescription>
           </DialogHeader>
 
@@ -458,14 +511,15 @@ export default function DestinationsManagement() {
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="name">
-                Destination Name <span className="text-red-500">*</span>
+                {t("destinationsManagement.form.name")}{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                placeholder="e.g., Berat Castle"
+                placeholder={t("destinationsManagement.form.namePlaceholder")}
                 disabled={dialogMode === "view"}
               />
             </div>
@@ -473,7 +527,8 @@ export default function DestinationsManagement() {
             {/* Category */}
             <div className="space-y-2">
               <Label htmlFor="category">
-                Category <span className="text-red-500">*</span>
+                {t("destinationsManagement.form.category")}{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <select
                 id="category"
@@ -483,7 +538,9 @@ export default function DestinationsManagement() {
                 disabled={dialogMode === "view"}
                 className="w-full px-3 py-2 border rounded-lg"
               >
-                <option value="">Select a category</option>
+                <option value="">
+                  {t("destinationsManagement.form.categoryPlaceholder")}
+                </option>
                 {CATEGORIES.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.label}
@@ -494,14 +551,18 @@ export default function DestinationsManagement() {
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">
+                {t("destinationsManagement.form.description")}
+              </Label>
               <textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={4}
-                placeholder="Describe the destination..."
+                placeholder={t(
+                  "destinationsManagement.form.descriptionPlaceholder",
+                )}
                 disabled={dialogMode === "view"}
                 className="w-full px-3 py-2 border rounded-lg"
               />
@@ -534,7 +595,7 @@ export default function DestinationsManagement() {
             {/* Image Preview for View Mode */}
             {dialogMode === "view" && formData.imageUrls.length > 0 && (
               <div className="space-y-2">
-                <Label>Images</Label>
+                <Label>{t("destinationsManagement.form.images")}</Label>
                 <div className="grid grid-cols-3 gap-3">
                   {formData.imageUrls.map((url, index) => (
                     <img
@@ -551,7 +612,8 @@ export default function DestinationsManagement() {
             {/* Map Picker */}
             <div className="space-y-2">
               <Label>
-                Location on Map <span className="text-red-500">*</span>
+                {t("destinationsManagement.form.location")}{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <MapPicker
                 lat={formData.lat}
@@ -559,8 +621,8 @@ export default function DestinationsManagement() {
                 onLocationSelect={handleLocationSelect}
                 label={
                   dialogMode === "view"
-                    ? "Destination Location"
-                    : "Select destination location on the map"
+                    ? t("destinationsManagement.form.location")
+                    : t("destinationsManagement.form.locationLabel")
                 }
                 defaultCenter={[41.3275, 19.8187]}
                 defaultZoom={8}
@@ -577,22 +639,28 @@ export default function DestinationsManagement() {
                   onClick={() => setDialogOpen(false)}
                   disabled={saving}
                 >
-                  Cancel
+                  {t("destinationsManagement.dialog.cancel")}
                 </Button>
                 <Button onClick={handleSave} disabled={saving}>
                   {saving ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Saving...
+                      {t("destinationsManagement.dialog.saving")}
                     </>
                   ) : (
-                    <>{dialogMode === "create" ? "Create" : "Update"}</>
+                    <>
+                      {dialogMode === "create"
+                        ? t("destinationsManagement.dialog.create")
+                        : t("destinationsManagement.dialog.update")}
+                    </>
                   )}
                 </Button>
               </>
             )}
             {dialogMode === "view" && (
-              <Button onClick={() => setDialogOpen(false)}>Close</Button>
+              <Button onClick={() => setDialogOpen(false)}>
+                {t("destinationsManagement.dialog.close")}
+              </Button>
             )}
           </DialogFooter>
         </DialogContent>
@@ -616,6 +684,7 @@ function DestinationCard({
   onEdit,
   onDelete,
 }: DestinationCardProps) {
+  const { t } = useTranslation();
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
       Adventure: "bg-green-100 text-green-800",
@@ -679,7 +748,7 @@ function DestinationCard({
             className="flex-1"
           >
             <Eye size={16} className="mr-1" />
-            View
+            {t("destinationsManagement.card.view")}
           </Button>
           <Button
             size="sm"
@@ -688,7 +757,7 @@ function DestinationCard({
             className="flex-1"
           >
             <Edit size={16} className="mr-1" />
-            Edit
+            {t("destinationsManagement.card.edit")}
           </Button>
           <Button
             size="sm"

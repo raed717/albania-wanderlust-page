@@ -15,9 +15,11 @@ import PrimarySearchAppBar from "@/components/home/AppBar";
 import { roleRequestService } from "@/services/api/roleRequestService";
 import { authService } from "@/services/api/authService";
 import { RoleRequest } from "@/types/request.type";
+import { useTranslation } from "react-i18next";
 
 export default function ProviderRequest() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [userId, setUserId] = useState<string>("");
@@ -47,7 +49,7 @@ export default function ProviderRequest() {
 
       // Check if user is already a provider or admin
       if (role === "provider" || role === "admin") {
-        setError(`You are already a ${role}. No need to submit a request.`);
+        setError(t("provider.alreadyProvider", { role }));
         setLoading(false);
         return;
       }
@@ -75,14 +77,12 @@ export default function ProviderRequest() {
     e.preventDefault();
 
     if (!formData.reason.trim()) {
-      setError("Please provide a reason for your request");
+      setError(t("provider.reasonRequired"));
       return;
     }
 
     if (formData.reason.trim().length < 50) {
-      setError(
-        "Please provide a more detailed reason (at least 50 characters)",
-      );
+      setError(t("provider.reasonTooShort"));
       return;
     }
 
@@ -96,9 +96,7 @@ export default function ProviderRequest() {
         reason: formData.reason.trim(),
       });
 
-      setSuccess(
-        "Your request has been submitted successfully! An admin will review it soon.",
-      );
+      setSuccess(t("provider.requestSubmitted"));
       setFormData({ reason: "" });
 
       // Refresh the page data
@@ -108,7 +106,7 @@ export default function ProviderRequest() {
         setSuccess(null);
       }, 5000);
     } catch (err: any) {
-      setError(err.message || "Failed to submit request");
+      setError(err.message || t("provider.submitFailed"));
       console.error("Error submitting request:", err);
     } finally {
       setSubmitting(false);
@@ -127,11 +125,11 @@ export default function ProviderRequest() {
     try {
       setSubmitting(true);
       await roleRequestService.cancelRequest(pendingRequest.id, userId);
-      setSuccess("Request cancelled successfully");
+      setSuccess(t("provider.requestCancelled"));
       await initializePage();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError("Failed to cancel request");
+      setError(t("provider.cancelFailed"));
       console.error("Error cancelling request:", err);
     } finally {
       setSubmitting(false);
@@ -144,21 +142,21 @@ export default function ProviderRequest() {
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
             <Clock className="w-4 h-4 mr-1" />
-            Pending
+            {t("provider.pending")}
           </span>
         );
       case "approved":
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
             <CheckCircle className="w-4 h-4 mr-1" />
-            Approved
+            {t("provider.approved")}
           </span>
         );
       case "rejected":
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
             <XCircle className="w-4 h-4 mr-1" />
-            Rejected
+            {t("provider.rejected")}
           </span>
         );
       default:
@@ -185,7 +183,7 @@ export default function ProviderRequest() {
             className="mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Home
+            {t("provider.backToHome")}
           </button>
 
           {/* Header */}
@@ -193,12 +191,11 @@ export default function ProviderRequest() {
             <div className="flex items-center mb-4">
               <Briefcase className="w-8 h-8 text-blue-600 mr-3" />
               <h1 className="text-3xl font-bold text-gray-900">
-                Become a Provider
+                {t("provider.becomeProvider")}
               </h1>
             </div>
             <p className="text-gray-600">
-              Submit a request to become a service provider and start offering
-              your properties and services on our platform.
+              {t("provider.becomeProviderDescription")}
             </p>
           </div>
 
@@ -225,15 +222,16 @@ export default function ProviderRequest() {
                   <div className="flex items-center mb-2">
                     <Clock className="w-5 h-5 text-blue-600 mr-2" />
                     <h3 className="text-lg font-semibold text-gray-900">
-                      Request Pending Review
+                      {t("provider.requestPending")}
                     </h3>
                   </div>
                   <p className="text-gray-600 mb-3">
-                    Your request to become a provider is currently being
-                    reviewed by our admin team.
+                    {t("provider.requestPendingDescription")}
                   </p>
                   <div className="bg-white rounded-lg p-4 mb-3">
-                    <p className="text-sm text-gray-600 mb-1">Submitted on:</p>
+                    <p className="text-sm text-gray-600 mb-1">
+                      {t("provider.submittedOn")}
+                    </p>
                     <p className="font-medium text-gray-900">
                       {new Date(pendingRequest.submittedAt).toLocaleDateString(
                         "en-US",
@@ -247,7 +245,7 @@ export default function ProviderRequest() {
                       )}
                     </p>
                     <p className="text-sm text-gray-600 mt-3 mb-1">
-                      Your reason:
+                      {t("provider.yourReason")}
                     </p>
                     <p className="text-gray-900">{pendingRequest.reason}</p>
                   </div>
@@ -258,7 +256,7 @@ export default function ProviderRequest() {
                 disabled={submitting}
                 className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Cancel Request
+                {t("provider.cancelRequest")}
               </button>
             </div>
           )}
@@ -270,14 +268,14 @@ export default function ProviderRequest() {
                 <div className="flex items-center mb-6">
                   <FileText className="w-6 h-6 text-blue-600 mr-3" />
                   <h2 className="text-xl font-semibold text-gray-900">
-                    Submit Your Request
+                    {t("provider.submitRequest")}
                   </h2>
                 </div>
 
                 <form onSubmit={handleSubmit}>
                   <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Why do you want to become a provider? *
+                      {t("provider.reasonLabel")}
                     </label>
                     <textarea
                       name="reason"
@@ -285,29 +283,25 @@ export default function ProviderRequest() {
                       onChange={handleInputChange}
                       rows={8}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
-                      placeholder="Please provide a detailed explanation of why you want to become a provider. Include information about your experience, the services you plan to offer, and how you can contribute to our platform. (Minimum 50 characters)"
+                      placeholder={t("provider.reasonPlaceholder")}
                       required
                     />
                     <p className="mt-2 text-sm text-gray-500">
-                      {formData.reason.length} / 50 characters minimum
+                      {t("provider.charactersCount", {
+                        count: formData.reason.length,
+                      })}
                     </p>
                   </div>
 
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                     <h4 className="font-medium text-gray-900 mb-2">
-                      What happens next?
+                      {t("provider.whatHappensNext")}
                     </h4>
                     <ul className="text-sm text-gray-600 space-y-1">
-                      <li>• Your request will be reviewed by our admin team</li>
-                      <li>• You'll be notified once a decision is made</li>
-                      <li>
-                        • If approved, your account will be upgraded to provider
-                        status
-                      </li>
-                      <li>
-                        • You'll then be able to add and manage your properties
-                        and services
-                      </li>
+                      <li>• {t("provider.nextSteps.review")}</li>
+                      <li>• {t("provider.nextSteps.notification")}</li>
+                      <li>• {t("provider.nextSteps.upgrade")}</li>
+                      <li>• {t("provider.nextSteps.manage")}</li>
                     </ul>
                   </div>
 
@@ -319,12 +313,12 @@ export default function ProviderRequest() {
                     {submitting ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        Submitting...
+                        {t("provider.submitting")}
                       </>
                     ) : (
                       <>
                         <Send className="w-5 h-5" />
-                        Submit Request
+                        {t("provider.submit")}
                       </>
                     )}
                   </button>
@@ -338,7 +332,7 @@ export default function ProviderRequest() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="p-6 sm:p-8">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                  Request History
+                  {t("provider.requestHistory")}
                 </h2>
                 <div className="space-y-4">
                   {requestHistory.map((request) => (
@@ -349,34 +343,36 @@ export default function ProviderRequest() {
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <p className="text-sm text-gray-600">
-                            Submitted on{" "}
-                            {new Date(request.submittedAt).toLocaleDateString(
-                              "en-US",
-                              {
+                            {t("provider.submittedOnDate", {
+                              date: new Date(
+                                request.submittedAt,
+                              ).toLocaleDateString("en-US", {
                                 month: "long",
                                 day: "numeric",
                                 year: "numeric",
-                              },
-                            )}
+                              }),
+                            })}
                           </p>
                           {request.reviewedAt && (
                             <p className="text-sm text-gray-600">
-                              Reviewed on{" "}
-                              {new Date(request.reviewedAt).toLocaleDateString(
-                                "en-US",
-                                {
+                              {t("provider.reviewedOnDate", {
+                                date: new Date(
+                                  request.reviewedAt,
+                                ).toLocaleDateString("en-US", {
                                   month: "long",
                                   day: "numeric",
                                   year: "numeric",
-                                },
-                              )}
+                                }),
+                              })}
                             </p>
                           )}
                         </div>
                         {getStatusBadge(request.status)}
                       </div>
                       <div className="bg-gray-50 rounded p-3">
-                        <p className="text-sm text-gray-600 mb-1">Reason:</p>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {t("provider.reason")}:
+                        </p>
                         <p className="text-gray-900">{request.reason}</p>
                       </div>
                     </div>

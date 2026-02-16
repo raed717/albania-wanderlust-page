@@ -25,6 +25,7 @@ import { getHotelById, updateHotel } from "@/services/api/hotelService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 const HotelDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +39,8 @@ const HotelDetails = () => {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<UpdateHotelDto>({});
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
+
+  const { t } = useTranslation();
 
   // Fetch hotel data
   useEffect(() => {
@@ -99,16 +102,16 @@ const HotelDetails = () => {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]:
         name === "rating" ||
-          name === "rooms" ||
-          name === "occupancy" ||
-          name === "price"
+        name === "rooms" ||
+        name === "occupancy" ||
+        name === "price"
           ? parseFloat(value) || 0
           : value,
     }));
@@ -142,22 +145,22 @@ const HotelDetails = () => {
       const updatedHotel = await updateHotel(
         parseInt(id),
         formData,
-        newImageFiles
+        newImageFiles,
       );
       setHotel(updatedHotel);
       setIsEditing(false);
       setNewImageFiles([]);
       Swal.fire({
         icon: "success",
-        title: "Success...",
-        text: "Hotel updated successfully!",
+        title: t("hotels.hotelDetails.success.title"),
+        text: t("hotels.hotelDetails.success.message"),
       });
     } catch (error) {
       console.error("Error updating hotel:", error);
       Swal.fire({
         icon: "error",
-        title: "Oops...",
-        text: "Something went wrong!",
+        title: t("hotels.hotelDetails.error.title"),
+        text: t("hotels.hotelDetails.error.message"),
       });
     } finally {
       setSaving(false);
@@ -180,14 +183,14 @@ const HotelDetails = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-20">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Hotel Not Found
+              {t("hotels.hotelDetails.notFound.title")}
             </h3>
             <p className="text-gray-500 mb-8">
-              The hotel you're looking for doesn't exist.
+              {t("hotels.hotelDetails.notFound.description")}
             </p>
             <Button onClick={() => navigate("/dashboard/HotelsList")}>
               <ArrowLeft className="mr-2" size={16} />
-              Back to Hotels
+              {t("hotels.hotelDetails.backToHotels")}
             </Button>
           </div>
         </div>
@@ -207,15 +210,17 @@ const HotelDetails = () => {
               className="mb-4 -ml-4"
             >
               <ArrowLeft className="mr-2" size={16} />
-              Back to Hotels
+              {t("hotels.hotelDetails.backToHotels")}
             </Button>
             <h1 className="text-3xl font-bold text-gray-900">
-              {isEditing ? "Edit Hotel" : "Hotel Details"}
+              {isEditing
+                ? t("hotels.hotelDetails.edit.title")
+                : t("hotels.hotelDetails.view.title")}
             </h1>
             <p className="text-gray-500 text-lg mt-1">
               {isEditing
-                ? "Update hotel information"
-                : "View complete hotel information"}
+                ? t("hotels.hotelDetails.edit.subtitle")
+                : t("hotels.hotelDetails.view.subtitle")}
             </p>
           </div>
 
@@ -228,7 +233,7 @@ const HotelDetails = () => {
                   disabled={saving}
                 >
                   <X className="mr-2" size={16} />
-                  Cancel
+                  {t("hotels.hotelDetails.buttons.cancel")}
                 </Button>
                 <Button
                   onClick={handleSave}
@@ -238,12 +243,12 @@ const HotelDetails = () => {
                   {saving ? (
                     <>
                       <Loader2 className="mr-2 animate-spin" size={16} />
-                      Saving...
+                      {t("hotels.hotelDetails.buttons.saving")}
                     </>
                   ) : (
                     <>
                       <Save className="mr-2" size={16} />
-                      Save Changes
+                      {t("hotels.hotelDetails.buttons.saveChanges")}
                     </>
                   )}
                 </Button>
@@ -254,7 +259,7 @@ const HotelDetails = () => {
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
               >
                 <Edit className="mr-2" size={16} />
-                Edit Hotel
+                {t("hotels.hotelDetails.buttons.editHotel")}
               </Button>
             )}
           </div>
@@ -276,7 +281,7 @@ const HotelDetails = () => {
                     selectedFiles={newImageFiles}
                     onRemoveFile={(index) => {
                       setNewImageFiles((prev) =>
-                        prev.filter((_, i) => i !== index)
+                        prev.filter((_, i) => i !== index),
                       );
                     }}
                     existingImages={formData.imageUrls}
@@ -297,10 +302,11 @@ const HotelDetails = () => {
                     <div className="grid grid-cols-4 grid-rows-2 gap-1 h-[300px]">
                       {/* First large image */}
                       <div
-                        className={`bg-cover bg-center cursor-pointer relative group ${hotel.imageUrls.length === 1
+                        className={`bg-cover bg-center cursor-pointer relative group ${
+                          hotel.imageUrls.length === 1
                             ? "col-span-4 row-span-2"
                             : "col-span-2 row-span-2"
-                          }`}
+                        }`}
                         style={{
                           backgroundImage: `url(${hotel.imageUrls[0]})`,
                         }}
@@ -324,7 +330,10 @@ const HotelDetails = () => {
                       {/* "See all" overlay if more than 5 images */}
                       {hotel.imageUrls.length > 5 && (
                         <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium shadow-sm">
-                          +{hotel.imageUrls.length - 5} photos
+                          +{hotel.imageUrls.length - 5}{" "}
+                          {t("hotels.hotelDetails.images.photos", {
+                            count: hotel.imageUrls.length - 5,
+                          })}
                         </div>
                       )}
                     </div>
@@ -332,7 +341,9 @@ const HotelDetails = () => {
                     <div className="h-64 bg-gray-100 flex items-center justify-center text-gray-400">
                       <div className="text-center">
                         <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                        <p>No images available</p>
+                        <p>
+                          {t("hotels.hotelDetails.images.noImagesAvailable")}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -342,7 +353,9 @@ const HotelDetails = () => {
 
             {/* Status Badge */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <Label className="text-sm font-medium mb-2 block">Status</Label>
+              <Label className="text-sm font-medium mb-2 block">
+                {t("hotels.hotelDetails.sections.status")}
+              </Label>
               {isEditing ? (
                 <select
                   name="status"
@@ -350,15 +363,20 @@ const HotelDetails = () => {
                   onChange={handleChange}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <option value="active">Active</option>
-                  <option value="maintenance">Maintenance</option>
+                  <option value="active">
+                    {t("hotels.hotelDetails.statusOptions.active")}
+                  </option>
+                  <option value="maintenance">
+                    {t("hotels.hotelDetails.statusOptions.maintenance")}
+                  </option>
                 </select>
               ) : (
                 <span
-                  className={`inline-block px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider ${hotel.status === "active"
+                  className={`inline-block px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider ${
+                    hotel.status === "active"
                       ? "bg-emerald-500 text-white"
                       : "bg-amber-500 text-white"
-                    }`}
+                  }`}
                 >
                   {hotel.status}
                 </span>
@@ -371,7 +389,7 @@ const HotelDetails = () => {
             {/* Basic Information */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Basic Information
+                {t("hotels.hotelDetails.sections.basicInformation")}
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -382,7 +400,7 @@ const HotelDetails = () => {
                     className="text-sm font-medium flex items-center gap-2"
                   >
                     <Home size={16} className="text-blue-500" />
-                    Hotel Name
+                    {t("hotels.hotelDetails.fields.hotelName")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -403,7 +421,7 @@ const HotelDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <MapPin size={16} className="text-blue-500" />
-                    Location
+                    {t("hotels.hotelDetails.fields.location")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -420,7 +438,7 @@ const HotelDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Star size={16} className="text-amber-400 fill-amber-400" />
-                    Rating
+                    {t("hotels.hotelDetails.fields.rating")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -443,7 +461,7 @@ const HotelDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <DollarSign size={16} className="text-emerald-500" />
-                    Price per Night
+                    {t("hotels.hotelDetails.fields.pricePerNight")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -464,7 +482,7 @@ const HotelDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Bed size={16} className="text-gray-500" />
-                    Total Rooms
+                    {t("hotels.hotelDetails.fields.totalRooms")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -475,7 +493,9 @@ const HotelDetails = () => {
                       onChange={handleChange}
                     />
                   ) : (
-                    <p className="text-gray-700">{hotel.rooms} Rooms</p>
+                    <p className="text-gray-700">
+                      {hotel.rooms} {t("hotels.hotelDetails.display.rooms")}
+                    </p>
                   )}
                 </div>
 
@@ -483,7 +503,7 @@ const HotelDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Users size={16} className="text-gray-500" />
-                    Occupancy Rate
+                    {t("hotels.hotelDetails.fields.occupancyRate")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -504,7 +524,7 @@ const HotelDetails = () => {
             {/* Contact Information */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Contact Information
+                {t("hotels.hotelDetails.sections.contactInformation")}
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -512,7 +532,7 @@ const HotelDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Mail size={16} className="text-blue-500" />
-                    Email
+                    {t("hotels.hotelDetails.fields.email")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -532,7 +552,7 @@ const HotelDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Phone size={16} className="text-blue-500" />
-                    Phone
+                    {t("hotels.hotelDetails.fields.phone")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -551,7 +571,7 @@ const HotelDetails = () => {
                 <div className="space-y-2 md:col-span-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <MapPin size={16} className="text-blue-500" />
-                    Full Address
+                    {t("hotels.hotelDetails.fields.fullAddress")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -572,7 +592,7 @@ const HotelDetails = () => {
                 lat={formData.lat}
                 lng={formData.lng}
                 onLocationSelect={handleLocationSelect}
-                label="Hotel Location on Map"
+                label={t("hotels.hotelDetails.fields.hotelLocationOnMap")}
                 defaultCenter={[hotel.lat || 40.7831, hotel.lng || -73.9712]}
                 defaultZoom={13}
                 showCoordinates={true}
@@ -582,12 +602,12 @@ const HotelDetails = () => {
               hotel.lng !== undefined && (
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">
-                    Location
+                    {t("hotels.hotelDetails.sections.location")}
                   </h2>
                   <MapPicker
                     lat={hotel.lat}
                     lng={hotel.lng}
-                    onLocationSelect={() => { }}
+                    onLocationSelect={() => {}}
                     label=""
                     defaultCenter={[hotel.lat, hotel.lng]}
                     defaultZoom={15}
@@ -600,7 +620,7 @@ const HotelDetails = () => {
             {/* Description */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Description
+                {t("hotels.hotelDetails.sections.description")}
               </h2>
               {isEditing ? (
                 <textarea
@@ -612,7 +632,8 @@ const HotelDetails = () => {
                 />
               ) : (
                 <p className="text-gray-700 leading-relaxed">
-                  {hotel.description || "No description available."}
+                  {hotel.description ||
+                    t("hotels.hotelDetails.display.noDescription")}
                 </p>
               )}
             </div>

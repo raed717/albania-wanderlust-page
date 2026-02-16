@@ -29,26 +29,27 @@ import { Room } from "@mui/icons-material";
 import { User } from "@/types/user.types";
 import { userService } from "@/services/api/userService";
 import { AddAppartmentDialog } from "./AddAppartmentDialog";
+import { useTranslation } from "react-i18next";
 
 /* -------------------------------------------------------------------------- */
 /*                                   Utils                                    */
 /* -------------------------------------------------------------------------- */
 
-const confirmDelete = async (): Promise<boolean> => {
+const confirmDelete = async (t: any): Promise<boolean> => {
   const result = await Swal.fire({
-    title: "Are you sure?",
-    text: "You won't be able to revert this!",
+    title: t("apartment.confirmDelete"),
+    text: t("apartment.deleteWarning"),
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
+    confirmButtonText: t("apartment.confirmDeleteButton"),
   });
 
   if (result.isConfirmed) {
     await Swal.fire({
-      title: "Deleted!",
-      text: "Your apartment has been deleted.",
+      title: t("apartment.deleteSuccess"),
+      text: t("apartment.deleteSuccessMessage"),
       icon: "success",
     });
     return true;
@@ -63,6 +64,7 @@ const confirmDelete = async (): Promise<boolean> => {
 
 const AllAppartments = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [currentUser, setUser] = useState<User | null>(null);
 
@@ -71,7 +73,7 @@ const AllAppartments = () => {
   const [statusFilter, setStatusFilter] =
     useState<AppartmentFilters["status"]>("all");
   const [ratingFilter, setRatingFilter] = useState<"all" | "4+" | "4.5+">(
-    "all"
+    "all",
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -112,7 +114,7 @@ const AllAppartments = () => {
       }
     } catch (err) {
       console.error(err);
-      setError("Failed to load apartments.");
+      setError(t("apartment.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -126,7 +128,7 @@ const AllAppartments = () => {
   /* ------------------------------- Handlers -------------------------------- */
 
   const handleDelete = async (id: number) => {
-    const confirmed = await confirmDelete();
+    const confirmed = await confirmDelete(t);
     if (!confirmed) return;
 
     setAppartments((prev) => prev.filter((a) => a.id !== id));
@@ -175,7 +177,7 @@ const AllAppartments = () => {
 
   const paginatedAppartments = filteredAppartments.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   /* ------------------------------ States UI -------------------------------- */
@@ -199,7 +201,7 @@ const AllAppartments = () => {
             onClick={() => currentUser && fetchAppartments(currentUser)}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
           >
-            Retry
+            {t("apartment.retry")}
           </button>
         </div>
       </Hsidebar>
@@ -214,10 +216,10 @@ const AllAppartments = () => {
         {/* Header */}
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">All Appartments</h1>
-            <p className="text-gray-500">
-              Manage and monitor all your apartment listings
-            </p>
+            <h1 className="text-3xl font-bold">
+              {t("apartment.allApartments")}
+            </h1>
+            <p className="text-gray-500">{t("apartment.manageApartments")}</p>
           </div>
           <AddAppartmentDialog onAppartmentAdded={handleAppartmentAdded} />
         </div>
@@ -231,7 +233,7 @@ const AllAppartments = () => {
             />
             <input
               className="w-full pl-10 py-2.5 border rounded-lg"
-              placeholder="Search by name or address..."
+              placeholder={t("apartment.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -248,10 +250,10 @@ const AllAppartments = () => {
             }}
             className="px-4 py-2.5 border rounded-lg"
           >
-            <option value="all">All Statuses</option>
-            <option value="available">Available</option>
-            <option value="rented">Rented</option>
-            <option value="maintenance">Maintenance</option>
+            <option value="all">{t("apartment.allStatuses")}</option>
+            <option value="available">{t("apartment.available")}</option>
+            <option value="rented">{t("apartment.rented")}</option>
+            <option value="maintenance">{t("apartment.maintenance")}</option>
           </select>
 
           <select
@@ -262,16 +264,16 @@ const AllAppartments = () => {
             }}
             className="px-4 py-2.5 border rounded-lg"
           >
-            <option value="all">All Ratings</option>
-            <option value="4.5+">4.5+</option>
-            <option value="4+">4+</option>
+            <option value="all">{t("apartment.allRatings")}</option>
+            <option value="4.5+">{t("apartment.rating4_5")}</option>
+            <option value="4+">{t("apartment.rating4")}</option>
           </select>
         </div>
 
         {/* Grid */}
         {filteredAppartments.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-xl">
-            <p className="text-gray-500">No apartments found</p>
+            <p className="text-gray-500">{t("apartment.noApartmentsFound")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -302,8 +304,9 @@ const AllAppartments = () => {
               <button
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`w-10 h-10 rounded-lg ${currentPage === i + 1 ? "bg-blue-600 text-white" : "border"
-                  }`}
+                className={`w-10 h-10 rounded-lg ${
+                  currentPage === i + 1 ? "bg-blue-600 text-white" : "border"
+                }`}
               >
                 {i + 1}
               </button>
@@ -339,106 +342,127 @@ const AppartmentCard: React.FC<CardProps> = ({
   onView,
   onEdit,
   onDelete,
-}) => (
-  <div className="bg-white rounded-xl shadow-sm overflow-hidden border hover:shadow-xl transition">
-    <div
-      className="h-52 bg-cover bg-center"
-      style={{ backgroundImage: `url(${appartment.imageUrls[0]})` }}
-    />
-    <div className="absolute top-3 right-3"></div>
-    <div className="p-5">
-      <span
-        className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${appartment.status === "available"
-            ? "bg-emerald-500 text-white"
-            : "bg-amber-500 text-white"
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm overflow-hidden border hover:shadow-xl transition">
+      <div
+        className="h-52 bg-cover bg-center"
+        style={{ backgroundImage: `url(${appartment.imageUrls[0]})` }}
+      />
+      <div className="absolute top-3 right-3"></div>
+      <div className="p-5">
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+            appartment.status === "available"
+              ? "bg-emerald-500 text-white"
+              : "bg-amber-500 text-white"
           }`}
-      >
-        {appartment.status}
-      </span>
-      <h3 className="text-xl font-bold">{appartment.name}</h3>
+        >
+          {appartment.status}
+        </span>
+        <h3 className="text-xl font-bold">{appartment.name}</h3>
 
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-        <MapPin size={16} />
-        {appartment.address ?? "No address"}
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        {/* Row 1: Rating & Rooms */}
-        <div className="flex items-center gap-2">
-          <Star size={16} className="text-amber-400" />
-          <span className="text-sm">{appartment.rating}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Bed size={16} className="text-gray-500" />
-          <span className="text-sm">{appartment.rooms} rooms</span>
+        <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+          <MapPin size={16} />
+          {appartment.address ?? t("apartment.noAddress")}
         </div>
 
-        {/* Row 2: Beds & Kitchens */}
-        <div className="flex items-center gap-2">
-          <BedDouble size={16} className="text-gray-500" />
-          <span className="text-sm">{appartment.beds} bed</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <ChefHat size={16} className="text-gray-500" />
-          <span className="text-sm">{appartment.kitchens} kitchen</span>
-        </div>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {/* Row 1: Rating & Rooms */}
+          <div className="flex items-center gap-2">
+            <Star size={16} className="text-amber-400" />
+            <span className="text-sm">{appartment.rating}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Bed size={16} className="text-gray-500" />
+            <span className="text-sm">
+              {t("apartment.roomsCount", { count: appartment.rooms })}
+            </span>
+          </div>
 
-        {/* Row 3: Bathrooms & Living Rooms */}
-        <div className="flex items-center gap-2">
-          <Bath size={16} className="text-gray-500" />
-          <span className="text-sm">{appartment.bathrooms} bathroom</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Sofa size={16} className="text-gray-500" />
-          <span className="text-sm">{appartment.livingRooms} living room</span>
-        </div>
+          {/* Row 2: Beds & Kitchens */}
+          <div className="flex items-center gap-2">
+            <BedDouble size={16} className="text-gray-500" />
+            <span className="text-sm">
+              {t("apartment.bedCount", { count: appartment.beds })}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ChefHat size={16} className="text-gray-500" />
+            <span className="text-sm">
+              {t("apartment.kitchenCount", { count: appartment.kitchens })}
+            </span>
+          </div>
 
-        {/* Row 4: Price (spans full width) */}
-        <div className="flex items-center gap-2 col-span-2">
-          <DollarSign size={16} className="text-green-600" />
-          <span className="text-lg font-bold">${appartment.price}</span>
-          <span className="text-sm text-gray-500">/day</span>
-        </div>
+          {/* Row 3: Bathrooms & Living Rooms */}
+          <div className="flex items-center gap-2">
+            <Bath size={16} className="text-gray-500" />
+            <span className="text-sm">
+              {t("apartment.bathroomCount", { count: appartment.bathrooms })}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Sofa size={16} className="text-gray-500" />
+            <span className="text-sm">
+              {t("apartment.livingRoomCount", {
+                count: appartment.livingRooms,
+              })}
+            </span>
+          </div>
 
-        {/* Row 5: Amenities (spans full width) */}
-        <div className="col-span-2 flex flex-wrap gap-2">
-          {appartment.amenities && appartment.amenities.length > 0 ? (
-            appartment.amenities.map((amenity, index) => (
-              <span
-                key={index}
-                className="px-2 py-1 bg-blue-500 text-white rounded-full text-xs"
-              >
-                {amenity}
+          {/* Row 4: Price (spans full width) */}
+          <div className="flex items-center gap-2 col-span-2">
+            <DollarSign size={16} className="text-green-600" />
+            <span className="text-lg font-bold">${appartment.price}</span>
+            <span className="text-sm text-gray-500">
+              {t("apartment.perDay")}
+            </span>
+          </div>
+
+          {/* Row 5: Amenities (spans full width) */}
+          <div className="col-span-2 flex flex-wrap gap-2">
+            {appartment.amenities && appartment.amenities.length > 0 ? (
+              appartment.amenities.map((amenity, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-1 bg-blue-500 text-white rounded-full text-xs"
+                >
+                  {amenity}
+                </span>
+              ))
+            ) : (
+              <span className="text-gray-400 text-xs">
+                {t("apartment.noAmenities")}
               </span>
-            ))
-          ) : (
-            <span className="text-gray-400 text-xs">No amenities listed</span>
-          )}
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="flex gap-2 pt-3 border-t">
-        <button
-          onClick={() => onView(appartment.id)}
-          className="flex-1 py-2 px-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
-        >
-          <Eye size={16} /> View
-        </button>
-        <button
-          onClick={() => onEdit(appartment.id)}
-          className="p-2 bg-gray-50 rounded-lg"
-        >
-          <Edit size={16} />
-        </button>
-        <button
-          onClick={() => onDelete(appartment.id)}
-          className="p-2 bg-red-50 text-red-500 rounded-lg"
-        >
-          <Trash2 size={16} />
-        </button>
+        <div className="flex gap-2 pt-3 border-t">
+          <button
+            onClick={() => onView(appartment.id)}
+            className="flex-1 py-2 px-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+          >
+            <Eye size={16} /> {t("apartment.view")}
+          </button>
+          <button
+            onClick={() => onEdit(appartment.id)}
+            className="p-2 bg-gray-50 rounded-lg"
+          >
+            <Edit size={16} />
+          </button>
+          <button
+            onClick={() => onDelete(appartment.id)}
+            className="p-2 bg-red-50 text-red-500 rounded-lg"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default AllAppartments;

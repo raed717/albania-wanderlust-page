@@ -1,7 +1,9 @@
 import PropertiesMap from "../../components/home/data-map/PropertiesMap";
 import PrimarySearchAppBar from "@/components/home/AppBar";
+import { useTranslation } from "react-i18next";
 
 const PropertiesMapPage = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-gray-50">
       {<PrimarySearchAppBar />}
@@ -10,10 +12,10 @@ const PropertiesMapPage = () => {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Available Hotels & Apartments
+            {t("propertiesMap.title")}
           </h1>
           <p className="text-lg text-gray-600">
-            Explore our selection of hotels and apartments across Albania
+            {t("propertiesMap.description")}
           </p>
         </div>
 
@@ -29,27 +31,26 @@ const PropertiesMapPage = () => {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-semibold mb-2 text-blue-600">
-              📍 Interactive Map
+              {t("propertiesMap.interactiveMap")}
             </h3>
             <p className="text-gray-600">
-              Click on any marker to see more details about the hotel or
-              apartment
+              {t("propertiesMap.interactiveMapDescription")}
             </p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-semibold mb-2 text-green-600">
-              🏨 Wide Selection
+              {t("propertiesMap.wideSelection")}
             </h3>
             <p className="text-gray-600">
-              From luxury hotels to budget-friendly hostels across Albania
+              {t("propertiesMap.wideSelectionDescription")}
             </p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-semibold mb-2 text-purple-600">
-              💰 Best Prices
+              {t("propertiesMap.bestPrices")}
             </h3>
             <p className="text-gray-600">
-              Competitive pricing with transparent rates per night
+              {t("propertiesMap.bestPricesDescription")}
             </p>
           </div>
         </div>

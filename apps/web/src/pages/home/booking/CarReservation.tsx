@@ -28,6 +28,7 @@ import { Car } from "@/types/car.types";
 import { Month, MONTHS, MONTH_NAMES } from "@/types/price.type";
 import { getCarById } from "@/services/api/carService";
 import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
+import { useTranslation } from "react-i18next";
 
 // Helper to get current month as Month type
 const getCurrentMonth = (): Month => {
@@ -42,6 +43,7 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 
 const CarReservation = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -113,7 +115,7 @@ const CarReservation = () => {
             className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
           >
             <ArrowLeft className="mr-2" size={16} />
-            Back to Cars
+            {t("navigation.backToCars")}
           </Button>
         </div>
       </div>
@@ -173,7 +175,7 @@ const CarReservation = () => {
           className="mb-6 hover:bg-white/50"
         >
           <ArrowLeft className="mr-2" size={16} />
-          Back to Cars
+          {t("navigation.backToCars")}
         </Button>
 
         {/* Hero Section with Image Gallery */}
@@ -287,7 +289,7 @@ const CarReservation = () => {
                         <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
                           <Users size={18} />
                           <span className="font-medium text-sm">
-                            {car.seats} Seats
+                            {car.seats} {t("searchResults.cars.seats")}
                           </span>
                         </div>
                       </div>
@@ -360,7 +362,7 @@ const CarReservation = () => {
                 return (
                   <div className="text-center mb-6">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                      <p className="text-gray-600 text-sm">Price per day</p>
+                      <p className="text-gray-600 text-sm">{t("billing.pricePerDay")}</p>
                       {hasSeasonalPrice && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
                           <TrendingUp size={12} />
@@ -379,7 +381,7 @@ const CarReservation = () => {
                         Base: ${car.pricePerDay}/day
                       </p>
                     )}
-                    <p className="text-gray-500 text-sm mt-2">+ insurance</p>
+                    <p className="text-gray-500 text-sm mt-2">+ {t("billing.insurance")}</p>
                   </div>
                 );
               })()}
@@ -388,7 +390,7 @@ const CarReservation = () => {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <Gauge size={20} className="text-blue-600" />
-                    <span className="font-medium text-gray-700">Mileage</span>
+                    <span className="font-medium text-gray-700">{t("searchResults.cars.Mileage")}</span>
                   </div>
                   <span className="font-bold text-gray-900">
                     {car.mileage.toLocaleString()} km
@@ -398,7 +400,7 @@ const CarReservation = () => {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <Users size={20} className="text-blue-600" />
-                    <span className="font-medium text-gray-700">Seats</span>
+                    <span className="font-medium text-gray-700">{t("searchResults.cars.seats")}</span>
                   </div>
                   <span className="font-bold text-gray-900">{car.seats}</span>
                 </div>
@@ -406,7 +408,7 @@ const CarReservation = () => {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <Palette size={20} className="text-blue-600" />
-                    <span className="font-medium text-gray-700">Color</span>
+                    <span className="font-medium text-gray-700">{t("searchResults.cars.color")}</span>
                   </div>
                   <span className="font-bold text-gray-900 capitalize">
                     {car.color}
@@ -416,7 +418,7 @@ const CarReservation = () => {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <Hash size={20} className="text-blue-600" />
-                    <span className="font-medium text-gray-700">Plate</span>
+                    <span className="font-medium text-gray-700">{t("searchResults.cars.plate")}</span>
                   </div>
                   <span className="font-bold text-gray-900 font-mono">
                     {car.plateNumber}
@@ -431,7 +433,7 @@ const CarReservation = () => {
               >
                 <Calendar className="mr-2" size={20} />
                 {car.status === "available"
-                  ? "Book Now"
+                  ? t("booking.bookNow")
                   : car.status === "rented"
                     ? "Currently Rented"
                     : "Under Maintenance"}
@@ -439,7 +441,7 @@ const CarReservation = () => {
 
               {car.status === "available" && (
                 <p className="text-center text-xs text-gray-500 mt-4">
-                  Flexible cancellation • 24/7 roadside assistance
+                  {t("billing.flexibleCancellation")}
                 </p>
               )}
             </div>
@@ -451,12 +453,12 @@ const CarReservation = () => {
             <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <CarIcon className="text-blue-600" size={24} />
-                Vehicle Specifications
+                {t("billing.vehicleSpecifications")}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
                 <div className="flex flex-col gap-2">
                   <span className="text-sm text-gray-500 font-medium">
-                    Brand
+                    {t("searchResults.cars.brand")}
                   </span>
                   <span className="text-lg font-bold text-gray-900">
                     {car.brand}
@@ -464,7 +466,7 @@ const CarReservation = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                   <span className="text-sm text-gray-500 font-medium">
-                    Year
+                    {t("searchResults.cars.year")}
                   </span>
                   <span className="text-lg font-bold text-gray-900">
                     {car.year}
@@ -472,7 +474,7 @@ const CarReservation = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                   <span className="text-sm text-gray-500 font-medium">
-                    Type
+                    {t("searchResults.filters.carType")}
                   </span>
                   <span className="text-lg font-bold text-gray-900">
                     {car.type}
@@ -480,7 +482,7 @@ const CarReservation = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                   <span className="text-sm text-gray-500 font-medium">
-                    Transmission
+                    {t("searchResults.filters.transmission")}
                   </span>
                   <span className="text-lg font-bold text-gray-900">
                     {car.transmission}
@@ -488,7 +490,7 @@ const CarReservation = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                   <span className="text-sm text-gray-500 font-medium">
-                    Fuel Type
+                    {t("searchResults.filters.fuelType")}
                   </span>
                   <span className="text-lg font-bold text-gray-900">
                     {car.fuelType}
@@ -496,7 +498,7 @@ const CarReservation = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                   <span className="text-sm text-gray-500 font-medium">
-                    Seating
+                    {t("searchResults.cars.seats")}
                   </span>
                   <span className="text-lg font-bold text-gray-900">
                     {car.seats} Persons
@@ -509,7 +511,7 @@ const CarReservation = () => {
             {car.features && car.features.length > 0 && (
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Features & Equipment
+                  {t("billing.featuresAndEquipment")}
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {car.features.map((feature, index) => (
@@ -533,7 +535,7 @@ const CarReservation = () => {
             {/* Pick-up Location */}
             <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Pick-up & Contact Information
+                {t("billing.pickUpAndContactInformation")}
               </h2>
               <div className="grid grid-cols-1 gap-6">
                 <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
@@ -542,7 +544,7 @@ const CarReservation = () => {
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-600 mb-1 block">
-                      Pick-up Location
+                      {t("billing.pickUpLocation")}
                     </Label>
                     <p className="text-gray-900 font-medium">
                       {car.pickUpLocation || "Location not specified"}
@@ -571,7 +573,7 @@ const CarReservation = () => {
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                   <MapPin className="text-blue-600" size={24} />
-                  Location on Map
+                  {t("map.locationOnMap")}
                 </h2>
                 <div className="rounded-xl overflow-hidden shadow-md">
                   <MapPicker
@@ -598,7 +600,7 @@ const CarReservation = () => {
             {/* Rental Terms */}
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Rental Terms & Conditions
+                {t("billing.rentalTermsAndConditions")}
               </h2>
               <ul className="space-y-3 text-gray-700">
                 <li className="flex items-start gap-3">
@@ -606,35 +608,35 @@ const CarReservation = () => {
                     size={20}
                     className="text-blue-600 flex-shrink-0 mt-0.5"
                   />
-                  <span>Minimum rental period: 1 day</span>
+                  <span>{t("terms.minimumRentalPeriod")}</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2
                     size={20}
                     className="text-blue-600 flex-shrink-0 mt-0.5"
                   />
-                  <span>Valid driver's license required (minimum 1 year)</span>
+                  <span>{t("terms.validDriversLicense")}</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2
                     size={20}
                     className="text-blue-600 flex-shrink-0 mt-0.5"
                   />
-                  <span>Full insurance coverage included</span>
+                  <span>{t("terms.fullInsuranceCoverageIncluded")}</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2
                     size={20}
                     className="text-blue-600 flex-shrink-0 mt-0.5"
                   />
-                  <span>24/7 roadside assistance</span>
+                  <span>{t("terms.24/7RoadsideAssistance")}</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2
                     size={20}
                     className="text-blue-600 flex-shrink-0 mt-0.5"
                   />
-                  <span>Free cancellation up to 48 hours before pick-up</span>
+                  <span>{t("terms.freeCancellation")}</span>
                 </li>
               </ul>
             </div>

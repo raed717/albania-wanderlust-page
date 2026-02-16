@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "react-i18next";
 import {
   HotelFiltersInput,
   AppartmentFiltersInput,
@@ -58,6 +59,7 @@ export const FilterBar = ({
   onApplyFilters,
   loading,
 }: FilterBarProps) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   // Count active filters
@@ -106,7 +108,7 @@ export const FilterBar = ({
           className="flex items-center gap-2"
         >
           <Filter className="w-4 h-4" />
-          Filters
+          {t("searchResults.filters.filters")}
           {activeFiltersCount > 0 && (
             <span className="ml-2 bg-blue-600 text-white text-xs rounded-full px-2 py-0.5">
               {activeFiltersCount}
@@ -125,7 +127,7 @@ export const FilterBar = ({
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold flex items-center gap-2">
             <Filter className="w-5 h-5" />
-            Filters
+            {t("searchResults.filters.filters")}
             {activeFiltersCount > 0 && (
               <span className="ml-2 text-xs bg-blue-100 text-blue-700 rounded-full px-2 py-0.5">
                 {activeFiltersCount}
@@ -140,7 +142,7 @@ export const FilterBar = ({
               className="text-xs flex items-center gap-1"
             >
               <RotateCcw className="w-3 h-3" />
-              Reset
+              {t("searchResults.filters.reset")}
             </Button>
           )}
         </div>
@@ -148,7 +150,9 @@ export const FilterBar = ({
         <div className="space-y-4">
           {/* Property Type Selector */}
           <div className="space-y-3">
-            <h3 className="font-semibold text-sm">Property Type</h3>
+            <h3 className="font-semibold text-sm">
+              {t("searchResults.filters.propertyType")}
+            </h3>
             <div className="flex gap-2">
               {(["both", "hotel", "apartment"] as const).map((type) => (
                 <Button
@@ -160,7 +164,9 @@ export const FilterBar = ({
                   onClick={() => onPropertyTypeChange(type)}
                   className="flex-1 capitalize"
                 >
-                  {type === "both" ? "All" : type}
+                  {type === "both"
+                    ? t("searchResults.filters.all")
+                    : t(`searchResults.filters.${type}`)}
                 </Button>
               ))}
             </div>
@@ -171,11 +177,13 @@ export const FilterBar = ({
             {/* Search */}
             <AccordionItem value="search">
               <AccordionTrigger className="text-sm font-semibold">
-                Search
+                {t("searchResults.filters.search")}
               </AccordionTrigger>
               <AccordionContent className="space-y-3">
                 <Input
-                  placeholder="Name or location..."
+                  placeholder={t(
+                    "searchResults.filters.searchPlaceholderProperties",
+                  )}
                   value={
                     filters.propertyType === "hotel"
                       ? filters.hotelFilters.searchTerm || ""
@@ -206,12 +214,14 @@ export const FilterBar = ({
               <AccordionTrigger className="text-sm font-semibold">
                 <span className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  Stay Dates
+                  {t("searchResults.filters.stayDates")}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="space-y-3 pt-2">
                 <div className="space-y-2">
-                  <Label className="text-xs text-gray-600">Check-in Date</Label>
+                  <Label className="text-xs text-gray-600">
+                    {t("searchResults.filters.checkInDate")}
+                  </Label>
                   <Input
                     type="date"
                     value={
@@ -232,7 +242,7 @@ export const FilterBar = ({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs text-gray-600">
-                    Check-out Date
+                    {t("searchResults.filters.checkOutDate")}
                   </Label>
                   <Input
                     type="date"
@@ -262,7 +272,7 @@ export const FilterBar = ({
                 {(filters.checkInDate || filters.checkOutDate) && (
                   <p className="text-xs text-blue-600 flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
-                    Showing properties available for selected dates
+                    {t("searchResults.filters.showingPropertiesForDates")}
                   </p>
                 )}
               </AccordionContent>
@@ -271,11 +281,13 @@ export const FilterBar = ({
             {/* Guests */}
             <AccordionItem value="guests">
               <AccordionTrigger className="text-sm font-semibold">
-                Guests
+                {t("searchResults.filters.guests")}
               </AccordionTrigger>
               <AccordionContent className="space-y-3 pt-2">
                 <div className="space-y-2">
-                  <Label className="text-xs text-gray-600">Adults</Label>
+                  <Label className="text-xs text-gray-600">
+                    {t("searchResults.filters.adults")}
+                  </Label>
                   <div className="relative">
                     <Input
                       type="number"
@@ -324,7 +336,9 @@ export const FilterBar = ({
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs text-gray-600">Children</Label>
+                  <Label className="text-xs text-gray-600">
+                    {t("searchResults.filters.children")}
+                  </Label>
                   <div className="relative">
                     <Input
                       type="number"
@@ -373,7 +387,9 @@ export const FilterBar = ({
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs text-gray-600">Rooms</Label>
+                  <Label className="text-xs text-gray-600">
+                    {t("searchResults.filters.rooms")}
+                  </Label>
                   <div className="relative">
                     <Input
                       type="number"
@@ -422,8 +438,10 @@ export const FilterBar = ({
                 {(filters.adults || filters.children || filters.rooms) && (
                   <p className="text-xs text-blue-600 flex items-center gap-1">
                     <Filter className="w-3 h-3" />
-                    Filtering apartments by beds ≥ {filters.adults || 2} +{" "}
-                    {filters.children || 0} and rooms ≥ {filters.rooms || 1}
+                    {t("searchResults.filters.filteringApartments", {
+                      beds: (filters.adults || 2) + (filters.children || 0),
+                      rooms: filters.rooms || 1,
+                    })}
                   </p>
                 )}
               </AccordionContent>
@@ -432,7 +450,7 @@ export const FilterBar = ({
             {/* Price Range */}
             <AccordionItem value="price">
               <AccordionTrigger className="text-sm font-semibold">
-                Price Range
+                {t("searchResults.filters.priceRange")}
               </AccordionTrigger>
               <AccordionContent className="space-y-4">
                 <div className="space-y-2">
@@ -469,7 +487,9 @@ export const FilterBar = ({
                     }}
                   />
                   <p className="text-xs text-gray-500 mt-2">
-                    {filters.propertyType === "hotel" ? "per night" : "per day"}
+                    {filters.propertyType === "hotel"
+                      ? t("searchResults.filters.perNight")
+                      : t("searchResults.filters.perDay")}
                   </p>
                 </div>
               </AccordionContent>
@@ -478,7 +498,7 @@ export const FilterBar = ({
             {/* Rating */}
             <AccordionItem value="rating">
               <AccordionTrigger className="text-sm font-semibold">
-                Rating
+                {t("searchResults.filters.rating")}
               </AccordionTrigger>
               <AccordionContent className="space-y-2">
                 <Select
@@ -511,7 +531,9 @@ export const FilterBar = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Ratings</SelectItem>
+                    <SelectItem value="all">
+                      {t("searchResults.filters.allRatings")}
+                    </SelectItem>
                     <SelectItem value="3+">3+</SelectItem>
                     <SelectItem value="3.5+">3.5+</SelectItem>
                     <SelectItem value="4+">4+</SelectItem>
@@ -524,7 +546,7 @@ export const FilterBar = ({
             {/* Availability Status */}
             <AccordionItem value="status">
               <AccordionTrigger className="text-sm font-semibold">
-                Availability
+                {t("searchResults.filters.availability")}
               </AccordionTrigger>
               <AccordionContent className="space-y-2">
                 <Select
@@ -557,17 +579,29 @@ export const FilterBar = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="all">
+                      {t("searchResults.filters.allStatus")}
+                    </SelectItem>
                     {filters.propertyType === "hotel" ? (
                       <>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="maintenance">Maintenance</SelectItem>
+                        <SelectItem value="active">
+                          {t("searchResults.filters.active")}
+                        </SelectItem>
+                        <SelectItem value="maintenance">
+                          {t("searchResults.filters.maintenance")}
+                        </SelectItem>
                       </>
                     ) : (
                       <>
-                        <SelectItem value="available">Available</SelectItem>
-                        <SelectItem value="rented">Rented</SelectItem>
-                        <SelectItem value="maintenance">Maintenance</SelectItem>
+                        <SelectItem value="available">
+                          {t("searchResults.filters.available")}
+                        </SelectItem>
+                        <SelectItem value="rented">
+                          {t("searchResults.filters.rented")}
+                        </SelectItem>
+                        <SelectItem value="maintenance">
+                          {t("searchResults.filters.maintenance")}
+                        </SelectItem>
                       </>
                     )}
                   </SelectContent>
@@ -580,15 +614,17 @@ export const FilterBar = ({
               filters.propertyType === "both") && (
               <AccordionItem value="rooms">
                 <AccordionTrigger className="text-sm font-semibold">
-                  Rooms
+                  {t("searchResults.filters.rooms")}
                 </AccordionTrigger>
                 <AccordionContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <Label className="text-xs mb-1 block">Min</Label>
+                      <Label className="text-xs mb-1 block">
+                        {t("searchResults.filters.min")}
+                      </Label>
                       <Input
                         type="number"
-                        placeholder="Min"
+                        placeholder={t("searchResults.filters.min")}
                         value={filters.hotelFilters.rooms?.min || ""}
                         onChange={(e) =>
                           onHotelFiltersChange({
@@ -604,10 +640,12 @@ export const FilterBar = ({
                       />
                     </div>
                     <div>
-                      <Label className="text-xs mb-1 block">Max</Label>
+                      <Label className="text-xs mb-1 block">
+                        {t("searchResults.filters.max")}
+                      </Label>
                       <Input
                         type="number"
-                        placeholder="Max"
+                        placeholder={t("searchResults.filters.max")}
                         value={filters.hotelFilters.rooms?.max || ""}
                         onChange={(e) =>
                           onHotelFiltersChange({
@@ -632,17 +670,29 @@ export const FilterBar = ({
               filters.propertyType === "both") && (
               <AccordionItem value="hotel-amenities">
                 <AccordionTrigger className="text-sm font-semibold">
-                  Amenities
+                  {t("searchResults.filters.amenities")}
                 </AccordionTrigger>
                 <AccordionContent className="space-y-3">
                   {[
-                    { id: "wifi", label: "WiFi" },
-                    { id: "parking", label: "Parking" },
-                    { id: "pool", label: "Swimming Pool" },
-                    { id: "gym", label: "Gym" },
-                    { id: "spa", label: "Spa" },
-                    { id: "restaurant", label: "Restaurant" },
-                    { id: "bar", label: "Bar" },
+                    {
+                      id: "wifi",
+                      label: t("searchResults.filters.amenityWifi"),
+                    },
+                    {
+                      id: "parking",
+                      label: t("searchResults.filters.amenityParking"),
+                    },
+                    {
+                      id: "pool",
+                      label: t("searchResults.filters.amenityPool"),
+                    },
+                    { id: "gym", label: t("searchResults.filters.amenityGym") },
+                    { id: "spa", label: t("searchResults.filters.amenitySpa") },
+                    {
+                      id: "restaurant",
+                      label: t("searchResults.filters.amenityRestaurant"),
+                    },
+                    { id: "bar", label: t("searchResults.filters.amenityBar") },
                   ].map((amenity) => (
                     <div
                       key={amenity.id}
@@ -682,15 +732,17 @@ export const FilterBar = ({
               <>
                 <AccordionItem value="apt-rooms">
                   <AccordionTrigger className="text-sm font-semibold">
-                    Rooms
+                    {t("searchResults.filters.rooms")}
                   </AccordionTrigger>
                   <AccordionContent className="space-y-3">
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <Label className="text-xs mb-1 block">Min</Label>
+                        <Label className="text-xs mb-1 block">
+                          {t("searchResults.filters.min")}
+                        </Label>
                         <Input
                           type="number"
-                          placeholder="Min"
+                          placeholder={t("searchResults.filters.min")}
                           value={
                             filters.appartmentFilters.rooms?.min ||
                             filters.rooms ||
@@ -710,10 +762,12 @@ export const FilterBar = ({
                         />
                       </div>
                       <div>
-                        <Label className="text-xs mb-1 block">Max</Label>
+                        <Label className="text-xs mb-1 block">
+                          {t("searchResults.filters.max")}
+                        </Label>
                         <Input
                           type="number"
-                          placeholder="Max"
+                          placeholder={t("searchResults.filters.max")}
                           value={filters.appartmentFilters.rooms?.max || ""}
                           onChange={(e) =>
                             onAppartmentFiltersChange({
@@ -734,15 +788,17 @@ export const FilterBar = ({
 
                 <AccordionItem value="apt-beds">
                   <AccordionTrigger className="text-sm font-semibold">
-                    Beds
+                    {t("searchResults.filters.beds")}
                   </AccordionTrigger>
                   <AccordionContent className="space-y-3">
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <Label className="text-xs mb-1 block">Min</Label>
+                        <Label className="text-xs mb-1 block">
+                          {t("searchResults.filters.min")}
+                        </Label>
                         <Input
                           type="number"
-                          placeholder="Min"
+                          placeholder={t("searchResults.filters.min")}
                           value={filters.appartmentFilters.beds?.min || ""}
                           onChange={(e) =>
                             onAppartmentFiltersChange({
@@ -758,10 +814,12 @@ export const FilterBar = ({
                         />
                       </div>
                       <div>
-                        <Label className="text-xs mb-1 block">Max</Label>
+                        <Label className="text-xs mb-1 block">
+                          {t("searchResults.filters.max")}
+                        </Label>
                         <Input
                           type="number"
-                          placeholder="Max"
+                          placeholder={t("searchResults.filters.max")}
                           value={filters.appartmentFilters.beds?.max || ""}
                           onChange={(e) =>
                             onAppartmentFiltersChange({
@@ -782,15 +840,17 @@ export const FilterBar = ({
 
                 <AccordionItem value="apt-bathrooms">
                   <AccordionTrigger className="text-sm font-semibold">
-                    Bathrooms
+                    {t("searchResults.filters.bathrooms")}
                   </AccordionTrigger>
                   <AccordionContent className="space-y-3">
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <Label className="text-xs mb-1 block">Min</Label>
+                        <Label className="text-xs mb-1 block">
+                          {t("searchResults.filters.min")}
+                        </Label>
                         <Input
                           type="number"
-                          placeholder="Min"
+                          placeholder={t("searchResults.filters.min")}
                           value={filters.appartmentFilters.bathrooms?.min || ""}
                           onChange={(e) =>
                             onAppartmentFiltersChange({
@@ -806,10 +866,12 @@ export const FilterBar = ({
                         />
                       </div>
                       <div>
-                        <Label className="text-xs mb-1 block">Max</Label>
+                        <Label className="text-xs mb-1 block">
+                          {t("searchResults.filters.max")}
+                        </Label>
                         <Input
                           type="number"
-                          placeholder="Max"
+                          placeholder={t("searchResults.filters.max")}
                           value={filters.appartmentFilters.bathrooms?.max || ""}
                           onChange={(e) =>
                             onAppartmentFiltersChange({
@@ -840,7 +902,9 @@ export const FilterBar = ({
             className="w-full"
             size="sm"
           >
-            {loading ? "Searching..." : "Search"}
+            {loading
+              ? t("searchResults.filters.searching")
+              : t("searchResults.filters.applySearch")}
           </Button>
         </div>
       </aside>

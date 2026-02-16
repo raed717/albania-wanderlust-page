@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ interface AddCarDialogProps {
 }
 
 export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
@@ -86,17 +88,17 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
       !formData.plateNumber ||
       formData.pricePerDay <= 0
     ) {
-      alert("Please fill in all required fields");
+      alert(t("cars.addCarDialog.validation.requiredFields"));
       return;
     }
 
     if (formData.lat === undefined || formData.lng === undefined) {
-      alert("Please select a location on the map");
+      alert(t("cars.addCarDialog.validation.locationRequired"));
       return;
     }
 
     if (selectedImageFiles.length === 0) {
-      alert("Please upload at least one image");
+      alert(t("cars.addCarDialog.validation.imageRequired"));
       return;
     }
 
@@ -168,7 +170,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
       setMonthlyPrices([]);
     } catch (error) {
       console.error("Error adding car:", error);
-      alert("Failed to add car. Please try again.");
+      alert(t("cars.carDetails.error.message"));
     } finally {
       setLoading(false);
     }
@@ -187,57 +189,56 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
       <DialogTrigger asChild>
         <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg">
           <Plus className="mr-2" size={20} />
-          Add Car
+          {t("cars.addCarDialog.buttons.addCar")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         {submissionSuccess ? (
-          // Success State
-          <div className="py-12 text-center">
-            <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-6">
-              <Clock className="w-8 h-8 text-yellow-600" />
-            </div>
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-gray-900 mb-2">
-                Car Submitted for Review
-              </DialogTitle>
-              <DialogDescription className="text-gray-600 max-w-md mx-auto">
-                Your car has been successfully submitted and is pending admin
-                approval. You will be notified once your listing is reviewed.
-                The car will become available for booking after approval.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg max-w-md mx-auto">
-              <div className="flex items-center gap-2 text-yellow-800">
-                <Clock className="w-5 h-5" />
-                <span className="font-medium">Status: Pending Review</span>
+          <div>
+            {/* Success State */}
+            <div className="py-12 text-center">
+              <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-6">
+                <Clock className="w-8 h-8 text-yellow-600" />
               </div>
-              <p className="text-sm text-yellow-700 mt-2">
-                An administrator will review your car details and approve or
-                request changes.
-              </p>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-gray-900 mb-2">
+                  {t("cars.addCarDialog.successTitle")}
+                </DialogTitle>
+                <DialogDescription className="text-gray-600 max-w-md mx-auto">
+                  {t("cars.addCarDialog.successMessage")}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg max-w-md mx-auto">
+                <div className="flex items-center gap-2 text-yellow-800">
+                  <Clock className="w-5 h-5" />
+                  <span className="font-medium">
+                    {t("cars.addCarDialog.statusPending")}
+                  </span>
+                </div>
+                <p className="text-sm text-yellow-700 mt-2">
+                  {t("cars.addCarDialog.statusDescription")}
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  setOpen(false);
+                  setSubmissionSuccess(false);
+                }}
+                className="mt-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+              >
+                {t("cars.addCarDialog.close")}
+              </Button>
             </div>
-            <Button
-              onClick={() => {
-                setOpen(false);
-                setSubmissionSuccess(false);
-              }}
-              className="mt-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-            >
-              Close
-            </Button>
           </div>
         ) : (
-          // Form State
-          <>
+          <div>
+            {/* Form State */}
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Add New Car
+                {t("cars.addCarDialog.title")}
               </DialogTitle>
               <DialogDescription>
-                Fill in the details below to add a new car to your fleet. Your
-                car will be reviewed by an admin before it becomes available for
-                booking.
+                {t("cars.addCarDialog.subtitle")}
               </DialogDescription>
             </DialogHeader>
 
@@ -246,7 +247,8 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 {/* Name */}
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium">
-                    Car Name <span className="text-red-500">*</span>
+                    {t("cars.addCarDialog.form.carName")}{" "}
+                    <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="name"
@@ -261,7 +263,8 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 {/* Brand */}
                 <div className="space-y-2">
                   <Label htmlFor="brand" className="text-sm font-medium">
-                    Brand <span className="text-red-500">*</span>
+                    {t("cars.addCarDialog.form.brand")}{" "}
+                    <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="brand"
@@ -276,7 +279,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 {/* Type */}
                 <div className="space-y-2">
                   <Label htmlFor="type" className="text-sm font-medium">
-                    Type
+                    {t("cars.addCarDialog.form.type")}
                   </Label>
                   <select
                     id="type"
@@ -294,7 +297,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 {/* Year */}
                 <div className="space-y-2">
                   <Label htmlFor="year" className="text-sm font-medium">
-                    Year
+                    {t("cars.addCarDialog.form.year")}
                   </Label>
                   <Input
                     id="year"
@@ -312,7 +315,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 {/* Transmission */}
                 <div className="space-y-2">
                   <Label htmlFor="transmission" className="text-sm font-medium">
-                    Transmission
+                    {t("cars.addCarDialog.form.transmission")}
                   </Label>
                   <select
                     id="transmission"
@@ -329,7 +332,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 {/* Fuel Type */}
                 <div className="space-y-2">
                   <Label htmlFor="fuelType" className="text-sm font-medium">
-                    Fuel Type
+                    {t("cars.addCarDialog.form.fuelType")}
                   </Label>
                   <select
                     id="fuelType"
@@ -348,7 +351,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 {/* Seats */}
                 <div className="space-y-2">
                   <Label htmlFor="seats" className="text-sm font-medium">
-                    Seats
+                    {t("cars.addCarDialog.form.seats")}
                   </Label>
                   <Input
                     id="seats"
@@ -366,7 +369,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 {/* Mileage */}
                 <div className="space-y-2">
                   <Label htmlFor="mileage" className="text-sm font-medium">
-                    Mileage (km)
+                    {t("cars.addCarDialog.form.mileage")}
                   </Label>
                   <Input
                     id="mileage"
@@ -383,7 +386,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 {/* Price Per Day */}
                 <div className="space-y-2">
                   <Label htmlFor="pricePerDay" className="text-sm font-medium">
-                    Base Price per Day ($){" "}
+                    {t("cars.addCarDialog.form.basePrice")}{" "}
                     <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -397,15 +400,14 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                     className="w-full"
                   />
                   <p className="text-xs text-gray-500">
-                    This is the default price. You can set seasonal prices
-                    below.
+                    {t("cars.addCarDialog.form.priceHelp")}
                   </p>
                 </div>
 
                 {/* Status */}
                 <div className="space-y-2">
                   <Label htmlFor="status" className="text-sm font-medium">
-                    Status
+                    {t("cars.addCarDialog.form.status")}
                   </Label>
                   <select
                     id="status"
@@ -423,7 +425,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 {/* Color */}
                 <div className="space-y-2">
                   <Label htmlFor="color" className="text-sm font-medium">
-                    Color
+                    {t("cars.addCarDialog.form.color")}
                   </Label>
                   <Input
                     id="color"
@@ -438,7 +440,8 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 {/* Plate Number */}
                 <div className="space-y-2">
                   <Label htmlFor="plateNumber" className="text-sm font-medium">
-                    Plate Number <span className="text-red-500">*</span>
+                    {t("cars.addCarDialog.form.plateNumber")}{" "}
+                    <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="plateNumber"
@@ -452,12 +455,14 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
               </div>
               {/* Features */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Features</Label>
+                <Label className="text-sm font-medium">
+                  {t("cars.addCarDialog.form.features")}
+                </Label>
                 <div className="space-y-3">
                   {/* Suggested Features */}
                   <div className="space-y-2">
                     <p className="text-xs text-gray-500">
-                      Click to add common features:
+                      {t("cars.addCarDialog.form.suggestedFeatures")}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {[
@@ -507,7 +512,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                   {formData.features.length > 0 && (
                     <div className="space-y-2">
                       <p className="text-xs text-gray-500">
-                        Selected features:
+                        {t("cars.addCarDialog.form.selectedFeatures")}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {formData.features.map((feature, index) => (
@@ -552,7 +557,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                   <div className="flex gap-2">
                     <Input
                       ref={featureInputRef}
-                      placeholder="Add a custom feature..."
+                      placeholder={t("cars.addCarDialog.form.customFeature")}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && e.currentTarget.value.trim()) {
                           e.preventDefault();
@@ -583,7 +588,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                       }}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      Add
+                      {t("cars.addCarDialog.form.add")}
                     </button>
                   </div>
                 </div>
@@ -617,7 +622,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
               {/* Pick Up Location */}
               <div className="space-y-2">
                 <Label htmlFor="pickUpLocation" className="text-sm font-medium">
-                  Pick-up Location
+                  {t("cars.addCarDialog.form.pickupLocation")}
                 </Label>
                 <Input
                   id="pickUpLocation"
@@ -634,7 +639,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 lat={formData.lat}
                 lng={formData.lng}
                 onLocationSelect={handleLocationSelect}
-                label="Select Pick-up Location on Map (Required)"
+                label={t("cars.addCarDialog.form.mapLabel")}
                 defaultCenter={[41.327953, 19.819025]}
                 defaultZoom={8}
                 showCoordinates={true}
@@ -648,7 +653,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 onClick={() => setOpen(false)}
                 disabled={loading}
               >
-                Cancel
+                {t("cars.addCarDialog.buttons.cancel")}
               </Button>
               <Button
                 onClick={handleSubmit}
@@ -658,17 +663,17 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 animate-spin" size={16} />
-                    Adding...
+                    {t("cars.addCarDialog.adding")}
                   </>
                 ) : (
                   <>
                     <Plus className="mr-2" size={16} />
-                    Submit for Review
+                    {t("cars.addCarDialog.submitButton")}
                   </>
                 )}
               </Button>
             </DialogFooter>
-          </>
+          </div>
         )}
       </DialogContent>
     </Dialog>

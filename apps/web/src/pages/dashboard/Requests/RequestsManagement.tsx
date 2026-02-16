@@ -15,6 +15,7 @@ import { roleRequestService } from "@/services/api/roleRequestService";
 import { authService } from "@/services/api/authService";
 import { RoleRequest } from "@/types/request.type";
 import Hsidebar from "../../../components/dashboard/hsidebar";
+import { useTranslation } from "react-i18next";
 
 export default function RequestsManagement() {
   const [loading, setLoading] = useState(true);
@@ -27,6 +28,8 @@ export default function RequestsManagement() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [reviewerId, setReviewerId] = useState<string>("");
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     initializePage();
@@ -46,7 +49,7 @@ export default function RequestsManagement() {
       setRequests(allRequests);
     } catch (err) {
       console.error("Error loading requests:", err);
-      setError("Failed to load requests");
+      setError(t("requestsManagement.error"));
     } finally {
       setLoading(false);
     }
@@ -61,11 +64,7 @@ export default function RequestsManagement() {
   };
 
   const handleApprove = async (requestId: string) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to approve this request? The user will be upgraded to provider status.",
-      )
-    ) {
+    if (!window.confirm(t("requestsManagement.confirmations.approve"))) {
       return;
     }
 
@@ -74,16 +73,14 @@ export default function RequestsManagement() {
       setError(null);
 
       await roleRequestService.approveRequest(requestId, reviewerId);
-      setSuccess(
-        "Request approved successfully! User has been upgraded to provider.",
-      );
+      setSuccess(t("requestsManagement.success.approve"));
 
       // Refresh requests
       await initializePage();
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err: any) {
-      setError(err.message || "Failed to approve request");
+      setError(err.message || t("requestsManagement.errors.approve"));
       console.error("Error approving request:", err);
     } finally {
       setProcessing(null);
@@ -91,7 +88,7 @@ export default function RequestsManagement() {
   };
 
   const handleReject = async (requestId: string) => {
-    if (!window.confirm("Are you sure you want to reject this request?")) {
+    if (!window.confirm(t("requestsManagement.confirmations.reject"))) {
       return;
     }
 
@@ -100,14 +97,14 @@ export default function RequestsManagement() {
       setError(null);
 
       await roleRequestService.rejectRequest(requestId, reviewerId);
-      setSuccess("Request rejected successfully.");
+      setSuccess(t("requestsManagement.success.reject"));
 
       // Refresh requests
       await initializePage();
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err: any) {
-      setError(err.message || "Failed to reject request");
+      setError(err.message || t("requestsManagement.errors.reject"));
       console.error("Error rejecting request:", err);
     } finally {
       setProcessing(null);
@@ -120,21 +117,21 @@ export default function RequestsManagement() {
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
             <Clock className="w-4 h-4 mr-1" />
-            Pending
+            {t("requestsManagement.status.pending")}
           </span>
         );
       case "approved":
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
             <CheckCircle className="w-4 h-4 mr-1" />
-            Approved
+            {t("requestsManagement.status.approved")}
           </span>
         );
       case "rejected":
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
             <XCircle className="w-4 h-4 mr-1" />
-            Rejected
+            {t("requestsManagement.status.rejected")}
           </span>
         );
       default:
@@ -156,11 +153,9 @@ export default function RequestsManagement() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Provider Requests Management
+            {t("requestsManagement.title")}
           </h1>
-          <p className="text-gray-600">
-            Review and manage user requests to become service providers
-          </p>
+          <p className="text-gray-600">{t("requestsManagement.subtitle")}</p>
         </div>
         {/* Alert Messages */}
         {error && (
@@ -186,7 +181,7 @@ export default function RequestsManagement() {
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            All ({requests.length})
+            {t("requestsManagement.filters.status.all")} ({requests.length})
           </button>
           <button
             onClick={() => setFilter("pending")}
@@ -196,7 +191,8 @@ export default function RequestsManagement() {
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            Pending ({requests.filter((r) => r.status === "pending").length})
+            {t("requestsManagement.filters.status.pending")} (
+            {requests.filter((r) => r.status === "pending").length})
           </button>
           <button
             onClick={() => setFilter("approved")}
@@ -206,7 +202,8 @@ export default function RequestsManagement() {
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            Approved ({requests.filter((r) => r.status === "approved").length})
+            {t("requestsManagement.filters.status.approved")} (
+            {requests.filter((r) => r.status === "approved").length})
           </button>
           <button
             onClick={() => setFilter("rejected")}
@@ -216,7 +213,8 @@ export default function RequestsManagement() {
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            Rejected ({requests.filter((r) => r.status === "rejected").length})
+            {t("requestsManagement.filters.status.rejected")} (
+            {requests.filter((r) => r.status === "rejected").length})
           </button>
         </div>
         {/* Requests List */}
@@ -224,12 +222,14 @@ export default function RequestsManagement() {
           <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
             <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No requests found
+              {t("requestsManagement.empty.title")}
             </h3>
             <p className="text-gray-600">
               {filter === "all"
-                ? "There are no provider requests yet."
-                : `There are no ${filter} requests.`}
+                ? t("requestsManagement.empty.noRequests")
+                : t("requestsManagement.empty.noFilteredRequests", {
+                    filter: t(`requestsManagement.filters.status.${filter}`),
+                  })}
             </p>
           </div>
         ) : (
@@ -244,7 +244,8 @@ export default function RequestsManagement() {
                     <div className="flex items-center gap-3 mb-2">
                       <User className="w-5 h-5 text-gray-600" />
                       <h3 className="text-lg font-semibold text-gray-900">
-                        {request.userName || "Unknown User"}
+                        {request.userName ||
+                          t("requestsManagement.user.unknown")}
                       </h3>
                       {getStatusBadge(request.status)}
                     </div>
@@ -255,7 +256,7 @@ export default function RequestsManagement() {
                       </div>
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-1" />
-                        Submitted{" "}
+                        {t("requestsManagement.user.submitted")}{" "}
                         {new Date(request.submittedAt).toLocaleDateString(
                           "en-US",
                           {
@@ -269,7 +270,7 @@ export default function RequestsManagement() {
                     {request.reviewedAt && (
                       <div className="text-sm text-gray-600 mb-3">
                         <Calendar className="w-4 h-4 inline mr-1" />
-                        Reviewed on{" "}
+                        {t("requestsManagement.user.reviewed")}{" "}
                         {new Date(request.reviewedAt).toLocaleDateString(
                           "en-US",
                           {
@@ -285,7 +286,7 @@ export default function RequestsManagement() {
 
                 <div className="bg-gray-50 rounded-lg p-4 mb-4">
                   <p className="text-sm font-medium text-gray-700 mb-2">
-                    Reason for Request:
+                    {t("requestsManagement.user.reasonLabel")}
                   </p>
                   <p className="text-gray-900 whitespace-pre-wrap">
                     {request.reason}
@@ -302,12 +303,12 @@ export default function RequestsManagement() {
                       {processing === request.id ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          Processing...
+                          {t("requestsManagement.actions.processing")}
                         </>
                       ) : (
                         <>
                           <CheckCircle className="w-4 h-4" />
-                          Approve
+                          {t("requestsManagement.actions.approve")}
                         </>
                       )}
                     </button>
@@ -319,12 +320,12 @@ export default function RequestsManagement() {
                       {processing === request.id ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          Processing...
+                          {t("requestsManagement.actions.processing")}
                         </>
                       ) : (
                         <>
                           <XCircle className="w-4 h-4" />
-                          Reject
+                          {t("requestsManagement.actions.reject")}
                         </>
                       )}
                     </button>

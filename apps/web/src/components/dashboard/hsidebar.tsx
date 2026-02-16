@@ -8,6 +8,7 @@ import {
   sidebarClasses,
 } from "react-pro-sidebar";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard,
   Home,
@@ -126,196 +127,7 @@ const ROUTES = {
 };
 
 // Menu items configuration with role-based access
-const MENU_ITEMS = {
-  singleItems: [
-    {
-      label: "Home",
-      icon: ICONS.dashboard,
-      route: ROUTES.home,
-      roles: ["admin", "provider"], // Available to both roles
-    },
-  ],
-  subMenuItems: [
-    {
-      label: "Appartments",
-      icon: ICONS.apartments,
-      roles: ["admin", "provider"],
-      items: [
-        {
-          label: "All Appartments",
-          route: ROUTES.apartments.list,
-          roles: ["admin", "provider"],
-        },
-        {
-          label: "Owners Management",
-          route: ROUTES.apartments.owners,
-          roles: ["admin"], // Only admin can see this
-        },
-        {
-          label: "Bookings",
-          route: ROUTES.apartments.bookings,
-          roles: ["admin", "provider"],
-        },
-        {
-          label: "Availability",
-          route: ROUTES.apartments.availability,
-          roles: ["admin", "provider"],
-        },
-      ],
-    },
-    {
-      label: "Hotels",
-      icon: ICONS.hotels,
-      roles: ["admin", "provider"],
-      items: [
-        {
-          label: "All Hotels",
-          route: ROUTES.hotels.list,
-          roles: ["admin", "provider"],
-        },
-        {
-          label: "Rooms Management",
-          route: ROUTES.hotels.rooms,
-          roles: ["admin", "provider"],
-        },
-        {
-          label: "Bookings",
-          route: ROUTES.hotels.bookings,
-          roles: ["admin", "provider"],
-        },
-        {
-          label: "Availability",
-          route: ROUTES.hotels.availability,
-          roles: ["admin", "provider"],
-        },
-      ],
-    },
-    {
-      label: "Car Rentals",
-      icon: ICONS.cars,
-      roles: ["admin", "provider"],
-      items: [
-        {
-          label: "Fleet Management",
-          route: ROUTES.cars.fleet,
-          roles: ["admin", "provider"],
-        },
-        {
-          label: "Active Rentals",
-          route: ROUTES.cars.rentals,
-          roles: ["admin", "provider"],
-        },
-        {
-          label: "Maintenance",
-          route: ROUTES.cars.maintenance,
-          roles: ["admin", "provider"],
-        },
-      ],
-    },
-    {
-      label: "Bookings",
-      icon: ICONS.bookings,
-      roles: ["admin", "provider"],
-      items: [
-        {
-          label: "All Bookings",
-          route: ROUTES.bookings.list,
-          roles: ["admin", "provider"],
-        },
-      ],
-    },
-    {
-      label: "Destinations",
-      icon: ICONS.settings,
-      roles: ["admin"],
-      items: [
-        {
-          label: "Destinations Management",
-          route: ROUTES.destinations.management,
-          roles: ["admin"],
-        },
-      ],
-    },
-    {
-      label: "Support Chat",
-      icon: ICONS.messages,
-      roles: ["admin"],
-      items: [
-        {
-          label: "Chat Dashboard",
-          route: ROUTES.support.chat,
-          roles: ["admin"],
-        },
-      ],
-    },
-    {
-      label: "Users",
-      icon: ICONS.users,
-      roles: ["admin"], // Only admin can see users
-      items: [
-        {
-          label: "Users Management",
-          route: ROUTES.users.management,
-          roles: ["admin"],
-        },
-        {
-          label: "Provider Requests",
-          route: ROUTES.users.roles,
-          roles: ["admin"],
-        },
-        {
-          label: "Property Requests",
-          route: ROUTES.users.propertyRequests,
-          roles: ["admin"],
-        },
-      ],
-    },
-    // {
-    //   label: "Finance",
-    //   icon: ICONS.finance,
-    //   roles: ["admin"], // Only admin can see finance
-    //   items: [
-    //     {
-    //       label: "Revenue",
-    //       route: ROUTES.finance.revenue,
-    //       roles: ["admin"],
-    //     },
-    //     {
-    //       label: "Invoices",
-    //       route: ROUTES.finance.invoices,
-    //       roles: ["admin"],
-    //     },
-    //     {
-    //       label: "Financial Reports",
-    //       route: ROUTES.finance.reports,
-    //       roles: ["admin"],
-    //     },
-    //   ],
-    // },
-    // {
-    //   label: "Analytics",
-    //   icon: ICONS.analytics,
-    //   roles: ["admin"], // Only admin can see analytics
-    //   items: [
-    //     {
-    //       label: "Overview",
-    //       route: ROUTES.analytics.overview,
-    //       roles: ["admin"],
-    //     },
-    //     {
-    //       label: "Performance",
-    //       route: ROUTES.analytics.performance,
-    //       roles: ["admin"],
-    //     },
-    //     {
-    //       label: "Trends",
-    //       route: ROUTES.analytics.trends,
-    //       roles: ["admin"],
-    //     },
-    //   ],
-    // },
-  ],
-};
+// Moved inside component for translation
 
 // ====================
 // STYLES CONFIGURATION
@@ -351,6 +163,7 @@ const hasAccess = (roles: string[], userRole: string | undefined): boolean => {
 // MAIN COMPONENT
 // ====================
 const Hsidebar = ({ children }) => {
+  const { t } = useTranslation();
   const [user, setUser] = React.useState<User | null>(null);
   const [collapsed, setCollapsed] = useState(true);
 
@@ -374,6 +187,198 @@ const Hsidebar = ({ children }) => {
 
   // Get user role
   const userRole = user?.role?.toLowerCase();
+
+  // Menu items configuration with role-based access
+  const MENU_ITEMS = {
+    singleItems: [
+      {
+        label: t("sidebar.home"),
+        icon: ICONS.dashboard,
+        route: ROUTES.home,
+        roles: ["admin", "provider"], // Available to both roles
+      },
+    ],
+    subMenuItems: [
+      {
+        label: t("sidebar.apartments.title"),
+        icon: ICONS.apartments,
+        roles: ["admin", "provider"],
+        items: [
+          {
+            label: t("sidebar.apartments.allApartments"),
+            route: ROUTES.apartments.list,
+            roles: ["admin", "provider"],
+          },
+          {
+            label: t("sidebar.apartments.ownersManagement"),
+            route: ROUTES.apartments.owners,
+            roles: ["admin"], // Only admin can see this
+          },
+          {
+            label: t("sidebar.apartments.bookings"),
+            route: ROUTES.apartments.bookings,
+            roles: ["admin", "provider"],
+          },
+          {
+            label: t("sidebar.apartments.availability"),
+            route: ROUTES.apartments.availability,
+            roles: ["admin", "provider"],
+          },
+        ],
+      },
+      {
+        label: t("sidebar.hotels.title"),
+        icon: ICONS.hotels,
+        roles: ["admin", "provider"],
+        items: [
+          {
+            label: t("sidebar.hotels.allHotels"),
+            route: ROUTES.hotels.list,
+            roles: ["admin", "provider"],
+          },
+          {
+            label: t("sidebar.hotels.roomsManagement"),
+            route: ROUTES.hotels.rooms,
+            roles: ["admin", "provider"],
+          },
+          {
+            label: t("sidebar.hotels.bookings"),
+            route: ROUTES.hotels.bookings,
+            roles: ["admin", "provider"],
+          },
+          {
+            label: t("sidebar.hotels.availability"),
+            route: ROUTES.hotels.availability,
+            roles: ["admin", "provider"],
+          },
+        ],
+      },
+      {
+        label: t("sidebar.cars.title"),
+        icon: ICONS.cars,
+        roles: ["admin", "provider"],
+        items: [
+          {
+            label: t("sidebar.cars.fleetManagement"),
+            route: ROUTES.cars.fleet,
+            roles: ["admin", "provider"],
+          },
+          {
+            label: t("sidebar.cars.activeRentals"),
+            route: ROUTES.cars.rentals,
+            roles: ["admin", "provider"],
+          },
+          {
+            label: t("sidebar.cars.maintenance"),
+            route: ROUTES.cars.maintenance,
+            roles: ["admin", "provider"],
+          },
+        ],
+      },
+      {
+        label: t("sidebar.bookings.title"),
+        icon: ICONS.bookings,
+        roles: ["admin", "provider"],
+        items: [
+          {
+            label: t("sidebar.bookings.allBookings"),
+            route: ROUTES.bookings.list,
+            roles: ["admin", "provider"],
+          },
+        ],
+      },
+      {
+        label: t("sidebar.destinations.title"),
+        icon: ICONS.settings,
+        roles: ["admin"],
+        items: [
+          {
+            label: t("sidebar.destinations.management"),
+            route: ROUTES.destinations.management,
+            roles: ["admin"],
+          },
+        ],
+      },
+      {
+        label: t("sidebar.support.title"),
+        icon: ICONS.messages,
+        roles: ["admin"],
+        items: [
+          {
+            label: t("sidebar.support.chatDashboard"),
+            route: ROUTES.support.chat,
+            roles: ["admin"],
+          },
+        ],
+      },
+      {
+        label: t("sidebar.users.title"),
+        icon: ICONS.users,
+        roles: ["admin"], // Only admin can see users
+        items: [
+          {
+            label: t("sidebar.users.management"),
+            route: ROUTES.users.management,
+            roles: ["admin"],
+          },
+          {
+            label: t("sidebar.users.providerRequests"),
+            route: ROUTES.users.roles,
+            roles: ["admin"],
+          },
+          {
+            label: t("sidebar.users.propertyRequests"),
+            route: ROUTES.users.propertyRequests,
+            roles: ["admin"],
+          },
+        ],
+      },
+      // {
+      //   label: "Finance",
+      //   icon: ICONS.finance,
+      //   roles: ["admin"], // Only admin can see finance
+      //   items: [
+      //     {
+      //       label: "Revenue",
+      //       route: ROUTES.finance.revenue,
+      //       roles: ["admin"],
+      //     },
+      //     {
+      //       label: "Invoices",
+      //       route: ROUTES.finance.invoices,
+      //       roles: ["admin"],
+      //     },
+      //     {
+      //       label: "Financial Reports",
+      //       route: ROUTES.finance.reports,
+      //       roles: ["admin"],
+      //     },
+      //   ],
+      // },
+      // {
+      //   label: "Analytics",
+      //   icon: ICONS.analytics,
+      //   roles: ["admin"], // Only admin can see analytics
+      //   items: [
+      //     {
+      //       label: "Overview",
+      //       route: ROUTES.analytics.overview,
+      //       roles: ["admin"],
+      //     },
+      //     {
+      //       label: "Performance",
+      //       route: ROUTES.analytics.performance,
+      //       roles: ["admin"],
+      //     },
+      //     {
+      //       label: "Trends",
+      //       route: ROUTES.analytics.trends,
+      //       roles: ["admin"],
+      //     },
+      //   ],
+      // },
+    ],
+  };
 
   // Render single menu items (filtered by role)
   const renderSingleItems = () => {
@@ -446,7 +451,7 @@ const Hsidebar = ({ children }) => {
               <Hotel size={32} style={{ color: COLORS.primary }} />
 
               <span className="text-xl font-semibold text-white">
-                VisitAlbania
+                {t("sidebar.brand")}
               </span>
             </div>
           ) : (
@@ -483,7 +488,7 @@ const Hsidebar = ({ children }) => {
             ) : (
               <>
                 <ChevronLeft size={18} />
-                <span>Collapse</span>
+                <span>{t("sidebar.collapse")}</span>
               </>
             )}
           </button>

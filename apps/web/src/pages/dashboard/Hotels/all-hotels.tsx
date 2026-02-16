@@ -26,26 +26,31 @@ import { Hotel } from "@/types/hotel.types";
 import Swal from "sweetalert2";
 import { User } from "@/types/user.types";
 import { userService } from "@/services/api/userService";
+import { useTranslation } from "react-i18next";
 
 // NOTE: In a real app, you would import Swal from 'sweetalert2'
 // For this demo, we use window.confirm
 const confirmDelete = async (
   hotelId: number,
-  hotelName: string
+  hotelName: string,
+  t: any,
 ): Promise<boolean> => {
   return Swal.fire({
-    title: "Are you sure?",
-    text: "You won't be able to revert this!",
+    title: t("hotels.allHotels.confirmDelete.title"),
+    text: t("hotels.allHotels.confirmDelete.message"),
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
+    confirmButtonText: t("hotels.allHotels.confirmDelete.confirmButton"),
+    cancelButtonText: t("common.cancel"),
   }).then((result) => {
     if (result.isConfirmed) {
       Swal.fire({
-        title: "Deleted!",
-        text: "Your hotel has been deleted.",
+        title: t("hotels.allHotels.confirmDelete.successTitle"),
+        text: t("hotels.allHotels.confirmDelete.successMessage", {
+          name: hotelName,
+        }),
         icon: "success",
       });
       return true;
@@ -64,6 +69,8 @@ const AllHotels = () => {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { t } = useTranslation();
 
   const itemsPerPage = 6;
 
@@ -125,7 +132,7 @@ const AllHotels = () => {
   };
 
   const handleDelete = async (id: number, name: string) => {
-    const confirmed = await confirmDelete(id, name);
+    const confirmed = await confirmDelete(id, name, t);
     if (confirmed) {
       try {
         await deleteHotel(id);
@@ -183,7 +190,7 @@ const AllHotels = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedHotels = filteredHotels.slice(
     startIndex,
-    startIndex + itemsPerPage
+    startIndex + itemsPerPage,
   );
 
   // Loading state
@@ -197,7 +204,9 @@ const AllHotels = () => {
                 size={48}
                 className="animate-spin text-blue-600 mx-auto mb-4"
               />
-              <p className="text-gray-500 text-lg">Loading hotels...</p>
+              <p className="text-gray-500 text-lg">
+                {t("hotels.allHotels.loading")}
+              </p>
             </div>
           </div>
         </div>
@@ -228,7 +237,7 @@ const AllHotels = () => {
                 </svg>
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Error Loading Hotels
+                {t("hotels.allHotels.error.title")}
               </h3>
               <p className="text-gray-500 mb-4">{error}</p>
               <button
@@ -251,10 +260,10 @@ const AllHotels = () => {
         <div className="mb-8 flex items-end justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              All Hotels
+              {t("hotels.allHotels.title")}
             </h1>
             <p className="text-gray-500 text-lg">
-              Manage and monitor all your hotel properties
+              {t("hotels.allHotels.subtitle")}
             </p>
           </div>
           <AddHotelDialog onHotelAdded={handleHotelAdded} />
@@ -263,22 +272,22 @@ const AllHotels = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           <StatCard
-            label="Total Hotels"
+            label={t("hotels.allHotels.stats.totalHotels")}
             value={hotels.length}
             gradient="from-blue-500 to-indigo-600"
           />
           <StatCard
-            label="Total Rooms"
+            label={t("hotels.allHotels.stats.totalRooms")}
             value={hotels.reduce((sum, hotel) => sum + hotel.rooms, 0)}
             gradient="from-fuchsia-400 to-pink-500"
           />
           <StatCard
-            label="Avg Occupancy"
+            label={t("hotels.allHotels.stats.avgOccupancy")}
             value={`${(hotels.reduce((sum, hotel) => sum + hotel.occupancy, 0) / (hotels.length || 1)).toFixed(0)}%`}
             gradient="from-sky-400 to-cyan-500"
           />
           <StatCard
-            label="Avg Rating"
+            label={t("hotels.allHotels.stats.avgRating")}
             value={(
               hotels.reduce((sum, hotel) => sum + hotel.rating, 0) /
               (hotels.length || 1)
@@ -298,7 +307,7 @@ const AllHotels = () => {
               />
               <input
                 type="text"
-                placeholder="Search hotels by name or location..."
+                placeholder={t("hotels.allHotels.search.placeholder")}
                 value={searchTerm}
                 onChange={handleSearchChange}
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
@@ -317,9 +326,15 @@ const AllHotels = () => {
                   onChange={handleStatusChange}
                   className="w-full md:w-48 pl-10 pr-8 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white appearance-none cursor-pointer"
                 >
-                  <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="maintenance">Maintenance</option>
+                  <option value="all">
+                    {t("hotels.allHotels.filters.status.all")}
+                  </option>
+                  <option value="active">
+                    {t("hotels.allHotels.filters.status.active")}
+                  </option>
+                  <option value="maintenance">
+                    {t("hotels.allHotels.filters.status.maintenance")}
+                  </option>
                 </select>
               </div>
 
@@ -330,15 +345,21 @@ const AllHotels = () => {
                   onChange={handleRatingChange}
                   className="w-full md:w-40 px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white cursor-pointer"
                 >
-                  <option value="all">All Ratings</option>
-                  <option value="4.5+">4.5+ Stars</option>
-                  <option value="4+">4+ Stars</option>
+                  <option value="all">
+                    {t("hotels.allHotels.filters.rating.all")}
+                  </option>
+                  <option value="4.5+">
+                    {t("hotels.allHotels.filters.rating.fourFivePlus")}
+                  </option>
+                  <option value="4+">
+                    {t("hotels.allHotels.filters.rating.fourPlus")}
+                  </option>
                 </select>
               </div>
             </div>
 
             <div className="text-sm text-gray-500 whitespace-nowrap hidden lg:block">
-              {filteredHotels.length} results
+              {t("hotels.allHotels.results", { count: filteredHotels.length })}
             </div>
           </div>
         </div>
@@ -350,10 +371,10 @@ const AllHotels = () => {
               <Search size={48} className="mx-auto" />
             </div>
             <h3 className="text-lg font-medium text-gray-900">
-              No hotels found
+              {t("hotels.allHotels.empty.title")}
             </h3>
             <p className="text-gray-500">
-              Try adjusting your search or filters
+              {t("hotels.allHotels.empty.message")}
             </p>
           </div>
         ) : (
@@ -383,7 +404,7 @@ const AllHotels = () => {
               }`}
             >
               <ChevronLeft size={16} />
-              Previous
+              {t("hotels.allHotels.pagination.previous")}
             </button>
 
             <div className="flex items-center gap-2">
@@ -400,7 +421,7 @@ const AllHotels = () => {
                   >
                     {page}
                   </button>
-                )
+                ),
               )}
             </div>
 
@@ -415,7 +436,7 @@ const AllHotels = () => {
                   : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm"
               }`}
             >
-              Next
+              {t("hotels.allHotels.pagination.next")}
               <ChevronRight size={16} />
             </button>
           </div>
@@ -453,79 +474,90 @@ const HotelCard: React.FC<HotelCardProps> = ({
   onDelete,
   onView,
   onEdit,
-}) => (
-  <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
-    {/* Image */}
-    <div
-      className="h-52 bg-cover bg-center relative group-hover:scale-105 transition-transform duration-500"
-      style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url(${hotel.imageUrls?.[0]})`,
-      }}
-    >
-      <div className="absolute top-3 right-3">
-        <span
-          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-            hotel.status === "active"
-              ? "bg-emerald-500 text-white"
-              : "bg-amber-500 text-white"
-          }`}
-        >
-          {hotel.status}
-        </span>
+}) => {
+  const { t } = useTranslation();
+  return (
+    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+      {/* Image */}
+      <div
+        className="h-52 bg-cover bg-center relative group-hover:scale-105 transition-transform duration-500"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url(${hotel.imageUrls?.[0]})`,
+        }}
+      >
+        <div className="absolute top-3 right-3">
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+              hotel.status === "active"
+                ? "bg-emerald-500 text-white"
+                : "bg-amber-500 text-white"
+            }`}
+          >
+            {hotel.status}
+          </span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-5 relative bg-white">
+        <h3 className="text-xl font-bold text-gray-900 mb-2">{hotel.name}</h3>
+
+        <div className="flex items-center gap-2 text-gray-500 text-sm mb-4">
+          <MapPin size={16} className="text-blue-500" />
+          <span>{hotel.location}</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-5">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Star size={16} className="text-amber-400 fill-amber-400" />
+            <span className="font-medium">{hotel.rating}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Bed size={16} className="text-gray-400" />
+            <span>
+              {t("hotels.allHotels.card.rooms", { count: hotel.rooms })}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Users size={16} className="text-gray-400" />
+            <span>
+              {t("hotels.allHotels.card.occupancy", {
+                percentage: hotel.occupancy,
+              })}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <DollarSign size={16} className="text-emerald-500" />
+            <span className="font-bold text-gray-900">${hotel.price}</span>
+            <span className="text-xs">
+              {t("hotels.allHotels.card.perNight")}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex gap-2 pt-4 border-t border-gray-100">
+          <button
+            onClick={() => onView(hotel.id)}
+            className="flex-1 py-2 px-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+          >
+            <Eye size={16} /> {t("hotels.allHotels.card.view")}
+          </button>
+          <button
+            onClick={() => onEdit(hotel.id)}
+            className="p-2 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <Edit size={16} />
+          </button>
+          <button
+            onClick={() => onDelete(hotel.id, hotel.name)}
+            className="p-2 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </div>
     </div>
-
-    {/* Content */}
-    <div className="p-5 relative bg-white">
-      <h3 className="text-xl font-bold text-gray-900 mb-2">{hotel.name}</h3>
-
-      <div className="flex items-center gap-2 text-gray-500 text-sm mb-4">
-        <MapPin size={16} className="text-blue-500" />
-        <span>{hotel.location}</span>
-      </div>
-
-      <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-5">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Star size={16} className="text-amber-400 fill-amber-400" />
-          <span className="font-medium">{hotel.rating}</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Bed size={16} className="text-gray-400" />
-          <span>{hotel.rooms} Rooms</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Users size={16} className="text-gray-400" />
-          <span>{hotel.occupancy}% Full</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <DollarSign size={16} className="text-emerald-500" />
-          <span className="font-bold text-gray-900">${hotel.price}</span>
-          <span className="text-xs">/night</span>
-        </div>
-      </div>
-
-      <div className="flex gap-2 pt-4 border-t border-gray-100">
-        <button
-          onClick={() => onView(hotel.id)}
-          className="flex-1 py-2 px-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
-        >
-          <Eye size={16} /> View
-        </button>
-        <button
-          onClick={() => onEdit(hotel.id)}
-          className="p-2 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <Edit size={16} />
-        </button>
-        <button
-          onClick={() => onDelete(hotel.id, hotel.name)}
-          className="p-2 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
-        >
-          <Trash2 size={16} />
-        </button>
-      </div>
-    </div>
-  </div>
-);
+  );
+};
 
 export default AllHotels;

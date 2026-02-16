@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Hsidebar from "../../../components/dashboard/hsidebar";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ import Swal from "sweetalert2";
 import { getCarById, updateCar } from "@/services/api/carService";
 
 const CarDetails = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -130,15 +132,15 @@ const CarDetails = () => {
       setNewImageFiles([]);
       Swal.fire({
         icon: "success",
-        title: "Success...",
-        text: "Car updated successfully!",
+        title: t("cars.carDetails.success.title"),
+        text: t("cars.carDetails.success.message"),
       });
     } catch (error) {
       console.error("Error updating car:", error);
       Swal.fire({
         icon: "error",
-        title: "Oops...",
-        text: "Something went wrong!",
+        title: t("cars.carDetails.error.title"),
+        text: t("cars.carDetails.error.message"),
       });
     } finally {
       setSaving(false);
@@ -150,6 +152,7 @@ const CarDetails = () => {
       <Hsidebar>
         <div className="flex items-center justify-center h-screen">
           <Loader2 className="animate-spin text-blue-600" size={48} />
+          <span className="ml-2 text-lg">{t("cars.carDetails.loading")}</span>
         </div>
       </Hsidebar>
     );
@@ -161,14 +164,14 @@ const CarDetails = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-20">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Car Not Found
+              {t("cars.carDetails.notFound.title")}
             </h3>
             <p className="text-gray-500 mb-8">
-              The car you're looking for doesn't exist.
+              {t("cars.carDetails.notFound.message")}
             </p>
             <Button onClick={() => navigate("/dashboard/carsList")}>
               <ArrowLeft className="mr-2" size={16} />
-              Back to Cars
+              {t("cars.carDetails.notFound.backButton")}
             </Button>
           </div>
         </div>
@@ -191,12 +194,14 @@ const CarDetails = () => {
               Back to Cars
             </Button>
             <h1 className="text-3xl font-bold text-gray-900">
-              {isEditing ? "Edit Car" : "Car Details"}
+              {isEditing
+                ? t("cars.carDetails.headers.edit")
+                : t("cars.carDetails.headers.details")}
             </h1>
             <p className="text-gray-500 text-lg mt-1">
               {isEditing
-                ? "Update car information"
-                : "View complete car information"}
+                ? t("cars.carDetails.headers.editSubtitle")
+                : t("cars.carDetails.headers.detailsSubtitle")}
             </p>
           </div>
 
@@ -209,7 +214,7 @@ const CarDetails = () => {
                   disabled={saving}
                 >
                   <X className="mr-2" size={16} />
-                  Cancel
+                  {t("cars.carDetails.buttons.cancel")}
                 </Button>
                 <Button
                   onClick={handleSave}
@@ -219,12 +224,12 @@ const CarDetails = () => {
                   {saving ? (
                     <>
                       <Loader2 className="mr-2 animate-spin" size={16} />
-                      Saving...
+                      {t("cars.carDetails.buttons.saving")}
                     </>
                   ) : (
                     <>
                       <Save className="mr-2" size={16} />
-                      Save Changes
+                      {t("cars.carDetails.buttons.saveChanges")}
                     </>
                   )}
                 </Button>
@@ -235,7 +240,7 @@ const CarDetails = () => {
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
               >
                 <Edit className="mr-2" size={16} />
-                Edit Car
+                {t("cars.carDetails.buttons.editCar")}
               </Button>
             )}
           </div>
@@ -322,7 +327,9 @@ const CarDetails = () => {
 
             {/* Status Badge */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <Label className="text-sm font-medium mb-2 block">Status</Label>
+              <Label className="text-sm font-medium mb-2 block">
+                {t("cars.carDetails.sections.status")}
+              </Label>
               {isEditing ? (
                 <select
                   name="status"
@@ -363,7 +370,7 @@ const CarDetails = () => {
             {/* Basic Information */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Basic Information
+                {t("cars.carDetails.sections.basicInfo")}
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -374,7 +381,7 @@ const CarDetails = () => {
                     className="text-sm font-medium flex items-center gap-2"
                   >
                     <CarIcon size={16} className="text-blue-500" />
-                    Car Name
+                    {t("cars.carDetails.fields.carName")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -395,7 +402,7 @@ const CarDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Star size={16} className="text-amber-400 fill-amber-400" />
-                    Brand
+                    {t("cars.carDetails.fields.brand")}
                   </Label>
                   {isEditing ? (
                     <select
@@ -405,7 +412,7 @@ const CarDetails = () => {
                       className="border border-gray-300 rounded-md p-2"
                     >
                       <option value="" disabled selected>
-                        Select a brand
+                        {t("cars.carDetails.fields.selectBrand")}
                       </option>
                       <option value="Acura">Acura</option>
                       <option value="Alfa Romeo">Alfa Romeo</option>
@@ -468,7 +475,7 @@ const CarDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Settings size={16} className="text-gray-500" />
-                    Type
+                    {t("cars.carDetails.fields.type")}
                   </Label>
                   {isEditing ? (
                     <select
@@ -490,7 +497,7 @@ const CarDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Calendar size={16} className="text-gray-500" />
-                    Year
+                    {t("cars.carDetails.fields.year")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -510,7 +517,7 @@ const CarDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Settings size={16} className="text-gray-500" />
-                    Transmission
+                    {t("cars.carDetails.fields.transmission")}
                   </Label>
                   {isEditing ? (
                     <select
@@ -531,7 +538,7 @@ const CarDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Fuel size={16} className="text-gray-500" />
-                    Fuel Type
+                    {t("cars.carDetails.fields.fuelType")}
                   </Label>
                   {isEditing ? (
                     <select
@@ -554,7 +561,7 @@ const CarDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Users size={16} className="text-gray-500" />
-                    Seats
+                    {t("cars.carDetails.fields.seats")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -566,7 +573,9 @@ const CarDetails = () => {
                       onChange={handleChange}
                     />
                   ) : (
-                    <p className="text-gray-700">{car.seats} Seats</p>
+                    <p className="text-gray-700">
+                      {t("cars.carDetails.card.seats", { count: car.seats })}
+                    </p>
                   )}
                 </div>
 
@@ -574,7 +583,7 @@ const CarDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <DollarSign size={16} className="text-emerald-500" />
-                    Base Price per Day
+                    {t("cars.carDetails.fields.basePrice")}
                   </Label>
                   {isEditing ? (
                     <>
@@ -586,7 +595,7 @@ const CarDetails = () => {
                         onChange={handleChange}
                       />
                       <p className="text-xs text-gray-500">
-                        Default price used when no monthly price is set
+                        {t("cars.carDetails.fields.priceHelp")}
                       </p>
                     </>
                   ) : (
@@ -601,7 +610,7 @@ const CarDetails = () => {
             {/* Monthly Pricing Section */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Monthly Pricing
+                {t("cars.carDetails.sections.monthlyPricing")}
               </h2>
               {isEditing ? (
                 <MonthlyPricingEditor
@@ -649,8 +658,9 @@ const CarDetails = () => {
                     </div>
                   ) : (
                     <p className="text-gray-500">
-                      No seasonal pricing configured. Using base price of $
-                      {car.pricePerDay}/day for all months.
+                      {t("cars.carDetails.pricing.noSeasonal", {
+                        price: car.pricePerDay,
+                      })}
                     </p>
                   )}
                 </div>
@@ -660,7 +670,7 @@ const CarDetails = () => {
             {/* Vehicle Details */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Vehicle Details
+                {t("cars.carDetails.sections.vehicleDetails")}
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -668,7 +678,7 @@ const CarDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Palette size={16} className="text-blue-500" />
-                    Color
+                    {t("cars.carDetails.fields.color")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -685,7 +695,7 @@ const CarDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <CarIcon size={16} className="text-blue-500" />
-                    Plate Number
+                    {t("cars.carDetails.fields.plateNumber")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -702,7 +712,7 @@ const CarDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <Gauge size={16} className="text-blue-500" />
-                    Mileage
+                    {t("cars.carDetails.fields.mileage")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -722,7 +732,7 @@ const CarDetails = () => {
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <MapPin size={16} className="text-blue-500" />
-                    Pick Up Location
+                    {t("cars.carDetails.fields.pickupLocation")}
                   </Label>
                   {isEditing ? (
                     <Input
@@ -739,7 +749,9 @@ const CarDetails = () => {
 
             {/* Features */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Features</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                {t("cars.carDetails.sections.features")}
+              </h2>
               {isEditing ? (
                 <div className="space-y-3">
                   <div className="flex flex-wrap gap-2">
@@ -781,7 +793,7 @@ const CarDetails = () => {
                   <div className="flex gap-2">
                     <Input
                       ref={featureInputRef}
-                      placeholder="Add a new feature"
+                      placeholder={t("cars.carDetails.fields.addFeature")}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && e.currentTarget.value.trim()) {
                           e.preventDefault();
@@ -828,7 +840,9 @@ const CarDetails = () => {
                       </span>
                     ))
                   ) : (
-                    <p className="text-gray-500">No features listed.</p>
+                    <p className="text-gray-500">
+                      {t("cars.carDetails.fields.noFeatures")}
+                    </p>
                   )}
                 </div>
               )}
@@ -841,7 +855,7 @@ const CarDetails = () => {
                 lat={formData.lat}
                 lng={formData.lng}
                 onLocationSelect={handleLocationSelect}
-                label="Car Location on Map"
+                label={t("cars.carDetails.fields.mapLabel")}
                 defaultCenter={[car.lat || 41.3275, car.lng || 19.8187]}
                 defaultZoom={13}
                 showCoordinates={true}
@@ -851,7 +865,7 @@ const CarDetails = () => {
               car.lng !== undefined && (
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">
-                    Location
+                    {t("cars.carDetails.sections.location")}
                   </h2>
                   <MapPicker
                     lat={car.lat}

@@ -12,6 +12,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { useTranslation } from "react-i18next";
 
 // Fix for default marker icon issue in React-Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -25,6 +26,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const DestinationDetails = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -275,7 +277,6 @@ const DestinationDetails = () => {
               </CardContent>
             </Card>
 
-
             {/* Action Buttons */}
             <div className="flex gap-4">
               <Button
@@ -302,7 +303,7 @@ const DestinationDetails = () => {
                 disabled={!destination.lat || !destination.lng}
               >
                 <MapPin className="w-4 h-4 mr-2" />
-                Open in Google Maps
+                {t("map.openInGoogleMaps")}
               </Button>
             </div>
           </div>

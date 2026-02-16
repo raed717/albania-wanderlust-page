@@ -35,13 +35,12 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
-
-
-
+import { useTranslation } from "react-i18next";
 
 const HotelReservation = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,8 +75,8 @@ const HotelReservation = () => {
   const handleReservation = () => {
     Swal.fire({
       icon: "info",
-      title: "Reservation",
-      text: "Reservation feature coming soon!",
+      title: t("hotel.reservation"),
+      text: t("hotel.reservationComingSoon"),
     });
   };
 
@@ -89,7 +88,9 @@ const HotelReservation = () => {
             className="animate-spin text-blue-600 mx-auto mb-4"
             size={48}
           />
-          <p className="text-gray-600 font-medium">Loading hotel details...</p>
+          <p className="text-gray-600 font-medium">
+            {t("hotel.loadingHotelDetails")}
+          </p>
         </div>
       </div>
     );
@@ -103,17 +104,17 @@ const HotelReservation = () => {
             <Home className="text-red-600" size={40} />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 mb-2">
-            Hotel Not Found
+            {t("hotel.hotelNotFound")}
           </h3>
           <p className="text-gray-500 mb-6">
-            The hotel you're looking for doesn't exist or has been removed.
+            {t("hotel.hotelNotFoundDescription")}
           </p>
           <Button
             onClick={() => navigate("/searchResults")}
             className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
           >
             <ArrowLeft className="mr-2" size={16} />
-            Back to Hotels
+            {t("hotel.backToHotels")}
           </Button>
         </div>
       </div>
@@ -121,13 +122,29 @@ const HotelReservation = () => {
   }
 
   const amenities = [
-    { icon: Wifi, label: "Free WiFi", available: hotel.wifi },
-    { icon: Car, label: "Parking", available: hotel.parking },
-    { icon: Dumbbell, label: "Fitness Center", available: hotel.gym },
-    { icon: UtensilsCrossed, label: "Restaurant", available: hotel.restaurant },
-    { icon: Wine, label: "Bar", available: hotel.bar },
-    { icon: Spa, label: "Spa", available: hotel.spa },
-    { icon: Pool, label: "Swimming Pool", available: hotel.pool },
+    { icon: Wifi, label: t("hotel.amenities.freeWifi"), available: hotel.wifi },
+    {
+      icon: Car,
+      label: t("hotel.amenities.parking"),
+      available: hotel.parking,
+    },
+    {
+      icon: Dumbbell,
+      label: t("hotel.amenities.fitnessCenter"),
+      available: hotel.gym,
+    },
+    {
+      icon: UtensilsCrossed,
+      label: t("hotel.amenities.restaurant"),
+      available: hotel.restaurant,
+    },
+    { icon: Wine, label: t("hotel.amenities.bar"), available: hotel.bar },
+    { icon: Spa, label: t("hotel.amenities.spa"), available: hotel.spa },
+    {
+      icon: Pool,
+      label: t("hotel.amenities.swimmingPool"),
+      available: hotel.pool,
+    },
   ];
 
   return (
@@ -164,7 +181,7 @@ const HotelReservation = () => {
                     <button
                       onClick={() =>
                         setPhotoIndex(
-                          (photoIndex + images.length - 1) % images.length
+                          (photoIndex + images.length - 1) % images.length,
                         )
                       }
                       className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
@@ -188,7 +205,7 @@ const HotelReservation = () => {
                   className="absolute bottom-6 right-6 px-6 py-3 bg-white hover:bg-gray-50 rounded-xl shadow-lg flex items-center gap-2 font-semibold text-gray-900 transition-all hover:scale-105"
                 >
                   <ImageIcon size={20} />
-                  View All {images.length} Photos
+                  {t("hotel.viewAllPhotos", { count: images.length })}
                 </button>
 
                 {/* Image Counter */}
@@ -199,10 +216,11 @@ const HotelReservation = () => {
                 {/* Floating Status Badge */}
                 <div className="absolute top-6 right-6">
                   <span
-                    className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg backdrop-blur-sm ${hotel.status === "active"
+                    className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg backdrop-blur-sm ${
+                      hotel.status === "active"
                         ? "bg-emerald-500/90 text-white"
                         : "bg-amber-500/90 text-white"
-                      }`}
+                    }`}
                   >
                     <CheckCircle2 size={16} className="mr-2" />
                     {hotel.status}
@@ -244,7 +262,7 @@ const HotelReservation = () => {
               </div>
             ) : (
               <div className="h-96 sm:h-[500px] bg-gray-200 flex items-center justify-center">
-                <p className="text-gray-500">No images available</p>
+                <p className="text-gray-500">{t("hotel.noImagesAvailable")}</p>
               </div>
             )}
 
@@ -256,10 +274,11 @@ const HotelReservation = () => {
                     <button
                       key={index}
                       onClick={() => setPhotoIndex(index)}
-                      className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden transition-all ${index === photoIndex
+                      className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden transition-all ${
+                        index === photoIndex
                           ? "ring-4 ring-blue-600 scale-105"
                           : "ring-2 ring-gray-300 hover:ring-blue-400 opacity-70 hover:opacity-100"
-                        }`}
+                      }`}
                     >
                       <img
                         src={img}
@@ -286,9 +305,7 @@ const HotelReservation = () => {
               view: ({ index }) => setPhotoIndex(index),
             }}
           />
-
         )}
-
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -296,14 +313,18 @@ const HotelReservation = () => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl p-6 sticky top-8 border border-gray-100">
               <div className="text-center mb-6">
-                <p className="text-gray-600 text-sm mb-2">Price per night</p>
+                <p className="text-gray-600 text-sm mb-2">
+                  {t("hotel.pricePerNight")}
+                </p>
                 <div className="flex items-center justify-center gap-2">
                   <DollarSign size={32} className="text-emerald-600" />
                   <span className="text-5xl font-bold text-gray-900">
                     {hotel.price}
                   </span>
                 </div>
-                <p className="text-gray-500 text-sm mt-2">+ taxes & fees</p>
+                <p className="text-gray-500 text-sm mt-2">
+                  {t("hotel.taxesAndFees")}
+                </p>
               </div>
 
               <div className="space-y-4 mb-6">
@@ -311,7 +332,7 @@ const HotelReservation = () => {
                   <div className="flex items-center gap-3">
                     <Bed size={20} className="text-blue-600" />
                     <span className="font-medium text-gray-700">
-                      Rooms Available
+                      {t("hotel.roomsAvailable")}
                     </span>
                   </div>
                   <span className="font-bold text-gray-900">{hotel.rooms}</span>
@@ -320,7 +341,9 @@ const HotelReservation = () => {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <Clock size={20} className="text-blue-600" />
-                    <span className="font-medium text-gray-700">Check-in</span>
+                    <span className="font-medium text-gray-700">
+                      {t("hotel.checkIn")}
+                    </span>
                   </div>
                   <span className="font-bold text-gray-900">2:00 PM</span>
                 </div>
@@ -328,7 +351,9 @@ const HotelReservation = () => {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <Clock size={20} className="text-blue-600" />
-                    <span className="font-medium text-gray-700">Check-out</span>
+                    <span className="font-medium text-gray-700">
+                      {t("hotel.checkOut")}
+                    </span>
                   </div>
                   <span className="font-bold text-gray-900">12:00 PM</span>
                 </div>
@@ -339,11 +364,11 @@ const HotelReservation = () => {
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 <Calendar className="mr-2" size={20} />
-                Book Now
+                {t("hotel.bookNow")}
               </Button>
 
               <p className="text-center text-xs text-gray-500 mt-4">
-                Free cancellation up to 24 hours before check-in
+                {t("hotel.freeCancellation")}
               </p>
             </div>
           </div>
@@ -354,7 +379,7 @@ const HotelReservation = () => {
             <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <Home className="text-blue-600" size={24} />
-                About This Hotel
+                {t("hotel.aboutThisHotel")}
               </h2>
               <p className="text-gray-700 leading-relaxed text-lg">
                 {hotel.description ||
@@ -366,7 +391,7 @@ const HotelReservation = () => {
             {amenities.filter((a) => a.available).length > 0 && (
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  Amenities & Services
+                  {t("hotel.amenitiesAndServices")}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {amenities
@@ -389,7 +414,7 @@ const HotelReservation = () => {
             {/* Contact Information */}
             <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Contact Information
+                {t("hotel.contactInformation")}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
@@ -398,7 +423,7 @@ const HotelReservation = () => {
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-600 mb-1 block">
-                      Email Address
+                      {t("hotel.emailAddress")}
                     </Label>
                     <p className="text-gray-900 font-medium break-all">
                       {hotel.contactEmail || "contact@hotel.com"}
@@ -412,7 +437,7 @@ const HotelReservation = () => {
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-600 mb-1 block">
-                      Phone Number
+                      {t("hotel.phoneNumber")}
                     </Label>
                     <p className="text-gray-900 font-medium">
                       {hotel.contactPhone || "+1 (555) 123-4567"}
@@ -426,7 +451,7 @@ const HotelReservation = () => {
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-600 mb-1 block">
-                      Address
+                      {t("hotel.address")}
                     </Label>
                     <p className="text-gray-900 font-medium">
                       {hotel.address || `${hotel.location}, Complete Address`}
@@ -441,13 +466,13 @@ const HotelReservation = () => {
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                   <MapPin className="text-blue-600" size={24} />
-                  Location
+                  {t("hotel.location")}
                 </h2>
                 <div className="rounded-xl overflow-hidden shadow-md">
                   <MapPicker
                     lat={hotel.lat}
                     lng={hotel.lng}
-                    onLocationSelect={() => { }}
+                    onLocationSelect={() => {}}
                     label=""
                     defaultCenter={[hotel.lat, hotel.lng]}
                     defaultZoom={15}

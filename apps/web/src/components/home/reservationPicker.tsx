@@ -15,8 +15,10 @@ import {
 } from "@mui/material";
 import { Add, Remove, DirectionsCar, Hotel } from "@mui/icons-material";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 
 export default function ReservationPickerValue() {
+  const { t } = useTranslation();
   const [tabValue, setTabValue] = React.useState(0); // 0 = Car, 1 = Stay
   const [destination, setDestination] = React.useState("");
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
@@ -112,8 +114,8 @@ export default function ReservationPickerValue() {
           },
         }}
       >
-        <Tab icon={<DirectionsCar />} iconPosition="start" label="Car" />
-        <Tab icon={<Hotel />} iconPosition="start" label="Stay" />
+        <Tab icon={<DirectionsCar />} iconPosition="start" label={t("common.car")} />
+        <Tab icon={<Hotel />} iconPosition="start" label={t("common.stay")} />
       </Tabs>
 
       {/* Search Fields */}
@@ -128,7 +130,7 @@ export default function ReservationPickerValue() {
         }}
       >
         <TextField
-          label={tabValue === 1 ? "Destination" : "Car Model"}
+          label={tabValue === 1 ? t("home.reservationPicker.Destination") : t("home.reservationPicker.carModel")}
           value={destination}
           onChange={(e) => setDestination(e.target.value)}
           variant="outlined"
@@ -141,8 +143,8 @@ export default function ReservationPickerValue() {
             onDateRangeChange={setDateRange}
             placeholder={
               tabValue === 1
-                ? "Periode"
-                : "Select pickup and return dates"
+                ? t("home.reservationPicker.period")
+                : t("home.reservationPicker.carDate")
             }
             minDate={new Date()}
             className="w-full sm:w-auto [&_button]:!text-gray-900 [&_button]:!bg-white [&_button]:border-gray-300 [&_button:hover]:!bg-gray-50"
@@ -168,7 +170,7 @@ export default function ReservationPickerValue() {
                   fontSize: { xs: "0.875rem", sm: "1rem" },
                 }}
               >
-                Adults:
+                {t("home.reservationPicker.adults")}
               </Typography>
               <IconButton
                 onClick={() => handleDecrement(setAdults)}
@@ -209,7 +211,7 @@ export default function ReservationPickerValue() {
                   fontSize: { xs: "0.875rem", sm: "1rem" },
                 }}
               >
-                Children:
+                {t("home.reservationPicker.children")}
               </Typography>
               <IconButton
                 onClick={() => handleDecrement(setChildren)}
@@ -250,7 +252,7 @@ export default function ReservationPickerValue() {
                   fontSize: { xs: "0.875rem", sm: "1rem" },
                 }}
               >
-                Rooms:
+                {t("home.reservationPicker.rooms")}
               </Typography>
               <IconButton
                 onClick={() => handleDecrement(setRooms)}
@@ -289,7 +291,7 @@ export default function ReservationPickerValue() {
             width: { xs: "100%", sm: "auto" },
           }}
         >
-          {loading ? "Loading..." : "Search"}
+          {loading ? t("common.loading") : t("home.reservationPicker.search")}
         </Button>
       </Box>
     </Box>

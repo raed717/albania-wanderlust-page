@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ interface MonthlyPricingEditorProps {
 // Season icons and colors
 const getSeasonInfo = (
   month: Month,
+  t: (key: string) => string,
 ): { icon: React.ReactNode; color: string; season: string } => {
   const winterMonths: Month[] = ["DEC", "JAN", "FEB"];
   const springMonths: Month[] = ["MAR", "APR", "MAY"];
@@ -40,27 +42,27 @@ const getSeasonInfo = (
     return {
       icon: <Snowflake size={14} />,
       color: "text-blue-500 bg-blue-50 border-blue-200",
-      season: "Winter",
+      season: t("monthlyPricingEditor.seasons.winter"),
     };
   }
   if (springMonths.includes(month)) {
     return {
       icon: <Flower2 size={14} />,
       color: "text-pink-500 bg-pink-50 border-pink-200",
-      season: "Spring",
+      season: t("monthlyPricingEditor.seasons.spring"),
     };
   }
   if (summerMonths.includes(month)) {
     return {
       icon: <Sun size={14} />,
       color: "text-amber-500 bg-amber-50 border-amber-200",
-      season: "Summer",
+      season: t("monthlyPricingEditor.seasons.summer"),
     };
   }
   return {
     icon: <Leaf size={14} />,
     color: "text-orange-500 bg-orange-50 border-orange-200",
-    season: "Fall",
+    season: t("monthlyPricingEditor.seasons.fall"),
   };
 };
 
@@ -70,6 +72,7 @@ export const MonthlyPricingEditor: React.FC<MonthlyPricingEditorProps> = ({
   basePrice = 0,
   disabled = false,
 }) => {
+  const { t } = useTranslation();
   const [localPrices, setLocalPrices] = useState<Record<Month, number>>(
     {} as Record<Month, number>,
   );
@@ -150,7 +153,7 @@ export const MonthlyPricingEditor: React.FC<MonthlyPricingEditorProps> = ({
       <div className="flex items-center justify-between">
         <Label className="text-sm font-medium flex items-center gap-2">
           <Calendar size={16} className="text-blue-500" />
-          Monthly Pricing
+          {t("monthlyPricingEditor.title")}
         </Label>
         <div className="flex gap-2">
           <Button
@@ -162,7 +165,7 @@ export const MonthlyPricingEditor: React.FC<MonthlyPricingEditorProps> = ({
             className="text-xs"
           >
             <Copy size={12} className="mr-1" />
-            Apply Base (${basePrice}) to All
+            {t("monthlyPricingEditor.buttons.applyBase", { basePrice })}
           </Button>
           <Button
             type="button"
@@ -173,7 +176,7 @@ export const MonthlyPricingEditor: React.FC<MonthlyPricingEditorProps> = ({
             className="text-xs"
           >
             <Sun size={12} className="mr-1" />
-            Summer Premium (+20%)
+            {t("monthlyPricingEditor.buttons.summerPremium")}
           </Button>
         </div>
       </div>
@@ -182,15 +185,21 @@ export const MonthlyPricingEditor: React.FC<MonthlyPricingEditorProps> = ({
       <div className="flex gap-4 p-3 bg-gray-50 rounded-lg text-sm">
         <div className="flex items-center gap-2">
           <TrendingUp size={14} className="text-gray-500" />
-          <span className="text-gray-600">Avg:</span>
+          <span className="text-gray-600">
+            {t("monthlyPricingEditor.stats.avg")}
+          </span>
           <span className="font-semibold">${avgPrice}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-gray-600">Min:</span>
+          <span className="text-gray-600">
+            {t("monthlyPricingEditor.stats.min")}
+          </span>
           <span className="font-semibold text-green-600">${minPrice}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-gray-600">Max:</span>
+          <span className="text-gray-600">
+            {t("monthlyPricingEditor.stats.max")}
+          </span>
           <span className="font-semibold text-red-600">${maxPrice}</span>
         </div>
       </div>
@@ -198,7 +207,7 @@ export const MonthlyPricingEditor: React.FC<MonthlyPricingEditorProps> = ({
       {/* Monthly Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {MONTHS.map((month) => {
-          const seasonInfo = getSeasonInfo(month);
+          const seasonInfo = getSeasonInfo(month, t);
           const price = localPrices[month] ?? basePrice;
           const isPriceDifferent = price !== basePrice && basePrice > 0;
 
@@ -254,9 +263,7 @@ export const MonthlyPricingEditor: React.FC<MonthlyPricingEditorProps> = ({
       </div>
 
       <p className="text-xs text-gray-500 mt-2">
-        💡 Tip: Set different prices for peak seasons (summer) and off-peak
-        periods. The base price will be used as fallback if no monthly price is
-        set.
+        {t("monthlyPricingEditor.tip")}
       </p>
     </div>
   );

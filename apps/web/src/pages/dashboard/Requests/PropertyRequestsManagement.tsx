@@ -24,7 +24,7 @@ import { authService } from "@/services/api/authService";
 import { PropertyRequest } from "@/types/request.type";
 import { Car as CarType } from "@/types/car.types";
 import { getCarById } from "@/services/api/carService";
-import Hsidebar from "@/components/dashboard/hsidebar";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +37,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import Hsidebar from "@/components/dashboard/hsidebar";
 
 // Property type icon mapping
 const PropertyTypeIcon = ({ type }: { type: string }) => {
@@ -78,6 +79,8 @@ export default function PropertyRequestsManagement() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
 
+  const { t } = useTranslation();
+
   useEffect(() => {
     initializePage();
   }, []);
@@ -96,7 +99,7 @@ export default function PropertyRequestsManagement() {
       setRequests(allRequests);
     } catch (err) {
       console.error("Error loading property requests:", err);
-      setError("Failed to load property requests");
+      setError(t("propertyRequestsManagement.error"));
     } finally {
       setLoading(false);
     }
@@ -142,9 +145,7 @@ export default function PropertyRequestsManagement() {
 
   const handleApprove = async (requestId: string) => {
     if (
-      !window.confirm(
-        "Are you sure you want to approve this property? It will become available for booking.",
-      )
+      !window.confirm(t("propertyRequestsManagement.confirmations.approve"))
     ) {
       return;
     }
@@ -154,9 +155,7 @@ export default function PropertyRequestsManagement() {
       setError(null);
 
       await propertyRequestService.approveRequest(requestId, reviewerId);
-      setSuccess(
-        "Property approved successfully! It is now available for booking.",
-      );
+      setSuccess(t("propertyRequestsManagement.success.approve"));
 
       // Refresh requests
       await initializePage();
@@ -164,7 +163,7 @@ export default function PropertyRequestsManagement() {
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err: any) {
-      setError(err.message || "Failed to approve request");
+      setError(err.message || t("propertyRequestsManagement.errors.approve"));
       console.error("Error approving request:", err);
     } finally {
       setProcessing(null);
@@ -181,7 +180,7 @@ export default function PropertyRequestsManagement() {
     if (!selectedRequest) return;
 
     if (!rejectionReason.trim()) {
-      setError("Please provide a reason for rejection");
+      setError(t("propertyRequestsManagement.errors.rejectionReasonRequired"));
       return;
     }
 
@@ -194,7 +193,7 @@ export default function PropertyRequestsManagement() {
         reviewerId,
         rejectionReason,
       );
-      setSuccess("Property request rejected.");
+      setSuccess(t("propertyRequestsManagement.success.reject"));
 
       // Refresh requests
       await initializePage();
@@ -203,7 +202,7 @@ export default function PropertyRequestsManagement() {
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err: any) {
-      setError(err.message || "Failed to reject request");
+      setError(err.message || t("propertyRequestsManagement.errors.reject"));
       console.error("Error rejecting request:", err);
     } finally {
       setProcessing(null);
@@ -216,21 +215,21 @@ export default function PropertyRequestsManagement() {
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
             <Clock className="w-4 h-4 mr-1" />
-            Pending
+            {t("propertyRequestsManagement.status.pending")}
           </span>
         );
       case "approved":
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
             <CheckCircle className="w-4 h-4 mr-1" />
-            Approved
+            {t("propertyRequestsManagement.status.approved")}
           </span>
         );
       case "rejected":
         return (
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
             <XCircle className="w-4 h-4 mr-1" />
-            Rejected
+            {t("propertyRequestsManagement.status.rejected")}
           </span>
         );
       default:
@@ -250,7 +249,9 @@ export default function PropertyRequestsManagement() {
         className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${colors[type as keyof typeof colors] || "bg-gray-100 text-gray-800"}`}
       >
         <PropertyTypeIcon type={type} />
-        <span className="ml-1 capitalize">{type}</span>
+        <span className="ml-1">
+          {t(`propertyRequestsManagement.propertyTypes.${type}`)}
+        </span>
       </span>
     );
   };
@@ -271,11 +272,10 @@ export default function PropertyRequestsManagement() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Property Requests Management
+            {t("propertyRequestsManagement.title")}
           </h1>
           <p className="text-gray-600">
-            Review and manage provider property submissions for cars,
-            apartments, and hotels
+            {t("propertyRequestsManagement.subtitle")}
           </p>
         </div>
 
@@ -305,7 +305,7 @@ export default function PropertyRequestsManagement() {
           <div className="flex items-center gap-2 flex-wrap">
             <Filter className="w-5 h-5 text-gray-600" />
             <span className="text-sm font-medium text-gray-700 mr-2">
-              Status:
+              {t("propertyRequestsManagement.filters.status.label")}:
             </span>
             <button
               onClick={() => setFilter("all")}
@@ -315,7 +315,8 @@ export default function PropertyRequestsManagement() {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              All ({requests.length})
+              {t("propertyRequestsManagement.filters.status.all")} (
+              {requests.length})
             </button>
             <button
               onClick={() => setFilter("pending")}
@@ -325,7 +326,8 @@ export default function PropertyRequestsManagement() {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              Pending ({requests.filter((r) => r.status === "pending").length})
+              {t("propertyRequestsManagement.filters.status.pending")} (
+              {requests.filter((r) => r.status === "pending").length})
             </button>
             <button
               onClick={() => setFilter("approved")}
@@ -335,8 +337,8 @@ export default function PropertyRequestsManagement() {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              Approved ({requests.filter((r) => r.status === "approved").length}
-              )
+              {t("propertyRequestsManagement.filters.status.approved")} (
+              {requests.filter((r) => r.status === "approved").length})
             </button>
             <button
               onClick={() => setFilter("rejected")}
@@ -346,15 +348,15 @@ export default function PropertyRequestsManagement() {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              Rejected ({requests.filter((r) => r.status === "rejected").length}
-              )
+              {t("propertyRequestsManagement.filters.status.rejected")} (
+              {requests.filter((r) => r.status === "rejected").length})
             </button>
           </div>
 
           {/* Property Type Filter */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-medium text-gray-700 mr-2 ml-7">
-              Type:
+              {t("propertyRequestsManagement.filters.type.label")}:
             </span>
             <button
               onClick={() => setPropertyTypeFilter("all")}
@@ -364,7 +366,7 @@ export default function PropertyRequestsManagement() {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              All Types
+              Cars
             </button>
             <button
               onClick={() => setPropertyTypeFilter("car")}
@@ -375,7 +377,7 @@ export default function PropertyRequestsManagement() {
               }`}
             >
               <Car className="w-4 h-4" />
-              Cars
+              {t("propertyRequestsManagement.filters.type.car")}
             </button>
             <button
               onClick={() => setPropertyTypeFilter("apartment")}
@@ -386,7 +388,7 @@ export default function PropertyRequestsManagement() {
               }`}
             >
               <Home className="w-4 h-4" />
-              Apartments
+              {t("propertyRequestsManagement.filters.type.apartment")}
             </button>
             <button
               onClick={() => setPropertyTypeFilter("hotel")}
@@ -397,7 +399,7 @@ export default function PropertyRequestsManagement() {
               }`}
             >
               <Hotel className="w-4 h-4" />
-              Hotels
+              {t("propertyRequestsManagement.filters.type.hotel")}
             </button>
           </div>
         </div>
@@ -409,12 +411,12 @@ export default function PropertyRequestsManagement() {
               <Clock className="w-8 h-8 text-gray-400" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No property requests found
+              {t("propertyRequestsManagement.empty.title")}
             </h3>
             <p className="text-gray-500">
               {filter === "pending"
-                ? "There are no pending property requests at this time."
-                : "No requests match your current filters."}
+                ? t("propertyRequestsManagement.empty.noPendingRequests")
+                : t("propertyRequestsManagement.empty.noFilteredRequests")}
             </p>
           </div>
         ) : (
@@ -447,11 +449,13 @@ export default function PropertyRequestsManagement() {
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">
-                          {request.provider?.full_name || "Unknown Provider"}
+                          {request.provider?.full_name ||
+                            t("propertyRequestsManagement.provider.unknown")}
                         </p>
                         <p className="text-sm text-gray-500 flex items-center gap-1">
                           <Mail className="w-3 h-3" />
-                          {request.provider?.email || "No email"}
+                          {request.provider?.email ||
+                            t("propertyRequestsManagement.provider.noEmail")}
                         </p>
                       </div>
                     </div>
@@ -460,12 +464,16 @@ export default function PropertyRequestsManagement() {
                     <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        Submitted: {request.submittedAt.toLocaleDateString()}
+                        {t(
+                          "propertyRequestsManagement.provider.submitted",
+                        )}: {request.submittedAt.toLocaleDateString()}
                       </span>
                       {request.reviewedAt && (
                         <span className="flex items-center gap-1">
                           <CheckCircle className="w-4 h-4" />
-                          Reviewed: {request.reviewedAt.toLocaleDateString()}
+                          {t(
+                            "propertyRequestsManagement.provider.reviewed",
+                          )}: {request.reviewedAt.toLocaleDateString()}
                         </span>
                       )}
                     </div>
@@ -475,7 +483,12 @@ export default function PropertyRequestsManagement() {
                       request.rejectionReason && (
                         <div className="mt-3 p-3 bg-red-50 border border-red-100 rounded-lg">
                           <p className="text-sm text-red-700">
-                            <strong>Rejection Reason:</strong>{" "}
+                            <strong>
+                              {t(
+                                "propertyRequestsManagement.provider.rejectionReason",
+                              )}
+                              :
+                            </strong>{" "}
                             {request.rejectionReason}
                           </p>
                         </div>
@@ -491,7 +504,7 @@ export default function PropertyRequestsManagement() {
                       className="flex items-center gap-1"
                     >
                       <Eye className="w-4 h-4" />
-                      View Details
+                      {t("propertyRequestsManagement.actions.viewDetails")}
                     </Button>
 
                     {request.status === "pending" && (
@@ -507,7 +520,7 @@ export default function PropertyRequestsManagement() {
                           ) : (
                             <CheckCircle className="w-4 h-4" />
                           )}
-                          Approve
+                          {t("propertyRequestsManagement.actions.approve")}
                         </Button>
                         <Button
                           size="sm"
@@ -517,7 +530,7 @@ export default function PropertyRequestsManagement() {
                           className="flex items-center gap-1"
                         >
                           <XCircle className="w-4 h-4" />
-                          Reject
+                          {t("propertyRequestsManagement.actions.reject")}
                         </Button>
                       </>
                     )}
@@ -534,10 +547,10 @@ export default function PropertyRequestsManagement() {
             <DialogHeader>
               <DialogTitle className="text-xl font-bold flex items-center gap-2">
                 <PropertyTypeIcon type={selectedRequest?.propertyType || ""} />
-                Property Details
+                {t("propertyRequestsManagement.modal.details.title")}
               </DialogTitle>
               <DialogDescription>
-                Review the property information submitted by the provider
+                {t("propertyRequestsManagement.modal.details.description")}
               </DialogDescription>
             </DialogHeader>
 
@@ -718,7 +731,7 @@ export default function PropertyRequestsManagement() {
                   variant="outline"
                   onClick={() => setShowDetailsModal(false)}
                 >
-                  Close
+                  {t("propertyRequestsManagement.modal.details.close")}
                 </Button>
                 <Button
                   variant="destructive"
@@ -729,7 +742,7 @@ export default function PropertyRequestsManagement() {
                   disabled={processing === selectedRequest.id}
                 >
                   <XCircle className="w-4 h-4 mr-1" />
-                  Reject
+                  {t("propertyRequestsManagement.actions.reject")}
                 </Button>
                 <Button
                   onClick={() => handleApprove(selectedRequest.id)}
@@ -741,7 +754,7 @@ export default function PropertyRequestsManagement() {
                   ) : (
                     <CheckCircle className="w-4 h-4 mr-1" />
                   )}
-                  Approve Property
+                  {t("propertyRequestsManagement.modal.details.approve")}
                 </Button>
               </DialogFooter>
             )}
@@ -754,22 +767,25 @@ export default function PropertyRequestsManagement() {
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-red-600 flex items-center gap-2">
                 <XCircle className="w-5 h-5" />
-                Reject Property Request
+                {t("propertyRequestsManagement.modal.reject.title")}
               </DialogTitle>
               <DialogDescription>
-                Please provide a reason for rejecting this property submission.
-                The provider will be notified of the rejection.
+                {t("propertyRequestsManagement.modal.reject.description")}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="rejectionReason">Rejection Reason *</Label>
+                <Label htmlFor="rejectionReason">
+                  {t("propertyRequestsManagement.modal.reject.reasonLabel")}
+                </Label>
                 <Textarea
                   id="rejectionReason"
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder="Explain why this property is being rejected..."
+                  placeholder={t(
+                    "propertyRequestsManagement.modal.reject.placeholder",
+                  )}
                   rows={4}
                 />
               </div>
@@ -780,7 +796,7 @@ export default function PropertyRequestsManagement() {
                 variant="outline"
                 onClick={() => setShowRejectModal(false)}
               >
-                Cancel
+                {t("propertyRequestsManagement.modal.reject.cancel")}
               </Button>
               <Button
                 variant="destructive"
@@ -794,7 +810,7 @@ export default function PropertyRequestsManagement() {
                 ) : (
                   <XCircle className="w-4 h-4 mr-1" />
                 )}
-                Confirm Rejection
+                {t("propertyRequestsManagement.modal.reject.confirm")}
               </Button>
             </DialogFooter>
           </DialogContent>
