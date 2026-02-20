@@ -26,8 +26,15 @@ import {
   Bath,
   ChefHat,
   Sofa,
+  AirVent,
+  Flame,
+  Tv,
+  Briefcase,
+  Shield,
+  Building,
+  Wind,
 } from "lucide-react";
-import { Appartment } from "@/types/appartment.type"; 
+import { Appartment, PREDEFINED_AMENITIES } from "@/types/appartment.type";
 import { getAppartmentById } from "@/services/api/appartmentService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import { Pool, Spa } from "@mui/icons-material";
@@ -119,19 +126,24 @@ const ApartmentReservation = () => {
     );
   }
 
-  // Parse amenities from string array
-  const amenitiesMap: { [key: string]: { icon: any; label: string } } = {
-    wifi: { icon: Wifi, label: "Free WiFi" },
-    parking: { icon: Car, label: "Parking" },
-    gym: { icon: Dumbbell, label: "Fitness Center" },
-    restaurant: { icon: UtensilsCrossed, label: "Restaurant" },
-    bar: { icon: Wine, label: "Bar" },
-    spa: { icon: Spa, label: "Spa" },
-    pool: { icon: Pool, label: "Swimming Pool" },
+  // Parse amenities from string array using PREDEFINED_AMENITIES
+  const amenitiesMap: { [key: string]: { icon?: any; label: string } } = {
+    WiFi: { icon: Wifi, label: "WiFi" },
+    "Air Conditioning": { icon: AirVent, label: "Air Conditioning" },
+    Heating: { icon: Flame, label: "Heating" },
+    Parking: { icon: Car, label: "Parking" },
+    Elevator: { icon: Building, label: "Elevator" },
+    Kitchen: { icon: ChefHat, label: "Kitchen" },
+    "Washing Machine": { label: "Washing Machine" },
+    TV: { icon: Tv, label: "TV" },
+    Workspace: { icon: Briefcase, label: "Workspace" },
+    Balcony: { icon: Wind, label: "Balcony" },
+    Pool: { icon: Pool, label: "Pool" },
+    Security: { icon: Shield, label: "Security" },
   };
 
   const availableAmenities = (apartment.amenities || [])
-    .map((amenity) => amenitiesMap[amenity.toLowerCase()])
+    .map((amenity) => amenitiesMap[amenity])
     .filter(Boolean);
 
   // Get status badge color
@@ -441,7 +453,9 @@ const ApartmentReservation = () => {
                       key={index}
                       className="flex items-center gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl hover:shadow-md transition-shadow"
                     >
-                      <amenity.icon size={24} className="text-blue-600" />
+                      {amenity.icon && (
+                        <amenity.icon size={24} className="text-blue-600" />
+                      )}
                       <span className="font-medium text-gray-700">
                         {amenity.label}
                       </span>

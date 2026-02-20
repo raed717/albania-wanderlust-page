@@ -97,3 +97,19 @@ export interface PaginationParams {
   page: number;
   limit: number;
 }
+
+
+export const PREDEFINED_AMENITIES = [
+  "WiFi",
+  "Air Conditioning",
+  "Heating",
+  "Parking",
+  "Elevator",
+  "Kitchen",
+  "Washing Machine",
+  "TV",
+  "Workspace",
+  "Balcony",
+  "Pool",
+  "Security",
+];

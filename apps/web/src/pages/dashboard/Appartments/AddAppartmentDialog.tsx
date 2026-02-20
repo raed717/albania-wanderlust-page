@@ -12,12 +12,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Loader2 } from "lucide-react";
-import { CreateAppartmentDto, Appartment } from "@/types/appartment.type";
+import {
+  CreateAppartmentDto,
+  Appartment,
+  PREDEFINED_AMENITIES,
+} from "@/types/appartment.type";
 import { createAppartment } from "@/services/api/appartmentService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
 import { useTranslation } from "react-i18next";
-
+import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
 interface AddAppartmentDialogProps {
   onAppartmentAdded: (appartment: Appartment) => void;
 }
@@ -79,15 +84,23 @@ export const AddAppartmentDialog: React.FC<AddAppartmentDialogProps> = ({
     }));
   };
 
-  const handleAmenitiesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const amenities = e.target.value
-      .split(",")
-      .map((a) => a.trim())
-      .filter(Boolean);
-    setFormData((prev) => ({
-      ...prev,
-      amenities,
-    }));
+  const handleAmenityToggle = (amenity: string) => {
+    setFormData((prev) => {
+      const currentAmenities = prev.amenities || [];
+      const isSelected = currentAmenities.includes(amenity);
+
+      if (isSelected) {
+        return {
+          ...prev,
+          amenities: currentAmenities.filter((a) => a !== amenity),
+        };
+      } else {
+        return {
+          ...prev,
+          amenities: [...currentAmenities, amenity],
+        };
+      }
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -386,18 +399,54 @@ export const AddAppartmentDialog: React.FC<AddAppartmentDialogProps> = ({
           </div>
 
           {/* Amenities */}
-          <div className="space-y-2">
-            <Label htmlFor="amenities" className="text-sm font-medium">
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">
               {t("apartment.amenities")}
             </Label>
-            <Input
-              id="amenities"
-              name="amenities"
-              value={formData.amenities?.join(", ") || ""}
-              onChange={handleAmenitiesChange}
-              placeholder="WiFi, Air Conditioning, Parking, Kitchen, Balcony"
-              className="w-full"
-            />
+
+            {/* Selected Amenities */}
+            {formData.amenities && formData.amenities.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {formData.amenities.map((amenity) => (
+                  <Badge
+                    key={amenity}
+                    variant="default"
+                    className="cursor-pointer hover:bg-red-500 hover:text-white transition-colors flex items-center gap-1"
+                    onClick={() => handleAmenityToggle(amenity)}
+                  >
+                    {amenity}
+                    <X size={12} />
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {/* Available Amenities */}
+            <div className="space-y-2">
+              <Label className="text-xs text-gray-500">
+                Click to select amenities:
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {PREDEFINED_AMENITIES.map((amenity) => {
+                  const isSelected =
+                    formData.amenities?.includes(amenity) || false;
+                  return (
+                    <Badge
+                      key={amenity}
+                      variant={isSelected ? "default" : "outline"}
+                      className={`cursor-pointer transition-colors ${
+                        isSelected
+                          ? "bg-blue-500 hover:bg-blue-600"
+                          : "hover:bg-gray-100"
+                      }`}
+                      onClick={() => handleAmenityToggle(amenity)}
+                    >
+                      {amenity}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           {/* Image Upload Component */}

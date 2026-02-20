@@ -19,7 +19,11 @@ import {
   Loader2,
   Image as ImageIcon,
 } from "lucide-react";
-import { Appartment, UpdateAppartmentDto } from "@/types/appartment.type";
+import {
+  Appartment,
+  UpdateAppartmentDto,
+  PREDEFINED_AMENITIES,
+} from "@/types/appartment.type";
 import {
   getAppartmentById,
   updateAppartment,
@@ -29,6 +33,7 @@ import { ImageUpload } from "@/components/dashboard/ImageUpload";
 import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
+import { Badge } from "@/components/ui/badge";
 
 const AppartmentDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -90,6 +95,25 @@ const AppartmentDetails = () => {
 
   const handleLocationSelect = (lat: number, lng: number) => {
     setFormData((prev) => ({ ...prev, lat, lng }));
+  };
+
+  const handleAmenityToggle = (amenity: string) => {
+    setFormData((prev) => {
+      const currentAmenities = prev.amenities || [];
+      const isSelected = currentAmenities.includes(amenity);
+
+      if (isSelected) {
+        return {
+          ...prev,
+          amenities: currentAmenities.filter((a) => a !== amenity),
+        };
+      } else {
+        return {
+          ...prev,
+          amenities: [...currentAmenities, amenity],
+        };
+      }
+    });
   };
 
   const handleSave = async () => {
@@ -451,6 +475,76 @@ const AppartmentDetails = () => {
                   )}
                 </div>
               </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl">
+              <h2 className="text-xl font-bold mb-6">
+                {t("apartment.amenities")}
+              </h2>
+
+              {isEditing ? (
+                <div className="space-y-3">
+                  {/* Selected Amenities */}
+                  {formData.amenities && formData.amenities.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {formData.amenities.map((amenity) => (
+                        <Badge
+                          key={amenity}
+                          variant="default"
+                          className="cursor-pointer hover:bg-red-500 hover:text-white transition-colors flex items-center gap-1"
+                          onClick={() => handleAmenityToggle(amenity)}
+                        >
+                          {amenity}
+                          <X size={12} />
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Available Amenities */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-gray-500">
+                      Click to select amenities:
+                    </Label>
+                    <div className="flex flex-wrap gap-2">
+                      {PREDEFINED_AMENITIES.map((amenity) => {
+                        const isSelected =
+                          formData.amenities?.includes(amenity) || false;
+                        return (
+                          <Badge
+                            key={amenity}
+                            variant={isSelected ? "default" : "outline"}
+                            className={`cursor-pointer transition-colors ${
+                              isSelected
+                                ? "bg-blue-500 hover:bg-blue-600"
+                                : "hover:bg-gray-100"
+                            }`}
+                            onClick={() => handleAmenityToggle(amenity)}
+                          >
+                            {amenity}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  {appartment.amenities && appartment.amenities.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {appartment.amenities.map((amenity, index) => (
+                        <Badge key={index} variant="secondary">
+                          {amenity}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">
+                      {t("apartment.noAmenities")}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <MapPicker
