@@ -16,6 +16,7 @@ import {
   Clock,
   FileText,
   Download,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -27,6 +28,7 @@ import StripePaymentButton from "@/components/payments/StripePaymentButton";
 import { jsPDF } from "jspdf";
 import logoImage from "@/assets/logo/logoBOOKinAL.png";
 import { useTranslation } from "react-i18next";
+import ReviewModal from "@/components/reviews/ReviewModal";
 
 const getPropertyIcon = (type: Booking["propertyType"]) => {
   switch (type) {
@@ -325,6 +327,7 @@ export default function BookingsSummary() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
   const {
     data: bookings,
     isLoading,
@@ -604,6 +607,22 @@ export default function BookingsSummary() {
                                   {t("booking.confirmed")}
                                 </div>
                               )}
+                              {/* Add Review button – only for car/apartment */}
+                              {(booking.propertyType === "car" ||
+                                booking.propertyType === "apartment") && (
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setReviewBooking(booking);
+                                  }}
+                                  variant="outline"
+                                  size="sm"
+                                  className="mt-2 text-yellow-600 border-yellow-300 hover:bg-yellow-50 hover:border-yellow-400"
+                                >
+                                  <Star className="w-3 h-3 mr-1 fill-yellow-500 text-yellow-500" />
+                                  {t("review.addReview", "Add Review")}
+                                </Button>
+                              )}
                             </div>
                           )}
 
@@ -657,6 +676,14 @@ export default function BookingsSummary() {
           )}
         </div>
       </div>
+      {/* Review Modal */}
+      {reviewBooking && (
+        <ReviewModal
+          open={!!reviewBooking}
+          onClose={() => setReviewBooking(null)}
+          booking={reviewBooking}
+        />
+      )}
     </div>
   );
 }

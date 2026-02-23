@@ -41,6 +41,7 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import ReviewsSection from "@/components/reviews/ReviewsSection";
 
 const CarReservation = () => {
   const { t } = useTranslation();
@@ -596,6 +597,9 @@ const CarReservation = () => {
                 propertyType="car"
               />
             </div>
+
+            {/* Guest Reviews */}
+            <ReviewsSection propertyId={parseInt(id!)} propertyType="car" />
 
             {/* Rental Terms */}
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-100">

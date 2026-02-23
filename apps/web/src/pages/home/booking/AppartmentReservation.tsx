@@ -45,6 +45,7 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import { useTranslation } from "react-i18next";
+import ReviewsSection from "@/components/reviews/ReviewsSection";
 
 const ApartmentReservation = () => {
   const { t } = useTranslation();
@@ -522,6 +523,9 @@ const ApartmentReservation = () => {
                 propertyType="apartment"
               />
             </div>
+
+            {/* Guest Reviews */}
+            <ReviewsSection propertyId={parseInt(id!)} propertyType="apartment" />
 
             {/* Map Location */}
             {apartment.lat !== undefined && apartment.lng !== undefined && (
