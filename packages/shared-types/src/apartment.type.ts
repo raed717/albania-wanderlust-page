@@ -1,10 +1,10 @@
 /**
- * Appartment Type Definitions
+ * Apartment Type Definitions
  *
- * TypeScript interfaces for appartment data models and API operations
+ * TypeScript interfaces for apartment data models and API operations
  */
 
-export interface Appartment {
+export interface Apartment {
   id: number;
   providerId: string;
   name: string;
@@ -25,7 +25,7 @@ export interface Appartment {
   lng?: number;
 }
 
-export interface CreateAppartmentDto {
+export interface CreateApartmentDto {
   name: string;
   rating: number;
   rooms: number;
@@ -45,7 +45,7 @@ export interface CreateAppartmentDto {
   lng?: number;
 }
 
-export interface UpdateAppartmentDto {
+export interface UpdateApartmentDto {
   name?: string;
   rating?: number;
   rooms?: number;
@@ -64,7 +64,7 @@ export interface UpdateAppartmentDto {
   location?: string;
 }
 
-export interface AppartmentFilters {
+export interface ApartmentFilters {
   searchTerm?: string;
   priceRange?: {
     min: number;
@@ -91,7 +91,6 @@ export interface PaginationParams {
   page: number;
   limit: number;
 }
-
 
 export const PREDEFINED_AMENITIES = [
   "WiFi",

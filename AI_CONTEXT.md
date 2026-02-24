@@ -7,14 +7,14 @@
 
 ## 1. Project Identity
 
-| Field | Value |
-|---|---|
-| Name | **BOOKinAL** – Albania Booking Platform |
-| Type | Tourism booking app (apartments, hotels, cars) in Albania |
-| Repo root | `c:\Users\wolow\Desktop\Albania\FE-albania` |
-| Package manager | npm 10 with **npm workspaces** (monorepo) |
-| Main app URL | Deployed on Vercel |
-| Backend | Supabase (PostgreSQL + Auth + Storage + Edge Functions) |
+| Field           | Value                                                     |
+| --------------- | --------------------------------------------------------- |
+| Name            | **BOOKinAL** – Albania Booking Platform                   |
+| Type            | Tourism booking app (apartments, hotels, cars) in Albania |
+| Repo root       | `c:\Users\wolow\Desktop\Albania\FE-albania`               |
+| Package manager | npm 10 with **npm workspaces** (monorepo)                 |
+| Main app URL    | Deployed on Vercel                                        |
+| Backend         | Supabase (PostgreSQL + Auth + Storage + Edge Functions)   |
 
 ---
 
@@ -44,21 +44,22 @@ FE-albania/
 
 Defined in `apps/web/vite.config.ts`. **Always use these aliases** in `apps/web/src/`:
 
-| Alias | Resolves to |
-|---|---|
-| `@/services/api` | `packages/api-client/src/` |
-| `@/types` | `packages/shared-types/src/` |
-| `@` | `apps/web/src/` |
+| Alias                   | Resolves to                  |
+| ----------------------- | ---------------------------- |
+| `@/services/api`        | `packages/api-client/src/`   |
+| `@/types`               | `packages/shared-types/src/` |
+| `@`                     | `apps/web/src/`              |
 | `@albania/shared-types` | `packages/shared-types/src/` |
-| `@albania/api-client` | `packages/api-client/src/` |
-| `@albania/hooks` | `packages/hooks/src/` |
-| `@albania/utils` | `packages/utils/src/` |
+| `@albania/api-client`   | `packages/api-client/src/`   |
+| `@albania/hooks`        | `packages/hooks/src/`        |
+| `@albania/utils`        | `packages/utils/src/`        |
 
 **Examples:**
+
 ```ts
-import { Booking } from "@/types/booking.type";          // shared type
+import { Booking } from "@/types/booking.type"; // shared type
 import bookingService from "@/services/api/bookingService"; // api service
-import { Button } from "@/components/ui/button";          // UI component
+import { Button } from "@/components/ui/button"; // UI component
 ```
 
 ---
@@ -66,35 +67,37 @@ import { Button } from "@/components/ui/button";          // UI component
 ## 4. Tech Stack
 
 ### Frontend (`apps/web`)
-| Category | Library / Version |
-|---|---|
-| Framework | React 18.3 + TypeScript 5.8 |
-| Build | Vite 5.4 + `@vitejs/plugin-react-swc` |
-| Routing | React Router v7 (both `react-router` and `react-router-dom` used) |
-| State / Data | `@tanstack/react-query` v5 (cache: 5min stale, 10min gc) |
-| Forms | `react-hook-form` v7 + `zod` validation + `@hookform/resolvers` |
-| UI components | shadcn/ui (Radix UI based) + MUI v7 + Tailwind CSS v3 |
-| Icons | `lucide-react` v0.462 |
-| Payments | `@stripe/react-stripe-js` v5 + `@paypal/react-paypal-js` v8 |
-| Maps | `leaflet` + `react-leaflet` v4 |
-| Lightbox | `yet-another-react-lightbox` v3 |
-| Animations | `gsap` v3 |
-| i18n | `i18next` v25 + `react-i18next` v16 |
-| PDF | `jspdf` v4 |
-| Charts | `recharts` v2 |
-| Alerts | `sweetalert2` v11 |
-| Date utils | `date-fns` v3 + `dayjs` v1 |
-| Toasts | shadcn `useToast` + `sonner` |
-| Phone input | `react-phone-number-input` |
+
+| Category      | Library / Version                                                 |
+| ------------- | ----------------------------------------------------------------- |
+| Framework     | React 18.3 + TypeScript 5.8                                       |
+| Build         | Vite 5.4 + `@vitejs/plugin-react-swc`                             |
+| Routing       | React Router v7 (both `react-router` and `react-router-dom` used) |
+| State / Data  | `@tanstack/react-query` v5 (cache: 5min stale, 10min gc)          |
+| Forms         | `react-hook-form` v7 + `zod` validation + `@hookform/resolvers`   |
+| UI components | shadcn/ui (Radix UI based) + MUI v7 + Tailwind CSS v3             |
+| Icons         | `lucide-react` v0.462                                             |
+| Payments      | `@stripe/react-stripe-js` v5 + `@paypal/react-paypal-js` v8       |
+| Maps          | `leaflet` + `react-leaflet` v4                                    |
+| Lightbox      | `yet-another-react-lightbox` v3                                   |
+| Animations    | `gsap` v3                                                         |
+| i18n          | `i18next` v25 + `react-i18next` v16                               |
+| PDF           | `jspdf` v4                                                        |
+| Charts        | `recharts` v2                                                     |
+| Alerts        | `sweetalert2` v11                                                 |
+| Date utils    | `date-fns` v3 + `dayjs` v1                                        |
+| Toasts        | shadcn `useToast` + `sonner`                                      |
+| Phone input   | `react-phone-number-input`                                        |
 
 ### Backend
-| Category | Detail |
-|---|---|
-| BaaS | Supabase (PostgreSQL 15) |
-| Auth | Supabase Auth (email/password + Google OAuth) |
-| Storage | Supabase Storage (images) |
+
+| Category       | Detail                                           |
+| -------------- | ------------------------------------------------ |
+| BaaS           | Supabase (PostgreSQL 15)                         |
+| Auth           | Supabase Auth (email/password + Google OAuth)    |
+| Storage        | Supabase Storage (images)                        |
 | Edge Functions | Deno-based serverless (in `supabase/functions/`) |
-| Email | Supabase Edge Function `send-email` |
+| Email          | Supabase Edge Function `send-email`              |
 
 ---
 
@@ -117,21 +120,21 @@ VITE_FRONTEND_URL=
 
 All accessed via `packages/api-client/src/apiClient.ts` (Supabase JS client).
 
-| Table | Description | Key columns |
-|---|---|---|
-| `auth.users` | Supabase auth table (managed) | `id`, `email` |
-| `users` *(public)* | Public user profiles | `id`, `email`, `full_name`, `role` (`user`/`admin`), `status` (`active`/`suspended`) |
-| `appartments` | Apartment listings | `id` (int), `name`, `providerId`, `imageUrls`, `location`, `lat`, `lng`, `pricePerNight`, `status` |
-| `hotels` | Hotel listings | `id` (int), `name`, `providerId`, `imageUrls`, `location` |
-| `cars` | Car rental listings | `id` (int), `name`, `brand`, `type`, `transmission`, `fuelType`, `seats`, `pricePerDay`, `providerId`, `status` (`available`/`rented`/`maintenance`/`review`) |
-| `booking` | All bookings (unified) | `id` (uuid), `userId`, `propertyId`, `propertyType` (`hotel`/`apartment`/`car`), `status` (`pending`/`confirmed`/`canceled`/`completed`), `payment_status` (`pending`/`paid`/`failed`/`refunded`) |
-| `destinations` | Tourist destinations | `id`, `name`, `imageUrls`, `description` |
-| `monthly_prices` | Dynamic pricing by month | `propertyId`, `propertyType`, `month`, `price` |
-| `role_requests` | Provider role upgrade requests | `userId`, `status` |
-| `property_requests` | Provider property submission requests | `userId`, `propertyType` |
-| `email_logs` | Email send tracking | `recipient`, `template`, `status` |
-| `reviews` | Property reviews (added Feb 2026) | `id` (uuid), `user_id`, `booking_id` (unique), `property_id` (int), `property_type` (`car`/`apartment`), `rating` (1-5), `comment`, `reviewer_name`, `created_at` |
-| `wishlist` | User saved properties | `userId`, `propertyId`, `propertyType` |
+| Table               | Description                           | Key columns                                                                                                                                                                                       |
+| ------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `auth.users`        | Supabase auth table (managed)         | `id`, `email`                                                                                                                                                                                     |
+| `users` _(public)_  | Public user profiles                  | `id`, `email`, `full_name`, `role` (`user`/`admin`), `status` (`active`/`suspended`)                                                                                                              |
+| `apartments`        | Apartment listings                    | `id` (int), `name`, `providerId`, `imageUrls`, `location`, `lat`, `lng`, `pricePerNight`, `status`                                                                                                |
+| `hotels`            | Hotel listings                        | `id` (int), `name`, `providerId`, `imageUrls`, `location`                                                                                                                                         |
+| `cars`              | Car rental listings                   | `id` (int), `name`, `brand`, `type`, `transmission`, `fuelType`, `seats`, `pricePerDay`, `providerId`, `status` (`available`/`rented`/`maintenance`/`review`)                                     |
+| `booking`           | All bookings (unified)                | `id` (uuid), `userId`, `propertyId`, `propertyType` (`hotel`/`apartment`/`car`), `status` (`pending`/`confirmed`/`canceled`/`completed`), `payment_status` (`pending`/`paid`/`failed`/`refunded`) |
+| `destinations`      | Tourist destinations                  | `id`, `name`, `imageUrls`, `description`                                                                                                                                                          |
+| `monthly_prices`    | Dynamic pricing by month              | `propertyId`, `propertyType`, `month`, `price`                                                                                                                                                    |
+| `role_requests`     | Provider role upgrade requests        | `userId`, `status`                                                                                                                                                                                |
+| `property_requests` | Provider property submission requests | `userId`, `propertyType`                                                                                                                                                                          |
+| `email_logs`        | Email send tracking                   | `recipient`, `template`, `status`                                                                                                                                                                 |
+| `reviews`           | Property reviews (added Feb 2026)     | `id` (uuid), `user_id`, `booking_id` (unique), `property_id` (int), `property_type` (`car`/`apartment`), `rating` (1-5), `comment`, `reviewer_name`, `created_at`                                 |
+| `wishlist`          | User saved properties                 | `userId`, `propertyId`, `propertyType`                                                                                                                                                            |
 
 > **RLS**: Most tables have Row Level Security enabled. Reviews allow public reads, owner writes.
 
@@ -154,42 +157,44 @@ Roles:  "user" | "admin" | "provider"
 ## 8. All Application Routes
 
 ### Public Routes
-| Path | Component | Description |
-|---|---|---|
-| `/` | `Index` | Home page |
-| `/auth` | `OAuthSignInPage` | Login / Register |
-| `/myAccount` | `MyAccount` | User profile |
-| `/CultureDetails` | `CultureDetails` | Culture page |
-| `/destination/:id` | `DestinationDetails` | Destination detail |
-| `/wishlist` | `Wishlist` | Saved properties |
-| `/properties-map` | `PropertiesMapPage` | Map view |
-| `/searchResults` | `SearchPropertyResults` | Hotel/apartment search |
-| `/searchCarResults` | `SearchCarResults` | Car search |
-| `/hotelReservation/:id` | `HotelReservation` | Hotel detail page |
-| `/appartmentReservation/:id` | `ApartmentReservation` | Apartment detail + reviews |
-| `/carReservation/:id` | `CarReservation` | Car detail + reviews |
-| `/carBilling/:id` | `CarBilling` | Car checkout/billing |
-| `/apartmentBilling/:id` | `ApartmentBilling` | Apartment checkout/billing |
-| `/myBookings` | `BookingsSummary` | User's bookings list |
-| `/ProviderRequest` | `ProviderRequest` | Request provider role |
+
+| Path                        | Component               | Description                |
+| --------------------------- | ----------------------- | -------------------------- |
+| `/`                         | `Index`                 | Home page                  |
+| `/auth`                     | `OAuthSignInPage`       | Login / Register           |
+| `/myAccount`                | `MyAccount`             | User profile               |
+| `/CultureDetails`           | `CultureDetails`        | Culture page               |
+| `/destination/:id`          | `DestinationDetails`    | Destination detail         |
+| `/wishlist`                 | `Wishlist`              | Saved properties           |
+| `/properties-map`           | `PropertiesMapPage`     | Map view                   |
+| `/searchResults`            | `SearchPropertyResults` | Hotel/apartment search     |
+| `/searchCarResults`         | `SearchCarResults`      | Car search                 |
+| `/hotelReservation/:id`     | `HotelReservation`      | Hotel detail page          |
+| `/apartmentReservation/:id` | `ApartmentReservation`  | Apartment detail + reviews |
+| `/carReservation/:id`       | `CarReservation`        | Car detail + reviews       |
+| `/carBilling/:id`           | `CarBilling`            | Car checkout/billing       |
+| `/apartmentBilling/:id`     | `ApartmentBilling`      | Apartment checkout/billing |
+| `/myBookings`               | `BookingsSummary`       | User's bookings list       |
+| `/ProviderRequest`          | `ProviderRequest`       | Request provider role      |
 
 ### Protected Routes (admin or provider only)
-| Path | Component |
-|---|---|
-| `/dashboard` | `Dashboard` |
-| `/dashboard/HotelsList` | `AllHotels` |
-| `/dashboard/hotels/:id` | `HotelDetails` |
-| `/dashboard/AppartmentsList` | `AllAppartments` |
-| `/dashboard/appartments/:id` | `AppartmentDetails` |
-| `/dashboard/carsList` | `AllCars` |
-| `/dashboard/carInfo/:id` | `CarDetails` |
-| `/dashboard/userManagement` | `UserManagement` |
-| `/dashboard/user-details/:userId` | `UserDetails` |
-| `/dashboard/bookings` | `BookingsManagement` |
-| `/dashboard/destinations` | `DestinationsManagement` |
-| `/dashboard/requestsManagement` | `RequestsManagement` |
+
+| Path                                    | Component                    |
+| --------------------------------------- | ---------------------------- |
+| `/dashboard`                            | `Dashboard`                  |
+| `/dashboard/HotelsList`                 | `AllHotels`                  |
+| `/dashboard/hotels/:id`                 | `HotelDetails`               |
+| `/dashboard/ApartmentsList`             | `AllApartments`              |
+| `/dashboard/apartments/:id`             | `ApartmentDetails`           |
+| `/dashboard/carsList`                   | `AllCars`                    |
+| `/dashboard/carInfo/:id`                | `CarDetails`                 |
+| `/dashboard/userManagement`             | `UserManagement`             |
+| `/dashboard/user-details/:userId`       | `UserDetails`                |
+| `/dashboard/bookings`                   | `BookingsManagement`         |
+| `/dashboard/destinations`               | `DestinationsManagement`     |
+| `/dashboard/requestsManagement`         | `RequestsManagement`         |
 | `/dashboard/propertyRequestsManagement` | `PropertyRequestsManagement` |
-| `/dashboard/support` | `SupportChat` |
+| `/dashboard/support`                    | `SupportChat`                |
 
 ---
 
@@ -197,24 +202,24 @@ Roles:  "user" | "admin" | "provider"
 
 All in `packages/api-client/src/`. Always import in web via `@/services/api/<name>`.
 
-| File | Named exports / default | Key functions |
-|---|---|---|
-| `apiClient.ts` | `apiClient` | Supabase JS client (lazy init) |
-| `authService.ts` | `authService` (object) | `signUp`, `signIn`, `signInWithGoogle`, `signOut`, `getCurrentUser`, `getCurrentUserId`, `getCurrentUserRole`, `ensureUserProfile` |
-| `userService.ts` | `userService` (class instance) | `getCurrentUser`, `getUserById`, `updateUser`, `getAllUsers` |
-| `appartmentService.ts` | named exports | `getAppartments`, `getAppartmentById`, `getAppartmentUnavailabilityDates`, `createAppartment`, `updateAppartment`, `deleteAppartment` |
-| `hotelService.ts` | named exports | `getHotels`, `getHotelById`, `createHotel`, `updateHotel`, `deleteHotel` |
-| `carService.ts` | named exports | `getCars`, `getCarById`, `getCarUnavailabilityDates`, `createCar`, `updateCar`, `deleteCar` |
-| `bookingService.ts` | `default` (object) + named | `createBooking`, `getCurrentUserBookings`, `getBookingById`, `updateBookingStatus`, `getAllBookings` |
-| `paymentService.ts` | `default` (object) | `createStripePaymentIntent`, `confirmStripePayment`, `createPayPalOrder`, `capturePayPalOrder` |
-| `reviewService.ts` | named exports | `createReview`, `getReviewsByProperty`, `hasUserReviewedBooking`, `getPropertyAverageRating` |
-| `destinationService.ts` | named exports | CRUD for destinations + wishlist |
-| `monthlyPriceService.ts` | named exports | `getMonthlyPrices`, `upsertMonthlyPrice` |
-| `emailService.ts` | named exports | `sendEmailDirect`, `getProviderBookingNotificationTemplate` |
-| `storageService.ts` | named exports | Image upload/delete to Supabase Storage |
-| `roleRequestService.ts` | `roleRequestService` | `createRoleRequest`, `getAllRoleRequests`, `updateRoleRequestStatus` |
-| `propertyRequest.ts` | named exports | Property listing requests from providers |
-| `chatService.ts` | named exports | Support chat messages |
+| File                     | Named exports / default        | Key functions                                                                                                                      |
+| ------------------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `apiClient.ts`           | `apiClient`                    | Supabase JS client (lazy init)                                                                                                     |
+| `authService.ts`         | `authService` (object)         | `signUp`, `signIn`, `signInWithGoogle`, `signOut`, `getCurrentUser`, `getCurrentUserId`, `getCurrentUserRole`, `ensureUserProfile` |
+| `userService.ts`         | `userService` (class instance) | `getCurrentUser`, `getUserById`, `updateUser`, `getAllUsers`                                                                       |
+| `apartmentService.ts`    | named exports                  | `getApartments`, `getApartmentById`, `getApartmentUnavailabilityDates`, `createApartment`, `updateApartment`, `deleteApartment`    |
+| `hotelService.ts`        | named exports                  | `getHotels`, `getHotelById`, `createHotel`, `updateHotel`, `deleteHotel`                                                           |
+| `carService.ts`          | named exports                  | `getCars`, `getCarById`, `getCarUnavailabilityDates`, `createCar`, `updateCar`, `deleteCar`                                        |
+| `bookingService.ts`      | `default` (object) + named     | `createBooking`, `getCurrentUserBookings`, `getBookingById`, `updateBookingStatus`, `getAllBookings`                               |
+| `paymentService.ts`      | `default` (object)             | `createStripePaymentIntent`, `confirmStripePayment`, `createPayPalOrder`, `capturePayPalOrder`                                     |
+| `reviewService.ts`       | named exports                  | `createReview`, `getReviewsByProperty`, `hasUserReviewedBooking`, `getPropertyAverageRating`                                       |
+| `destinationService.ts`  | named exports                  | CRUD for destinations + wishlist                                                                                                   |
+| `monthlyPriceService.ts` | named exports                  | `getMonthlyPrices`, `upsertMonthlyPrice`                                                                                           |
+| `emailService.ts`        | named exports                  | `sendEmailDirect`, `getProviderBookingNotificationTemplate`                                                                        |
+| `storageService.ts`      | named exports                  | Image upload/delete to Supabase Storage                                                                                            |
+| `roleRequestService.ts`  | `roleRequestService`           | `createRoleRequest`, `getAllRoleRequests`, `updateRoleRequestStatus`                                                               |
+| `propertyRequest.ts`     | named exports                  | Property listing requests from providers                                                                                           |
+| `chatService.ts`         | named exports                  | Support chat messages                                                                                                              |
 
 ---
 
@@ -222,20 +227,20 @@ All in `packages/api-client/src/`. Always import in web via `@/services/api/<nam
 
 All in `packages/shared-types/src/`. Import via `@/types/<file>`.
 
-| File | Main interfaces |
-|---|---|
-| `user.types.ts` | `User`, `UserProfile`, `UpdateUser`, `UpdateUserProfileData` |
-| `appartment.type.ts` | `Appartment`, `CreateAppartmentDto`, `PREDEFINED_AMENITIES` |
-| `hotel.types.ts` | `Hotel`, `CreateHotelDto`, `UpdateHotelDto`, `HotelFilters` |
-| `car.types.ts` | `Car`, `CreateCarDto`, `UpdateCarDto`, `CarFilters` |
-| `booking.type.ts` | `Booking`, `CreateBookingDto` |
-| `review.type.ts` | `Review`, `CreateReviewDto` |
-| `destination.types.ts` | `Destination` |
-| `price.type.ts` | `MonthlyPriceInput`, `Month`, `MONTHS`, `MONTH_NAMES` |
-| `request.type.ts` | `RoleRequest`, `PropertyRequest` |
-| `search.types.ts` | Search filter interfaces |
-| `email.types.ts` | Email template types |
-| `chat.types.ts` | `ChatMessage` |
+| File                   | Main interfaces                                              |
+| ---------------------- | ------------------------------------------------------------ |
+| `user.types.ts`        | `User`, `UserProfile`, `UpdateUser`, `UpdateUserProfileData` |
+| `apartment.type.ts`    | `Apartment`, `CreateApartmentDto`, `PREDEFINED_AMENITIES`    |
+| `hotel.types.ts`       | `Hotel`, `CreateHotelDto`, `UpdateHotelDto`, `HotelFilters`  |
+| `car.types.ts`         | `Car`, `CreateCarDto`, `UpdateCarDto`, `CarFilters`          |
+| `booking.type.ts`      | `Booking`, `CreateBookingDto`                                |
+| `review.type.ts`       | `Review`, `CreateReviewDto`                                  |
+| `destination.types.ts` | `Destination`                                                |
+| `price.type.ts`        | `MonthlyPriceInput`, `Month`, `MONTHS`, `MONTH_NAMES`        |
+| `request.type.ts`      | `RoleRequest`, `PropertyRequest`                             |
+| `search.types.ts`      | Search filter interfaces                                     |
+| `email.types.ts`       | Email template types                                         |
+| `chat.types.ts`        | `ChatMessage`                                                |
 
 ---
 
@@ -278,7 +283,7 @@ components/
 
 ```tsx
 // Pattern for new translation keys:
-t("review.addReview", "Add Review")   // key, fallback string
+t("review.addReview", "Add Review"); // key, fallback string
 ```
 
 - When adding new UI text, add keys to **both** `en.json` and `sq.json`
@@ -289,6 +294,7 @@ t("review.addReview", "Add Review")   // key, fallback string
 ## 13. Payment Flow
 
 ### Stripe
+
 1. User clicks `StripePaymentButton` (in `components/payments/`)
 2. Calls Edge Function `create-stripe-payment-intent`
 3. Returns `clientSecret`
@@ -297,6 +303,7 @@ t("review.addReview", "Add Review")   // key, fallback string
 6. `stripe-webhook` updates `booking.payment_status` to `"paid"`
 
 ### PayPal
+
 1. `PayPalPaymentButton` (inline in `BookingsSummary`)
 2. `createOrder` → calls `create-paypal-order` Edge Function
 3. `onApprove` → calls `capture-paypal-order` Edge Function
@@ -306,17 +313,18 @@ t("review.addReview", "Add Review")   // key, fallback string
 
 ## 14. Supabase Edge Functions (`supabase/functions/`)
 
-| Function folder | Trigger | Purpose |
-|---|---|---|
-| `create-stripe-payment-intent/` | HTTP POST | Creates Stripe PaymentIntent |
-| `confirm-stripe-payment/` | HTTP POST | Confirms Stripe payment |
-| `stripe-webhook/` | Stripe webhook | Updates booking on payment events |
-| `create-paypal-order/` | HTTP POST | Creates PayPal order |
-| `capture-paypal-order/` | HTTP POST | Captures PayPal payment |
-| `paypal-webhook/` | PayPal webhook | Updates booking on PayPal events |
-| `send-email/` | HTTP POST | Sends transactional emails |
+| Function folder                 | Trigger        | Purpose                           |
+| ------------------------------- | -------------- | --------------------------------- |
+| `create-stripe-payment-intent/` | HTTP POST      | Creates Stripe PaymentIntent      |
+| `confirm-stripe-payment/`       | HTTP POST      | Confirms Stripe payment           |
+| `stripe-webhook/`               | Stripe webhook | Updates booking on payment events |
+| `create-paypal-order/`          | HTTP POST      | Creates PayPal order              |
+| `capture-paypal-order/`         | HTTP POST      | Captures PayPal payment           |
+| `paypal-webhook/`               | PayPal webhook | Updates booking on PayPal events  |
+| `send-email/`                   | HTTP POST      | Sends transactional emails        |
 
 All Edge Functions are Deno runtime. Deploy with:
+
 ```bash
 supabase functions deploy <function-name>
 ```
@@ -326,7 +334,7 @@ supabase functions deploy <function-name>
 ## 15. Booking Flow (User Journey)
 
 ```
-Browse property  →  Detail page (CarReservation / AppartmentReservation / HotelReservation)
+Browse property  →  Detail page (CarReservation / ApartmentReservation / HotelReservation)
        ↓
 Select dates  (AvailabilityCalendar blocks already-booked dates)
        ↓
@@ -350,7 +358,9 @@ User can:
 ## 16. Reviews Feature (Added Feb 2026)
 
 ### Database
+
 Table: `reviews`
+
 ```sql
 id UUID PRIMARY KEY
 user_id UUID REFERENCES auth.users
@@ -362,27 +372,32 @@ comment TEXT
 reviewer_name TEXT
 created_at, updated_at TIMESTAMP
 ```
+
 RLS: public read, owner write/update/delete.
 
 ### Who can review?
+
 Only users where `booking.payment_status === "paid"` AND `booking.propertyType === "car" | "apartment"`. Hotel reviews are **not implemented yet**.
 
 ### Files
-| File | Role |
-|---|---|
-| `packages/shared-types/src/review.type.ts` | `Review`, `CreateReviewDto` |
-| `packages/api-client/src/reviewService.ts` | `createReview`, `getReviewsByProperty`, `hasUserReviewedBooking`, `getPropertyAverageRating` |
-| `apps/web/src/components/reviews/ReviewModal.tsx` | Review submission dialog |
-| `apps/web/src/components/reviews/ReviewsSection.tsx` | Review display on property pages |
+
+| File                                                 | Role                                                                                         |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `packages/shared-types/src/review.type.ts`           | `Review`, `CreateReviewDto`                                                                  |
+| `packages/api-client/src/reviewService.ts`           | `createReview`, `getReviewsByProperty`, `hasUserReviewedBooking`, `getPropertyAverageRating` |
+| `apps/web/src/components/reviews/ReviewModal.tsx`    | Review submission dialog                                                                     |
+| `apps/web/src/components/reviews/ReviewsSection.tsx` | Review display on property pages                                                             |
 
 ### Where displayed?
+
 - `CarReservation.tsx` — after `AvailabilityCalendar`
-- `AppartmentReservation.tsx` — after `AvailabilityCalendar`
+- `ApartmentReservation.tsx` — after `AvailabilityCalendar`
 - `BookingsSummary.tsx` — "Add Review" button on eligible bookings
 
 ### React Query cache key pattern
+
 ```ts
-queryKey: ["reviews", String(propertyId), propertyType]
+queryKey: ["reviews", String(propertyId), propertyType];
 ```
 
 ---
@@ -391,16 +406,18 @@ queryKey: ["reviews", String(propertyId), propertyType]
 
 ```ts
 // Query key patterns:
-["bookings", "currentUser"]
-["reviews", String(propertyId), propertyType]
-["car", id]
-["appartment", id]
+["bookings", "currentUser"][("reviews", String(propertyId), propertyType)][
+  ("car", id)
+][("apartment", id)];
 
 // Invalidation after mutation:
-await queryClient.invalidateQueries({ queryKey: ["reviews", propertyId, propertyType] });
+await queryClient.invalidateQueries({
+  queryKey: ["reviews", propertyId, propertyType],
+});
 ```
 
 Global QueryClient config (in `App.tsx`):
+
 - `staleTime`: 5 minutes
 - `gcTime`: 10 minutes
 - `retry`: 1
@@ -411,6 +428,7 @@ Global QueryClient config (in `App.tsx`):
 ## 18. Key Patterns to Follow
 
 ### Adding a new API service
+
 1. Create `packages/api-client/src/<feature>Service.ts`
 2. Use `apiClient` from `./apiClient`
 3. Import types from `@albania/shared-types`
@@ -418,15 +436,18 @@ Global QueryClient config (in `App.tsx`):
 5. Add export to `packages/api-client/src/index.ts`
 
 ### Adding a new type
+
 1. Create or edit file in `packages/shared-types/src/`
 2. Export from `packages/shared-types/src/index.ts`
 
 ### Adding a new page
+
 1. Create component in `apps/web/src/pages/`
 2. Register route in `apps/web/src/App.tsx`
 3. Wrap in `<ProtectedRoute>` if admin/provider only
 
 ### Adding a new Supabase table
+
 1. Write migration SQL
 2. Apply via Supabase MCP tool (`mcp_supabase_apply_migration`)
 3. Enable RLS + add policies
@@ -434,6 +455,7 @@ Global QueryClient config (in `App.tsx`):
 5. Add service to `api-client`
 
 ### UI component usage
+
 - Prefer shadcn/ui from `@/components/ui/` for all primitives
 - Use `lucide-react` for all icons
 - Use `useToast()` for notifications
@@ -444,26 +466,24 @@ Global QueryClient config (in `App.tsx`):
 
 ## 19. Naming Conventions
 
-| Thing | Convention | Example |
-|---|---|---|
-| Components | PascalCase | `ReviewModal.tsx` |
-| Services | camelCase + "Service" | `reviewService.ts` |
-| Types | PascalCase interface | `CreateReviewDto` |
-| DB tables | snake_case | `reviews`, `monthly_prices` |
-| DB columns | snake_case | `user_id`, `created_at` |
-| React Query keys | `["entity", "qualifier"]` | `["bookings", "currentUser"]` |
-| Route paths | camelCase or kebab-case | `/carReservation/:id` |
-| i18n keys | `namespace.key` camelCase | `review.addReview` |
-| Files (services) | camelCase | `reviewService.ts` |
-| Files (components) | PascalCase | `ReviewsSection.tsx` |
-
-> ⚠️ Note: "Appartment" (double-t) is used throughout the codebase (DB table name, type name, service name). Do NOT correct to "Apartment" in backend code — only the route path and some component names use the corrected spelling.
+| Thing              | Convention                | Example                       |
+| ------------------ | ------------------------- | ----------------------------- |
+| Components         | PascalCase                | `ReviewModal.tsx`             |
+| Services           | camelCase + "Service"     | `reviewService.ts`            |
+| Types              | PascalCase interface      | `CreateReviewDto`             |
+| DB tables          | snake_case                | `reviews`, `monthly_prices`   |
+| DB columns         | snake_case                | `user_id`, `created_at`       |
+| React Query keys   | `["entity", "qualifier"]` | `["bookings", "currentUser"]` |
+| Route paths        | camelCase or kebab-case   | `/carReservation/:id`         |
+| i18n keys          | `namespace.key` camelCase | `review.addReview`            |
+| Files (services)   | camelCase                 | `reviewService.ts`            |
+| Files (components) | PascalCase                | `ReviewsSection.tsx`          |
 
 ---
 
 ## 20. Known Quirks & Gotchas
 
-1. **"Appartment" typo** — intentional codebase convention. The DB table is `appartments`, the type is `Appartment`, the service is `appartmentService`. The route is `/appartmentReservation/:id`.
+1. **"Apartment" typo** — intentional codebase convention. The DB table is `apartments`, the type is `Apartment`, the service is `apartmentService`. The route is `/apartmentReservation/:id`.
 2. **Dual router imports** — some files import from `react-router`, others from `react-router-dom`. Both work (v7 re-exports).
 3. **Packages resolve to `src/`** — In dev mode, aliases point to `packages/*/src/`, not `dist/`. No build step needed for packages during development.
 4. **`booking` table name** (singular) — The bookings table is called `booking` not `bookings`.

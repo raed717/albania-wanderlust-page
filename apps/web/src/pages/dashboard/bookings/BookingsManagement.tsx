@@ -8,7 +8,7 @@ import {
 } from "@/services/api/bookingService";
 import Hsidebar from "@/components/dashboard/hsidebar";
 import { getCarById } from "@/services/api/carService";
-import { getAppartmentById } from "@/services/api/appartmentService";
+import { getApartmentById } from "@/services/api/apartmentService";
 import { getHotelById } from "@/services/api/hotelService";
 import {
   Search,
@@ -110,7 +110,7 @@ const getPropertyRoute = (booking: Booking) => {
   const id = booking.propertyId;
   switch (booking.propertyType) {
     case "apartment":
-      return `/dashboard/appartments/${id}`;
+      return `/dashboard/apartments/${id}`;
     case "hotel":
       return `/dashboard/hotels/${id}`;
     case "car":
@@ -254,12 +254,12 @@ export default function BookingsManagement() {
           };
         }
         if (booking.propertyType === "apartment") {
-          const appartment = await getAppartmentById(
+          const apartment = await getApartmentById(
             parseInt(booking.propertyId),
           );
           return {
             ...booking,
-            propertyData: appartment || null,
+            propertyData: apartment || null,
           };
         }
         if (booking.propertyType === "hotel") {

@@ -5,7 +5,7 @@
  */
 
 import { Car } from "./car.types";
-import { Appartment } from "./appartment.type";
+import { Apartment } from "./apartment.type";
 import { Hotel } from "./hotel.types";
 
 export interface Booking {
@@ -32,7 +32,7 @@ export interface Booking {
   paid_at?: string;
   createdAt: string;
   updatedAt: string;
-  propertyData?: Car | Appartment | Hotel | null;
+  propertyData?: Car | Apartment | Hotel | null;
 }
 
 export interface CreateBookingDto {

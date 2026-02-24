@@ -1,6 +1,6 @@
 // Types
-// Export appartment types (includes PaginationParams)
-export * from "./appartment.type";
+// Export apartment types (includes PaginationParams)
+export * from "./apartment.type";
 export * from "./booking.type";
 // Exclude duplicate PaginationParams from car.types
 export {

@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
 import {
   HotelFiltersInput,
-  AppartmentFiltersInput,
+  ApartmentFiltersInput,
   SearchFiltersState,
 } from "@/types/search.types";
 
@@ -29,7 +29,7 @@ interface FilterBarProps {
   filters: SearchFiltersState;
   onPropertyTypeChange: (type: "hotel" | "apartment" | "both") => void;
   onHotelFiltersChange: (filters: Partial<HotelFiltersInput>) => void;
-  onAppartmentFiltersChange: (filters: Partial<AppartmentFiltersInput>) => void;
+  onApartmentFiltersChange: (filters: Partial<ApartmentFiltersInput>) => void;
   onDateChange: (dates: {
     checkInDate?: string | null;
     checkOutDate?: string | null;
@@ -52,7 +52,7 @@ export const FilterBar = ({
   filters,
   onPropertyTypeChange,
   onHotelFiltersChange,
-  onAppartmentFiltersChange,
+  onApartmentFiltersChange,
   onDateChange,
   onGuestsChange,
   onResetFilters,
@@ -66,7 +66,7 @@ export const FilterBar = ({
   const countActiveFilters = (): number => {
     let count = 0;
     const hf = filters.hotelFilters;
-    const af = filters.appartmentFilters;
+    const af = filters.apartmentFilters;
 
     // Date filters
     if (filters.checkInDate || filters.checkOutDate) count++;
@@ -188,20 +188,20 @@ export const FilterBar = ({
                     filters.propertyType === "hotel"
                       ? filters.hotelFilters.searchTerm || ""
                       : filters.propertyType === "apartment"
-                        ? filters.appartmentFilters.searchTerm || ""
+                        ? filters.apartmentFilters.searchTerm || ""
                         : filters.hotelFilters.searchTerm ||
-                          filters.appartmentFilters.searchTerm ||
+                          filters.apartmentFilters.searchTerm ||
                           ""
                   }
                   onChange={(e) => {
                     if (filters.propertyType === "hotel") {
                       onHotelFiltersChange({ searchTerm: e.target.value });
                     } else if (filters.propertyType === "apartment") {
-                      onAppartmentFiltersChange({ searchTerm: e.target.value });
+                      onApartmentFiltersChange({ searchTerm: e.target.value });
                     } else {
                       // Property type is "both" - update both filters
                       onHotelFiltersChange({ searchTerm: e.target.value });
-                      onAppartmentFiltersChange({ searchTerm: e.target.value });
+                      onApartmentFiltersChange({ searchTerm: e.target.value });
                     }
                   }}
                   className="text-sm"
@@ -303,10 +303,10 @@ export const FilterBar = ({
                           rooms: filters.rooms,
                         });
                         // Update apartment beds min to adults + children
-                        onAppartmentFiltersChange({
+                        onApartmentFiltersChange({
                           beds: {
                             min: adults + children,
-                            max: filters.appartmentFilters.beds?.max,
+                            max: filters.apartmentFilters.beds?.max,
                           },
                         });
                       }}
@@ -321,10 +321,10 @@ export const FilterBar = ({
                             children,
                             rooms: filters.rooms,
                           });
-                          onAppartmentFiltersChange({
+                          onApartmentFiltersChange({
                             beds: {
                               min: children,
-                              max: filters.appartmentFilters.beds?.max,
+                              max: filters.apartmentFilters.beds?.max,
                             },
                           });
                         }}
@@ -354,10 +354,10 @@ export const FilterBar = ({
                           rooms: filters.rooms,
                         });
                         // Update apartment beds min to adults + children
-                        onAppartmentFiltersChange({
+                        onApartmentFiltersChange({
                           beds: {
                             min: adults + children,
-                            max: filters.appartmentFilters.beds?.max,
+                            max: filters.apartmentFilters.beds?.max,
                           },
                         });
                       }}
@@ -372,10 +372,10 @@ export const FilterBar = ({
                             children: 0,
                             rooms: filters.rooms,
                           });
-                          onAppartmentFiltersChange({
+                          onApartmentFiltersChange({
                             beds: {
                               min: adults,
-                              max: filters.appartmentFilters.beds?.max,
+                              max: filters.apartmentFilters.beds?.max,
                             },
                           });
                         }}
@@ -404,10 +404,10 @@ export const FilterBar = ({
                           rooms,
                         });
                         // Update apartment rooms min to rooms
-                        onAppartmentFiltersChange({
+                        onApartmentFiltersChange({
                           rooms: {
                             min: rooms,
-                            max: filters.appartmentFilters.rooms?.max,
+                            max: filters.apartmentFilters.rooms?.max,
                           },
                         });
                       }}
@@ -421,10 +421,10 @@ export const FilterBar = ({
                             children: filters.children,
                             rooms: 0,
                           });
-                          onAppartmentFiltersChange({
+                          onApartmentFiltersChange({
                             rooms: {
                               min: 0,
-                              max: filters.appartmentFilters.rooms?.max,
+                              max: filters.apartmentFilters.rooms?.max,
                             },
                           });
                         }}
@@ -472,7 +472,7 @@ export const FilterBar = ({
                           priceRange: { min: value[0], max: value[1] },
                         });
                       } else if (filters.propertyType === "apartment") {
-                        onAppartmentFiltersChange({
+                        onApartmentFiltersChange({
                           priceRange: { min: value[0], max: value[1] },
                         });
                       } else {
@@ -480,7 +480,7 @@ export const FilterBar = ({
                         onHotelFiltersChange({
                           priceRange: { min: value[0], max: value[1] },
                         });
-                        onAppartmentFiltersChange({
+                        onApartmentFiltersChange({
                           priceRange: { min: value[0], max: value[1] },
                         });
                       }
@@ -505,7 +505,7 @@ export const FilterBar = ({
                   value={
                     filters.propertyType === "hotel"
                       ? filters.hotelFilters.rating || "all"
-                      : filters.appartmentFilters.rating || "all"
+                      : filters.apartmentFilters.rating || "all"
                   }
                   onValueChange={(value) => {
                     if (filters.propertyType === "hotel") {
@@ -513,7 +513,7 @@ export const FilterBar = ({
                         rating: value as any,
                       });
                     } else if (filters.propertyType === "apartment") {
-                      onAppartmentFiltersChange({
+                      onApartmentFiltersChange({
                         rating: value as any,
                       });
                     } else {
@@ -521,7 +521,7 @@ export const FilterBar = ({
                       onHotelFiltersChange({
                         rating: value as any,
                       });
-                      onAppartmentFiltersChange({
+                      onApartmentFiltersChange({
                         rating: value as any,
                       });
                     }
@@ -553,7 +553,7 @@ export const FilterBar = ({
                   value={
                     filters.propertyType === "hotel"
                       ? filters.hotelFilters.status || "all"
-                      : filters.appartmentFilters.status || "all"
+                      : filters.apartmentFilters.status || "all"
                   }
                   onValueChange={(value) => {
                     if (filters.propertyType === "hotel") {
@@ -561,7 +561,7 @@ export const FilterBar = ({
                         status: value as any,
                       });
                     } else if (filters.propertyType === "apartment") {
-                      onAppartmentFiltersChange({
+                      onApartmentFiltersChange({
                         status: value as any,
                       });
                     } else {
@@ -569,7 +569,7 @@ export const FilterBar = ({
                       onHotelFiltersChange({
                         status: value as any,
                       });
-                      onAppartmentFiltersChange({
+                      onApartmentFiltersChange({
                         status: value as any,
                       });
                     }
@@ -744,17 +744,17 @@ export const FilterBar = ({
                           type="number"
                           placeholder={t("searchResults.filters.min")}
                           value={
-                            filters.appartmentFilters.rooms?.min ||
+                            filters.apartmentFilters.rooms?.min ||
                             filters.rooms ||
                             ""
                           }
                           onChange={(e) =>
-                            onAppartmentFiltersChange({
+                            onApartmentFiltersChange({
                               rooms: {
                                 min: e.target.value
                                   ? parseInt(e.target.value)
                                   : undefined,
-                                max: filters.appartmentFilters.rooms?.max,
+                                max: filters.apartmentFilters.rooms?.max,
                               },
                             })
                           }
@@ -768,11 +768,11 @@ export const FilterBar = ({
                         <Input
                           type="number"
                           placeholder={t("searchResults.filters.max")}
-                          value={filters.appartmentFilters.rooms?.max || ""}
+                          value={filters.apartmentFilters.rooms?.max || ""}
                           onChange={(e) =>
-                            onAppartmentFiltersChange({
+                            onApartmentFiltersChange({
                               rooms: {
-                                min: filters.appartmentFilters.rooms?.min,
+                                min: filters.apartmentFilters.rooms?.min,
                                 max: e.target.value
                                   ? parseInt(e.target.value)
                                   : undefined,
@@ -799,14 +799,14 @@ export const FilterBar = ({
                         <Input
                           type="number"
                           placeholder={t("searchResults.filters.min")}
-                          value={filters.appartmentFilters.beds?.min || ""}
+                          value={filters.apartmentFilters.beds?.min || ""}
                           onChange={(e) =>
-                            onAppartmentFiltersChange({
+                            onApartmentFiltersChange({
                               beds: {
                                 min: e.target.value
                                   ? parseInt(e.target.value)
                                   : undefined,
-                                max: filters.appartmentFilters.beds?.max,
+                                max: filters.apartmentFilters.beds?.max,
                               },
                             })
                           }
@@ -820,11 +820,11 @@ export const FilterBar = ({
                         <Input
                           type="number"
                           placeholder={t("searchResults.filters.max")}
-                          value={filters.appartmentFilters.beds?.max || ""}
+                          value={filters.apartmentFilters.beds?.max || ""}
                           onChange={(e) =>
-                            onAppartmentFiltersChange({
+                            onApartmentFiltersChange({
                               beds: {
-                                min: filters.appartmentFilters.beds?.min,
+                                min: filters.apartmentFilters.beds?.min,
                                 max: e.target.value
                                   ? parseInt(e.target.value)
                                   : undefined,
@@ -851,14 +851,14 @@ export const FilterBar = ({
                         <Input
                           type="number"
                           placeholder={t("searchResults.filters.min")}
-                          value={filters.appartmentFilters.bathrooms?.min || ""}
+                          value={filters.apartmentFilters.bathrooms?.min || ""}
                           onChange={(e) =>
-                            onAppartmentFiltersChange({
+                            onApartmentFiltersChange({
                               bathrooms: {
                                 min: e.target.value
                                   ? parseInt(e.target.value)
                                   : undefined,
-                                max: filters.appartmentFilters.bathrooms?.max,
+                                max: filters.apartmentFilters.bathrooms?.max,
                               },
                             })
                           }
@@ -872,11 +872,11 @@ export const FilterBar = ({
                         <Input
                           type="number"
                           placeholder={t("searchResults.filters.max")}
-                          value={filters.appartmentFilters.bathrooms?.max || ""}
+                          value={filters.apartmentFilters.bathrooms?.max || ""}
                           onChange={(e) =>
-                            onAppartmentFiltersChange({
+                            onApartmentFiltersChange({
                               bathrooms: {
-                                min: filters.appartmentFilters.bathrooms?.min,
+                                min: filters.apartmentFilters.bathrooms?.min,
                                 max: e.target.value
                                   ? parseInt(e.target.value)
                                   : undefined,

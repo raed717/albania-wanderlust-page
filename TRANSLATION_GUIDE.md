@@ -147,7 +147,7 @@ const { t } = useTranslation();
    - `src/components/home/Destinations.tsx`
    - `src/components/home/Culture.tsx`
    - `src/components/home/HotelsPreview.tsx`
-   - `src/components/home/AppartmentsPreview.tsx`
+   - `src/components/home/ApartmentsPreview.tsx`
    - `src/components/home/CarsPreview.tsx`
 
 2. **Dashboard Pages**

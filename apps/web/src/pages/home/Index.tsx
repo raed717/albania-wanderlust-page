@@ -4,7 +4,7 @@ import Culture from "@/components/home/Culture";
 import CallToAction from "@/components/home/CallToAction";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import HotelsPreview from "@/components/home/HotelsPreview";
-import AppartmentsPreview from "@/components/home/AppartmentsPreview";
+import ApartmentsPreview from "@/components/home/ApartmentsPreview";
 import CarsPreview from "@/components/home/CarsPreview";
 import { Building2, Car, MapPin, Star, Users, Shield } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -88,10 +88,10 @@ const Index = () => {
               <HotelsPreview />
             </div>
             <div
-              id="appartments"
+              id="apartments"
               className="lg:pl-6 lg:border-l lg:border-slate-200/60"
             >
-              <AppartmentsPreview />
+              <ApartmentsPreview />
             </div>
           </div>
         </div>

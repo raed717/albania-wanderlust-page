@@ -1,31 +1,31 @@
 import { useState, useCallback, useMemo } from "react";
 import { Hotel } from "@/types/hotel.types";
-import { Appartment } from "@/types/appartment.type";
+import { Apartment } from "@/types/apartment.type";
 import {
   SearchFiltersState,
   HotelFiltersInput,
-  AppartmentFiltersInput,
+  ApartmentFiltersInput,
   defaultSearchFilters,
 } from "@/types/search.types";
 import { getAllHotels } from "@/services/api/hotelService";
 import {
-  getAllAppartments,
+  getAllApartments,
   getApartmentUnavailabilityDates,
-} from "@/services/api/appartmentService";
+} from "@/services/api/apartmentService";
 
 interface UseSearchFiltersReturn {
   filters: SearchFiltersState;
   results: {
     hotels: Hotel[];
-    apartments: Appartment[];
-    combined: (Hotel | Appartment)[];
+    apartments: Apartment[];
+    combined: (Hotel | Apartment)[];
   };
   loading: boolean;
   error: string | null;
   setFilters: (filters: Partial<SearchFiltersState>) => void;
   setPropertyType: (type: "hotel" | "apartment" | "both") => void;
   setHotelFilters: (filters: Partial<HotelFiltersInput>) => void;
-  setAppartmentFilters: (filters: Partial<AppartmentFiltersInput>) => void;
+  setApartmentFilters: (filters: Partial<ApartmentFiltersInput>) => void;
   resetFilters: () => void;
   applyFilters: () => Promise<void>;
 }
@@ -41,8 +41,8 @@ export const useSearchFilters = (
     ...initialFilters,
   });
   const [allHotels, setAllHotels] = useState<Hotel[]>([]);
-  const [allApartments, setAllApartments] = useState<Appartment[]>([]);
-  const [availableApartments, setAvailableApartments] = useState<Appartment[]>(
+  const [allApartments, setAllApartments] = useState<Apartment[]>([]);
+  const [availableApartments, setAvailableApartments] = useState<Apartment[]>(
     [],
   );
   const [loading, setLoading] = useState(false);
@@ -112,8 +112,8 @@ export const useSearchFilters = (
   /**
    * Check if an apartment matches the current filters
    */
-  const filterAppartment = (apartment: Appartment): boolean => {
-    const f = filters.appartmentFilters;
+  const filterApartment = (apartment: Apartment): boolean => {
+    const f = filters.apartmentFilters;
 
     // If dates are provided, check beds requirement
     if (
@@ -219,7 +219,7 @@ export const useSearchFilters = (
 
     const filteredApartments =
       filters.propertyType === "apartment" || filters.propertyType === "both"
-        ? apartmentsToFilter.filter(filterAppartment).map((apt) => ({
+        ? apartmentsToFilter.filter(filterApartment).map((apt) => ({
             ...apt,
             amenities: apt.amenities || [],
           }))
@@ -236,14 +236,14 @@ export const useSearchFilters = (
     allApartments,
     availableApartments,
     filterHotel,
-    filterAppartment,
+    filterApartment,
   ]);
 
   /**
    * Filter apartments by availability based on dates
    */
   const filterApartmentsByAvailability = useCallback(
-    async (apartments: Appartment[]): Promise<Appartment[]> => {
+    async (apartments: Apartment[]): Promise<Apartment[]> => {
       if (!filters.checkInDate || !filters.checkOutDate) {
         return apartments;
       }
@@ -278,7 +278,7 @@ export const useSearchFilters = (
       });
 
       const results = await Promise.all(availableApartmentsPromises);
-      return results.filter((apt): apt is Appartment => apt !== null);
+      return results.filter((apt): apt is Apartment => apt !== null);
     },
     [filters.checkInDate, filters.checkOutDate],
   );
@@ -298,7 +298,7 @@ export const useSearchFilters = (
 
       const [hotelsData, apartmentsData] = await Promise.all([
         shouldFetchHotels ? getAllHotels() : Promise.resolve([]),
-        shouldFetchApartments ? getAllAppartments() : Promise.resolve([]),
+        shouldFetchApartments ? getAllApartments() : Promise.resolve([]),
       ]);
 
       setAllHotels(hotelsData);
@@ -366,11 +366,11 @@ export const useSearchFilters = (
   /**
    * Update apartment filters
    */
-  const setAppartmentFilters = useCallback(
-    (newFilters: Partial<AppartmentFiltersInput>) => {
+  const setApartmentFilters = useCallback(
+    (newFilters: Partial<ApartmentFiltersInput>) => {
       setFiltersState((prev) => ({
         ...prev,
-        appartmentFilters: { ...prev.appartmentFilters, ...newFilters },
+        apartmentFilters: { ...prev.apartmentFilters, ...newFilters },
       }));
     },
     [],
@@ -391,7 +391,7 @@ export const useSearchFilters = (
     setFilters,
     setPropertyType,
     setHotelFilters,
-    setAppartmentFilters,
+    setApartmentFilters,
     resetFilters,
     applyFilters,
   };

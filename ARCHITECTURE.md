@@ -66,7 +66,7 @@ FE-albania/
 
 ### 1. Property Management
 
-- **Apartments** (appartments)
+- **Apartments** (apartments)
 - **Hotels**
 - **Destinations** (tourist locations)
 
@@ -139,7 +139,7 @@ FE-albania/
 
 - `authService` - Authentication & authorization
 - `userService` - User CRUD operations
-- `appartmentService` - Apartment management
+- `apartmentService` - Apartment management
 - `hotelService` - Hotel management
 - `carService` - Car management
 - `bookingService` - Booking operations
@@ -164,7 +164,7 @@ FE-albania/
 
 **Type Files**:
 
-- `appartment.type.ts` - Apartment models
+- `apartment.type.ts` - Apartment models
 - `hotel.types.ts` - Hotel models
 - `car.types.ts` - Car models
 - `booking.type.ts` - Booking models
@@ -196,7 +196,7 @@ FE-albania/
 ### Core Tables (Inferred)
 
 - `users` - User accounts
-- `appartments` - Apartment listings
+- `apartments` - Apartment listings
 - `hotels` - Hotel listings
 - `cars` - Car rentals
 - `destinations` - Tourist locations
@@ -326,7 +326,7 @@ src/pages/
 │   ├── booking/           # Booking flow
 │   └── MyAccount
 └── dashboard/             # Protected pages
-    ├── Appartments/
+    ├── Apartments/
     ├── Hotels/
     ├── Cars/
     ├── bookings/
@@ -342,14 +342,14 @@ src/pages/
 ### User Journey Example: Booking an Apartment
 
 1. **Browse** - User views apartment listings
-   - `AppartmentsPreview` component
-   - `appartmentService.getAppartments()`
+   - `ApartmentsPreview` component
+   - `apartmentService.getApartments()`
 2. **Search** - User applies filters
    - `FilterBar` component
    - `useSearchFilters` hook
 3. **Select** - User clicks on apartment
-   - Navigate to `AppartmentReservation`
-   - `appartmentService.getAppartmentById(id)`
+   - Navigate to `ApartmentReservation`
+   - `apartmentService.getApartmentById(id)`
 4. **Book** - User selects dates
    - `AvailabilityCalendar` component
    - Date validation

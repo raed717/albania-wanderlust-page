@@ -470,7 +470,7 @@ export default function BookingsSummary() {
     const id = booking.propertyId;
     switch (booking.propertyType) {
       case "apartment":
-        return `/appartmentReservation/${id}`;
+        return `/apartmentReservation/${id}`;
       case "hotel":
         return `/hotelReservation/${id}`;
       case "car":

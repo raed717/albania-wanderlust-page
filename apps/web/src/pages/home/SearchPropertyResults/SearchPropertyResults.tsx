@@ -7,7 +7,7 @@ import { useSearchFilters } from "@/hooks/useSearchFilters";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Hotel } from "@/types/hotel.types";
-import { Appartment } from "@/types/appartment.type";
+import { Apartment } from "@/types/apartment.type";
 import { useLocation } from "react-router-dom";
 import { defaultSearchFilters } from "@/types/search.types";
 import MapPreviewCard from "./MapPreviewCard";
@@ -42,24 +42,24 @@ const SearchPropertyResults = () => {
             ? { ...defaultSearchFilters.hotelFilters.rooms, min: state.rooms }
             : defaultSearchFilters.hotelFilters.rooms,
         },
-        appartmentFilters: {
-          ...defaultSearchFilters.appartmentFilters,
+        apartmentFilters: {
+          ...defaultSearchFilters.apartmentFilters,
           searchTerm:
             state.destination ||
-            defaultSearchFilters.appartmentFilters.searchTerm,
+            defaultSearchFilters.apartmentFilters.searchTerm,
           rooms: state.rooms
             ? {
-                ...defaultSearchFilters.appartmentFilters.rooms,
+                ...defaultSearchFilters.apartmentFilters.rooms,
                 min: state.rooms,
               }
-            : defaultSearchFilters.appartmentFilters.rooms,
+            : defaultSearchFilters.apartmentFilters.rooms,
           beds:
             state.adults || state.children
               ? {
-                  ...defaultSearchFilters.appartmentFilters.beds,
+                  ...defaultSearchFilters.apartmentFilters.beds,
                   min: (state.adults || 0) + (state.children || 0),
                 }
-              : defaultSearchFilters.appartmentFilters.beds,
+              : defaultSearchFilters.apartmentFilters.beds,
         },
       }
     : undefined;
@@ -72,7 +72,7 @@ const SearchPropertyResults = () => {
     setFilters,
     setPropertyType,
     setHotelFilters,
-    setAppartmentFilters,
+    setApartmentFilters,
     resetFilters,
     applyFilters,
   } = useSearchFilters(initialFilters);
@@ -83,7 +83,7 @@ const SearchPropertyResults = () => {
       // Set destination as search term
       if (state.destination) {
         setHotelFilters({ searchTerm: state.destination });
-        setAppartmentFilters({ searchTerm: state.destination });
+        setApartmentFilters({ searchTerm: state.destination });
       }
 
       // Set dates and guest info
@@ -105,10 +105,10 @@ const SearchPropertyResults = () => {
         // Update derived filters
         if (state.adults !== undefined || state.children !== undefined) {
           const requiredBeds = (state.adults || 0) + (state.children || 0);
-          setAppartmentFilters({
+          setApartmentFilters({
             beds: {
               min: requiredBeds,
-              max: filters.appartmentFilters.beds?.max,
+              max: filters.apartmentFilters.beds?.max,
             },
           });
         }
@@ -120,16 +120,16 @@ const SearchPropertyResults = () => {
               max: filters.hotelFilters.rooms?.max,
             },
           });
-          setAppartmentFilters({
+          setApartmentFilters({
             rooms: {
               min: state.rooms,
-              max: filters.appartmentFilters.rooms?.max,
+              max: filters.apartmentFilters.rooms?.max,
             },
           });
         }
       }
     }
-  }, [state, setFilters, setHotelFilters, setAppartmentFilters]);
+  }, [state, setFilters, setHotelFilters, setApartmentFilters]);
 
   // Fetch properties on component mount
   useEffect(() => {
@@ -161,14 +161,14 @@ const SearchPropertyResults = () => {
       rooms: guests.rooms ?? filters.rooms,
     });
     // Update apartment filters
-    setAppartmentFilters({
+    setApartmentFilters({
       beds: {
         min: (guests.adults || 2) + (guests.children || 0),
-        max: filters.appartmentFilters.beds?.max,
+        max: filters.apartmentFilters.beds?.max,
       },
       rooms: {
         min: guests.rooms || 1,
-        max: filters.appartmentFilters.rooms?.max,
+        max: filters.apartmentFilters.rooms?.max,
       },
     });
     // If property type is hotel, update hotel rooms
@@ -191,7 +191,7 @@ const SearchPropertyResults = () => {
       window.open(`/hotelReservation/${id}`, "_blank", "noopener,noreferrer");
     } else {
       window.open(
-        `/appartmentReservation/${id}`,
+        `/apartmentReservation/${id}`,
         "_blank",
         "noopener,noreferrer",
       );
@@ -243,7 +243,7 @@ const SearchPropertyResults = () => {
               filters={filters}
               onPropertyTypeChange={setPropertyType}
               onHotelFiltersChange={setHotelFilters}
-              onAppartmentFiltersChange={setAppartmentFilters}
+              onApartmentFiltersChange={setApartmentFilters}
               onDateChange={handleDateChange}
               onGuestsChange={handleGuestsChange}
               onResetFilters={resetFilters}

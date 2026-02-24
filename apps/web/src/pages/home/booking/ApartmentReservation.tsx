@@ -34,8 +34,8 @@ import {
   Building,
   Wind,
 } from "lucide-react";
-import { Appartment, PREDEFINED_AMENITIES } from "@/types/appartment.type";
-import { getAppartmentById } from "@/services/api/appartmentService";
+import { Apartment, PREDEFINED_AMENITIES } from "@/types/apartment.type";
+import { getApartmentById } from "@/services/api/apartmentService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import { Pool, Spa } from "@mui/icons-material";
 import PrimarySearchAppBar from "@/components/home/AppBar";
@@ -52,7 +52,7 @@ const ApartmentReservation = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [apartment, setApartment] = useState<Appartment | null>(null);
+  const [apartment, setApartment] = useState<Apartment | null>(null);
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState<string[]>([]);
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -65,7 +65,7 @@ const ApartmentReservation = () => {
 
       setLoading(true);
       try {
-        const data = await getAppartmentById(parseInt(id));
+        const data = await getApartmentById(parseInt(id));
         if (!data) {
           setApartment(null);
         } else {
@@ -466,7 +466,6 @@ const ApartmentReservation = () => {
               </div>
             )}
 
-
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <AvailabilityCalendar
                 propertyId={parseInt(id!)}
@@ -475,7 +474,10 @@ const ApartmentReservation = () => {
             </div>
 
             {/* Guest Reviews */}
-            <ReviewsSection propertyId={parseInt(id!)} propertyType="apartment" />
+            <ReviewsSection
+              propertyId={parseInt(id!)}
+              propertyType="apartment"
+            />
 
             {/* Map Location */}
             {apartment.lat !== undefined && apartment.lng !== undefined && (

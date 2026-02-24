@@ -11,9 +11,9 @@ import {
   UserIcon,
 } from "lucide-react";
 import { DateRange } from "react-day-picker";
-import { Appartment } from "@/types/appartment.type";
-import { getAppartmentById } from "@/services/api/appartmentService";
-import { getAppartmentUnavailabilityDates } from "@/services/api/appartmentService";
+import { Apartment } from "@/types/apartment.type";
+import { getApartmentById } from "@/services/api/apartmentService";
+import { getApartmentUnavailabilityDates } from "@/services/api/apartmentService";
 import { useNavigate, useParams } from "react-router";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import "react-phone-number-input/style.css";
@@ -31,7 +31,7 @@ export default function ApartmentBilling() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [apartment, setApartment] = useState<Appartment | null>(null);
+  const [apartment, setApartment] = useState<Apartment | null>(null);
   const [unavailabilityDates, setUnavailabilityDates] = useState<string[]>([]);
   const [user, setUser] = useState<User | null>(null);
 
@@ -41,13 +41,13 @@ export default function ApartmentBilling() {
 
       setLoading(true);
       try {
-        const data = await getAppartmentById(parseInt(id));
+        const data = await getApartmentById(parseInt(id));
         if (!data) {
           setApartment(null);
         } else {
           setApartment(data);
           try {
-            const dates = await getAppartmentUnavailabilityDates(data.id);
+            const dates = await getApartmentUnavailabilityDates(data.id);
             setUnavailabilityDates(dates);
             console.log(unavailabilityDates);
           } catch (error) {
@@ -227,9 +227,7 @@ export default function ApartmentBilling() {
             <h1 className="text-3xl font-bold text-slate-800 mb-2">
               {t("booking.completeYourBooking")}
             </h1>
-            <p className="text-slate-600">
-              {t("booking.justAFewMoreDetails")}
-            </p>
+            <p className="text-slate-600">{t("booking.justAFewMoreDetails")}</p>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6">

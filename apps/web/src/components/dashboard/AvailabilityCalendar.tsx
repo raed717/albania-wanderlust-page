@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Calendar } from "@/components/ui/calendar";
 import { getCarUnavailabilityDates } from "@/services/api/carService";
-import { getAppartmentUnavailabilityDates } from "@/services/api/appartmentService";
+import { getApartmentUnavailabilityDates } from "@/services/api/apartmentService";
 import { Loader2, CalendarDays } from "lucide-react";
 
 type PropertyType = "car" | "apartment";
@@ -31,7 +31,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
         const dateStrings =
           propertyType === "car"
             ? await getCarUnavailabilityDates(propertyId)
-            : await getAppartmentUnavailabilityDates(propertyId);
+            : await getApartmentUnavailabilityDates(propertyId);
         // Convert ISO date strings to Date objects
         const dates = dateStrings.map((dateStr) => {
           const [year, month, day] = dateStr.split("-").map(Number);

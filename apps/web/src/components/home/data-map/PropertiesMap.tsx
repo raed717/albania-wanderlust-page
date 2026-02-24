@@ -1,8 +1,8 @@
 import { MapContainer, TileLayer, Marker, Tooltip } from "react-leaflet";
 import { getAllHotels } from "@/services/api/hotelService";
-import { getAllAppartments } from "@/services/api/appartmentService";
+import { getAllApartments } from "@/services/api/apartmentService";
 import { getAllDestinations } from "@/services/api/destinationService";
-import { Appartment } from "@/types/appartment.type";
+import { Apartment } from "@/types/apartment.type";
 import { Hotel } from "@/types/hotel.types";
 import { Destination } from "@/types/destination.types";
 import "leaflet/dist/leaflet.css";
@@ -17,7 +17,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 type Selected =
   | { type: "hotel"; data: Hotel }
-  | { type: "apartment"; data: Appartment }
+  | { type: "apartment"; data: Apartment }
   | { type: "destination"; data: Destination }
   | null;
 
@@ -55,7 +55,7 @@ const ALBANIA_CENTER: [number, number] = [41.3275, 19.8187];
 export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
   const [hotelsData, setHotelsData] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
-  const [apartmentsData, setApartmentsData] = useState<Appartment[]>([]);
+  const [apartmentsData, setApartmentsData] = useState<Apartment[]>([]);
   const [destinationsData, setDestinationsData] = useState<Destination[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -91,7 +91,7 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
   useEffect(() => {
     const fetchApartments = async () => {
       try {
-        const data = await getAllAppartments();
+        const data = await getAllApartments();
         setApartmentsData(data || []);
       } catch (error) {
         console.error("Failed to fetch apartments:", error);
@@ -247,7 +247,7 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
             </Marker>
           ))}
 
-          {filteredApartments?.map((apartment: Appartment) => (
+          {filteredApartments?.map((apartment: Apartment) => (
             <Marker
               key={`apartment-${apartment.id}`}
               position={[apartment.lat, apartment.lng]}

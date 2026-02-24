@@ -78,7 +78,7 @@ const ICONS = {
 const ROUTES = {
   home: "/",
   apartments: {
-    list: "/dashboard/AppartmentsList",
+    list: "/dashboard/ApartmentsList",
     owners: "/apartments/rooms",
     bookings: "/apartments/bookings",
     availability: "/apartments/availability",

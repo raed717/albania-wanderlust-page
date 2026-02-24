@@ -21,14 +21,14 @@ import {
   Sofa,
   BedDouble,
 } from "lucide-react";
-import { getAllAppartments } from "@/services/api/appartmentService";
-import { getAppartmentsByProviderId } from "@/services/api/appartmentService";
-import { Appartment, AppartmentFilters } from "@/types/appartment.type";
+import { getAllApartments } from "@/services/api/apartmentService";
+import { getApartmentsByProviderId } from "@/services/api/apartmentService";
+import { Apartment, ApartmentFilters } from "@/types/apartment.type";
 import Swal from "sweetalert2";
 import { Room } from "@mui/icons-material";
 import { User } from "@/types/user.types";
 import { userService } from "@/services/api/userService";
-import { AddAppartmentDialog } from "./AddAppartmentDialog";
+import { AddApartmentDialog } from "./AddApartmentDialog";
 import { useTranslation } from "react-i18next";
 
 /* -------------------------------------------------------------------------- */
@@ -62,16 +62,16 @@ const confirmDelete = async (t: any): Promise<boolean> => {
 /*                               Main Component                                */
 /* -------------------------------------------------------------------------- */
 
-const AllAppartments = () => {
+const AllApartments = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   const [currentUser, setUser] = useState<User | null>(null);
 
-  const [appartments, setAppartments] = useState<Appartment[]>([]);
+  const [apartments, setApartments] = useState<Apartment[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] =
-    useState<AppartmentFilters["status"]>("all");
+    useState<ApartmentFilters["status"]>("all");
   const [ratingFilter, setRatingFilter] = useState<"all" | "4+" | "4.5+">(
     "all",
   );
@@ -100,17 +100,17 @@ const AllAppartments = () => {
     fetchUser();
   }, []);
 
-  const fetchAppartments = async (user: User) => {
+  const fetchApartments = async (user: User) => {
     try {
       setLoading(true);
       setError(null);
 
       if (user.role === "admin") {
-        const data = await getAllAppartments();
-        setAppartments(data);
+        const data = await getAllApartments();
+        setApartments(data);
       } else {
-        const data = await getAppartmentsByProviderId(user.id);
-        setAppartments(data);
+        const data = await getApartmentsByProviderId(user.id);
+        setApartments(data);
       }
     } catch (err) {
       console.error(err);
@@ -122,7 +122,7 @@ const AllAppartments = () => {
 
   useEffect(() => {
     if (!currentUser) return;
-    fetchAppartments(currentUser);
+    fetchApartments(currentUser);
   }, [currentUser]);
 
   /* ------------------------------- Handlers -------------------------------- */
@@ -131,25 +131,25 @@ const AllAppartments = () => {
     const confirmed = await confirmDelete(t);
     if (!confirmed) return;
 
-    setAppartments((prev) => prev.filter((a) => a.id !== id));
+    setApartments((prev) => prev.filter((a) => a.id !== id));
   };
 
   const handleView = (id: number) => {
-    navigate(`/dashboard/appartments/${id}`);
+    navigate(`/dashboard/apartments/${id}`);
   };
 
   const handleEdit = (id: number) => {
-    navigate(`/dashboard/appartments/${id}?edit=true`);
+    navigate(`/dashboard/apartments/${id}?edit=true`);
   };
 
-  const handleAppartmentAdded = (newAppartment: Appartment) => {
-    setAppartments((prev) => [newAppartment, ...prev]);
+  const handleApartmentAdded = (newApartment: Apartment) => {
+    setApartments((prev) => [newApartment, ...prev]);
   };
 
   /* ------------------------------ Filtering -------------------------------- */
 
-  const filteredAppartments = useMemo(() => {
-    return appartments.filter((a) => {
+  const filteredApartments = useMemo(() => {
+    return apartments.filter((a) => {
       const matchesSearch =
         a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (a.address ?? "").toLowerCase().includes(searchTerm.toLowerCase());
@@ -163,11 +163,11 @@ const AllAppartments = () => {
 
       return matchesSearch && matchesStatus && matchesRating;
     });
-  }, [appartments, searchTerm, statusFilter, ratingFilter]);
+  }, [apartments, searchTerm, statusFilter, ratingFilter]);
 
   /* ------------------------------ Pagination -------------------------------- */
 
-  const totalPages = Math.ceil(filteredAppartments.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredApartments.length / itemsPerPage);
 
   useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
@@ -175,7 +175,7 @@ const AllAppartments = () => {
     }
   }, [currentPage, totalPages]);
 
-  const paginatedAppartments = filteredAppartments.slice(
+  const paginatedApartments = filteredApartments.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
   );
@@ -198,7 +198,7 @@ const AllAppartments = () => {
         <div className="text-center py-20">
           <p className="text-red-500">{error}</p>
           <button
-            onClick={() => currentUser && fetchAppartments(currentUser)}
+            onClick={() => currentUser && fetchApartments(currentUser)}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
           >
             {t("apartment.retry")}
@@ -221,7 +221,7 @@ const AllAppartments = () => {
             </h1>
             <p className="text-gray-500">{t("apartment.manageApartments")}</p>
           </div>
-          <AddAppartmentDialog onAppartmentAdded={handleAppartmentAdded} />
+          <AddApartmentDialog onApartmentAdded={handleApartmentAdded} />
         </div>
 
         {/* Filters */}
@@ -271,16 +271,16 @@ const AllAppartments = () => {
         </div>
 
         {/* Grid */}
-        {filteredAppartments.length === 0 ? (
+        {filteredApartments.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-xl">
             <p className="text-gray-500">{t("apartment.noApartmentsFound")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {paginatedAppartments.map((a) => (
-              <AppartmentCard
+            {paginatedApartments.map((a) => (
+              <ApartmentCard
                 key={a.id}
-                appartment={a}
+                apartment={a}
                 onView={handleView}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
@@ -331,14 +331,14 @@ const AllAppartments = () => {
 /* -------------------------------------------------------------------------- */
 
 interface CardProps {
-  appartment: Appartment;
+  apartment: Apartment;
   onView: (id: number) => void;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
 }
 
-const AppartmentCard: React.FC<CardProps> = ({
-  appartment,
+const ApartmentCard: React.FC<CardProps> = ({
+  apartment,
   onView,
   onEdit,
   onDelete,
@@ -349,36 +349,36 @@ const AppartmentCard: React.FC<CardProps> = ({
     <div className="bg-white rounded-xl shadow-sm overflow-hidden border hover:shadow-xl transition">
       <div
         className="h-52 bg-cover bg-center"
-        style={{ backgroundImage: `url(${appartment.imageUrls[0]})` }}
+        style={{ backgroundImage: `url(${apartment.imageUrls[0]})` }}
       />
       <div className="absolute top-3 right-3"></div>
       <div className="p-5">
         <span
           className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-            appartment.status === "available"
+            apartment.status === "available"
               ? "bg-emerald-500 text-white"
               : "bg-amber-500 text-white"
           }`}
         >
-          {appartment.status}
+          {apartment.status}
         </span>
-        <h3 className="text-xl font-bold">{appartment.name}</h3>
+        <h3 className="text-xl font-bold">{apartment.name}</h3>
 
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
           <MapPin size={16} />
-          {appartment.address ?? t("apartment.noAddress")}
+          {apartment.address ?? t("apartment.noAddress")}
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-4">
           {/* Row 1: Rating & Rooms */}
           <div className="flex items-center gap-2">
             <Star size={16} className="text-amber-400" />
-            <span className="text-sm">{appartment.rating}</span>
+            <span className="text-sm">{apartment.rating}</span>
           </div>
           <div className="flex items-center gap-2">
             <Bed size={16} className="text-gray-500" />
             <span className="text-sm">
-              {t("apartment.roomsCount", { count: appartment.rooms })}
+              {t("apartment.roomsCount", { count: apartment.rooms })}
             </span>
           </div>
 
@@ -386,13 +386,13 @@ const AppartmentCard: React.FC<CardProps> = ({
           <div className="flex items-center gap-2">
             <BedDouble size={16} className="text-gray-500" />
             <span className="text-sm">
-              {t("apartment.bedCount", { count: appartment.beds })}
+              {t("apartment.bedCount", { count: apartment.beds })}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <ChefHat size={16} className="text-gray-500" />
             <span className="text-sm">
-              {t("apartment.kitchenCount", { count: appartment.kitchens })}
+              {t("apartment.kitchenCount", { count: apartment.kitchens })}
             </span>
           </div>
 
@@ -400,14 +400,14 @@ const AppartmentCard: React.FC<CardProps> = ({
           <div className="flex items-center gap-2">
             <Bath size={16} className="text-gray-500" />
             <span className="text-sm">
-              {t("apartment.bathroomCount", { count: appartment.bathrooms })}
+              {t("apartment.bathroomCount", { count: apartment.bathrooms })}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <Sofa size={16} className="text-gray-500" />
             <span className="text-sm">
               {t("apartment.livingRoomCount", {
-                count: appartment.livingRooms,
+                count: apartment.livingRooms,
               })}
             </span>
           </div>
@@ -415,7 +415,7 @@ const AppartmentCard: React.FC<CardProps> = ({
           {/* Row 4: Price (spans full width) */}
           <div className="flex items-center gap-2 col-span-2">
             <DollarSign size={16} className="text-green-600" />
-            <span className="text-lg font-bold">${appartment.price}</span>
+            <span className="text-lg font-bold">${apartment.price}</span>
             <span className="text-sm text-gray-500">
               {t("apartment.perDay")}
             </span>
@@ -423,8 +423,8 @@ const AppartmentCard: React.FC<CardProps> = ({
 
           {/* Row 5: Amenities (spans full width) */}
           <div className="col-span-2 flex flex-wrap gap-2">
-            {appartment.amenities && appartment.amenities.length > 0 ? (
-              appartment.amenities.map((amenity, index) => (
+            {apartment.amenities && apartment.amenities.length > 0 ? (
+              apartment.amenities.map((amenity, index) => (
                 <span
                   key={index}
                   className="px-2 py-1 bg-blue-500 text-white rounded-full text-xs"
@@ -442,19 +442,19 @@ const AppartmentCard: React.FC<CardProps> = ({
 
         <div className="flex gap-2 pt-3 border-t">
           <button
-            onClick={() => onView(appartment.id)}
+            onClick={() => onView(apartment.id)}
             className="flex-1 py-2 px-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"
           >
             <Eye size={16} /> {t("apartment.view")}
           </button>
           <button
-            onClick={() => onEdit(appartment.id)}
+            onClick={() => onEdit(apartment.id)}
             className="p-2 bg-gray-50 rounded-lg"
           >
             <Edit size={16} />
           </button>
           <button
-            onClick={() => onDelete(appartment.id)}
+            onClick={() => onDelete(apartment.id)}
             className="p-2 bg-red-50 text-red-500 rounded-lg"
           >
             <Trash2 size={16} />
@@ -465,4 +465,4 @@ const AppartmentCard: React.FC<CardProps> = ({
   );
 };
 
-export default AllAppartments;
+export default AllApartments;

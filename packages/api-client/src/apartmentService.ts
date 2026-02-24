@@ -1,16 +1,16 @@
 import { apiClient } from "./apiClient";
 import {
-  Appartment,
-  CreateAppartmentDto,
-  UpdateAppartmentDto,
-  AppartmentFilters,
+  Apartment,
+  CreateApartmentDto,
+  UpdateApartmentDto,
+  ApartmentFilters,
 } from "@albania/shared-types";
 import { uploadImages } from "./storageService";
 import { authService } from "./authService";
 import { getBookingsByPropertyIdAndType } from "./bookingService";
 
 // In-memory cache for apartments with TTL
-let apartmentsCache: { data: Appartment[]; timestamp: number } | null = null;
+let apartmentsCache: { data: Apartment[]; timestamp: number } | null = null;
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const CACHE_KEY = "apartments_cache";
 
@@ -18,7 +18,7 @@ const CACHE_KEY = "apartments_cache";
  * Load cache from localStorage
  */
 const loadCacheFromStorage = (): {
-  data: Appartment[];
+  data: Apartment[];
   timestamp: number;
 } | null => {
   try {
@@ -45,7 +45,7 @@ const loadCacheFromStorage = (): {
 /**
  * Save cache to localStorage
  */
-const saveCacheToStorage = (data: Appartment[], timestamp: number): void => {
+const saveCacheToStorage = (data: Apartment[], timestamp: number): void => {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp }));
   } catch (err) {
@@ -71,7 +71,7 @@ export const invalidateApartmentsCache = (): void => {
 /**
  * Fetch all apartments (with persistent caching using localStorage)
  */
-export const getAllAppartments = async (): Promise<Appartment[]> => {
+export const getAllApartments = async (): Promise<Apartment[]> => {
   // Try loading from memory cache first
   if (!apartmentsCache) {
     apartmentsCache = loadCacheFromStorage();
@@ -87,7 +87,7 @@ export const getAllAppartments = async (): Promise<Appartment[]> => {
     return apartmentsCache.data;
   }
 
-  const { data, error } = await apiClient.from("appartment").select("*");
+  const { data, error } = await apiClient.from("apartment").select("*");
   if (error) throw error;
 
   // Update cache
@@ -98,13 +98,13 @@ export const getAllAppartments = async (): Promise<Appartment[]> => {
 };
 
 /**
- * fetch appartments by provider ID
+ * fetch apartments by provider ID
  */
-export const getAppartmentsByProviderId = async (
+export const getApartmentsByProviderId = async (
   providerId: string,
-): Promise<Appartment[]> => {
+): Promise<Apartment[]> => {
   const { data, error } = await apiClient
-    .from("appartment")
+    .from("apartment")
     .select("*")
     .eq("providerId", providerId);
   if (error) throw error;
@@ -112,57 +112,26 @@ export const getAppartmentsByProviderId = async (
 };
 
 /**
- * fetch a single appartment by ID
+ * fetch a single apartment by ID
  */
-export const getAppartmentById = async (
+export const getApartmentById = async (
   id: number,
-): Promise<Appartment | null> => {
+): Promise<Apartment | null> => {
   const { data, error } = await apiClient
-    .from("appartment")
+    .from("apartment")
     .select("*")
     .eq("id", id)
     .single();
   if (error) throw error;
   return data;
 };
-
-/*
- * Get appartment unavailability dates by appartment id using booking service getBookingByPropertyIdAndType
- */
-export const getAppartmentUnavailabilityDates = async (
-  apId: number,
-): Promise<string[]> => {
-  const bookings = await getBookingsByPropertyIdAndType(
-    apId.toString(),
-    "apartment",
-  );
-
-  if (!bookings || bookings.length === 0) {
-    return [];
-  }
-
-  const unavailabilityDates: string[] = []; // Declare outside the loop
-
-  bookings.forEach((booking) => {
-    const startDate = new Date(booking.startDate);
-    const endDate = new Date(booking.endDate);
-
-    while (startDate <= endDate) {
-      unavailabilityDates.push(startDate.toISOString().split("T")[0]);
-      startDate.setDate(startDate.getDate() + 1);
-    }
-  });
-
-  return unavailabilityDates; // Return the accumulated dates
-};
-
 /**
- * create a new appartment with image uploads
+ * create a new apartment with image uploads
  */
-export const createAppartment = async (
-  data: CreateAppartmentDto,
+export const createApartment = async (
+  data: CreateApartmentDto,
   imageFiles?: File[],
-): Promise<Appartment> => {
+): Promise<Apartment> => {
   const providerId = await authService.getCurrentUserId();
   if (!providerId) {
     throw new Error("User not authenticated");
@@ -187,8 +156,8 @@ export const createAppartment = async (
     imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
   };
 
-  const { data: newAppartment, error } = await apiClient
-    .from("appartment")
+  const { data: newApartment, error } = await apiClient
+    .from("apartment")
     .insert([payload])
     .select()
     .single();
@@ -200,17 +169,17 @@ export const createAppartment = async (
   // Invalidate cache after creating apartment
   invalidateApartmentsCache();
 
-  return newAppartment;
+  return newApartment;
 };
 
 /**
- * update an existing appartment with optional image uploads
+ * update an existing apartment with optional image uploads
  */
-export const updateAppartment = async (
+export const updateApartment = async (
   id: number,
-  updates: UpdateAppartmentDto,
+  updates: UpdateApartmentDto,
   newImageFiles?: File[],
-): Promise<Appartment> => {
+): Promise<Apartment> => {
   // Remove system fields that shouldn't be updated
   const updateData = { ...updates };
   delete (updateData as any).id;
@@ -231,7 +200,6 @@ export const updateAppartment = async (
       } else {
         updateData.imageUrls = newImageUrls;
       }
-
     } catch (err) {
       console.error("[Apartment Service] Error uploading images:", err);
       throw new Error(
@@ -241,7 +209,7 @@ export const updateAppartment = async (
   }
 
   const { data, error } = await apiClient
-    .from("appartment")
+    .from("apartment")
     .update(updateData)
     .eq("id", id)
     .select()
@@ -262,10 +230,10 @@ export const updateAppartment = async (
 };
 
 /**
- * delete an appartment
+ * delete an apartment
  */
-export const deleteAppartment = async (id: number): Promise<void> => {
-  const { error } = await apiClient.from("appartment").delete().eq("id", id);
+export const deleteApartment = async (id: number): Promise<void> => {
+  const { error } = await apiClient.from("apartment").delete().eq("id", id);
   if (error) throw error;
 
   // Invalidate cache after deleting apartment
@@ -305,11 +273,11 @@ export const getApartmentUnavailabilityDates = async (
 /**
  * Search apartments with filters (client-side filtering)
  */
-export const searchAppartments = async (
-  filters?: AppartmentFilters,
-): Promise<Appartment[]> => {
+export const searchApartments = async (
+  filters?: ApartmentFilters,
+): Promise<Apartment[]> => {
   try {
-    const apartments = await getAllAppartments();
+    const apartments = await getAllApartments();
 
     if (!filters) {
       return apartments;
@@ -385,14 +353,14 @@ export const searchAppartments = async (
   }
 };
 
-const appartmentService = {
-  getAllAppartments,
-  getAppartmentById,
-  createAppartment,
-  updateAppartment,
-  deleteAppartment,
-  searchAppartments,
+const apartmentService = {
+  getAllApartments,
+  getApartmentById,
+  createApartment,
+  updateApartment,
+  deleteApartment,
+  searchApartments,
   getApartmentUnavailabilityDates,
 };
 
-export default appartmentService;
+export default apartmentService;

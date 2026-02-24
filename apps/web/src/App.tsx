@@ -26,11 +26,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import CarDetails from "./pages/dashboard/Cars/CarDetails";
 import HotelReservation from "./pages/home/HotelReservation";
 import SuspendedPage from "./pages/SuspendedPage";
-import AllAppartments from "./pages/dashboard/Appartments/all-appartmets";
-import AppartmentDetails from "./pages/dashboard/Appartments/AppartmentDetails";
+import AllApartments from "./pages/dashboard/Apartments/all-apartmets";
+import ApartmentDetails from "./pages/dashboard/Apartments/ApartmentDetails";
 import SearchPropertyResults from "./pages/home/SearchPropertyResults/SearchPropertyResults";
 import SearchCarResults from "./pages/home/SearchPropertyResults/SearchCarResults";
-import ApartmentReservation from "./pages/home/booking/AppartmentReservation";
+import ApartmentReservation from "./pages/home/booking/ApartmentReservation";
 import CarReservation from "./pages/home/booking/CarReservation";
 import CarBilling from "./pages/home/booking/CarBilling";
 import BookingsSummary from "./pages/home/booking/BookingsSummary";
@@ -97,7 +97,7 @@ const App = () => (
                 element={<HotelReservation />}
               />
               <Route
-                path="/appartmentReservation/:id"
+                path="/apartmentReservation/:id"
                 element={<ApartmentReservation />}
               />
               <Route path="/carReservation/:id" element={<CarReservation />} />
@@ -117,12 +117,12 @@ const App = () => (
                   element={<HotelDetails />}
                 />
                 <Route
-                  path="/dashboard/AppartmentsList"
-                  element={<AllAppartments />}
+                  path="/dashboard/ApartmentsList"
+                  element={<AllApartments />}
                 />
                 <Route
-                  path="/dashboard/appartments/:id"
-                  element={<AppartmentDetails />}
+                  path="/dashboard/apartments/:id"
+                  element={<ApartmentDetails />}
                 />
                 <Route path="/dashboard/carsList" element={<AllCars />} />
                 <Route path="/dashboard/carInfo/:id" element={<CarDetails />} />

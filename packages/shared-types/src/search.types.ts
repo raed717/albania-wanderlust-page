@@ -33,7 +33,7 @@ export interface HotelFiltersInput {
 /**
  * Apartment-specific filter options
  */
-export interface AppartmentFiltersInput {
+export interface ApartmentFiltersInput {
   searchTerm?: string;
   priceRange?: {
     min: number;
@@ -62,7 +62,7 @@ export interface AppartmentFiltersInput {
 export interface SearchFiltersState {
   propertyType: "hotel" | "apartment" | "both";
   hotelFilters: HotelFiltersInput;
-  appartmentFilters: AppartmentFiltersInput;
+  apartmentFilters: ApartmentFiltersInput;
   // Date and guest filters from navigation state
   destination?: string;
   checkInDate?: string | null;
@@ -93,7 +93,7 @@ export const defaultSearchFilters: SearchFiltersState = {
       bar: false,
     },
   },
-  appartmentFilters: {
+  apartmentFilters: {
     searchTerm: "",
     priceRange: { min: 0, max: 500 },
     rating: "all",

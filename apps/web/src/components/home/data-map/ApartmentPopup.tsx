@@ -1,8 +1,8 @@
-import { Appartment } from "@/types/appartment.type";
+import { Apartment } from "@/types/apartment.type";
 import { Link } from "react-router-dom";
 
 interface ApartmentPopupProps {
-  apartment: Appartment;
+  apartment: Apartment;
 }
 
 export function ApartmentPopup({ apartment }: ApartmentPopupProps) {
@@ -50,7 +50,7 @@ export function ApartmentPopup({ apartment }: ApartmentPopupProps) {
         )}
       </div>
 
-      <Link to={`/appartmentReservation/${apartment.id}`}>
+      <Link to={`/apartmentReservation/${apartment.id}`}>
         <button className="w-full bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition font-medium text-sm">
           View Details
         </button>

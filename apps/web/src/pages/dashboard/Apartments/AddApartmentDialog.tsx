@@ -13,28 +13,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Loader2 } from "lucide-react";
 import {
-  CreateAppartmentDto,
-  Appartment,
+  CreateApartmentDto,
+  Apartment,
   PREDEFINED_AMENITIES,
-} from "@/types/appartment.type";
-import { createAppartment } from "@/services/api/appartmentService";
+} from "@/types/apartment.type";
+import { createApartment } from "@/services/api/apartmentService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
-interface AddAppartmentDialogProps {
-  onAppartmentAdded: (appartment: Appartment) => void;
+interface AddApartmentDialogProps {
+  onApartmentAdded: (apartment: Apartment) => void;
 }
 
-export const AddAppartmentDialog: React.FC<AddAppartmentDialogProps> = ({
-  onAppartmentAdded,
+export const AddApartmentDialog: React.FC<AddApartmentDialogProps> = ({
+  onApartmentAdded,
 }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedImageFiles, setSelectedImageFiles] = useState<File[]>([]);
-  const [formData, setFormData] = useState<CreateAppartmentDto>({
+  const [formData, setFormData] = useState<CreateApartmentDto>({
     name: "",
     address: "",
     location: "",
@@ -117,11 +117,8 @@ export const AddAppartmentDialog: React.FC<AddAppartmentDialogProps> = ({
 
     setLoading(true);
     try {
-      const newAppartment = await createAppartment(
-        formData,
-        selectedImageFiles,
-      );
-      onAppartmentAdded(newAppartment);
+      const newApartment = await createApartment(formData, selectedImageFiles);
+      onApartmentAdded(newApartment);
       setOpen(false);
 
       // Reset form
@@ -361,7 +358,6 @@ export const AddAppartmentDialog: React.FC<AddAppartmentDialogProps> = ({
                 className="w-full"
               />
             </div>
-
           </div>
 
           {/* Amenities */}
@@ -386,7 +382,7 @@ export const AddAppartmentDialog: React.FC<AddAppartmentDialogProps> = ({
                 ))}
               </div>
             )}
-            
+
             {/* Available Amenities */}
             <div className="space-y-2">
               <Label className="text-xs text-gray-500">

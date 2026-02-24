@@ -3,7 +3,7 @@ import { authService } from "./authService";
 import { Booking } from "@albania/shared-types";
 import { CreateBookingDto } from "@albania/shared-types";
 import { getCarById } from "./carService";
-import { getAppartmentById } from "./appartmentService";
+import { getApartmentById } from "./apartmentService";
 import { getHotelById } from "./hotelService";
 import {
   sendEmailDirect,
@@ -246,7 +246,7 @@ export const getCurrentUserBookings = async (): Promise<Booking[]> => {
     if (booking.propertyType === "car") {
       booking.propertyData = await getCarById(booking.propertyId);
     } else if (booking.propertyType === "apartment") {
-      booking.propertyData = await getAppartmentById(booking.propertyId);
+      booking.propertyData = await getApartmentById(booking.propertyId);
     } else if (booking.propertyType === "hotel") {
       booking.propertyData = await getHotelById(booking.propertyId);
     }

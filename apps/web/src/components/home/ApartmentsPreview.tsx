@@ -1,6 +1,6 @@
 import { useMemo, CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getAllAppartments } from "@/services/api/appartmentService";
+import { getAllApartments } from "@/services/api/apartmentService";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import { ClipLoader } from "react-spinners";
@@ -17,7 +17,7 @@ const override: CSSProperties = {
   margin: "0 auto",
 };
 
-const AppartmentsPreview = () => {
+const ApartmentsPreview = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -47,22 +47,21 @@ const AppartmentsPreview = () => {
     },
   });
 
-  const { data: appartments = [], isLoading } = useQuery({
-    queryKey: ["appartments"],
-    queryFn: getAllAppartments,
+  const { data: apartments = [], isLoading } = useQuery({
+    queryKey: ["apartments"],
+    queryFn: getAllApartments,
   });
 
-  const availableTopAppartments = useMemo(() => {
-    return appartments
+  const availableTopApartments = useMemo(() => {
+    return apartments
       .filter(
-        (appartment) =>
-          appartment.rating > 0 && appartment.status === "available",
+        (apartment) => apartment.rating > 0 && apartment.status === "available",
       )
       .sort((a, b) => b.rating - a.rating);
-  }, [appartments]);
+  }, [apartments]);
 
-  const handlePropertyClick = (appartmentId: string | number) => {
-    navigate(`/appartmentReservation/${appartmentId}`);
+  const handlePropertyClick = (apartmentId: string | number) => {
+    navigate(`/apartmentReservation/${apartmentId}`);
   };
 
   return (
@@ -91,10 +90,12 @@ const AppartmentsPreview = () => {
             size={45}
           />
         </div>
-      ) : availableTopAppartments.length === 0 ? (
+      ) : availableTopApartments.length === 0 ? (
         <div className="flex-grow flex flex-col items-center justify-center p-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
           <Home className="w-10 h-10 text-slate-300 mb-3" />
-          <p className="text-muted-foreground">{t("home.apartmentsPreview.noApartments")}</p>
+          <p className="text-muted-foreground">
+            {t("home.apartmentsPreview.noApartments")}
+          </p>
         </div>
       ) : (
         <>
@@ -102,23 +103,23 @@ const AppartmentsPreview = () => {
             ref={sliderRef}
             className="keen-slider flex-grow rounded-2xl overflow-hidden"
           >
-            {availableTopAppartments.map((appartment, index) => (
+            {availableTopApartments.map((apartment, index) => (
               <div
-                key={appartment.id}
+                key={apartment.id}
                 className="keen-slider__slide"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <PropertyCard
-                  id={appartment.id}
-                  name={appartment.name}
-                  image={appartment.imageUrls[0]}
-                  rating={appartment.rating}
-                  price={appartment.price}
-                  location={appartment.location}
-                  address={appartment.address}
-                  rooms={appartment.rooms || 0}
-                  amenities={appartment.amenities || []}
-                  status={appartment.status}
+                  id={apartment.id}
+                  name={apartment.name}
+                  image={apartment.imageUrls[0]}
+                  rating={apartment.rating}
+                  price={apartment.price}
+                  location={apartment.location}
+                  address={apartment.address}
+                  rooms={apartment.rooms || 0}
+                  amenities={apartment.amenities || []}
+                  status={apartment.status}
                   propertyType="apartment"
                   onClick={handlePropertyClick}
                 />
@@ -143,4 +144,4 @@ const AppartmentsPreview = () => {
   );
 };
 
-export default AppartmentsPreview;
+export default ApartmentsPreview;

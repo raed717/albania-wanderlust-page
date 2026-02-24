@@ -5,12 +5,12 @@ import PrimarySearchAppBar from "@/components/home/AppBar";
 import { useTranslation } from "react-i18next";
 import { MapPin, Building2, Car, Compass } from "lucide-react";
 import { Hotel } from "@/types/hotel.types";
-import { Appartment } from "@/types/appartment.type";
+import { Apartment } from "@/types/apartment.type";
 import { Destination } from "@/types/destination.types";
 
 type Selected =
   | { type: "hotel"; data: Hotel }
-  | { type: "apartment"; data: Appartment }
+  | { type: "apartment"; data: Apartment }
   | { type: "destination"; data: Destination }
   | null;
 

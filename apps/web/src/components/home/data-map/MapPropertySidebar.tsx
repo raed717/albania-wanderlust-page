@@ -1,5 +1,5 @@
 import { Hotel } from "@/types/hotel.types";
-import { Appartment } from "@/types/appartment.type";
+import { Apartment } from "@/types/apartment.type";
 import { Destination } from "@/types/destination.types";
 import { Link } from "react-router-dom";
 import {
@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 
 type Selected =
   | { type: "hotel"; data: Hotel }
-  | { type: "apartment"; data: Appartment }
+  | { type: "apartment"; data: Apartment }
   | { type: "destination"; data: Destination }
   | null;
 
@@ -171,7 +171,7 @@ function HotelPanel({ hotel }: { hotel: Hotel }) {
 }
 
 /* ─── Apartment Panel ─────────────────────────────────────── */
-function ApartmentPanel({ apartment }: { apartment: Appartment }) {
+function ApartmentPanel({ apartment }: { apartment: Apartment }) {
   return (
     <>
       {/* Image */}
@@ -285,7 +285,7 @@ function ApartmentPanel({ apartment }: { apartment: Appartment }) {
 
       {/* CTA */}
       <div className="p-4 border-t border-gray-100 flex-shrink-0">
-        <Link to={`/appartmentReservation/${apartment.id}`} className="block">
+        <Link to={`/apartmentReservation/${apartment.id}`} className="block">
           <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-5 rounded-xl shadow-md">
             View Details
             <ChevronRight className="w-4 h-4 ml-1" />
@@ -402,7 +402,7 @@ export default function MapPropertySidebar({
           <HotelPanel hotel={selected.data as Hotel} />
         )}
         {selected?.type === "apartment" && (
-          <ApartmentPanel apartment={selected.data as Appartment} />
+          <ApartmentPanel apartment={selected.data as Apartment} />
         )}
         {selected?.type === "destination" && (
           <DestinationPanel destination={selected.data as Destination} />

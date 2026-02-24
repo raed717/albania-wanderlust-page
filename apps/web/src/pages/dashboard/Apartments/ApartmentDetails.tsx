@@ -20,14 +20,14 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import {
-  Appartment,
-  UpdateAppartmentDto,
+  Apartment,
+  UpdateApartmentDto,
   PREDEFINED_AMENITIES,
-} from "@/types/appartment.type";
+} from "@/types/apartment.type";
 import {
-  getAppartmentById,
-  updateAppartment,
-} from "@/services/api/appartmentService";
+  getApartmentById,
+  updateApartment,
+} from "@/services/api/apartmentService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
 import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
@@ -35,18 +35,18 @@ import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 
-const AppartmentDetails = () => {
+const ApartmentDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editMode = searchParams.get("edit") === "true";
   const { t } = useTranslation();
 
-  const [appartment, setAppartment] = useState<Appartment | null>(null);
+  const [apartment, setApartment] = useState<Apartment | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(editMode);
   const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState<UpdateAppartmentDto>({});
+  const [formData, setFormData] = useState<UpdateApartmentDto>({});
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
 
   /* -------------------------------------------------------------------------- */
@@ -54,23 +54,23 @@ const AppartmentDetails = () => {
   /* -------------------------------------------------------------------------- */
 
   useEffect(() => {
-    const fetchAppartment = async () => {
+    const fetchApartment = async () => {
       if (!id) return;
 
       setLoading(true);
       try {
-        const data = await getAppartmentById(Number(id));
-        setAppartment(data);
+        const data = await getApartmentById(Number(id));
+        setApartment(data);
         setFormData(data ?? {});
         setNewImageFiles([]);
       } catch (error) {
-        console.error("Error fetching appartment:", error);
+        console.error("Error fetching apartment:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAppartment();
+    fetchApartment();
   }, [id]);
 
   /* -------------------------------------------------------------------------- */
@@ -121,12 +121,12 @@ const AppartmentDetails = () => {
 
     setSaving(true);
     try {
-      const updated = await updateAppartment(
+      const updated = await updateApartment(
         Number(id),
         formData,
         newImageFiles.length > 0 ? newImageFiles : undefined,
       );
-      setAppartment(updated);
+      setApartment(updated);
       setFormData(updated);
       setNewImageFiles([]);
       setIsEditing(false);
@@ -161,14 +161,14 @@ const AppartmentDetails = () => {
     );
   }
 
-  if (!appartment) {
+  if (!apartment) {
     return (
       <Hsidebar>
         <div className="text-center py-20">
           <h3 className="text-2xl font-bold">
             {t("apartment.apartmentNotFound")}
           </h3>
-          <Button onClick={() => navigate("/dashboard/AppartmentsList")}>
+          <Button onClick={() => navigate("/dashboard/ApartmentsList")}>
             <ArrowLeft className="mr-2" size={16} />
             {t("apartment.backToApartments")}
           </Button>
@@ -189,7 +189,7 @@ const AppartmentDetails = () => {
           <div>
             <Button
               variant="ghost"
-              onClick={() => navigate("/dashboard/AppartmentsList")}
+              onClick={() => navigate("/dashboard/ApartmentsList")}
               className="mb-4 -ml-4"
             >
               <ArrowLeft className="mr-2" size={16} />
@@ -269,24 +269,24 @@ const AppartmentDetails = () => {
               ) : (
                 <div className="relative">
                   {/* Main Image */}
-                  {appartment.imageUrls && appartment.imageUrls.length > 0 ? (
+                  {apartment.imageUrls && apartment.imageUrls.length > 0 ? (
                     <div className="grid grid-cols-4 grid-rows-2 gap-1 h-[300px]">
                       {/* First large image */}
                       <div
                         className={`bg-cover bg-center cursor-pointer relative group ${
-                          appartment.imageUrls.length === 1
+                          apartment.imageUrls.length === 1
                             ? "col-span-4 row-span-2"
                             : "col-span-2 row-span-2"
                         }`}
                         style={{
-                          backgroundImage: `url(${appartment.imageUrls[0]})`,
+                          backgroundImage: `url(${apartment.imageUrls[0]})`,
                         }}
                       >
                         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
                       </div>
 
                       {/* Other images grid */}
-                      {appartment.imageUrls.slice(1, 5).map((url, idx) => (
+                      {apartment.imageUrls.slice(1, 5).map((url, idx) => (
                         <div
                           key={idx}
                           className="bg-cover bg-center col-span-1 row-span-1 relative group"
@@ -299,13 +299,13 @@ const AppartmentDetails = () => {
                       ))}
 
                       {/* "See all" overlay if more than 5 images */}
-                      {appartment.imageUrls.length > 5 && (
+                      {apartment.imageUrls.length > 5 && (
                         <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium shadow-sm">
-                          +{appartment.imageUrls.length - 5} photos
+                          +{apartment.imageUrls.length - 5} photos
                         </div>
                       )}
                     </div>
-                  ) : appartment.imageUrls[0] ? (
+                  ) : apartment.imageUrls[0] ? (
                     <div className="h-64 bg-cover bg-center" />
                   ) : (
                     <div className="h-64 bg-gray-100 flex items-center justify-center text-gray-400">
@@ -336,7 +336,7 @@ const AppartmentDetails = () => {
                 </select>
               ) : (
                 <span className="inline-block mt-2 px-4 py-2 rounded-full bg-blue-600 text-white">
-                  {appartment.status}
+                  {apartment.status}
                 </span>
               )}
             </div>
@@ -369,7 +369,7 @@ const AppartmentDetails = () => {
                       onChange={handleChange}
                     />
                   ) : (
-                    <p>{appartment.name}</p>
+                    <p>{apartment.name}</p>
                   )}
                 </div>
 
@@ -384,7 +384,7 @@ const AppartmentDetails = () => {
                       onChange={handleChange}
                     />
                   ) : (
-                    <p>{appartment.address}</p>
+                    <p>{apartment.address}</p>
                   )}
                 </div>
 
@@ -401,7 +401,7 @@ const AppartmentDetails = () => {
                       onChange={handleChange}
                     />
                   ) : (
-                    <p>{appartment.rating}</p>
+                    <p>{apartment.rating}</p>
                   )}
                 </div>
 
@@ -417,7 +417,7 @@ const AppartmentDetails = () => {
                       onChange={handleChange}
                     />
                   ) : (
-                    <p>${appartment.price}</p>
+                    <p>${apartment.price}</p>
                   )}
                 </div>
 
@@ -433,7 +433,7 @@ const AppartmentDetails = () => {
                       onChange={handleChange}
                     />
                   ) : (
-                    <p>{appartment.rooms}</p>
+                    <p>{apartment.rooms}</p>
                   )}
                 </div>
               </div>
@@ -492,9 +492,9 @@ const AppartmentDetails = () => {
                 </div>
               ) : (
                 <div>
-                  {appartment.amenities && appartment.amenities.length > 0 ? (
+                  {apartment.amenities && apartment.amenities.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
-                      {appartment.amenities.map((amenity, index) => (
+                      {apartment.amenities.map((amenity, index) => (
                         <Badge key={index} variant="secondary">
                           {amenity}
                         </Badge>
@@ -514,7 +514,7 @@ const AppartmentDetails = () => {
               lng={formData.lng}
               onLocationSelect={handleLocationSelect}
               label={t("apartment.apartmentLocation")}
-              defaultCenter={[appartment.lat || 40.7, appartment.lng || -73.9]}
+              defaultCenter={[apartment.lat || 40.7, apartment.lng || -73.9]}
               showCoordinates
             />
 
@@ -531,7 +531,7 @@ const AppartmentDetails = () => {
                   className="w-full border rounded-md p-3"
                 />
               ) : (
-                <p>{appartment.description || t("apartment.noDescription")}</p>
+                <p>{apartment.description || t("apartment.noDescription")}</p>
               )}
             </div>
           </div>
@@ -541,4 +541,4 @@ const AppartmentDetails = () => {
   );
 };
 
-export default AppartmentDetails;
+export default ApartmentDetails;
