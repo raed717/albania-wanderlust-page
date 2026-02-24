@@ -17,8 +17,19 @@ import {
   FileText,
   Download,
   Star,
+  Phone,
+  Mail,
+  ContactRound,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { userService } from "@/services/api/userService";
+import { User } from "@/types/user.types";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router";
 import { updateBookingStatus } from "@/services/api/bookingService";
@@ -198,6 +209,123 @@ const generateInvoicePDF = async (booking: Booking) => {
   const fileName = `Invoice-${booking.propertyType}-${booking.id.slice(0, 8)}.pdf`;
   doc.save(fileName);
 };
+
+// Provider Contact Button
+function ProviderContactButton({ providerId }: { providerId: string }) {
+  const { t } = useTranslation();
+  const [provider, setProvider] = useState<User | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = async (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen && !provider) {
+      try {
+        setLoading(true);
+        const data = await userService.getUserById(providerId);
+        setProvider(data);
+      } catch {
+        // silently fail — provider info unavailable
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  return (
+    <Popover open={open} onOpenChange={handleOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-2 text-indigo-600 border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300"
+        >
+          <ContactRound className="w-3.5 h-3.5 mr-1.5" />
+          {t("booking.contactProvider", "Contact Provider")}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        className="w-72 p-0 shadow-xl rounded-2xl overflow-hidden"
+      >
+        {/* Header */}
+        <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-3">
+          <p className="text-white font-semibold text-sm">
+            {t("booking.providerContact", "Provider Contact")}
+          </p>
+          {!loading && provider?.full_name && (
+            <p className="text-indigo-100 text-xs mt-0.5">
+              {provider.full_name}
+            </p>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="p-4 space-y-2.5">
+          {loading ? (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
+            </div>
+          ) : provider ? (
+            <>
+              {provider.phone ? (
+                <a
+                  href={`tel:${provider.phone}`}
+                  className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-emerald-600 font-medium">
+                      {t("booking.callPhone", "Call Phone")}
+                    </p>
+                    <p className="text-sm font-semibold text-gray-800 truncate">
+                      {provider.phone}
+                    </p>
+                  </div>
+                </a>
+              ) : (
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    {t("booking.noPhone", "No phone number available")}
+                  </p>
+                </div>
+              )}
+
+              <a
+                href={`mailto:${provider.email}`}
+                className="flex items-center gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100 hover:bg-blue-100 transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-4 h-4 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-blue-600 font-medium">
+                    {t("booking.sendEmail", "Send Email")}
+                  </p>
+                  <p className="text-sm font-semibold text-gray-800 truncate">
+                    {provider.email}
+                  </p>
+                </div>
+              </a>
+            </>
+          ) : (
+            <p className="text-sm text-gray-400 text-center py-3">
+              {t(
+                "booking.providerInfoUnavailable",
+                "Provider info unavailable",
+              )}
+            </p>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 // PayPal Button Component for individual booking
 function PayPalPaymentButton({ booking }: { booking: Booking }) {
@@ -540,7 +668,8 @@ export default function BookingsSummary() {
                                   : "bg-red-50 text-red-700 border border-red-200"
                             }`}
                           >
-                            {t("booking.paymentStatus")}: {booking.payment_status}
+                            {t("booking.paymentStatus")}:{" "}
+                            {booking.payment_status}
                           </span>
                         )}
                       </div>
@@ -623,6 +752,10 @@ export default function BookingsSummary() {
                                   {t("review.addReview", "Add Review")}
                                 </Button>
                               )}
+                              {/* Contact Provider button */}
+                              <ProviderContactButton
+                                providerId={booking.providerId}
+                              />
                             </div>
                           )}
 

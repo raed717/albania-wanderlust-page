@@ -49,8 +49,6 @@ export const AddAppartmentDialog: React.FC<AddAppartmentDialogProps> = ({
     imageUrls: [],
     description: "",
     amenities: [],
-    contactEmail: "",
-    contactPhone: "",
     lat: undefined,
     lng: undefined,
   });
@@ -142,8 +140,6 @@ export const AddAppartmentDialog: React.FC<AddAppartmentDialogProps> = ({
         imageUrls: [],
         description: "",
         amenities: [],
-        contactEmail: "",
-        contactPhone: "",
         lat: undefined,
         lng: undefined,
       });
@@ -366,36 +362,6 @@ export const AddAppartmentDialog: React.FC<AddAppartmentDialogProps> = ({
               />
             </div>
 
-            {/* Contact Email */}
-            <div className="space-y-2">
-              <Label htmlFor="contactEmail" className="text-sm font-medium">
-                {t("apartment.contactEmail")}
-              </Label>
-              <Input
-                id="contactEmail"
-                name="contactEmail"
-                type="email"
-                value={formData.contactEmail}
-                onChange={handleChange}
-                placeholder="contact@apartment.com"
-                className="w-full"
-              />
-            </div>
-
-            {/* Contact Phone */}
-            <div className="space-y-2">
-              <Label htmlFor="contactPhone" className="text-sm font-medium">
-                {t("apartment.contactPhone")}
-              </Label>
-              <Input
-                id="contactPhone"
-                name="contactPhone"
-                value={formData.contactPhone}
-                onChange={handleChange}
-                placeholder="+355 69 123 4567"
-                className="w-full"
-              />
-            </div>
           </div>
 
           {/* Amenities */}
@@ -420,7 +386,7 @@ export const AddAppartmentDialog: React.FC<AddAppartmentDialogProps> = ({
                 ))}
               </div>
             )}
-
+            
             {/* Available Amenities */}
             <div className="space-y-2">
               <Label className="text-xs text-gray-500">

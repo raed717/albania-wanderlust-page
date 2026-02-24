@@ -1,56 +1,48 @@
+import { useState } from "react";
 import PropertiesMap from "../../components/home/data-map/PropertiesMap";
+import MapPropertySidebar from "../../components/home/data-map/MapPropertySidebar";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import { useTranslation } from "react-i18next";
+import { MapPin, Building2, Car, Compass } from "lucide-react";
+import { Hotel } from "@/types/hotel.types";
+import { Appartment } from "@/types/appartment.type";
+import { Destination } from "@/types/destination.types";
+
+type Selected =
+  | { type: "hotel"; data: Hotel }
+  | { type: "apartment"; data: Appartment }
+  | { type: "destination"; data: Destination }
+  | null;
 
 const PropertiesMapPage = () => {
   const { t } = useTranslation();
+  const [selected, setSelected] = useState<Selected>(null);
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {<PrimarySearchAppBar />}
+    <div className="flex flex-col h-screen overflow-hidden bg-gray-900">
+      {/* AppBar */}
+      <div className="flex-shrink-0 z-50">
+        <PrimarySearchAppBar />
+      </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            {t("propertiesMap.title")}
-          </h1>
-          <p className="text-lg text-gray-600">
-            {t("propertiesMap.description")}
-          </p>
+      {/* Full-screen map area */}
+      <div className="flex-1 relative overflow-hidden">
+        {/* Map fills entire remaining space */}
+        <div className="absolute inset-0">
+          <PropertiesMap onSelect={setSelected} />
         </div>
 
-        {/* Map Container */}
-        <div
-          className="bg-white rounded-2xl shadow-xl overflow-hidden"
-          style={{ height: "700px" }}
-        >
-          <PropertiesMap />
-        </div>
+        {/* Property detail sidebar — slides in from the right */}
+        <MapPropertySidebar
+          selected={selected}
+          onClose={() => setSelected(null)}
+        />
 
-        {/* Info Section */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-2 text-blue-600">
-              {t("propertiesMap.interactiveMap")}
-            </h3>
-            <p className="text-gray-600">
-              {t("propertiesMap.interactiveMapDescription")}
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-2 text-green-600">
-              {t("propertiesMap.wideSelection")}
-            </h3>
-            <p className="text-gray-600">
-              {t("propertiesMap.wideSelectionDescription")}
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-2 text-purple-600">
-              {t("propertiesMap.bestPrices")}
-            </h3>
-            <p className="text-gray-600">
-              {t("propertiesMap.bestPricesDescription")}
+        {/* Mobile description strip */}
+        <div className="absolute bottom-0 left-0 right-0 z-[1000] sm:hidden pointer-events-none">
+          <div className="bg-white/90 backdrop-blur-md border-t border-white/60 px-4 py-3">
+            <p className="text-xs text-gray-500 text-center">
+              {t("propertiesMap.description")}
             </p>
           </div>
         </div>

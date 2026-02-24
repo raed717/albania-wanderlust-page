@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Tooltip } from "react-leaflet";
 import { getAllHotels } from "@/services/api/hotelService";
 import { getAllAppartments } from "@/services/api/appartmentService";
 import { getAllDestinations } from "@/services/api/destinationService";
@@ -10,13 +10,20 @@ import L from "leaflet";
 import { useState, useEffect } from "react";
 import hotelIcon from "@/assets/map/hotel_icon.png";
 import apartmentIcon from "@/assets/map/home.png";
-import { HotelPopup } from "./HotelPopup";
-import { ApartmentPopup } from "./ApartmentPopup";
-import { DestinationPopup } from "./DestinationPopup";
 import { MapFilters } from "./MapFilters";
 import { IconButton } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import CloseIcon from "@mui/icons-material/Close";
+
+type Selected =
+  | { type: "hotel"; data: Hotel }
+  | { type: "apartment"; data: Appartment }
+  | { type: "destination"; data: Destination }
+  | null;
+
+interface PropertiesMapProps {
+  onSelect?: (selected: Selected) => void;
+}
 
 const HotelIcon = new L.Icon({
   iconUrl: hotelIcon,
@@ -45,15 +52,11 @@ const DestinationIcon = new L.Icon({
 // Center of Albania (Tirana)
 const ALBANIA_CENTER: [number, number] = [41.3275, 19.8187];
 
-export default function PropertiesMap() {
+export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
   const [hotelsData, setHotelsData] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [apartmentsData, setApartmentsData] = useState<Appartment[]>([]);
   const [destinationsData, setDestinationsData] = useState<Destination[]>([]);
-  const [selected, setSelected] = useState<{
-    type: "hotel" | "apartment" | "destination";
-    data: Hotel | Appartment | Destination;
-  } | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Filter states
@@ -226,7 +229,7 @@ export default function PropertiesMap() {
               position={[hotel.lat || 0, hotel.lng || 0]}
               icon={HotelIcon}
               eventHandlers={{
-                click: () => setSelected({ type: "hotel", data: hotel }),
+                click: () => onSelect?.({ type: "hotel", data: hotel }),
               }}
             >
               {hotel.price && (
@@ -250,8 +253,7 @@ export default function PropertiesMap() {
               position={[apartment.lat, apartment.lng]}
               icon={ApartmentIcon}
               eventHandlers={{
-                click: () =>
-                  setSelected({ type: "apartment", data: apartment }),
+                click: () => onSelect?.({ type: "apartment", data: apartment }),
               }}
             >
               {apartment.price && (
@@ -276,7 +278,7 @@ export default function PropertiesMap() {
               icon={DestinationIcon}
               eventHandlers={{
                 click: () =>
-                  setSelected({ type: "destination", data: destination }),
+                  onSelect?.({ type: "destination", data: destination }),
               }}
             >
               <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent>
@@ -284,21 +286,6 @@ export default function PropertiesMap() {
               </Tooltip>
             </Marker>
           ))}
-
-          {/* Popup */}
-          {selected && (
-            <Popup position={[selected.data.lat || 0, selected.data.lng || 0]}>
-              {selected.type === "hotel" && (
-                <HotelPopup hotel={selected.data as Hotel} />
-              )}
-              {selected.type === "apartment" && (
-                <ApartmentPopup apartment={selected.data as Appartment} />
-              )}
-              {selected.type === "destination" && (
-                <DestinationPopup destination={selected.data as Destination} />
-              )}
-            </Popup>
-          )}
         </MapContainer>
       </div>
     </div>

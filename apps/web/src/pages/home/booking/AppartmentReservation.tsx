@@ -466,56 +466,6 @@ const ApartmentReservation = () => {
               </div>
             )}
 
-            {/* Contact Information */}
-            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                {t("billing.pickUpAndContactInformation")}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Mail size={20} className="text-blue-600" />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600 mb-1 block">
-                      Email Address
-                    </Label>
-                    <p className="text-gray-900 font-medium break-all">
-                      {apartment.contactEmail || "contact@apartment.com"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Phone size={20} className="text-blue-600" />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600 mb-1 block">
-                      Phone Number
-                    </Label>
-                    <p className="text-gray-900 font-medium">
-                      {apartment.contactPhone || "+1 (555) 123-4567"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl md:col-span-2">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <MapPin size={20} className="text-blue-600" />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600 mb-1 block">
-                      Address
-                    </Label>
-                    <p className="text-gray-900 font-medium">
-                      {apartment.address ||
-                        `${apartment.location || "Address not specified"}`}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
 
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <AvailabilityCalendar

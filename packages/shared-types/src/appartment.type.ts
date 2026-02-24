@@ -19,8 +19,6 @@ export interface Appartment {
   imageUrls?: string[];
   description?: string;
   amenities?: string[];
-  contactEmail?: string;
-  contactPhone?: string;
   address?: string;
   location?: string;
   lat?: number;
@@ -41,8 +39,6 @@ export interface CreateAppartmentDto {
   imageUrls?: string[];
   description?: string;
   amenities?: string[];
-  contactEmail?: string;
-  contactPhone?: string;
   address?: string;
   location?: string;
   lat?: number;
@@ -62,8 +58,6 @@ export interface UpdateAppartmentDto {
   imageUrls?: string[];
   description?: string;
   amenities?: string[];
-  contactEmail?: string;
-  contactPhone?: string;
   lat?: number;
   lng?: number;
   address?: string;

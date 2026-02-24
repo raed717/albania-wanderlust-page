@@ -26,7 +26,13 @@ import {
   AlertCircle,
   Eye,
   Filter,
+  ContactRound,
 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { userService } from "@/services/api/userService";
 import { User } from "@/types/user.types";
 import { sendEmailDirect } from "@/services/api/emailService";
@@ -113,6 +119,83 @@ const getPropertyRoute = (booking: Booking) => {
       return "";
   }
 };
+
+// Contact Client Popover Button
+function ContactClientButton({ booking }: { booking: Booking }) {
+  const { t } = useTranslation();
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 border border-indigo-200 rounded-lg px-2.5 py-1.5 hover:bg-indigo-50 hover:border-indigo-300 transition-colors">
+          <ContactRound className="w-3.5 h-3.5" />
+          {t("bookingManagement.contactClient", "Contact Client")}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="w-72 p-0 shadow-xl rounded-2xl overflow-hidden"
+      >
+        {/* Header */}
+        <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-3">
+          <p className="text-white font-semibold text-sm">
+            {t("bookingManagement.clientContact", "Client Contact")}
+          </p>
+          <p className="text-indigo-100 text-xs mt-0.5">
+            {booking.requesterName}
+          </p>
+        </div>
+
+        {/* Contact Actions */}
+        <div className="p-4 space-y-2.5">
+          {booking.contactPhone ? (
+            <a
+              href={`tel:${booking.contactPhone}`}
+              className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 transition-colors"
+            >
+              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                <Phone className="w-4 h-4 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-emerald-600 font-medium">
+                  {t("booking.callPhone", "Call Phone")}
+                </p>
+                <p className="text-sm font-semibold text-gray-800 truncate">
+                  {booking.contactPhone}
+                </p>
+              </div>
+            </a>
+          ) : (
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                <Phone className="w-4 h-4 text-gray-400" />
+              </div>
+              <p className="text-sm text-gray-400">
+                {t("booking.noPhone", "No phone number available")}
+              </p>
+            </div>
+          )}
+
+          <a
+            href={`mailto:${booking.contactMail}`}
+            className="flex items-center gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100 hover:bg-blue-100 transition-colors"
+          >
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+              <Mail className="w-4 h-4 text-white" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-blue-600 font-medium">
+                {t("booking.sendEmail", "Send Email")}
+              </p>
+              <p className="text-sm font-semibold text-gray-800 truncate">
+                {booking.contactMail}
+              </p>
+            </div>
+          </a>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export default function BookingsManagement() {
   const { t } = useTranslation();
@@ -541,16 +624,15 @@ export default function BookingsManagement() {
                         <td className="px-6 py-4">
                           <div className="text-sm">
                             <p className="font-medium text-gray-900">
-                              {booking.requesterName}
+                              {booking.status === "confirmed" &&
+                              booking.payment_status === "paid"
+                                ? booking.requesterName
+                                : "—"}
                             </p>
-                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                              <Mail className="w-3 h-3" />
-                              <span>{booking.contactMail}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                              <Phone className="w-3 h-3" />
-                              <span>{booking.contactPhone}</span>
-                            </div>
+                            {booking.status === "confirmed" &&
+                              booking.payment_status === "paid" && (
+                                <ContactClientButton booking={booking} />
+                              )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

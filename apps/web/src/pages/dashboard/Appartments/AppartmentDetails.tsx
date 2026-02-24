@@ -441,44 +441,6 @@ const AppartmentDetails = () => {
 
             <div className="bg-white p-6 rounded-xl">
               <h2 className="text-xl font-bold mb-6">
-                {t("apartment.contact")}
-              </h2>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <Label>
-                    <Mail size={16} /> {t("apartment.email")}
-                  </Label>
-                  {isEditing ? (
-                    <Input
-                      name="contactEmail"
-                      value={formData.contactEmail || ""}
-                      onChange={handleChange}
-                    />
-                  ) : (
-                    <p>{appartment.contactEmail || "N/A"}</p>
-                  )}
-                </div>
-
-                <div>
-                  <Label>
-                    <Phone size={16} /> {t("apartment.phone")}
-                  </Label>
-                  {isEditing ? (
-                    <Input
-                      name="contactPhone"
-                      value={formData.contactPhone || ""}
-                      onChange={handleChange}
-                    />
-                  ) : (
-                    <p>{appartment.contactPhone || "N/A"}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl">
-              <h2 className="text-xl font-bold mb-6">
                 {t("apartment.amenities")}
               </h2>
 
