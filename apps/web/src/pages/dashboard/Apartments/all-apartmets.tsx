@@ -22,7 +22,10 @@ import {
   BedDouble,
 } from "lucide-react";
 import { getAllApartments } from "@/services/api/apartmentService";
-import { getApartmentsByProviderId } from "@/services/api/apartmentService";
+import {
+  getApartmentsByProviderId,
+  deleteApartment,
+} from "@/services/api/apartmentService";
 import { Apartment, ApartmentFilters } from "@/types/apartment.type";
 import Swal from "sweetalert2";
 import { Room } from "@mui/icons-material";
@@ -131,7 +134,23 @@ const AllApartments = () => {
     const confirmed = await confirmDelete(t);
     if (!confirmed) return;
 
-    setApartments((prev) => prev.filter((a) => a.id !== id));
+    try {
+      await deleteApartment(id);
+      setApartments((prev) => prev.filter((a) => a.id !== id));
+    } catch (err: any) {
+      console.error("Error deleting apartment:", err);
+      Swal.fire({
+        title: t("common.error", "Error"),
+        text:
+          err.message ||
+          t(
+            "apartment.deleteError",
+            "Failed to delete apartment. Please try again.",
+          ),
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
   };
 
   const handleView = (id: number) => {

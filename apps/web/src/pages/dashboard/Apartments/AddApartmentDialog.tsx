@@ -413,6 +413,7 @@ export const AddApartmentDialog: React.FC<AddApartmentDialogProps> = ({
 
           {/* Image Upload Component */}
           <ImageUpload
+            propertyType="Apartment"
             onImagesSelected={(files) => {
               setSelectedImageFiles(files);
             }}

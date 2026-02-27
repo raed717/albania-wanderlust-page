@@ -246,6 +246,8 @@ const ApartmentDetails = () => {
               {isEditing ? (
                 <div className="p-4">
                   <ImageUpload
+                    propertyType="Apartment"
+                    disableUpload={true}
                     onImagesSelected={(files) => {
                       setNewImageFiles((prev) => [...prev, ...files]);
                     }}

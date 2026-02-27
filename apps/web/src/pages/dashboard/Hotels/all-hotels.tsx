@@ -137,11 +137,16 @@ const AllHotels = () => {
       try {
         await deleteHotel(id);
         setHotels((prev) => prev.filter((h) => h.id !== id));
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error deleting hotel:", err);
         Swal.fire({
-          title: "Error",
-          text: "Failed to delete hotel. Please try again.",
+          title: t("common.error", "Error"),
+          text:
+            err.message ||
+            t(
+              "hotels.allHotels.delete.errorMessage",
+              "Failed to delete hotel. Please try again.",
+            ),
           icon: "error",
           confirmButtonText: "OK",
         });

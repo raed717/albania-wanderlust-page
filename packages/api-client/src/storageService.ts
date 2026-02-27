@@ -133,6 +133,44 @@ export const uploadImages = async (
 };
 
 /**
+ * Extract the storage file path from a Supabase public URL
+ * E.g., "https://xxx.supabase.co/storage/v1/object/public/hotel-images/car-5/img.jpg" → "car-5/img.jpg"
+ * @param publicUrl - The full public URL of the image
+ * @returns The relative file path within the bucket, or null if parsing fails
+ */
+export const extractStoragePath = (publicUrl: string): string | null => {
+  try {
+    const marker = `/storage/v1/object/public/${BUCKET_NAME}/`;
+    const index = publicUrl.indexOf(marker);
+    if (index === -1) return null;
+    return publicUrl.substring(index + marker.length);
+  } catch {
+    console.error(
+      "[Storage Service] Failed to extract path from URL:",
+      publicUrl,
+    );
+    return null;
+  }
+};
+
+/**
+ * Delete images from storage given their public URLs
+ * Extracts the storage paths from the URLs and removes them from the bucket
+ * @param publicUrls - Array of public image URLs
+ */
+export const deleteImagesByUrls = async (
+  publicUrls: string[],
+): Promise<void> => {
+  const paths = publicUrls
+    .map(extractStoragePath)
+    .filter((p): p is string => p !== null);
+
+  if (paths.length === 0) return;
+
+  await deleteImages(paths);
+};
+
+/**
  * Delete an image from Supabase Storage
  * @param filePath - Full path of the file to delete
  */
@@ -146,7 +184,6 @@ export const deleteImage = async (filePath: string): Promise<void> => {
       console.error("[Storage Service] Delete error:", error);
       throw error;
     }
-
   } catch (err) {
     console.error("[Storage Service] Error deleting file:", err);
     throw err;
@@ -169,7 +206,6 @@ export const deleteImages = async (filePaths: string[]): Promise<void> => {
       console.error("[Storage Service] Batch delete error:", error);
       throw error;
     }
-
   } catch (err) {
     console.error("[Storage Service] Error during batch delete:", err);
     throw err;
@@ -260,6 +296,8 @@ const storageService = {
   uploadImages,
   deleteImage,
   deleteImages,
+  deleteImagesByUrls,
+  extractStoragePath,
   getPublicUrl,
   // Backwards compatible hotel functions
   uploadHotelImage,

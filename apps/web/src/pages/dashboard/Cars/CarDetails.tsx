@@ -255,6 +255,8 @@ const CarDetails = () => {
               {isEditing ? (
                 <div className="p-4">
                   <ImageUpload
+                    propertyType="Car"
+                    disableUpload={true}
                     onImagesSelected={(files) => {
                       setNewImageFiles(files);
                     }}

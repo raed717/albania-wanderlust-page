@@ -712,7 +712,8 @@
       "card": {
         "basePrice": "Base Price",
         "view": "View",
-        "seats": "{{count}} Seat{{count > 1 ? 's' : ''}}"
+        "seats_one": "{{count}} Seat",
+        "seats_other": "{{count}} Seats"
       },
       "delete": {
         "confirmTitle": "Are you sure?",

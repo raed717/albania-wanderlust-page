@@ -14,6 +14,8 @@ export const LanguageSwitcher = () => {
   const languages = [
     { code: "en", label: "English", nativeLabel: "English" },
     { code: "sq", label: "Albanian", nativeLabel: "Shqip" },
+    { code: "it", label: "Italian", nativeLabel: "Italiano" },
+    { code: "fr", label: "French", nativeLabel: "Français" },
   ];
 
   const handleLanguageChange = (langCode: string) => {

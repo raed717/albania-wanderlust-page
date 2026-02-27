@@ -6,7 +6,12 @@ import {
   UpdateHotelDto,
   HotelFilters,
 } from "@albania/shared-types";
-import { uploadHotelImages, deleteHotelImages } from "./storageService";
+import {
+  uploadHotelImages,
+  deleteHotelImages,
+  deleteImagesByUrls,
+} from "./storageService";
+import { getBookingsByPropertyIdAndType } from "./bookingService";
 
 // In-memory cache for hotels with TTL
 let hotelsCache: { data: Hotel[]; timestamp: number } | null = null;
@@ -113,7 +118,6 @@ export const getAllHotelsByProviderId = async (
  * Fetch a single hotel by ID
  */
 export const getHotelById = async (id: number): Promise<Hotel | null> => {
-
   const { data, error } = await apiClient
     .from("hotel")
     .select("*")
@@ -134,7 +138,6 @@ export const createHotel = async (
   data: CreateHotelDto,
   imageFiles?: File[],
 ): Promise<Hotel> => {
-
   const providerId = await authService.getCurrentUserId();
 
   if (!providerId) {
@@ -193,7 +196,6 @@ export const updateHotel = async (
   data: UpdateHotelDto,
   newImageFiles?: File[],
 ): Promise<Hotel> => {
-
   // Remove system fields that shouldn't be updated
   const updateData = { ...data };
   delete (updateData as any).id;
@@ -214,7 +216,6 @@ export const updateHotel = async (
       } else {
         updateData.imageUrls = newImageUrls;
       }
-
     } catch (err) {
       console.error("[Hotel Service] Error uploading images:", err);
       throw new Error(
@@ -252,6 +253,30 @@ export const updateHotel = async (
  * Delete a hotel
  */
 export const deleteHotel = async (id: number): Promise<void> => {
+  // Check for active bookings (pending or confirmed)
+  const activeBookings = await getBookingsByPropertyIdAndType(
+    id.toString(),
+    "hotel",
+  );
+  if (activeBookings && activeBookings.length > 0) {
+    throw new Error(
+      `Cannot delete this hotel because it has ${activeBookings.length} active booking(s). Please wait until all bookings are completed or cancelled.`,
+    );
+  }
+
+  // Fetch the hotel to get its image URLs
+  try {
+    const hotel = await getHotelById(id);
+    if (hotel && hotel.imageUrls && hotel.imageUrls.length > 0) {
+      await deleteImagesByUrls(hotel.imageUrls);
+    }
+  } catch (err) {
+    console.warn(
+      `[Hotel Service] Could not delete images for hotel ID ${id}:`,
+      err,
+    );
+    // Continue with hotel deletion even if image cleanup fails
+  }
 
   const { error } = await apiClient.from("hotel").delete().eq("id", id);
 

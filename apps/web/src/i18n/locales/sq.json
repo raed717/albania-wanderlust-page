@@ -720,7 +720,8 @@
       "card": {
         "basePrice": "Çmimi Bazë",
         "view": "Shiko",
-        "seats": "{{count}} Vend{{count > 1 ? 'e' : ''}}"
+        "seats_one": "{{count}} Vend",
+        "seats_other": "{{count}} Vende"
       },
       "delete": {
         "confirmTitle": "Je i sigurt?",

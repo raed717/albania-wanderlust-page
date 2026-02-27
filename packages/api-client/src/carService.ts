@@ -1,7 +1,7 @@
 import { apiClient } from "./apiClient";
 import { Car, CreateCarDto, UpdateCarDto } from "@albania/shared-types";
 import { authService } from "./authService";
-import { uploadCarImages } from "./storageService";
+import { uploadCarImages, deleteImagesByUrls } from "./storageService";
 import { getBookingsByPropertyIdAndType } from "./bookingService";
 import { getMonthlyPrices, setMonthlyPrices } from "./monthlyPriceService";
 import { MonthlyPriceInput } from "@albania/shared-types";
@@ -104,7 +104,6 @@ export const getCarsByOwnerId = async (providerId: string): Promise<Car[]> => {
  * Fetch car by id (includes monthly prices)
  */
 export const getCarById = async (id: number): Promise<Car | null> => {
-
   const { data, error } = await apiClient
     .from("car")
     .select("*")
@@ -235,7 +234,6 @@ export const updateCar = async (
   car: UpdateCarDto,
   newImageFiles?: File[],
 ): Promise<Car> => {
-
   // Remove system fields that shouldn't be updated
   const { monthlyPrices, ...updateData } = car;
   delete (updateData as any).id;
@@ -248,7 +246,6 @@ export const updateCar = async (
       const newImageUrls = uploadResults.map((result) => result.publicUrl);
       // Append new images to existing ones
       updateData.imageUrls = [...(updateData.imageUrls || []), ...newImageUrls];
-
     } catch (err) {
       console.error("[Car Service] Error uploading images:", err);
       throw new Error(
@@ -288,6 +285,30 @@ export const updateCar = async (
  * delete car by id
  */
 export const deleteCar = async (id: number): Promise<void> => {
+  // Check for active bookings (pending or confirmed)
+  const activeBookings = await getBookingsByPropertyIdAndType(
+    id.toString(),
+    "car",
+  );
+  if (activeBookings && activeBookings.length > 0) {
+    throw new Error(
+      `Cannot delete this car because it has ${activeBookings.length} active booking(s). Please wait until all bookings are completed or cancelled.`,
+    );
+  }
+
+  // Fetch the car to get its image URLs
+  try {
+    const car = await getCarById(id);
+    if (car && car.imageUrls && car.imageUrls.length > 0) {
+      await deleteImagesByUrls(car.imageUrls);
+    }
+  } catch (err) {
+    console.warn(
+      `[Car Service] Could not delete images for car ID ${id}:`,
+      err,
+    );
+    // Continue with car deletion even if image cleanup fails
+  }
 
   const { error } = await apiClient.from("car").delete().eq("id", id);
 

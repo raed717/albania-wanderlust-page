@@ -571,6 +571,7 @@ export default function DestinationsManagement() {
             {/* Image Upload */}
             {dialogMode !== "view" && (
               <ImageUpload
+                propertyType="Destination"
                 onImagesSelected={(files) => {
                   setSelectedImageFiles(files);
                 }}

@@ -5,7 +5,7 @@ import {
   UpdateApartmentDto,
   ApartmentFilters,
 } from "@albania/shared-types";
-import { uploadImages } from "./storageService";
+import { uploadImages, deleteImagesByUrls } from "./storageService";
 import { authService } from "./authService";
 import { getBookingsByPropertyIdAndType } from "./bookingService";
 
@@ -233,6 +233,31 @@ export const updateApartment = async (
  * delete an apartment
  */
 export const deleteApartment = async (id: number): Promise<void> => {
+  // Check for active bookings (pending or confirmed)
+  const activeBookings = await getBookingsByPropertyIdAndType(
+    id.toString(),
+    "apartment",
+  );
+  if (activeBookings && activeBookings.length > 0) {
+    throw new Error(
+      `Cannot delete this apartment because it has ${activeBookings.length} active booking(s). Please wait until all bookings are completed or cancelled.`,
+    );
+  }
+
+  // Fetch the apartment to get its image URLs
+  try {
+    const apartment = await getApartmentById(id);
+    if (apartment && apartment.imageUrls && apartment.imageUrls.length > 0) {
+      await deleteImagesByUrls(apartment.imageUrls);
+    }
+  } catch (err) {
+    console.warn(
+      `[Apartment Service] Could not delete images for apartment ID ${id}:`,
+      err,
+    );
+    // Continue with apartment deletion even if image cleanup fails
+  }
+
   const { error } = await apiClient.from("apartment").delete().eq("id", id);
   if (error) throw error;
 

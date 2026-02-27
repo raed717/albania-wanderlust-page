@@ -161,14 +161,27 @@ const AllCars = () => {
       confirmButtonText: t("cars.allCars.delete.confirmButton"),
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await deleteCar(id);
-        setCarsData((prev) => prev.filter((car) => car.id !== id));
-        console.log(`Deleting car with ID: ${id}`);
-        Swal.fire({
-          title: t("cars.allCars.delete.successTitle"),
-          text: t("cars.allCars.delete.successMessage"),
-          icon: "success",
-        });
+        try {
+          await deleteCar(id);
+          setCarsData((prev) => prev.filter((car) => car.id !== id));
+          Swal.fire({
+            title: t("cars.allCars.delete.successTitle"),
+            text: t("cars.allCars.delete.successMessage"),
+            icon: "success",
+          });
+        } catch (err: any) {
+          Swal.fire({
+            title: t("common.error", "Error"),
+            text:
+              err.message ||
+              t(
+                "cars.allCars.delete.errorMessage",
+                "Failed to delete car. Please try again.",
+              ),
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+        }
       }
     });
   };

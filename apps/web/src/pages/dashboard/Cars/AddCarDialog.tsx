@@ -266,14 +266,68 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
                     {t("cars.addCarDialog.form.brand")}{" "}
                     <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <select
                     id="brand"
                     name="brand"
                     value={formData.brand}
                     onChange={handleChange}
-                    placeholder="Tesla"
-                    className="w-full"
-                  />
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="" disabled>
+                      {t("cars.carDetails.fields.selectBrand", "Select Brand")}
+                    </option>
+                    <option value="Acura">Acura</option>
+                    <option value="Alfa Romeo">Alfa Romeo</option>
+                    <option value="Aston Martin">Aston Martin</option>
+                    <option value="Audi">Audi</option>
+                    <option value="Bentley">Bentley</option>
+                    <option value="BMW">BMW</option>
+                    <option value="Buick">Buick</option>
+                    <option value="Cadillac">Cadillac</option>
+                    <option value="Chevrolet">Chevrolet</option>
+                    <option value="Chrysler">Chrysler</option>
+                    <option value="Citroën">Citroën</option>
+                    <option value="Dodge">Dodge</option>
+                    <option value="Ferrari">Ferrari</option>
+                    <option value="Fiat">Fiat</option>
+                    <option value="Ford">Ford</option>
+                    <option value="Genesis">Genesis</option>
+                    <option value="GMC">GMC</option>
+                    <option value="Honda">Honda</option>
+                    <option value="Hyundai">Hyundai</option>
+                    <option value="Infiniti">Infiniti</option>
+                    <option value="Jaguar">Jaguar</option>
+                    <option value="Jeep">Jeep</option>
+                    <option value="Kia">Kia</option>
+                    <option value="Lamborghini">Lamborghini</option>
+                    <option value="Land Rover">Land Rover</option>
+                    <option value="Lexus">Lexus</option>
+                    <option value="Lincoln">Lincoln</option>
+                    <option value="Lotus">Lotus</option>
+                    <option value="Maserati">Maserati</option>
+                    <option value="Mazda">Mazda</option>
+                    <option value="McLaren">McLaren</option>
+                    <option value="Mercedes-Benz">Mercedes-Benz</option>
+                    <option value="Mini">Mini</option>
+                    <option value="Mitsubishi">Mitsubishi</option>
+                    <option value="Nissan">Nissan</option>
+                    <option value="Peugeot">Peugeot</option>
+                    <option value="Porsche">Porsche</option>
+                    <option value="Ram">Ram</option>
+                    <option value="Renault">Renault</option>
+                    <option value="Rolls-Royce">Rolls-Royce</option>
+                    <option value="Saab">Saab</option>
+                    <option value="Seat">Seat</option>
+                    <option value="Skoda">Skoda</option>
+                    <option value="Smart">Smart</option>
+                    <option value="Subaru">Subaru</option>
+                    <option value="Suzuki">Suzuki</option>
+                    <option value="Tesla">Tesla</option>
+                    <option value="Toyota">Toyota</option>
+                    <option value="Volkswagen">Volkswagen</option>
+                    <option value="Volvo">Volvo</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
 
                 {/* Type */}
@@ -606,6 +660,7 @@ export const AddCarDialog: React.FC<AddCarDialogProps> = ({ onCarAdded }) => {
 
               {/* Image Upload Component */}
               <ImageUpload
+                propertyType="Car"
                 onImagesSelected={(files) => {
                   setSelectedImageFiles(files);
                 }}

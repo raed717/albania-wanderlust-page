@@ -314,6 +314,7 @@ export const AddHotelDialog: React.FC<AddHotelDialogProps> = ({
 
           {/* Image Upload Component */}
           <ImageUpload
+            propertyType="Hotel"
             onImagesSelected={(files) => {
               setSelectedImageFiles(files);
             }}

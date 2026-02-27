@@ -13,12 +13,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 interface ImageUploadProps {
   onImagesSelected: (files: File[]) => void;
   maxImages?: number;
+  propertyType?: string; // e.g., "hotel", "apartment", etc. (for future use)
   maxFileSize?: number; // in bytes, default 5MB
   selectedFiles?: File[];
   onRemoveFile?: (index: number) => void;
   isLoading?: boolean;
   existingImages?: string[];
   onRemoveExisting?: (url: string) => void;
+  disableUpload?: boolean; // disable adding new images, but allow removing existing ones
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -30,6 +32,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   isLoading = false,
   existingImages = [],
   onRemoveExisting,
+  propertyType = "Hotel",
+  disableUpload = false,
 }) => {
   const [error, setError] = useState<string>("");
   const [dragActive, setDragActive] = useState(false);
@@ -45,7 +49,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       // Check file type
       if (!ALLOWED_TYPES.includes(file.type)) {
         setError(
-          `Invalid file type: ${file.name}. Allowed: JPEG, PNG, WebP, GIF`
+          `Invalid file type: ${file.name}. Allowed: JPEG, PNG, WebP, GIF`,
         );
         return;
       }
@@ -53,7 +57,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       // Check file size
       if (file.size > maxFileSize) {
         setError(
-          `File ${file.name} exceeds ${Math.round(maxFileSize / 1024 / 1024)}MB limit`
+          `File ${file.name} exceeds ${Math.round(maxFileSize / 1024 / 1024)}MB limit`,
         );
         return;
       }
@@ -66,8 +70,9 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       selectedFiles.length + existingImages.length + validFiles.length;
     if (totalFiles > maxImages) {
       setError(
-        `Maximum ${maxImages} images allowed. You have ${selectedFiles.length + existingImages.length
-        } current images.`
+        `Maximum ${maxImages} images allowed. You have ${
+          selectedFiles.length + existingImages.length
+        } current images.`,
       );
       return [];
     }
@@ -128,51 +133,55 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   return (
     <div className="space-y-4">
       <Label htmlFor="image-upload" className="text-sm font-medium">
-        Hotel Images <span className="text-gray-500">(Max {maxImages})</span>
+        {propertyType}
+        <span className="text-gray-500">(Max {maxImages})</span>
       </Label>
 
-      {/* Upload Area */}
-      <div
-        onDragEnter={handleDrag}
-        onDragLeave={handleDrag}
-        onDragOver={handleDrag}
-        onDrop={handleDrop}
-        onClick={handleClick}
-        className={`relative rounded-lg border-2 border-dashed transition-colors cursor-pointer ${dragActive
-            ? "border-blue-500 bg-blue-50"
-            : "border-gray-300 bg-gray-50 hover:border-gray-400"
+      {/* Upload Area - Hidden when disableUpload is true */}
+      {!disableUpload && (
+        <div
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+          onClick={handleClick}
+          className={`relative rounded-lg border-2 border-dashed transition-colors cursor-pointer ${
+            dragActive
+              ? "border-blue-500 bg-blue-50"
+              : "border-gray-300 bg-gray-50 hover:border-gray-400"
           } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-      >
-        <input
-          ref={fileInputRef}
-          id="image-upload"
-          type="file"
-          multiple
-          accept={ALLOWED_TYPES.join(",")}
-          onChange={handleInputChange}
-          disabled={isLoading}
-          className="hidden"
-        />
+        >
+          <input
+            ref={fileInputRef}
+            id="image-upload"
+            type="file"
+            multiple
+            accept={ALLOWED_TYPES.join(",")}
+            onChange={handleInputChange}
+            disabled={isLoading}
+            className="hidden"
+          />
 
-        <div className="p-8 text-center">
-          {isLoading ? (
-            <div className="flex flex-col items-center gap-2">
-              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-              <p className="text-sm text-gray-600">Uploading images...</p>
-            </div>
-          ) : (
-            <>
-              <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-              <p className="text-sm font-medium text-gray-700">
-                Drag and drop images here or click to select
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                PNG, JPG, WebP, GIF up to 5MB each
-              </p>
-            </>
-          )}
+          <div className="p-8 text-center">
+            {isLoading ? (
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                <p className="text-sm text-gray-600">Uploading images...</p>
+              </div>
+            ) : (
+              <>
+                <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                <p className="text-sm font-medium text-gray-700">
+                  Drag and drop images here or click to select
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  PNG, JPG, WebP, GIF up to 5MB each
+                </p>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Error Message */}
       {error && (
@@ -206,7 +215,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                     size="sm"
                     variant="destructive"
                     onClick={() => handleRemoveExistingImage(url)}
-                    disabled={isLoading}
+                    disabled={isLoading || disableUpload}
                     className="rounded-full p-2 h-auto"
                   >
                     <X className="w-4 h-4" />
@@ -235,7 +244,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                     size="sm"
                     variant="destructive"
                     onClick={() => handleRemove(index)}
-                    disabled={isLoading}
+                    disabled={isLoading || disableUpload}
                     className="rounded-full p-2 h-auto"
                   >
                     <X className="w-4 h-4" />
@@ -251,13 +260,15 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       )}
 
       {/* Help Text */}
-      <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-        <ImageIcon className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-        <p className="text-xs text-blue-700">
-          Upload multiple high-quality images to showcase your property. The first
-          image will be used as the primary image in listings.
-        </p>
-      </div>
+      {!disableUpload && (
+        <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <ImageIcon className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-blue-700">
+            Upload multiple high-quality images to showcase your property. The
+            first image will be used as the primary image in listings.
+          </p>
+        </div>
+      )}
     </div>
   );
 };
