@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertCircle,
+  Globe,
 } from "lucide-react";
 import {
   Dialog,
@@ -26,7 +27,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Destination, DestinationDto } from "@/types/destination.types";
+import {
+  Destination,
+  DestinationDto,
+  TranslatedField,
+} from "@/types/destination.types";
 // Import destination service functions with string ID parameters
 import {
   getAllDestinations,
@@ -41,16 +46,27 @@ import {
   uploadImages,
   type StorageEntityType,
 } from "@/services/api/storageService";
+import {
+  useLocalized,
+  SUPPORTED_LOCALES,
+  LOCALE_LABELS,
+  type SupportedLocale,
+} from "@/hooks/useLocalized";
 
 /* ============================== Types ============================== */
 
 interface DestinationFormData {
-  name: string;
-  description: string;
+  name: TranslatedField;
+  description: TranslatedField;
   category: string;
   lat?: number;
   lng?: number;
   imageUrls: string[];
+}
+
+/** Creates an empty TranslatedField with all locales set to "" */
+function emptyTranslatedField(): TranslatedField {
+  return Object.fromEntries(SUPPORTED_LOCALES.map((l) => [l, ""]));
 }
 
 /* ============================== Constants ============================== */
@@ -70,6 +86,7 @@ const ITEMS_PER_PAGE = 12;
 
 export default function DestinationsManagement() {
   const { t } = useTranslation();
+  const { localize } = useLocalized();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -88,11 +105,12 @@ export default function DestinationsManagement() {
   );
   const [selectedDestination, setSelectedDestination] =
     useState<Destination | null>(null);
+  const [activeLocaleTab, setActiveLocaleTab] = useState<SupportedLocale>("en");
 
   // Form states
   const [formData, setFormData] = useState<DestinationFormData>({
-    name: "",
-    description: "",
+    name: emptyTranslatedField(),
+    description: emptyTranslatedField(),
     category: "",
     lat: undefined,
     lng: undefined,
@@ -127,14 +145,15 @@ export default function DestinationsManagement() {
     setDialogMode("create");
     setSelectedDestination(null);
     setFormData({
-      name: "",
-      description: "",
+      name: emptyTranslatedField(),
+      description: emptyTranslatedField(),
       category: "",
       lat: undefined,
       lng: undefined,
       imageUrls: [],
     });
     setSelectedImageFiles([]);
+    setActiveLocaleTab("en");
     setDialogOpen(true);
   };
 
@@ -142,14 +161,25 @@ export default function DestinationsManagement() {
     setDialogMode("edit");
     setSelectedDestination(destination);
     setFormData({
-      name: destination.name,
-      description: destination.description,
+      name: {
+        ...emptyTranslatedField(),
+        ...(typeof destination.name === "object"
+          ? destination.name
+          : { en: destination.name }),
+      },
+      description: {
+        ...emptyTranslatedField(),
+        ...(typeof destination.description === "object"
+          ? destination.description
+          : { en: destination.description }),
+      },
       category: destination.category,
       lat: destination.lat,
       lng: destination.lng,
       imageUrls: destination.imageUrls || [],
     });
     setSelectedImageFiles([]);
+    setActiveLocaleTab("en");
     setDialogOpen(true);
   };
 
@@ -157,13 +187,24 @@ export default function DestinationsManagement() {
     setDialogMode("view");
     setSelectedDestination(destination);
     setFormData({
-      name: destination.name,
-      description: destination.description,
+      name: {
+        ...emptyTranslatedField(),
+        ...(typeof destination.name === "object"
+          ? destination.name
+          : { en: destination.name }),
+      },
+      description: {
+        ...emptyTranslatedField(),
+        ...(typeof destination.description === "object"
+          ? destination.description
+          : { en: destination.description }),
+      },
       category: destination.category,
       lat: destination.lat,
       lng: destination.lng,
       imageUrls: destination.imageUrls || [],
     });
+    setActiveLocaleTab("en");
     setDialogOpen(true);
   };
 
@@ -171,7 +212,7 @@ export default function DestinationsManagement() {
     const result = await Swal.fire({
       title: t("destinationsManagement.delete.confirmTitle"),
       text: t("destinationsManagement.delete.confirmMessage", {
-        name: destination.name,
+        name: localize(destination.name),
       }),
       icon: "warning",
       showCancelButton: true,
@@ -213,9 +254,21 @@ export default function DestinationsManagement() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  /** Update a translated field for a specific locale */
+  const handleTranslatedChange = (
+    field: "name" | "description",
+    locale: SupportedLocale,
+    value: string,
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: { ...prev[field], [locale]: value },
+    }));
+  };
+
   const handleSave = async () => {
     // Validation
-    if (!formData.name || !formData.category) {
+    if (!formData.name.en || !formData.category) {
       Swal.fire(
         t("destinationsManagement.errorMessages.createFailed"),
         t("destinationsManagement.validation.requiredFields"),
@@ -305,9 +358,11 @@ export default function DestinationsManagement() {
   /* ============================== Filtering & Pagination ============================== */
 
   const filteredDestinations = destinations.filter((destination) => {
+    const nameStr = localize(destination.name);
+    const descStr = localize(destination.description);
     const matchesSearch =
-      destination.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      destination.description.toLowerCase().includes(searchTerm.toLowerCase());
+      nameStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      descStr.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesCategory =
       categoryFilter === "all" || destination.category === categoryFilter;
@@ -508,7 +563,7 @@ export default function DestinationsManagement() {
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {/* Name */}
+            {/* Name (single, same for all languages) */}
             <div className="space-y-2">
               <Label htmlFor="name">
                 {t("destinationsManagement.form.name")}{" "}
@@ -516,9 +571,10 @@ export default function DestinationsManagement() {
               </Label>
               <Input
                 id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
+                value={formData.name.en || ""}
+                onChange={(e) =>
+                  handleTranslatedChange("name", "en", e.target.value)
+                }
                 placeholder={t("destinationsManagement.form.namePlaceholder")}
                 disabled={dialogMode === "view"}
               />
@@ -549,16 +605,54 @@ export default function DestinationsManagement() {
               </select>
             </div>
 
-            {/* Description */}
+            {/* Language Tabs (for description only) */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-1">
+                <Globe size={16} className="text-indigo-500" />
+                <span className="text-sm font-medium text-gray-700">
+                  {t(
+                    "destinationsManagement.form.descriptionLanguage",
+                    "Description Language",
+                  )}
+                </span>
+              </div>
+              <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
+                {SUPPORTED_LOCALES.map((locale) => (
+                  <button
+                    key={locale}
+                    type="button"
+                    onClick={() => setActiveLocaleTab(locale)}
+                    className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                      activeLocaleTab === locale
+                        ? "bg-white text-indigo-700 shadow-sm"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    {LOCALE_LABELS[locale]}
+                    {locale === "en" && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Description (per locale) */}
             <div className="space-y-2">
               <Label htmlFor="description">
-                {t("destinationsManagement.form.description")}
+                {t("destinationsManagement.form.description")} (
+                {LOCALE_LABELS[activeLocaleTab]})
               </Label>
               <textarea
                 id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
+                value={formData.description[activeLocaleTab] || ""}
+                onChange={(e) =>
+                  handleTranslatedChange(
+                    "description",
+                    activeLocaleTab,
+                    e.target.value,
+                  )
+                }
                 rows={4}
                 placeholder={t(
                   "destinationsManagement.form.descriptionPlaceholder",
@@ -686,6 +780,7 @@ function DestinationCard({
   onDelete,
 }: DestinationCardProps) {
   const { t } = useTranslation();
+  const { localize } = useLocalized();
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
       Adventure: "bg-green-100 text-green-800",
@@ -705,7 +800,7 @@ function DestinationCard({
         {destination.imageUrls && destination.imageUrls.length > 0 ? (
           <img
             src={destination.imageUrls[0]}
-            alt={destination.name}
+            alt={localize(destination.name)}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -725,10 +820,10 @@ function DestinationCard({
       {/* Content */}
       <div className="p-4">
         <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">
-          {destination.name}
+          {localize(destination.name)}
         </h3>
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {destination.description}
+          {localize(destination.description)}
         </p>
 
         {destination.lat && destination.lng && (

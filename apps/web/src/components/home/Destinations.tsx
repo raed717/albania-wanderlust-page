@@ -8,13 +8,13 @@ import { getAllDestinations } from "@/services/api/destinationService";
 import { addDestinationToCurrentUserWishlist } from "@/services/api/destinationService";
 import { Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import {
-  getCurrentUserWishlist
-} from "@/services/api/destinationService";
+import { getCurrentUserWishlist } from "@/services/api/destinationService";
 import { useTranslation } from "react-i18next";
+import { useLocalized } from "@/hooks/useLocalized";
 
 const Destinations = () => {
   const { t } = useTranslation();
+  const { localize } = useLocalized();
   const navigate = useNavigate();
   const sectionRef = useRef(null);
   const headingRef = useRef(null);
@@ -359,7 +359,7 @@ const Destinations = () => {
                 <div className="relative h-64 overflow-hidden">
                   <img
                     src={destination.imageUrls[0] || "/images/placeholder.png"}
-                    alt={destination.name}
+                    alt={localize(destination.name)}
                     className="destination-image w-full h-full object-cover"
                     onError={(e) => {
                       e.currentTarget.src = "/images/placeholder.png";
@@ -377,11 +377,11 @@ const Destinations = () => {
                   <div className="flex items-start gap-2 mb-3">
                     <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-1 group-hover:scale-110 transition-transform duration-300" />
                     <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
-                      {destination.name}
+                      {localize(destination.name)}
                     </h3>
                   </div>
                   <p className="text-muted-foreground mb-4 line-clamp-3 leading-relaxed">
-                    {destination.description}
+                    {localize(destination.description)}
                   </p>
                   <div className="flex gap-3">
                     <Button

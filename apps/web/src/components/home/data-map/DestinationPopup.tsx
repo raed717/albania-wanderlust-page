@@ -1,5 +1,6 @@
 import { Destination } from "@/types/destination.types";
 import { MapPin, Compass } from "lucide-react";
+import { useLocalized } from "@/hooks/useLocalized";
 
 interface DestinationPopupProps {
   destination: Destination;
@@ -12,6 +13,7 @@ const categoryColors: Record<string, { bg: string; text: string }> = {
 };
 
 export function DestinationPopup({ destination }: DestinationPopupProps) {
+  const { localize } = useLocalized();
   const categoryStyle = categoryColors[destination.category] || {
     bg: "bg-gray-100",
     text: "text-gray-800",
@@ -21,7 +23,9 @@ export function DestinationPopup({ destination }: DestinationPopupProps) {
     <div className="w-64 space-y-3">
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-base">{destination.name}</h3>
+          <h3 className="font-semibold text-base">
+            {localize(destination.name)}
+          </h3>
           <span
             className={`text-xs px-2 py-1 rounded-full font-medium ${categoryStyle.bg} ${categoryStyle.text}`}
           >
@@ -31,16 +35,16 @@ export function DestinationPopup({ destination }: DestinationPopupProps) {
         {destination.imageUrls && destination.imageUrls.length > 0 && (
           <img
             src={destination.imageUrls[0]}
-            alt={destination.name}
+            alt={localize(destination.name)}
             className="w-full h-32 object-cover rounded-md my-2"
           />
         )}
       </div>
 
       <div className="space-y-2 text-sm">
-        {destination.description && (
+        {localize(destination.description) && (
           <p className="text-gray-600 line-clamp-3">
-            {destination.description}
+            {localize(destination.description)}
           </p>
         )}
 

@@ -1,9 +1,12 @@
 import { User } from "./user.types";
 
+/** A record of translations keyed by locale code (e.g. "en", "sq", "it", "fr") */
+export type TranslatedField = Record<string, string>;
+
 export interface Destination {
   id: string;
-  name: string;
-  description: string;
+  name: TranslatedField;
+  description: TranslatedField;
   imageUrls: string[];
   category: string;
   lat?: number;
@@ -11,8 +14,8 @@ export interface Destination {
 }
 
 export interface DestinationDto {
-  name: string;
-  description: string;
+  name: TranslatedField;
+  description: TranslatedField;
   imageUrls: string[];
   category: string;
   lat?: number;

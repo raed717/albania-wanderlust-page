@@ -9,6 +9,8 @@ import {
   Save,
   X,
 } from "lucide-react";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import { userService } from "@/services/api/userService";
 import { User, UpdateUserProfileData } from "@/types/user.types";
 import PrimarySearchAppBar from "@/components/home/AppBar";
@@ -61,6 +63,10 @@ export default function MyAccount() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePhoneChange = (value: string | undefined) => {
+    setFormData((prev) => ({ ...prev, phone: value || "" }));
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,7 +141,7 @@ export default function MyAccount() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-red-600" />
       </div>
     );
   }
@@ -183,7 +189,7 @@ export default function MyAccount() {
           {/* Profile Card */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             {/* Cover Image */}
-            <div className="h-32 bg-gradient-to-r from-blue-500 to-blue-700"></div>
+            <div className="h-32 bg-gradient-to-r from-red-500 to-red-700"></div>
 
             {/* Avatar Section */}
             <div className="px-6 sm:px-8 pb-6">
@@ -313,14 +319,25 @@ export default function MyAccount() {
                     <Phone className="w-4 h-4 inline mr-2" />
                     {t("account.phoneNumber")}
                   </label>
-                  <input
-                    type="tel"
-                    name="phone"
+                  <PhoneInput
+                    international
+                    countryCallingCodeEditable={false}
+                    defaultCountry="AL"
                     value={formData.phone}
-                    onChange={handleInputChange}
+                    onChange={handlePhoneChange}
                     disabled={!editing}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-600 transition-colors"
-                    placeholder={t("account.phonePlaceholder")}
+                    className="w-full"
+                    style={{
+                      "--PhoneInputCountryFlag-height": "1em",
+                      "--PhoneInput-color--focus": "#3b82f6",
+                    }}
+                    inputComponent={({ className, ...props }) => (
+                      <input
+                        {...props}
+                        className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-600 transition-colors ${className}`}
+                        placeholder={t("account.phonePlaceholder")}
+                      />
+                    )}
                   />
                 </div>
 

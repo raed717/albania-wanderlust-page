@@ -83,7 +83,7 @@ const Culture = () => {
 
             <CardContent className="p-8">
               <h3 className="text-3xl mb-4 text-foreground">
-                {t("home.culture.culturalExperiences")}
+                {t("home.culture.festivalsAndTraditions")}
               </h3>
               <p className="text-muted-foreground mb-6 leading-relaxed">
                 Experience Albania's vibrant culture through traditional folk

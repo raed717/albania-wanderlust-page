@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useTranslation } from "react-i18next";
+import { useLocalized } from "@/hooks/useLocalized";
 
 // Fix for default marker icon issue in React-Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -27,6 +28,7 @@ L.Icon.Default.mergeOptions({
 
 const DestinationDetails = () => {
   const { t } = useTranslation();
+  const { localize } = useLocalized();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -92,8 +94,8 @@ const DestinationDetails = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: destination.name,
-          text: destination.description,
+          title: localize(destination.name),
+          text: localize(destination.description),
           url: window.location.href,
         });
       } catch (err) {
@@ -190,7 +192,7 @@ const DestinationDetails = () => {
                   destination.imageUrls[selectedImageIndex] ||
                   "/placeholder.svg"
                 }
-                alt={destination.name}
+                alt={localize(destination.name)}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.src = "/placeholder.svg";
@@ -216,7 +218,7 @@ const DestinationDetails = () => {
                   >
                     <img
                       src={url}
-                      alt={`${destination.name} ${index + 1}`}
+                      alt={`${localize(destination.name)} ${index + 1}`}
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder.svg";
@@ -234,11 +236,11 @@ const DestinationDetails = () => {
               <div className="flex items-start gap-3 mb-4">
                 <MapPin className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
                 <h1 className="text-4xl font-bold text-slate-900">
-                  {destination.name}
+                  {localize(destination.name)}
                 </h1>
               </div>
               <p className="text-lg text-slate-600 leading-relaxed">
-                {destination.description}
+                {localize(destination.description)}
               </p>
             </div>
 
@@ -260,7 +262,9 @@ const DestinationDetails = () => {
                       <Marker position={mapCenter}>
                         <Popup>
                           <div className="text-center">
-                            <h3 className="font-bold">{destination.name}</h3>
+                            <h3 className="font-bold">
+                              {localize(destination.name)}
+                            </h3>
                             <p className="text-sm text-slate-600">
                               {destination.category}
                             </p>

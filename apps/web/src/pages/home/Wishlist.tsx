@@ -11,10 +11,12 @@ import {
 } from "@/services/api/destinationService";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import { useTranslation } from "react-i18next";
+import { useLocalized } from "@/hooks/useLocalized";
 
 const WishlistPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { localize } = useLocalized();
   const [wishlist, setWishlist] = useState<Wishlist | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -108,7 +110,7 @@ const WishlistPage = () => {
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img
                     src={destination.imageUrls[0]}
-                    alt={destination.name}
+                    alt={localize(destination.name)}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   {/* Overlay Actions */}
@@ -131,7 +133,8 @@ const WishlistPage = () => {
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center text-primary font-medium text-sm">
                       <MapPin className="w-3.5 h-3.5 mr-1" />
-                      {destination.name || t("wishlist.international")}
+                      {localize(destination.name) ||
+                        t("wishlist.international")}
                     </div>
                     <div className="flex items-center text-sm font-bold bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded">
                       <Star className="w-3 h-3 mr-1 fill-yellow-700" />
@@ -140,11 +143,11 @@ const WishlistPage = () => {
                   </div>
 
                   <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-primary transition-colors line-clamp-1">
-                    {destination.name}
+                    {localize(destination.name)}
                   </h3>
 
                   <p className="text-slate-500 text-sm mb-5 line-clamp-2 leading-relaxed">
-                    {destination.description}
+                    {localize(destination.description)}
                   </p>
 
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100">

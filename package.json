@@ -31,5 +31,8 @@
     "concurrently": "^9.2.1",
     "supabase": "^2.72.8",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "react-phone-number-input": "^3.4.16"
   }
 }

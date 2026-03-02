@@ -15,6 +15,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLocalized } from "@/hooks/useLocalized";
 
 type Selected =
   | { type: "hotel"; data: Hotel }
@@ -298,6 +299,7 @@ function ApartmentPanel({ apartment }: { apartment: Apartment }) {
 
 /* ─── Destination Panel ───────────────────────────────────── */
 function DestinationPanel({ destination }: { destination: Destination }) {
+  const { localize } = useLocalized();
   const categoryStyle =
     categoryColors[destination.category] ||
     "bg-gray-100 text-gray-700 border-gray-200";
@@ -309,7 +311,7 @@ function DestinationPanel({ destination }: { destination: Destination }) {
         {destination.imageUrls?.[0] ? (
           <img
             src={destination.imageUrls[0]}
-            alt={destination.name}
+            alt={localize(destination.name)}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -332,7 +334,7 @@ function DestinationPanel({ destination }: { destination: Destination }) {
       <div className="flex-1 overflow-y-auto p-5 space-y-5">
         <div>
           <h2 className="text-xl font-bold text-gray-900 leading-tight">
-            {destination.name}
+            {localize(destination.name)}
           </h2>
           {destination.lat && destination.lng && (
             <p className="flex items-center gap-1 text-xs text-gray-400 mt-1">
@@ -342,11 +344,11 @@ function DestinationPanel({ destination }: { destination: Destination }) {
           )}
         </div>
 
-        {destination.description && (
+        {localize(destination.description) && (
           <div>
             <p className="text-sm font-semibold text-gray-700 mb-1">About</p>
             <p className="text-sm text-gray-600 leading-relaxed">
-              {destination.description}
+              {localize(destination.description)}
             </p>
           </div>
         )}
