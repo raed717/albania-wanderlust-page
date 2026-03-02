@@ -1059,7 +1059,8 @@
     },
     "roles": {
       "user": "Utente",
-      "admin": "Amministratore"
+      "admin": "Amministratore",
+      "provider": "Fornitore"
     }
   },
   "requestsManagement": {
@@ -1221,6 +1222,7 @@
       "role": "Ruolo",
       "user": "Utente",
       "admin": "Amministratore",
+      "provider": "Fornitore",
       "saving": "Salvataggio...",
       "save": "Salva",
       "cancel": "Annulla"
@@ -1239,7 +1241,8 @@
     },
     "roles": {
       "user": "Utente",
-      "admin": "Amministratore"
+      "admin": "Amministratore",
+      "provider": "Fornitore"
     }
   },
   "sidebar": {

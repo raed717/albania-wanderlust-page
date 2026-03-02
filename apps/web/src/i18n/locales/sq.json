@@ -1067,7 +1067,8 @@
     },
     "roles": {
       "user": "Përdorues",
-      "admin": "Administrator"
+      "admin": "Administrator",
+      "provider": "Ofrues"
     }
   },
   "requestsManagement": {
@@ -1238,6 +1239,7 @@
       "role": "Roli",
       "user": "Përdorues",
       "admin": "Administrator",
+      "provider": "Ofrues",
       "saving": "Duke ruajtur...",
       "save": "Ruaj",
       "cancel": "Anulo"
@@ -1256,7 +1258,8 @@
     },
     "roles": {
       "user": "Përdorues",
-      "admin": "Administrator"
+      "admin": "Administrator",
+      "provider": "Ofrues"
     }
   },
   "sidebar": {

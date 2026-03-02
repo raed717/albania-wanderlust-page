@@ -58,8 +58,6 @@ const getStatusColor = (status: Booking["status"]) => {
       return "bg-amber-100 text-amber-700 border-amber-200";
     case "canceled":
       return "bg-red-100 text-red-700 border-red-200";
-    case "completed":
-      return "bg-blue-100 text-blue-700 border-blue-200";
     default:
       return "bg-gray-100 text-gray-700 border-gray-200";
   }
@@ -99,8 +97,6 @@ const getStatusIcon = (status: Booking["status"]) => {
       return Clock;
     case "canceled":
       return XCircle;
-    case "completed":
-      return CheckCircle2;
     default:
       return AlertCircle;
   }
@@ -515,9 +511,6 @@ export default function BookingsManagement() {
             <option value="canceled">
               {t("bookingManagement.statusOptions.canceled")}
             </option>
-            <option value="completed">
-              {t("bookingManagement.statusOptions.completed")}
-            </option>
           </select>
 
           <select
@@ -554,173 +547,320 @@ export default function BookingsManagement() {
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {t("bookingManagement.table.headers.property")}
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {t("bookingManagement.table.headers.customer")}
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {t("bookingManagement.table.headers.dates")}
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {t("bookingManagement.table.headers.price")}
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {t("bookingManagement.table.headers.bookingStatus")}
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {t("bookingManagement.table.headers.paymentStatus")}
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      {t("bookingManagement.table.headers.actions")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredBookings.map((booking) => {
-                    const PropertyIcon = getPropertyIcon(booking.propertyType);
-                    const StatusIcon = getStatusIcon(booking.status);
-                    const PaymentStatusIcon = getPaymentStatusIcon(
-                      booking.payment_status,
-                    );
-                    const startDate = new Date(booking.startDate);
-                    const endDate = new Date(booking.endDate);
+          <>
+            {/* Mobile Card Layout */}
+            <div className="md:hidden space-y-4">
+              {filteredBookings.map((booking) => {
+                const PropertyIcon = getPropertyIcon(booking.propertyType);
+                const StatusIcon = getStatusIcon(booking.status);
+                const PaymentStatusIcon = getPaymentStatusIcon(
+                  booking.payment_status,
+                );
+                const startDate = new Date(booking.startDate);
+                const endDate = new Date(booking.endDate);
 
-                    return (
-                      <tr
-                        key={booking.id}
-                        className="hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div
-                            className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition-colors"
-                            onClick={() => navigate(getPropertyRoute(booking))}
-                          >
-                            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center overflow-hidden">
-                              {booking.propertyData?.imageUrls?.[0] ? (
-                                <img
-                                  src={booking.propertyData.imageUrls[0]}
-                                  alt={booking.propertyData.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <PropertyIcon className="w-5 h-5 text-blue-600" />
-                              )}
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">
-                                {booking.propertyData?.name ||
-                                  `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}`}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm">
-                            <p className="font-medium text-gray-900">
-                              {booking.status === "confirmed" &&
-                              booking.payment_status === "paid"
-                                ? booking.requesterName
-                                : "—"}
-                            </p>
-                            {booking.status === "confirmed" &&
-                              booking.payment_status === "paid" && (
-                                <ContactClientButton booking={booking} />
-                              )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm">
-                            <p className="text-gray-900">
-                              {startDate.toLocaleDateString()}
-                            </p>
-                            <p className="text-gray-500 text-xs">
-                              {t("bookingManagement.table.to")}
-                            </p>
-                            <p className="text-gray-900">
-                              {endDate.toLocaleDateString()}
-                            </p>
-                            {booking.pickUpTime && booking.dropOffTime && (
-                              <p className="text-gray-500 text-xs mt-1">
-                                {booking.pickUpTime} - {booking.dropOffTime}
-                              </p>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm">
-                            <p className="font-semibold text-gray-900">
-                              ${booking.totalPrice.toFixed(2)}
-                            </p>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
-                              booking.status,
-                            )}`}
-                          >
-                            <StatusIcon className="w-3.5 h-3.5" />
-                            {booking.status}
+                return (
+                  <div
+                    key={booking.id}
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+                  >
+                    {/* Card Header - Property Info */}
+                    <div
+                      className="flex items-center gap-3 p-4 bg-gray-50 border-b border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => navigate(getPropertyRoute(booking))}
+                    >
+                      <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {booking.propertyData?.imageUrls?.[0] ? (
+                          <img
+                            src={booking.propertyData.imageUrls[0]}
+                            alt={booking.propertyData.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <PropertyIcon className="w-6 h-6 text-blue-600" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
+                          {booking.propertyData?.name ||
+                            `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}`}
+                        </p>
+                        <p className="text-xs text-gray-500 capitalize">
+                          {booking.propertyType}
+                        </p>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900 flex-shrink-0">
+                        ${booking.totalPrice.toFixed(2)}
+                      </p>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="p-4 space-y-3">
+                      {/* Status Badges */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
+                            booking.status,
+                          )}`}
+                        >
+                          <StatusIcon className="w-3.5 h-3.5" />
+                          {booking.status}
+                        </span>
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getPaymentStatusColor(
+                            booking.payment_status,
+                          )}`}
+                        >
+                          <PaymentStatusIcon className="w-3.5 h-3.5" />
+                          {booking.payment_status}
+                        </span>
+                      </div>
+
+                      {/* Dates */}
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <span>
+                          {startDate.toLocaleDateString()}{" "}
+                          {t("bookingManagement.table.to")}{" "}
+                          {endDate.toLocaleDateString()}
+                        </span>
+                      </div>
+                      {booking.pickUpTime && booking.dropOffTime && (
+                        <div className="flex items-center gap-2 text-xs text-gray-500 ml-6">
+                          <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span>
+                            {booking.pickUpTime} - {booking.dropOffTime}
                           </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getPaymentStatusColor(
-                              booking.payment_status,
-                            )}`}
-                          >
-                            <PaymentStatusIcon className="w-3.5 h-3.5" />
-                            {booking.payment_status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <select
-                              value={booking.status}
-                              onChange={(e) =>
-                                handleStatusUpdate(
-                                  booking.id,
-                                  e.target.value as Booking["status"],
-                                )
-                              }
-                              disabled={
-                                updatingStatus === booking.id ||
-                                booking.payment_status === "paid"
-                              }
-                              className="text-xs px-3 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <option value="pending">
-                                {t("bookingManagement.statusOptions.pending")}
-                              </option>
-                              <option value="confirmed">
-                                {t("bookingManagement.statusOptions.confirmed")}
-                              </option>
-                              <option value="canceled">
-                                {t("bookingManagement.statusOptions.canceled")}
-                              </option>
-                              <option value="completed">
-                                {t("bookingManagement.statusOptions.completed")}
-                              </option>
-                            </select>
-                            {updatingStatus === booking.id && (
-                              <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                        </div>
+                      )}
+
+                      {/* Customer */}
+                      <div className="text-sm">
+                        <p className="text-xs text-gray-500 mb-0.5">
+                          {t("bookingManagement.table.headers.customer")}
+                        </p>
+                        <p className="font-medium text-gray-900">
+                          {booking.status === "confirmed" &&
+                          booking.payment_status === "paid"
+                            ? booking.requesterName
+                            : "—"}
+                        </p>
+                        {booking.status === "confirmed" &&
+                          booking.payment_status === "paid" && (
+                            <ContactClientButton booking={booking} />
+                          )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+                        <select
+                          value={booking.status}
+                          onChange={(e) =>
+                            handleStatusUpdate(
+                              booking.id,
+                              e.target.value as Booking["status"],
+                            )
+                          }
+                          disabled={
+                            updatingStatus === booking.id ||
+                            booking.payment_status === "paid"
+                          }
+                          className="flex-1 text-xs px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <option value="pending">
+                            {t("bookingManagement.statusOptions.pending")}
+                          </option>
+                          <option value="confirmed">
+                            {t("bookingManagement.statusOptions.confirmed")}
+                          </option>
+                          <option value="canceled">
+                            {t("bookingManagement.statusOptions.canceled")}
+                          </option>
+                        </select>
+                        {updatingStatus === booking.id && (
+                          <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
+
+            {/* Desktop Table Layout */}
+            <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        {t("bookingManagement.table.headers.property")}
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        {t("bookingManagement.table.headers.customer")}
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        {t("bookingManagement.table.headers.dates")}
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        {t("bookingManagement.table.headers.price")}
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        {t("bookingManagement.table.headers.bookingStatus")}
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        {t("bookingManagement.table.headers.paymentStatus")}
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        {t("bookingManagement.table.headers.actions")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredBookings.map((booking) => {
+                      const PropertyIcon = getPropertyIcon(
+                        booking.propertyType,
+                      );
+                      const StatusIcon = getStatusIcon(booking.status);
+                      const PaymentStatusIcon = getPaymentStatusIcon(
+                        booking.payment_status,
+                      );
+                      const startDate = new Date(booking.startDate);
+                      const endDate = new Date(booking.endDate);
+
+                      return (
+                        <tr
+                          key={booking.id}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div
+                              className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition-colors"
+                              onClick={() =>
+                                navigate(getPropertyRoute(booking))
+                              }
+                            >
+                              <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center overflow-hidden">
+                                {booking.propertyData?.imageUrls?.[0] ? (
+                                  <img
+                                    src={booking.propertyData.imageUrls[0]}
+                                    alt={booking.propertyData.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <PropertyIcon className="w-5 h-5 text-blue-600" />
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">
+                                  {booking.propertyData?.name ||
+                                    `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}`}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm">
+                              <p className="font-medium text-gray-900">
+                                {booking.status === "confirmed" &&
+                                booking.payment_status === "paid"
+                                  ? booking.requesterName
+                                  : "—"}
+                              </p>
+                              {booking.status === "confirmed" &&
+                                booking.payment_status === "paid" && (
+                                  <ContactClientButton booking={booking} />
+                                )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm">
+                              <p className="text-gray-900">
+                                {startDate.toLocaleDateString()}
+                              </p>
+                              <p className="text-gray-500 text-xs">
+                                {t("bookingManagement.table.to")}
+                              </p>
+                              <p className="text-gray-900">
+                                {endDate.toLocaleDateString()}
+                              </p>
+                              {booking.pickUpTime && booking.dropOffTime && (
+                                <p className="text-gray-500 text-xs mt-1">
+                                  {booking.pickUpTime} - {booking.dropOffTime}
+                                </p>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm">
+                              <p className="font-semibold text-gray-900">
+                                ${booking.totalPrice.toFixed(2)}
+                              </p>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
+                                booking.status,
+                              )}`}
+                            >
+                              <StatusIcon className="w-3.5 h-3.5" />
+                              {booking.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getPaymentStatusColor(
+                                booking.payment_status,
+                              )}`}
+                            >
+                              <PaymentStatusIcon className="w-3.5 h-3.5" />
+                              {booking.payment_status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <select
+                                value={booking.status}
+                                onChange={(e) =>
+                                  handleStatusUpdate(
+                                    booking.id,
+                                    e.target.value as Booking["status"],
+                                  )
+                                }
+                                disabled={
+                                  updatingStatus === booking.id ||
+                                  booking.payment_status === "paid"
+                                }
+                                className="text-xs px-3 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <option value="pending">
+                                  {t("bookingManagement.statusOptions.pending")}
+                                </option>
+                                <option value="confirmed">
+                                  {t(
+                                    "bookingManagement.statusOptions.confirmed",
+                                  )}
+                                </option>
+                                <option value="canceled">
+                                  {t(
+                                    "bookingManagement.statusOptions.canceled",
+                                  )}
+                                </option>
+                              </select>
+                              {updatingStatus === booking.id && (
+                                <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </Hsidebar>

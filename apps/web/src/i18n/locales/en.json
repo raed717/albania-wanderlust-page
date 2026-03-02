@@ -1059,7 +1059,8 @@
     },
     "roles": {
       "user": "User",
-      "admin": "Admin"
+      "admin": "Admin",
+      "provider": "Provider"
     }
   },
   "requestsManagement": {
@@ -1221,6 +1222,7 @@
       "role": "Role",
       "user": "User",
       "admin": "Admin",
+      "provider": "Provider",
       "saving": "Saving...",
       "save": "Save",
       "cancel": "Cancel"
@@ -1239,7 +1241,8 @@
     },
     "roles": {
       "user": "User",
-      "admin": "Admin"
+      "admin": "Admin",
+      "provider": "Provider"
     }
   },
   "sidebar": {

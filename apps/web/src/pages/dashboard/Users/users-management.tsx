@@ -223,6 +223,9 @@ function UserManagement() {
                 <option value="admin">
                   {t("userManagement.filters.admin")}
                 </option>
+                <option value="provider">
+                  {t("userManagement.roles.provider")}
+                </option>
               </select>
 
               <select
@@ -246,7 +249,50 @@ function UserManagement() {
             </div>
 
             {/* Table */}
-            <div className="bg-white p-4 rounded-lg shadow">
+            {/* Mobile Card Layout */}
+            <div className="md:hidden space-y-4">
+              {filteredData.map((user) => (
+                <div
+                  key={user.id}
+                  className="bg-white rounded-xl shadow border border-gray-200 overflow-hidden"
+                >
+                  {/* Card Header */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {user.name}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {user.email}
+                      </p>
+                    </div>
+                    <Link
+                      to={`/dashboard/user-details/${user.id}`}
+                      className="ml-3 flex-shrink-0 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                    >
+                      {t("userManagement.viewDetails")}
+                    </Link>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="p-4 flex flex-wrap items-center gap-2">
+                    <RoleTag role={user.role} />
+                    <StatusBadge status={user.status} />
+                    <span className="ml-auto text-xs text-gray-500">
+                      {user.registered}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {filteredData.length === 0 && (
+                <div className="bg-white rounded-xl shadow border border-gray-200 p-8 text-center text-gray-500 text-sm">
+                  {t("userManagement.noUsers", "No users found")}
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Table */}
+            <div className="hidden md:block bg-white p-4 rounded-lg shadow">
               <DataTable
                 columns={columns}
                 data={filteredData}

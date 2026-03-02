@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Hsidebar from "@/components/dashboard/hsidebar";
 import {
   ArrowLeft,
@@ -10,6 +10,10 @@ import {
   X,
   Contact,
   Badge,
+  Phone,
+  MapPin,
+  Clock,
+  User as UserIcon,
 } from "lucide-react";
 import { userService } from "@/services/api/userService";
 import { User, UpdateUserProfileData, UpdateUser } from "@/types/user.types";
@@ -17,11 +21,7 @@ import { useTranslation } from "react-i18next";
 
 // --- Components ---
 
-/**
- * Modern Status Badge Component
- * @param {'active' | 'suspended' | 'pending'} status
- */
-const StatusBadge = ({ status }) => {
+const StatusBadge = ({ status }: { status: string }) => {
   const { t } = useTranslation();
   let colorClass = "";
   let dotColor = "";
@@ -46,7 +46,7 @@ const StatusBadge = ({ status }) => {
 
   return (
     <span
-      className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${colorClass}`}
+      className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${colorClass}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full mr-1.5 ${dotColor}`}></span>
       {t(`userDetails.status.${status}`)}
@@ -54,11 +54,7 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-/**
- * Role Tag Component
- * @param {string} role
- */
-const RoleTag = ({ role }) => {
+const RoleTag = ({ role }: { role: string }) => {
   const { t } = useTranslation();
   return (
     <span className="px-3 py-1 text-sm font-semibold rounded-full bg-indigo-100 text-indigo-800 shadow-sm capitalize">
@@ -68,7 +64,37 @@ const RoleTag = ({ role }) => {
   );
 };
 
-// --- Fake Data and Main Component ---
+/** Generates initials from a name or email */
+function getInitials(name?: string | null, email?: string): string {
+  if (name) {
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2)
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    return parts[0].substring(0, 2).toUpperCase();
+  }
+  return (email?.substring(0, 2) || "??").toUpperCase();
+}
+
+const AvatarFallback = ({
+  name,
+  email,
+  size = "lg",
+}: {
+  name?: string | null;
+  email?: string;
+  size?: "sm" | "lg";
+}) => {
+  const initials = getInitials(name, email);
+  const sizeClass =
+    size === "lg" ? "w-24 h-24 text-2xl" : "w-12 h-12 text-base";
+  return (
+    <div
+      className={`${sizeClass} rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md ring-4 ring-indigo-500/30 select-none`}
+    >
+      {initials}
+    </div>
+  );
+};
 
 function UserDetails() {
   const { t } = useTranslation();
@@ -214,78 +240,77 @@ function UserDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 bg-white rounded-xl shadow-lg p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 border-b pb-6 mb-6">
-              {/* Profile Image */}
-              <img
-                className="w-24 h-24 rounded-full object-cover shadow-md ring-4 ring-indigo-500/30"
-                src={
-                  user.avatar_url || "https://i.pravatar.cc/150?u=" + user.id
-                }
-                alt={user.full_name || user.email}
-              />
+              {/* Avatar */}
+              {user.avatar_url ? (
+                <img
+                  className="w-24 h-24 rounded-full object-cover shadow-md ring-4 ring-indigo-500/30"
+                  src={user.avatar_url}
+                  alt={user.full_name || user.email}
+                />
+              ) : (
+                <AvatarFallback
+                  name={user.full_name}
+                  email={user.email}
+                  size="lg"
+                />
+              )}
               {/* Basic Info */}
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900">
-                  {user.full_name || user.email}
+              <div className="min-w-0">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">
+                  {user.full_name || user.email.split("@")[0]}
                 </h2>
-                <div className="mt-2 flex items-center gap-4">
+                <p className="text-sm text-gray-500 mt-0.5 truncate">
+                  {user.email}
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
                   <RoleTag role={user.role || "user"} />
                   <StatusBadge status={user.status} />
-                  {/* StatusBadge can be customized if you add status to metadata */}
                 </div>
               </div>
             </div>
 
             {/* Contact and Registration Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-12">
               {/* Email */}
-              <div className="flex items-center space-x-3">
-                <Mail className="w-5 h-5 text-indigo-500" />
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">
+              <div className="flex items-start space-x-3">
+                <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-4.5 h-4.5 text-indigo-500" />
+                </div>
+                <div className="min-w-0">
+                  <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     {t("userDetails.labels.email")}
                   </dt>
-                  <dd className="text-base text-gray-900 break-words">
+                  <dd className="text-sm text-gray-900 break-all mt-0.5">
                     {user.email}
                   </dd>
                 </div>
               </div>
 
               {/* Phone */}
-              <div className="flex items-center space-x-3">
-                <span className="text-indigo-500">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.134.482l-.841 1.682c-.07.14-.14.28-.21.42a1.875 1.875 0 0 0 .942 2.536l-4.226-4.226a1.875 1.875 0 0 0 2.536.942l1.682-.841c.427-.232.592-.694.482-1.134l-1.106-4.423a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 6.75Z"
-                    />
-                  </svg>
-                </span>
+              <div className="flex items-start space-x-3">
+                <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-4.5 h-4.5 text-indigo-500" />
+                </div>
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">
+                  <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     {t("userDetails.labels.phone")}
                   </dt>
-                  <dd className="text-base text-gray-900">
-                    {user.phone || user.phone || "-"}
+                  <dd className="text-sm text-gray-900 mt-0.5">
+                    {user.phone || "-"}
                   </dd>
                 </div>
               </div>
 
               {/* Registration Date */}
-              <div className="flex items-center space-x-3">
-                <Calendar className="w-5 h-5 text-indigo-500" />
+              <div className="flex items-start space-x-3">
+                <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                  <Calendar className="w-4.5 h-4.5 text-indigo-500" />
+                </div>
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">
+                  <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     {t("userDetails.labels.registrationDate")}
                   </dt>
-                  <dd className="text-base text-gray-900">
+                  <dd className="text-sm text-gray-900 mt-0.5">
                     {user.created_at
                       ? new Date(user.created_at).toLocaleDateString()
                       : "-"}
@@ -294,28 +319,15 @@ function UserDetails() {
               </div>
 
               {/* Last Login */}
-              <div className="flex items-center space-x-3">
-                <span className="text-indigo-500">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                    />
-                  </svg>
-                </span>
+              <div className="flex items-start space-x-3">
+                <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                  <Clock className="w-4.5 h-4.5 text-indigo-500" />
+                </div>
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">
+                  <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     {t("userDetails.labels.lastLogin")}
                   </dt>
-                  <dd className="text-base text-gray-900">
+                  <dd className="text-sm text-gray-900 mt-0.5">
                     {user.updated_at
                       ? new Date(user.updated_at).toLocaleString()
                       : "-"}
@@ -324,27 +336,34 @@ function UserDetails() {
               </div>
             </div>
 
-            {/* Address (Full Width Detail) */}
+            {/* Address */}
             <div className="mt-6 pt-6 border-t">
-              <dt className="text-sm font-medium text-gray-500 mb-1">
-                {t("userDetails.labels.address")}
-              </dt>
-              <dd className="text-base text-gray-900">
-                {user.location || "-"}
-              </dd>
+              <div className="flex items-start space-x-3">
+                <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-4.5 h-4.5 text-indigo-500" />
+                </div>
+                <div>
+                  <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    {t("userDetails.labels.address")}
+                  </dt>
+                  <dd className="text-sm text-gray-900 mt-0.5">
+                    {user.location || "-"}
+                  </dd>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* --- Actions & Activity Sidebar (Dynamic/Responsive) --- */}
+          {/* --- Actions Sidebar --- */}
           <div className="space-y-6">
             {/* Actions Card */}
             <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-3">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-3">
                 {t("userDetails.managementActions")}
               </h3>
-              <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3">
+              <div className="flex flex-col gap-3">
                 <button
-                  className="flex items-center justify-center w-full px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-150 shadow-md"
+                  className="flex items-center justify-center w-full px-4 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleEditOpen}
                   disabled={saving}
                 >
@@ -352,7 +371,7 @@ function UserDetails() {
                   {t("userDetails.buttons.editProfile")}
                 </button>
                 <button
-                  className="flex items-center justify-center w-full px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-150 shadow-md"
+                  className="flex items-center justify-center w-full px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handelSuspendUser}
                   disabled={saving || user.status === "suspended"}
                 >
@@ -360,7 +379,7 @@ function UserDetails() {
                   {t("userDetails.buttons.suspendUser")}
                 </button>
                 <button
-                  className="flex items-center justify-center w-full px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition duration-150 shadow-md"
+                  className="flex items-center justify-center w-full px-4 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handelActivateUser}
                   disabled={saving || user.status === "active"}
                 >
@@ -370,13 +389,14 @@ function UserDetails() {
               </div>
             </div>
 
-            {/* Recent Activity Card (not available from Supabase by default) */}
-            {/* You can implement activity tracking if needed */}
+            {/* Quick Info Card */}
             <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-3">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-3">
                 {t("userDetails.recentActivity")}
               </h3>
-              <p className="text-gray-500">{t("userDetails.noActivityData")}</p>
+              <p className="text-sm text-gray-500">
+                {t("userDetails.noActivityData")}
+              </p>
             </div>
           </div>
         </div>
@@ -479,6 +499,9 @@ function UserDetails() {
                   className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="user">{t("userDetails.form.user")}</option>
+                  <option value="provider">
+                    {t("userDetails.form.provider", "Provider")}
+                  </option>
                   <option value="admin">{t("userDetails.form.admin")}</option>
                 </select>
               </div>
