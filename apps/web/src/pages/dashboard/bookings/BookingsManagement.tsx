@@ -301,31 +301,142 @@ export default function BookingsManagement() {
     });
   }, [bookings, searchTerm, statusFilter, propertyTypeFilter]);
 
+  // Check if two date ranges overlap
+  const datesOverlap = (
+    startA: string,
+    endA: string,
+    startB: string,
+    endB: string,
+  ): boolean => {
+    return (
+      new Date(startA) < new Date(endB) && new Date(startB) < new Date(endA)
+    );
+  };
+
+  // Find conflicting bookings for a given booking (same property, overlapping dates, pending status)
+  const getConflictingBookings = (booking: Booking): Booking[] => {
+    return bookings.filter(
+      (b) =>
+        b.id !== booking.id &&
+        b.propertyId === booking.propertyId &&
+        b.propertyType === booking.propertyType &&
+        b.status === "pending" &&
+        datesOverlap(
+          booking.startDate,
+          booking.endDate,
+          b.startDate,
+          b.endDate,
+        ),
+    );
+  };
+
   // Handle status update
   const handleStatusUpdate = async (
     bookingId: string,
     newStatus: Booking["status"],
   ) => {
-    const result = await Swal.fire({
-      title: t("bookingManagement.confirmations.updateStatusTitle"),
-      text: t("bookingManagement.confirmations.updateStatusText", {
-        status: newStatus,
-      }),
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: t("bookingManagement.confirmations.confirmButton"),
-    });
+    const booking = bookings.find((b) => b.id === bookingId);
+    if (!booking) return;
 
-    if (!result.isConfirmed) return;
+    // Check for conflicts when confirming
+    let conflictingBookings: Booking[] = [];
+    if (newStatus === "confirmed") {
+      conflictingBookings = getConflictingBookings(booking);
+    }
+
+    // Build confirmation dialog
+    if (conflictingBookings.length > 0) {
+      const conflictListHtml = conflictingBookings
+        .map((cb) => {
+          const start = new Date(cb.startDate).toLocaleDateString();
+          const end = new Date(cb.endDate).toLocaleDateString();
+          return `
+            <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:12px;margin-bottom:8px;text-align:left;">
+              <div style="font-weight:600;color:#92400e;">${cb.requesterName}</div>
+              <div style="font-size:13px;color:#78350f;margin-top:4px;">
+                📅 ${start} → ${end}
+              </div>
+              <div style="font-size:13px;color:#78350f;">
+                💰 $${cb.totalPrice.toFixed(2)}
+              </div>
+            </div>`;
+        })
+        .join("");
+
+      const result = await Swal.fire({
+        title: t(
+          "bookingManagement.confirmations.conflictTitle",
+          "Date Conflict Detected",
+        ),
+        html: `
+          <p style="margin-bottom:12px;color:#374151;">
+            ${t("bookingManagement.confirmations.conflictMessage", {
+              count: conflictingBookings.length,
+              defaultValue: `Confirming this booking will automatically decline <strong>${conflictingBookings.length}</strong> other pending booking(s) for the same property with overlapping dates:`,
+            })}
+          </p>
+          ${conflictListHtml}
+          <p style="margin-top:12px;color:#6b7280;font-size:13px;">
+            ${t("bookingManagement.confirmations.conflictProceed", "Do you want to proceed? This action cannot be undone.")}
+          </p>
+        `,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#059669",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: t(
+          "bookingManagement.confirmations.confirmAndDecline",
+          "Confirm & Decline Others",
+        ),
+        cancelButtonText: t("account.cancel", "Cancel"),
+        customClass: { popup: "swal-wide" },
+      });
+
+      if (!result.isConfirmed) return;
+    } else {
+      const result = await Swal.fire({
+        title: t("bookingManagement.confirmations.updateStatusTitle"),
+        text: t("bookingManagement.confirmations.updateStatusText", {
+          status: newStatus,
+        }),
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: t("bookingManagement.confirmations.confirmButton"),
+      });
+
+      if (!result.isConfirmed) return;
+    }
 
     try {
       setUpdatingStatus(bookingId);
       const updatedBooking = await updateBookingStatus(bookingId, newStatus);
       setBookings((prev) =>
-        prev.map((b) => (b.id === bookingId ? updatedBooking : b)),
+        prev.map((b) => (b.id === bookingId ? { ...b, ...updatedBooking } : b)),
       );
+
+      // Auto-decline conflicting bookings when confirming
+      if (newStatus === "confirmed" && conflictingBookings.length > 0) {
+        const declineResults = await Promise.allSettled(
+          conflictingBookings.map((cb) =>
+            updateBookingStatus(cb.id, "canceled"),
+          ),
+        );
+
+        setBookings((prev) =>
+          prev.map((b) => {
+            const declined = conflictingBookings.find((cb) => cb.id === b.id);
+            if (declined) {
+              const resultIndex = conflictingBookings.indexOf(declined);
+              if (declineResults[resultIndex].status === "fulfilled") {
+                return { ...b, status: "canceled" as const };
+              }
+            }
+            return b;
+          }),
+        );
+      }
 
       // Send confirmation email if status changed to confirmed
       if (newStatus === "confirmed") {
@@ -653,30 +764,69 @@ export default function BookingsManagement() {
 
                       {/* Actions */}
                       <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
-                        <select
-                          value={booking.status}
-                          onChange={(e) =>
-                            handleStatusUpdate(
-                              booking.id,
-                              e.target.value as Booking["status"],
-                            )
-                          }
-                          disabled={
-                            updatingStatus === booking.id ||
-                            booking.payment_status === "paid"
-                          }
-                          className="flex-1 text-xs px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <option value="pending">
-                            {t("bookingManagement.statusOptions.pending")}
-                          </option>
-                          <option value="confirmed">
-                            {t("bookingManagement.statusOptions.confirmed")}
-                          </option>
-                          <option value="canceled">
-                            {t("bookingManagement.statusOptions.canceled")}
-                          </option>
-                        </select>
+                        {booking.status === "pending" && (
+                          <>
+                            <button
+                              onClick={() =>
+                                handleStatusUpdate(booking.id, "confirmed")
+                              }
+                              disabled={updatingStatus === booking.id}
+                              className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              {t(
+                                "bookingManagement.actions.confirm",
+                                "Confirm",
+                              )}
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleStatusUpdate(booking.id, "canceled")
+                              }
+                              disabled={updatingStatus === booking.id}
+                              className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <XCircle className="w-3.5 h-3.5" />
+                              {t(
+                                "bookingManagement.actions.decline",
+                                "Decline",
+                              )}
+                            </button>
+                          </>
+                        )}
+                        {booking.status === "confirmed" &&
+                          booking.payment_status === "pending" && (
+                            <button
+                              onClick={() =>
+                                handleStatusUpdate(booking.id, "canceled")
+                              }
+                              disabled={updatingStatus === booking.id}
+                              className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <XCircle className="w-3.5 h-3.5" />
+                              {t(
+                                "bookingManagement.actions.cancel",
+                                "Cancel Booking",
+                              )}
+                            </button>
+                          )}
+                        {booking.status === "canceled" && (
+                          <p className="text-xs text-gray-400 italic flex-1 text-center">
+                            {t(
+                              "bookingManagement.actions.noActions",
+                              "No actions available",
+                            )}
+                          </p>
+                        )}
+                        {booking.status === "confirmed" &&
+                          booking.payment_status === "paid" && (
+                            <p className="text-xs text-emerald-600 font-medium flex-1 text-center">
+                              {t(
+                                "bookingManagement.actions.fullyConfirmed",
+                                "Confirmed & Paid",
+                              )}
+                            </p>
+                          )}
                         {updatingStatus === booking.id && (
                           <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
                         )}
@@ -820,34 +970,72 @@ export default function BookingsManagement() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-2">
-                              <select
-                                value={booking.status}
-                                onChange={(e) =>
-                                  handleStatusUpdate(
-                                    booking.id,
-                                    e.target.value as Booking["status"],
-                                  )
-                                }
-                                disabled={
-                                  updatingStatus === booking.id ||
-                                  booking.payment_status === "paid"
-                                }
-                                className="text-xs px-3 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                <option value="pending">
-                                  {t("bookingManagement.statusOptions.pending")}
-                                </option>
-                                <option value="confirmed">
+                              {booking.status === "pending" && (
+                                <>
+                                  <button
+                                    onClick={() =>
+                                      handleStatusUpdate(
+                                        booking.id,
+                                        "confirmed",
+                                      )
+                                    }
+                                    disabled={updatingStatus === booking.id}
+                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    {t(
+                                      "bookingManagement.actions.confirm",
+                                      "Confirm",
+                                    )}
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handleStatusUpdate(booking.id, "canceled")
+                                    }
+                                    disabled={updatingStatus === booking.id}
+                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    <XCircle className="w-3.5 h-3.5" />
+                                    {t(
+                                      "bookingManagement.actions.decline",
+                                      "Decline",
+                                    )}
+                                  </button>
+                                </>
+                              )}
+                              {booking.status === "confirmed" &&
+                                booking.payment_status === "pending" && (
+                                  <button
+                                    onClick={() =>
+                                      handleStatusUpdate(booking.id, "canceled")
+                                    }
+                                    disabled={updatingStatus === booking.id}
+                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    <XCircle className="w-3.5 h-3.5" />
+                                    {t(
+                                      "bookingManagement.actions.cancel",
+                                      "Cancel Booking",
+                                    )}
+                                  </button>
+                                )}
+                              {booking.status === "canceled" && (
+                                <span className="text-xs text-gray-400 italic">
                                   {t(
-                                    "bookingManagement.statusOptions.confirmed",
+                                    "bookingManagement.actions.noActions",
+                                    "No actions available",
                                   )}
-                                </option>
-                                <option value="canceled">
-                                  {t(
-                                    "bookingManagement.statusOptions.canceled",
-                                  )}
-                                </option>
-                              </select>
+                                </span>
+                              )}
+                              {booking.status === "confirmed" &&
+                                booking.payment_status === "paid" && (
+                                  <span className="text-xs text-emerald-600 font-medium">
+                                    {t(
+                                      "bookingManagement.actions.fullyConfirmed",
+                                      "Confirmed & Paid",
+                                    )}
+                                  </span>
+                                )}
                               {updatingStatus === booking.id && (
                                 <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
                               )}

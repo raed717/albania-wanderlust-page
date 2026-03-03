@@ -1,4 +1,9 @@
 import { apiClient } from "./apiClient";
+import {
+  getProviderBookingNotificationTemplate,
+  getClientBookingStatusTemplate,
+  type BookingStatusType,
+} from "./emailTemplates";
 
 /**
  * Email service for sending emails via Supabase Edge Function
@@ -149,97 +154,72 @@ export const sendEmailDirect = async (
 };
 
 /**
- * HTML Email Template for Provider Booking Notification
+ * Send booking status update email to client
+ * Trigger this when booking status changes
  */
-export const getProviderBookingNotificationTemplate = (data: {
-  providerName: string;
-  propertyName: string;
-  propertyType: string;
-  guestName: string;
-  guestEmail: string;
-  guestPhone: string;
-  checkInDate: string;
-  checkOutDate: string;
-  totalPrice: number;
-  bookingId: string;
-  dashboardUrl: string;
-}): string => {
-  console.log("[Email Service] 📝 Generating email template with data:", data);
+export const sendClientBookingStatusEmail = async (
+  clientEmail: string,
+  data: {
+    clientName: string;
+    bookingId: string;
+    propertyName: string;
+    propertyType: string;
+    checkInDate: string;
+    checkOutDate: string;
+    totalPrice: number;
+    status: BookingStatusType;
+    statusMessage: string;
+    dashboardUrl: string;
+    supportEmail?: string;
+  },
+): Promise<EmailResponse> => {
+  console.log("[Email Service] 📬 Triggering client booking status email...", {
+    clientEmail,
+    bookingId: data.bookingId,
+    status: data.status,
+  });
 
-  const template = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #4F46E5; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-        .content { background-color: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; }
-        .booking-details { background-color: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5e7eb; }
-        .detail-label { font-weight: bold; color: #6b7280; }
-        .detail-value { color: #111827; }
-        .button { display: inline-block; background-color: #4F46E5; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-        .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>🎉 New Booking Request</h1>
-        </div>
-        <div class="content">
-          <p>Hello ${data.providerName},</p>
-          <p>You have received a new booking request for your ${data.propertyType}.</p>
-          
-          <div class="booking-details">
-            <h2>Booking Details</h2>
-            <div class="detail-row">
-              <span class="detail-label">Property:</span>
-              <span class="detail-value">${data.propertyName}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Type:</span>
-              <span class="detail-value">${data.propertyType}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Booking ID:</span>
-              <span class="detail-value">${data.bookingId}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Check-in:</span>
-              <span class="detail-value">${data.checkInDate}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Check-out:</span>
-              <span class="detail-value">${data.checkOutDate}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Total Price:</span>
-              <span class="detail-value">$${data.totalPrice}</span>
-            </div>
-          </div>
+  try {
+    // Generate HTML template
+    const htmlContent = getClientBookingStatusTemplate(data);
 
-          <center>
-            <a href="${data.dashboardUrl}" class="button">View Booking in Dashboard</a>
-          </center>
+    // Prepare email payload
+    const emailPayload: EmailPayload = {
+      to: clientEmail,
+      subject: `Booking Status Update - ${data.bookingId}`,
+      html: htmlContent,
+      text: `Your booking status has been updated to: ${data.status}. Booking ID: ${data.bookingId}`,
+      replyTo: data.supportEmail,
+      tags: {
+        type: "booking-status-update",
+        bookingId: data.bookingId,
+        status: data.status,
+      },
+    };
 
-          <p>Please review this booking request and respond as soon as possible.</p>
-        </div>
-        
-        <div class="footer">
-          <p>This is an automated notification from Discover Albania.</p>
-          <p>Please do not reply to this email.</p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
+    console.log(
+      "[Email Service] 📧 Sending client booking status email to:",
+      clientEmail,
+    );
 
-  console.log(
-    "[Email Service] ✅ Template generated, length:",
-    template.length,
-  );
-  return template;
+    // Send email via edge function
+    return await sendEmailDirect(emailPayload);
+  } catch (error) {
+    console.error(
+      "[Email Service] ❌ Error sending client booking status email:",
+      {
+        error,
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    );
+
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to send booking status email",
+      statusCode: 500,
+    };
+  }
 };

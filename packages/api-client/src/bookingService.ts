@@ -5,10 +5,8 @@ import { CreateBookingDto } from "@albania/shared-types";
 import { getCarById } from "./carService";
 import { getApartmentById } from "./apartmentService";
 import { getHotelById } from "./hotelService";
-import {
-  sendEmailDirect,
-  getProviderBookingNotificationTemplate,
-} from "./emailService";
+import { sendEmailDirect } from "./emailService";
+import { getProviderBookingNotificationTemplate } from "./emailTemplates";
 /**
  * Provider data interface
  */
@@ -300,7 +298,7 @@ export const updateBookingStatus = async (
 };
 
 /**
- * Get Booking by property id and type
+ * Get Booking by property id and type - Only confirmed bookings block availability
  */
 export const getBookingsByPropertyIdAndType = async (
   propertyId: string,
@@ -309,7 +307,7 @@ export const getBookingsByPropertyIdAndType = async (
   const { data, error } = await apiClient
     .from("booking")
     .select("*")
-    .in("status", ["confirmed", "pending"])
+    .eq("status", "confirmed")
     .eq("propertyId", propertyId)
     .eq("propertyType", propertyType);
 
