@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { I18nextProvider } from "react-i18next";
+import ScrollToTop from "./components/ScrollToTop";
 import i18n from "./i18n/i18n";
 import Index from "./pages/home/Index";
 import OAuthSignInPage from "./pages/home/Auth";
@@ -79,6 +80,7 @@ const App = () => (
           <Sonner />
 
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<OAuthSignInPage />} />
