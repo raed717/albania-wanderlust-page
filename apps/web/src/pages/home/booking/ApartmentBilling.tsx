@@ -158,6 +158,15 @@ export default function ApartmentBilling() {
 
     if (!apartment) return;
 
+    if (user && apartment.providerId && user.id === apartment.providerId) {
+      Swal.fire({
+        icon: "error",
+        title: t("billing.ownPropertyTitle"),
+        text: t("billing.ownPropertyMessage"),
+      });
+      return;
+    }
+
     if (!formData.phone || !isValidPhoneNumber(formData.phone)) {
       Swal.fire({
         icon: "warning",

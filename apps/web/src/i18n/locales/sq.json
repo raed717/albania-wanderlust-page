@@ -146,7 +146,9 @@
     "emailPlaceholder": "emri@example.com",
     "phonePlaceholder": "Shkruani numrin e telefonit",
     "phoneRequired": "Numri i telefonit është i kërkuar",
-    "invalidPhone": "Numër telefoni i pavlefshëm"
+    "invalidPhone": "Numër telefoni i pavlefshëm",
+    "ownPropertyTitle": "Nuk mund të rezervoni pronën tuaj",
+    "ownPropertyMessage": "Nuk mund të rezervoni një pronë që ju e zotëroni. Ju lutemi zgjidhni një listim tjetër."
   },
   "terms": {
     "minimumRentalPeriod": "Periudha minimale e qirasë",

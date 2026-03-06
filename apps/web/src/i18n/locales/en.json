@@ -145,7 +145,9 @@
     "emailPlaceholder": "john@example.com",
     "phonePlaceholder": "Enter phone number",
     "phoneRequired": "Phone number required",
-    "invalidPhone": "Invalid phone number"
+    "invalidPhone": "Invalid phone number",
+    "ownPropertyTitle": "Cannot book own property",
+    "ownPropertyMessage": "You cannot book a property that you own. Please choose a different listing."
   },
   "terms": {
     "minimumRentalPeriod": "Minimum Rental Period",

@@ -102,12 +102,10 @@ export default function PrimarySearchAppBar() {
     handleMobileMenuClose();
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     handleMenuClose();
-    authService.signOut();
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 100);
+    await authService.signOut();
+    window.location.href = "/";
   };
 
   const handleLogin = () => {

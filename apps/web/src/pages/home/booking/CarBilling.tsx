@@ -208,6 +208,15 @@ export default function CarBilling() {
 
     if (!car) return;
 
+    if (user && car.providerId && user.id === car.providerId) {
+      Swal.fire({
+        icon: "error",
+        title: t("billing.ownPropertyTitle"),
+        text: t("billing.ownPropertyMessage"),
+      });
+      return;
+    }
+
     if (!formData.phone || !isValidPhoneNumber(formData.phone)) {
       Swal.fire({
         icon: "warning",
