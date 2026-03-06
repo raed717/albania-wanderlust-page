@@ -572,7 +572,13 @@
     "noImages": "No images available",
     "photos": "photos",
     "updateSuccess": "Apartment updated successfully!",
-    "updateFailed": "Failed to update apartment."
+    "updateFailed": "Failed to update apartment.",
+    "successTitle": "Submission Received!",
+    "successMessage": "Your apartment listing has been submitted for review. Our admin team will review your listing and approve it shortly.",
+    "statusPending": "Pending Admin Review",
+    "statusDescription": "Your listing is currently being reviewed. You will be notified once it's approved and visible to guests.",
+    "close": "Close",
+    "review": "Under Review"
   },
   "bookingManagement": {
     "title": "Bookings Management",
@@ -1189,6 +1195,14 @@
         "placeholder": "Explain why this property is being rejected...",
         "cancel": "Cancel",
         "confirm": "Confirm Rejection"
+      },
+      "approve": {
+        "title": "Approve Property with Rating",
+        "description": "Set the official rating for this apartment before approving. The provider's suggested rating is shown as a reference.",
+        "providerRating": "Provider's suggested rating",
+        "adminRatingLabel": "Set Official Rating *",
+        "cancel": "Cancel",
+        "confirm": "Approve with Rating"
       }
     }
   },

@@ -572,7 +572,13 @@
     "noImages": "Nessuna immagine disponibile",
     "photos": "foto",
     "updateSuccess": "Appartamento aggiornato con successo!",
-    "updateFailed": "Aggiornamento appartamento fallito."
+    "updateFailed": "Aggiornamento appartamento fallito.",
+    "successTitle": "Invio ricevuto!",
+    "successMessage": "Il tuo annuncio dell'appartamento è stato inviato per la revisione. Il nostro team di amministrazione esaminerà il tuo annuncio e lo approverà a breve.",
+    "statusPending": "In attesa di revisione dell'amministratore",
+    "statusDescription": "Il tuo annuncio è attualmente in fase di revisione. Sarai avvisato una volta approvato e visibile agli ospiti.",
+    "close": "Chiudi",
+    "review": "In Revisione"
   },
   "bookingManagement": {
     "title": "Gestione Prenotazioni",
@@ -1189,6 +1195,14 @@
         "placeholder": "Spiega perché questa struttura viene respinta...",
         "cancel": "Annulla",
         "confirm": "Conferma Reiezione"
+      },
+      "approve": {
+        "title": "Approva Struttura con Valutazione",
+        "description": "Imposta la valutazione ufficiale per questo appartamento prima dell'approvazione. La valutazione suggerita dal fornitore è mostrata come riferimento.",
+        "providerRating": "Valutazione suggerita dal fornitore",
+        "adminRatingLabel": "Imposta Valutazione Ufficiale *",
+        "cancel": "Annulla",
+        "confirm": "Approva con Valutazione"
       }
     }
   },

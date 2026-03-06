@@ -580,7 +580,13 @@
     "noImages": "Nuk ka imazhe të disponueshme",
     "photos": "foto",
     "updateSuccess": "Apartamenti u përditësua me sukses!",
-    "updateFailed": "Dështoi përditësimi i apartamentit."
+    "updateFailed": "Dështoi përditësimi i apartamentit.",
+    "successTitle": "Dërgimi u Pranua!",
+    "successMessage": "Listimi i apartamentit tuaj është dërguar për shqyrtim. Ekipi ynë i administratorit do ta shqyrtojë listimin tuaj dhe do ta miratojë së shpejti.",
+    "statusPending": "Në Pritje të Shqyrtimit të Administratorit",
+    "statusDescription": "Listimi juaj aktualisht po shqyrtohet. Do të njoftoheni sapo të miratohet dhe të jetë i dukshëm për vizitorët.",
+    "close": "Mbyll",
+    "review": "Në Shqyrtim"
   },
   "bookingManagement": {
     "title": "Menaxhimi i Rezervimeve",
@@ -1206,6 +1212,14 @@
         "placeholder": "Shpjegoni pse po refuzohet kjo pronë...",
         "cancel": "Anulo",
         "confirm": "Konfirmo Refuzimin"
+      },
+      "approve": {
+        "title": "Mirato Pronën me Vlerësim",
+        "description": "Vendosni vlerësimin zyrtar për këtë apartament para miratimit. Vlerësimi i sugjeruar nga ofruesi tregohet si referencë.",
+        "providerRating": "Vlerësimi i sugjeruar nga ofruesi",
+        "adminRatingLabel": "Vendos Vlerësimin Zyrtar *",
+        "cancel": "Anulo",
+        "confirm": "Mirato me Vlerësim"
       }
     }
   },

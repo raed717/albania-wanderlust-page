@@ -572,7 +572,13 @@
     "noImages": "Aucune image disponible",
     "photos": "photos",
     "updateSuccess": "Appartement mis à jour avec succès !",
-    "updateFailed": "Échec de la mise à jour de l'appartement."
+    "updateFailed": "Échec de la mise à jour de l'appartement.",
+    "successTitle": "Soumission reçue !",
+    "successMessage": "Votre annonce d'appartement a été soumise pour examen. Notre équipe d'administration examinera votre annonce et l'approuvera sous peu.",
+    "statusPending": "En attente d'examen par l'administrateur",
+    "statusDescription": "Votre annonce est actuellement en cours d'examen. Vous serez notifié dès qu'elle sera approuvée et visible par les clients.",
+    "close": "Fermer",
+    "review": "En cours d'examen"
   },
   "bookingManagement": {
     "title": "Gestion des réservations",
@@ -1189,6 +1195,14 @@
         "placeholder": "Expliquez pourquoi ce bien est rejeté...",
         "cancel": "Annuler",
         "confirm": "Confirmer le rejet"
+      },
+      "approve": {
+        "title": "Approuver le bien avec notation",
+        "description": "Définissez la note officielle pour cet appartement avant l'approbation. La note suggérée par le prestataire est indiquée comme référence.",
+        "providerRating": "Note suggérée par le prestataire",
+        "adminRatingLabel": "Définir la note officielle *",
+        "cancel": "Annuler",
+        "confirm": "Approuver avec notation"
       }
     }
   },

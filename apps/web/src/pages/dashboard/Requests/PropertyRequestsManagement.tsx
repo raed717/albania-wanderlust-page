@@ -18,12 +18,15 @@ import {
   DollarSign,
   Image as ImageIcon,
   X,
+  Star,
 } from "lucide-react";
 import { propertyRequestService } from "@/services/api/propertyRequest";
 import { authService } from "@/services/api/authService";
 import { PropertyRequest } from "@/types/request.type";
 import { Car as CarType } from "@/types/car.types";
+import { Apartment as ApartmentType } from "@/types/apartment.type";
 import { getCarById } from "@/services/api/carService";
+import { getApartmentById } from "@/services/api/apartmentService";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -73,11 +76,15 @@ export default function PropertyRequestsManagement() {
   // Modal states
   const [selectedRequest, setSelectedRequest] =
     useState<PropertyRequest | null>(null);
-  const [propertyDetails, setPropertyDetails] = useState<CarType | null>(null);
+  const [propertyDetails, setPropertyDetails] = useState<
+    CarType | ApartmentType | null
+  >(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showApproveModal, setShowApproveModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [adminRating, setAdminRating] = useState<number>(0);
 
   const { t } = useTranslation();
 
@@ -129,12 +136,14 @@ export default function PropertyRequestsManagement() {
     setShowDetailsModal(true);
 
     try {
-      // For now, only car details are implemented
       if (request.propertyType === "car") {
         const car = await getCarById(parseInt(request.propertyId));
         setPropertyDetails(car);
+      } else if (request.propertyType === "apartment") {
+        const apartment = await getApartmentById(parseInt(request.propertyId));
+        setPropertyDetails(apartment);
       }
-      // TODO: Add apartment and hotel loading when implemented
+      // TODO: Add hotel loading when implemented
     } catch (err) {
       console.error("Error loading property details:", err);
       setError("Failed to load property details");
@@ -143,7 +152,7 @@ export default function PropertyRequestsManagement() {
     }
   };
 
-  const handleApprove = async (requestId: string) => {
+  const handleApprove = async (requestId: string, rating?: number) => {
     if (
       !window.confirm(t("propertyRequestsManagement.confirmations.approve"))
     ) {
@@ -154,12 +163,17 @@ export default function PropertyRequestsManagement() {
       setProcessing(requestId);
       setError(null);
 
-      await propertyRequestService.approveRequest(requestId, reviewerId);
+      await propertyRequestService.approveRequest(
+        requestId,
+        reviewerId,
+        rating,
+      );
       setSuccess(t("propertyRequestsManagement.success.approve"));
 
       // Refresh requests
       await initializePage();
       setShowDetailsModal(false);
+      setShowApproveModal(false);
 
       setTimeout(() => setSuccess(null), 5000);
     } catch (err: any) {
@@ -174,6 +188,21 @@ export default function PropertyRequestsManagement() {
     setSelectedRequest(request);
     setRejectionReason("");
     setShowRejectModal(true);
+  };
+
+  const openApproveModal = (request: PropertyRequest) => {
+    setSelectedRequest(request);
+    // Pre-fill with provider's suggested rating if available
+    if (
+      request.propertyType === "apartment" &&
+      propertyDetails &&
+      "rating" in propertyDetails
+    ) {
+      setAdminRating(propertyDetails.rating || 0);
+    } else {
+      setAdminRating(0);
+    }
+    setShowApproveModal(true);
   };
 
   const handleReject = async () => {
@@ -511,7 +540,11 @@ export default function PropertyRequestsManagement() {
                       <>
                         <Button
                           size="sm"
-                          onClick={() => handleApprove(request.id)}
+                          onClick={() =>
+                            request.propertyType === "apartment"
+                              ? openApproveModal(request)
+                              : handleApprove(request.id)
+                          }
                           disabled={processing === request.id}
                           className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1"
                         >
@@ -558,7 +591,9 @@ export default function PropertyRequestsManagement() {
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
               </div>
-            ) : selectedRequest?.propertyType === "car" && propertyDetails ? (
+            ) : selectedRequest?.propertyType === "car" &&
+              propertyDetails &&
+              "brand" in propertyDetails ? (
               <div className="space-y-6">
                 {/* Car Images */}
                 {propertyDetails.imageUrls &&
@@ -719,6 +754,178 @@ export default function PropertyRequestsManagement() {
                   </div>
                 </div>
               </div>
+            ) : selectedRequest?.propertyType === "apartment" &&
+              propertyDetails &&
+              "rooms" in propertyDetails ? (
+              <div className="space-y-6">
+                {/* Apartment Images */}
+                {propertyDetails.imageUrls &&
+                  propertyDetails.imageUrls.length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                        <ImageIcon className="w-4 h-4" />
+                        Images
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {propertyDetails.imageUrls.map((url, index) => (
+                          <img
+                            key={index}
+                            src={url}
+                            alt={`Apartment image ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg border"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                {/* Apartment Details Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-500">
+                      Apartment Name
+                    </Label>
+                    <p className="font-medium">{propertyDetails.name}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-500">Address</Label>
+                    <p className="font-medium">
+                      {propertyDetails.address || "Not specified"}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-500">Location</Label>
+                    <p className="font-medium">
+                      {propertyDetails.location || "Not specified"}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-500">Rating</Label>
+                    <p className="font-medium">{propertyDetails.rating} / 5</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-500">Rooms</Label>
+                    <p className="font-medium">{propertyDetails.rooms}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-500">Beds</Label>
+                    <p className="font-medium">{propertyDetails.beds || 0}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-500">Bathrooms</Label>
+                    <p className="font-medium">
+                      {propertyDetails.bathrooms || 0}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-500">Kitchens</Label>
+                    <p className="font-medium">
+                      {propertyDetails.kitchens || 0}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-500">
+                      Living Rooms
+                    </Label>
+                    <p className="font-medium">
+                      {propertyDetails.livingRooms || 0}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-500 flex items-center gap-1">
+                      <DollarSign className="w-3 h-3" />
+                      Price Per Day
+                    </Label>
+                    <p className="font-medium text-green-600">
+                      ${propertyDetails.price}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-500">Status</Label>
+                    <p className="font-medium capitalize">
+                      {propertyDetails.status}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Coordinates */}
+                {propertyDetails.lat && propertyDetails.lng && (
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-500 flex items-center gap-1">
+                      <MapPin className="w-3 h-3" />
+                      Location Coordinates
+                    </Label>
+                    <p className="text-sm text-gray-500">
+                      {propertyDetails.lat.toFixed(6)},{" "}
+                      {propertyDetails.lng.toFixed(6)}
+                    </p>
+                  </div>
+                )}
+
+                {/* Description */}
+                {propertyDetails.description && (
+                  <div className="space-y-2">
+                    <Label className="text-sm text-gray-500">Description</Label>
+                    <p className="text-gray-700">
+                      {propertyDetails.description}
+                    </p>
+                  </div>
+                )}
+
+                {/* Amenities */}
+                {propertyDetails.amenities &&
+                  propertyDetails.amenities.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm text-gray-500">Amenities</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {propertyDetails.amenities.map((amenity, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
+                          >
+                            {amenity}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                {/* Provider Info */}
+                <div className="border-t pt-4">
+                  <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Provider Information
+                  </h4>
+                  <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                      {selectedRequest?.provider?.avatar_url ? (
+                        <img
+                          src={selectedRequest.provider.avatar_url}
+                          alt="Provider"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-6 h-6 text-gray-500" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium">
+                        {selectedRequest?.provider?.full_name || "Unknown"}
+                      </p>
+                      <p className="text-sm text-gray-500 flex items-center gap-1">
+                        <Mail className="w-3 h-3" />
+                        {selectedRequest?.provider?.email}
+                      </p>
+                      {selectedRequest?.provider?.phone && (
+                        <p className="text-sm text-gray-500 flex items-center gap-1">
+                          <Phone className="w-3 h-3" />
+                          {selectedRequest.provider.phone}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="py-8 text-center text-gray-500">
                 Property details not available
@@ -745,7 +952,11 @@ export default function PropertyRequestsManagement() {
                   {t("propertyRequestsManagement.actions.reject")}
                 </Button>
                 <Button
-                  onClick={() => handleApprove(selectedRequest.id)}
+                  onClick={() =>
+                    selectedRequest.propertyType === "apartment"
+                      ? openApproveModal(selectedRequest)
+                      : handleApprove(selectedRequest.id)
+                  }
                   disabled={processing === selectedRequest.id}
                   className="bg-green-600 hover:bg-green-700"
                 >
@@ -811,6 +1022,94 @@ export default function PropertyRequestsManagement() {
                   <XCircle className="w-4 h-4 mr-1" />
                 )}
                 {t("propertyRequestsManagement.modal.reject.confirm")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Approval Rating Modal (for apartments) */}
+        <Dialog open={showApproveModal} onOpenChange={setShowApproveModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-green-600 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                {t("propertyRequestsManagement.modal.approve.title")}
+              </DialogTitle>
+              <DialogDescription>
+                {t("propertyRequestsManagement.modal.approve.description")}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {/* Provider's suggested rating (hint) */}
+              {propertyDetails &&
+                "rating" in propertyDetails &&
+                propertyDetails.rating > 0 && (
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-800 flex items-center gap-2">
+                      <Star className="w-4 h-4 fill-blue-500 text-blue-500" />
+                      {t(
+                        "propertyRequestsManagement.modal.approve.providerRating",
+                      )}
+                      : {propertyDetails.rating}/5
+                    </p>
+                  </div>
+                )}
+
+              {/* Admin rating input */}
+              <div className="space-y-2">
+                <Label htmlFor="adminRating">
+                  {t(
+                    "propertyRequestsManagement.modal.approve.adminRatingLabel",
+                  )}
+                </Label>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setAdminRating(star)}
+                      className="focus:outline-none"
+                    >
+                      <Star
+                        className={`w-8 h-8 transition-colors ${
+                          star <= adminRating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300 hover:text-yellow-300"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  <span className="ml-2 text-lg font-medium">
+                    {adminRating}/5
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowApproveModal(false)}
+              >
+                {t("propertyRequestsManagement.modal.approve.cancel")}
+              </Button>
+              <Button
+                onClick={() =>
+                  selectedRequest &&
+                  handleApprove(selectedRequest.id, adminRating)
+                }
+                disabled={
+                  processing === selectedRequest?.id || adminRating === 0
+                }
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {processing === selectedRequest?.id ? (
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                ) : (
+                  <CheckCircle className="w-4 h-4 mr-1" />
+                )}
+                {t("propertyRequestsManagement.modal.approve.confirm")}
               </Button>
             </DialogFooter>
           </DialogContent>
