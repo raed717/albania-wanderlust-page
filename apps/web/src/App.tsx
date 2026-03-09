@@ -37,6 +37,8 @@ import CarBilling from "./pages/home/booking/CarBilling";
 import BookingsSummary from "./pages/home/booking/BookingsSummary";
 import ApartmentBilling from "./pages/home/booking/ApartmentBilling";
 import BookingsManagement from "./pages/dashboard/bookings/BookingsManagement";
+import AdminProvidersList from "./pages/dashboard/bookings/AdminProvidersList";
+import AdminProviderBookings from "./pages/dashboard/bookings/AdminProviderBookings";
 import ProviderRequest from "./pages/home/ProviderRequest";
 import RequestsManagement from "./pages/dashboard/Requests/RequestsManagement";
 import PropertyRequestsManagement from "./pages/dashboard/Requests/PropertyRequestsManagement";
@@ -147,6 +149,14 @@ const App = () => (
                 <Route
                   path="/dashboard/bookings"
                   element={<BookingsManagement />}
+                />
+                <Route
+                  path="/dashboard/bookings/providers"
+                  element={<AdminProvidersList />}
+                />
+                <Route
+                  path="/dashboard/bookings/provider/:providerId"
+                  element={<AdminProviderBookings />}
                 />
                 <Route
                   path="/dashboard/destinations"

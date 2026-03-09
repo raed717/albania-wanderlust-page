@@ -589,6 +589,24 @@
   "bookingManagement": {
     "title": "Gestione Prenotazioni",
     "subtitle": "Visualizza e gestisci tutte le richieste di prenotazione per le tue strutture",
+    "cancelBooking": {
+      "title": "Annulla Prenotazione",
+      "subtitle": "Seleziona un motivo per l'annullamento",
+      "reasonRequired": "Seleziona o fornisci un motivo per l'annullamento",
+      "reasons": {
+        "dateConflict": "Conflitto di date con un'altra prenotazione",
+        "propertyUnavailable": "La struttura non è più disponibile",
+        "pricingIssue": "Errore di prezzo o problema di disponibilità",
+        "customerRequest": "Il cliente ha richiesto l'annullamento",
+        "maintenance": "Struttura in manutenzione",
+        "forceMajeure": "Forza maggiore / Circostanze impreviste",
+        "other": "Altro motivo"
+      },
+      "customReasonLabel": "Altro motivo (si prega di specificare)",
+      "customReasonPlaceholder": "Inserisci il tuo motivo...",
+      "confirmCancel": "Conferma Annullamento",
+      "autoCancelled": "Prenotazione automaticamente annullata a causa di un conflitto di date con un'altra prenotazione"
+    },
     "stats": {
       "totalBookings": "Prenotazioni Totali",
       "pending": "In Attesa",
@@ -1293,7 +1311,8 @@
     },
     "bookings": {
       "title": "Prenotazioni",
-      "allBookings": "Tutte le Prenotazioni"
+      "allBookings": "Tutte le Prenotazioni",
+      "supervision": "Supervisione Prenotazioni"
     },
     "destinations": {
       "title": "Destinazioni",
@@ -1309,6 +1328,69 @@
       "providerRequests": "Richieste Fornitori",
       "propertyRequests": "Richieste Strutture"
     }
+  },
+  "adminProvidersList": {
+    "title": "Supervisione Prenotazioni",
+    "subtitle": "Monitora e traccia tutte le prenotazioni dei fornitori sulla piattaforma",
+    "searchPlaceholder": "Cerca fornitori per nome, email o località...",
+    "totalProviders": "fornitori totali",
+    "noProviders": "Nessun fornitore trovato",
+    "noProvidersSearch": "Nessun fornitore corrisponde alla ricerca",
+    "viewBookings": "Visualizza Prenotazioni",
+    "memberSince": "Membro dal",
+    "unnamed": "Fornitore senza nome",
+    "loading": "Caricamento fornitori...",
+    "error": "Impossibile caricare i fornitori"
+  },
+  "adminProviderBookings": {
+    "title": "Prenotazioni del Fornitore",
+    "subtitle": "Tutte le prenotazioni gestite da questo fornitore",
+    "backToProviders": "Torna ai Fornitori",
+    "booked": "Prenotato il",
+    "stats": {
+      "total": "Totale",
+      "pending": "In attesa",
+      "confirmed": "Confermate",
+      "canceled": "Annullate",
+      "completed": "Completate",
+      "revenue": "Ricavi"
+    },
+    "filters": {
+      "searchPlaceholder": "Cerca per ospite, struttura o ID...",
+      "allStatuses": "Tutti gli stati",
+      "allTypes": "Tutti i tipi"
+    },
+    "table": {
+      "property": "Struttura",
+      "guest": "Ospite",
+      "dates": "Date",
+      "total": "Totale",
+      "status": "Stato",
+      "paymentStatus": "Pagamento",
+      "cancellationReason": "Motivo di cancellazione"
+    },
+    "status": {
+      "pending": "In attesa",
+      "confirmed": "Confermata",
+      "canceled": "Annullata",
+      "completed": "Completata"
+    },
+    "paymentStatus": {
+      "pending": "In attesa",
+      "paid": "Pagato",
+      "failed": "Fallito",
+      "refunded": "Rimborsato"
+    },
+    "propertyTypes": {
+      "car": "Auto",
+      "apartment": "Appartamento",
+      "hotel": "Hotel"
+    },
+    "noBookings": "Questo fornitore non ha ancora prenotazioni",
+    "noBookingsSearch": "Nessuna prenotazione corrisponde ai filtri",
+    "loading": "Caricamento prenotazioni...",
+    "error": "Impossibile caricare le prenotazioni",
+    "noCancellationReason": "Nessun motivo fornito"
   },
   "availabilityCalendar": {
     "title": "Disponibilità",

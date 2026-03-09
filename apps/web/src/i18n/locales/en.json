@@ -589,6 +589,24 @@
   "bookingManagement": {
     "title": "Bookings Management",
     "subtitle": "View and manage all booking requests for your properties",
+    "cancelBooking": {
+      "title": "Cancel Booking",
+      "subtitle": "Please select a reason for cancellation",
+      "reasonRequired": "Please select or provide a reason for cancellation",
+      "reasons": {
+        "dateConflict": "Date conflict with another booking",
+        "propertyUnavailable": "Property is no longer available",
+        "pricingIssue": "Pricing error or availability issue",
+        "customerRequest": "Customer requested cancellation",
+        "maintenance": "Property under maintenance",
+        "forceMajeure": "Force majeure / Unforeseen circumstances",
+        "other": "Other reason"
+      },
+      "customReasonLabel": "Other reason (please specify)",
+      "customReasonPlaceholder": "Enter your reason...",
+      "confirmCancel": "Confirm Cancellation",
+      "autoCancelled": "Booking automatically cancelled due to date conflict with another booking"
+    },
     "stats": {
       "totalBookings": "Total Bookings",
       "pending": "Pending",
@@ -1293,7 +1311,8 @@
     },
     "bookings": {
       "title": "Bookings",
-      "allBookings": "All Bookings"
+      "allBookings": "All Bookings",
+      "supervision": "Bookings Supervision"
     },
     "destinations": {
       "title": "Destinations",
@@ -1309,6 +1328,69 @@
       "providerRequests": "Provider Requests",
       "propertyRequests": "Property Requests"
     }
+  },
+  "adminProvidersList": {
+    "title": "Bookings Supervision",
+    "subtitle": "Monitor and track all bookings across providers on the platform",
+    "searchPlaceholder": "Search providers by name, email or location...",
+    "totalProviders": "total providers",
+    "noProviders": "No providers found",
+    "noProvidersSearch": "No providers match your search",
+    "viewBookings": "View Bookings",
+    "memberSince": "Member since",
+    "unnamed": "Unnamed Provider",
+    "loading": "Loading providers...",
+    "error": "Failed to load providers"
+  },
+  "adminProviderBookings": {
+    "title": "Provider Bookings",
+    "subtitle": "All bookings managed by this provider",
+    "backToProviders": "Back to Providers",
+    "booked": "Booked on",
+    "stats": {
+      "total": "Total",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "canceled": "Canceled",
+      "completed": "Completed",
+      "revenue": "Revenue"
+    },
+    "filters": {
+      "searchPlaceholder": "Search by guest, property or ID...",
+      "allStatuses": "All Statuses",
+      "allTypes": "All Types"
+    },
+    "table": {
+      "property": "Property",
+      "guest": "Guest",
+      "dates": "Dates",
+      "total": "Total",
+      "status": "Status",
+      "paymentStatus": "Payment",
+      "cancellationReason": "Cancellation Reason"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "canceled": "Canceled",
+      "completed": "Completed"
+    },
+    "paymentStatus": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "failed": "Failed",
+      "refunded": "Refunded"
+    },
+    "propertyTypes": {
+      "car": "Car",
+      "apartment": "Apartment",
+      "hotel": "Hotel"
+    },
+    "noBookings": "This provider has no bookings yet",
+    "noBookingsSearch": "No bookings match your filters",
+    "loading": "Loading bookings...",
+    "error": "Failed to load bookings",
+    "noCancellationReason": "No reason provided"
   },
   "availabilityCalendar": {
     "title": "Availability",

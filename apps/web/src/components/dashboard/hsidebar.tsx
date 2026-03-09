@@ -93,6 +93,7 @@ const ROUTES = {
   },
   bookings: {
     list: "/dashboard/bookings",
+    supervision: "/dashboard/bookings/providers",
   },
   destinations: {
     management: "/dashboard/destinations",
@@ -220,6 +221,11 @@ const Hsidebar = ({ children }) => {
             label: t("sidebar.bookings.allBookings"),
             route: ROUTES.bookings.list,
             roles: ["admin", "provider"],
+          },
+          {
+            label: t("sidebar.bookings.supervision"),
+            route: ROUTES.bookings.supervision,
+            roles: ["admin"],
           },
         ],
       },

@@ -597,6 +597,24 @@
   "bookingManagement": {
     "title": "Menaxhimi i Rezervimeve",
     "subtitle": "Shiko dhe menaxho të gjitha kërkesat e rezervimit për pronat e tua",
+    "cancelBooking": {
+      "title": "Anulo Rezervimin",
+      "subtitle": "Ju lutem zgjidhni arsyen e anulimit",
+      "reasonRequired": "Ju lutem zgjidhni ose jepni një arsye për anulimin",
+      "reasons": {
+        "dateConflict": "Konflikt datesh me një rezervim tjetër",
+        "propertyUnavailable": "Prona nuk është më e disponueshme",
+        "pricingIssue": "Gabim çmimi ose problem disponueshmërie",
+        "customerRequest": "Klienti kërkoi anulimin",
+        "maintenance": "Prona në mirëmbajtje",
+        "forceMajeure": "Rrethanë force / Circostanca të paparashikuara",
+        "other": "Arsye tjetër"
+      },
+      "customReasonLabel": "Arsye tjetër (ju lutem specifikoni)",
+      "customReasonPlaceholder": "Shkruani arsyen tuaj...",
+      "confirmCancel": "Konfirmo Anulimin",
+      "autoCancelled": "Rezervimi u anulua automatikisht për shkak të konfliktit të datave me një rezervim tjetër"
+    },
     "stats": {
       "totalBookings": "Rezervime Totale",
       "pending": "Në Pritje",
@@ -1310,7 +1328,8 @@
     },
     "bookings": {
       "title": "Rezervimet",
-      "allBookings": "Të Gjitha Rezervimet"
+      "allBookings": "Të Gjitha Rezervimet",
+      "supervision": "Mbikëqyrja e Rezervimeve"
     },
     "destinations": {
       "title": "Destinacionet",
@@ -1326,6 +1345,69 @@
       "providerRequests": "Kërkesat për Ofrues",
       "propertyRequests": "Kërkesat për Prona"
     }
+  },
+  "adminProvidersList": {
+    "title": "Mbikëqyrja e Rezervimeve",
+    "subtitle": "Monitoro dhe gjurmo të gjitha rezervimet nëpas ofruesve në platform",
+    "searchPlaceholder": "Kërko ofrues sipas emrit, emailit ose vendndodhhjes...",
+    "totalProviders": "ofrues gjithsej",
+    "noProviders": "Nuk u gjetën ofrues",
+    "noProvidersSearch": "Asnjë ofrues nuk përputhet me kërkim",
+    "viewBookings": "Shiko Rezervimet",
+    "memberSince": "Anetarsuar që",
+    "unnamed": "Ofrues pa Emer",
+    "loading": "Duke ngarkuar ofruesit...",
+    "error": "Dështoi ngarkimi i ofruesve"
+  },
+  "adminProviderBookings": {
+    "title": "Rezervimet e Ofruesit",
+    "subtitle": "Të gjitha rezervimet e menaxhuara nga ky ofrues",
+    "backToProviders": "Kthehu tek Ofruesit",
+    "booked": "Rezervuar me",
+    "stats": {
+      "total": "Gjithsej",
+      "pending": "Në Pritje",
+      "confirmed": "Konfirmuar",
+      "canceled": "Anuluar",
+      "completed": "Kompletuar",
+      "revenue": "Të Ardhura"
+    },
+    "filters": {
+      "searchPlaceholder": "Kërko sipas mysafirit, pronës ose ID...",
+      "allStatuses": "Të Gjitha Statuset",
+      "allTypes": "Të Gjitha Llojet"
+    },
+    "table": {
+      "property": "Prona",
+      "guest": "Mysafiri",
+      "dates": "Datat",
+      "total": "Totali",
+      "status": "Statusi",
+      "paymentStatus": "Pagesa",
+      "cancellationReason": "Arsyeja e Anulimit"
+    },
+    "status": {
+      "pending": "Në Pritje",
+      "confirmed": "Konfirmuar",
+      "canceled": "Anuluar",
+      "completed": "Kompletuar"
+    },
+    "paymentStatus": {
+      "pending": "Në Pritje",
+      "paid": "Paguar",
+      "failed": "Dështuar",
+      "refunded": "Rimbursuar"
+    },
+    "propertyTypes": {
+      "car": "Makina",
+      "apartment": "Apartamenti",
+      "hotel": "Hoteli"
+    },
+    "noBookings": "Ky ofrues nuk ka akoma rezervime",
+    "noBookingsSearch": "Asnjë rezervim nuk përputhet me filtrat tuaj",
+    "loading": "Duke ngarkuar rezervimet...",
+    "error": "Dështoi ngarkimi i rezervimeve",
+    "noCancellationReason": "Asnjë arsye nuk është dhënë"
   },
   "availabilityCalendar": {
     "title": "Disponueshmëria",

@@ -252,6 +252,41 @@ export const getCurrentUserBookings = async (): Promise<Booking[]> => {
   return data || [];
 };
 
+/**
+ * Get all bookings for a given provider ID (admin use — no auth restriction)
+ */
+export const getBookingsByProviderIdForAdmin = async (
+  providerId: string,
+): Promise<Booking[]> => {
+  const { data, error } = await apiClient
+    .from("booking")
+    .select("*")
+    .eq("providerId", providerId)
+    .order("createdAt", { ascending: false });
+  if (error) {
+    console.error(
+      "[Booking Service] Error fetching bookings for provider (admin):",
+      error,
+    );
+    throw error;
+  }
+  // Enrich with property data
+  for (const booking of data || []) {
+    try {
+      if (booking.propertyType === "car") {
+        booking.propertyData = await getCarById(booking.propertyId);
+      } else if (booking.propertyType === "apartment") {
+        booking.propertyData = await getApartmentById(booking.propertyId);
+      } else if (booking.propertyType === "hotel") {
+        booking.propertyData = await getHotelById(booking.propertyId);
+      }
+    } catch {
+      booking.propertyData = null;
+    }
+  }
+  return data || [];
+};
+
 /*
  * Get all bookings for a specific provider (provider bookings)
  */
@@ -278,13 +313,20 @@ export const getBookingsByProviderId = async (): Promise<Booking[]> => {
 export const updateBookingStatus = async (
   bookingId: string,
   status: Booking["status"],
+  cancellationReason?: string,
 ): Promise<Booking> => {
+  const updateData: Record<string, unknown> = {
+    status,
+    updatedAt: new Date().toISOString(),
+  };
+
+  if (status === "canceled" && cancellationReason) {
+    updateData.cancellation_reason = cancellationReason;
+  }
+
   const { data, error } = await apiClient
     .from("booking")
-    .update({
-      status,
-      updatedAt: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq("id", bookingId)
     .select("*")
     .single();

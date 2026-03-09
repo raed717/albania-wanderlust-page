@@ -33,10 +33,30 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { userService } from "@/services/api/userService";
 import { User } from "@/types/user.types";
 import { sendEmailDirect } from "@/services/api/emailService";
 import Swal from "sweetalert2";
+
+const CANCELLATION_REASONS = [
+  "dateConflict",
+  "propertyUnavailable",
+  "pricingIssue",
+  "customerRequest",
+  "maintenance",
+  "forceMajeure",
+  "other",
+] as const;
+
+type CancellationReason = (typeof CANCELLATION_REASONS)[number];
 
 const getPropertyIcon = (type: Booking["propertyType"]) => {
   switch (type) {
@@ -208,6 +228,10 @@ export default function BookingsManagement() {
     "all" | Booking["propertyType"]
   >("all");
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedReasons, setSelectedReasons] = useState<CancellationReason[]>([]);
+  const [customReason, setCustomReason] = useState("");
 
   // Fetch current user
   useEffect(() => {
@@ -330,6 +354,106 @@ export default function BookingsManagement() {
     );
   };
 
+  // Open cancellation modal
+  const openCancelModal = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setSelectedReasons([]);
+    setCustomReason("");
+    setCancelModalOpen(true);
+  };
+
+  // Handle cancellation with reason
+  const handleCancelWithReason = async () => {
+    if (!selectedBooking) return;
+
+    const reasonText = selectedReasons.includes("other")
+      ? customReason
+      : selectedReasons.map((r) => t(`bookingManagement.cancelBooking.reasons.${r}`)).join(", ");
+
+    if (!reasonText.trim()) {
+      await Swal.fire({
+        icon: "warning",
+        title: t("bookingManagement.cancelBooking.reasonRequired"),
+      });
+      return;
+    }
+
+    setCancelModalOpen(false);
+    await confirmCancellation(selectedBooking.id, reasonText);
+  };
+
+  // Confirm cancellation (called after getting reason or automatically)
+  const confirmCancellation = async (
+    bookingId: string,
+    cancellationReason?: string,
+    isAutoCancel = false,
+  ) => {
+    const booking = bookings.find((b) => b.id === bookingId);
+    if (!booking) return;
+
+    // Check for conflicts when confirming (not applicable for cancellation)
+    let conflictingBookings: Booking[] = [];
+    const newStatus: Booking["status"] = "canceled";
+
+    // Build confirmation dialog for auto-cancellation due to conflicts
+    if (isAutoCancel) {
+      conflictingBookings = getConflictingBookings(booking);
+    }
+
+    // For auto-cancellation, skip the confirmation dialog
+    try {
+      setUpdatingStatus(bookingId);
+      const updatedBooking = await updateBookingStatus(bookingId, "canceled", cancellationReason);
+      setBookings((prev) =>
+        prev.map((b) => (b.id === bookingId ? { ...b, ...updatedBooking } : b)),
+      );
+
+      // Auto-decline conflicting bookings when confirming
+      if (conflictingBookings.length > 0) {
+        const autoCancelReason = t("bookingManagement.cancelBooking.reasons.dateConflict");
+        const declineResults = await Promise.allSettled(
+          conflictingBookings.map((cb) =>
+            updateBookingStatus(cb.id, "canceled", autoCancelReason),
+          ),
+        );
+
+        setBookings((prev) =>
+          prev.map((b) => {
+            const declined = conflictingBookings.find((cb) => cb.id === b.id);
+            if (declined) {
+              const resultIndex = conflictingBookings.indexOf(declined);
+              if (declineResults[resultIndex].status === "fulfilled") {
+                return { ...b, status: "canceled" as const, cancellation_reason: autoCancelReason };
+              }
+            }
+            return b;
+          }),
+        );
+
+        await Swal.fire({
+          icon: "warning",
+          title: t("bookingManagement.confirmations.conflictTitle", "Date Conflict Detected"),
+          text: t("bookingManagement.cancelBooking.autoCancelled", "Booking automatically cancelled due to date conflict with another booking"),
+        });
+      } else if (!isAutoCancel) {
+        await Swal.fire({
+          icon: "success",
+          title: t("bookingManagement.confirmations.statusUpdated"),
+          text: t("bookingManagement.confirmations.statusUpdatedSuccess"),
+        });
+      }
+    } catch (err) {
+      console.error("Error updating booking status:", err);
+      await Swal.fire({
+        icon: "error",
+        title: t("bookingManagement.confirmations.updateFailed"),
+        text: t("bookingManagement.confirmations.updateFailedText"),
+      });
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
   // Handle status update
   const handleStatusUpdate = async (
     bookingId: string,
@@ -393,7 +517,7 @@ export default function BookingsManagement() {
       });
 
       if (!result.isConfirmed) return;
-    } else {
+    } else if (newStatus !== "canceled") {
       const result = await Swal.fire({
         title: t("bookingManagement.confirmations.updateStatusTitle"),
         text: t("bookingManagement.confirmations.updateStatusText", {
@@ -409,6 +533,16 @@ export default function BookingsManagement() {
       if (!result.isConfirmed) return;
     }
 
+    // For cancellation, open modal to get reason
+    if (newStatus === "canceled") {
+      const bookingToCancel = bookings.find((b) => b.id === bookingId);
+      if (bookingToCancel) {
+        openCancelModal(bookingToCancel);
+      }
+      return;
+    }
+
+    // Proceed with confirmation (not cancellation)
     try {
       setUpdatingStatus(bookingId);
       const updatedBooking = await updateBookingStatus(bookingId, newStatus);
@@ -418,9 +552,10 @@ export default function BookingsManagement() {
 
       // Auto-decline conflicting bookings when confirming
       if (newStatus === "confirmed" && conflictingBookings.length > 0) {
+        const autoCancelReason = t("bookingManagement.cancelBooking.reasons.dateConflict");
         const declineResults = await Promise.allSettled(
           conflictingBookings.map((cb) =>
-            updateBookingStatus(cb.id, "canceled"),
+            updateBookingStatus(cb.id, "canceled", autoCancelReason),
           ),
         );
 
@@ -430,7 +565,7 @@ export default function BookingsManagement() {
             if (declined) {
               const resultIndex = conflictingBookings.indexOf(declined);
               if (declineResults[resultIndex].status === "fulfilled") {
-                return { ...b, status: "canceled" as const };
+                return { ...b, status: "canceled" as const, cancellation_reason: autoCancelReason };
               }
             }
             return b;
@@ -440,23 +575,23 @@ export default function BookingsManagement() {
 
       // Send confirmation email if status changed to confirmed
       if (newStatus === "confirmed") {
-        const booking = bookings.find((b) => b.id === bookingId);
-        if (booking) {
+        const bookingData = bookings.find((b) => b.id === bookingId);
+        if (bookingData) {
           try {
             const emailSubject = t("bookingManagement.email.subject", {
-              propertyName: booking.propertyData?.name || booking.propertyType,
+              propertyName: bookingData.propertyData?.name || bookingData.propertyType,
             });
             const emailHtml = `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #2563eb;">${t("bookingManagement.email.subject", { propertyName: booking.propertyData?.name || `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}` })}</h2>
-                <p>${t("bookingManagement.email.greeting", { requesterName: booking.requesterName })}</p>
+                <h2 style="color: #2563eb;">${t("bookingManagement.email.subject", { propertyName: bookingData.propertyData?.name || `${bookingData.propertyType.charAt(0).toUpperCase() + bookingData.propertyType.slice(1)}` })}</h2>
+                <p>${t("bookingManagement.email.greeting", { requesterName: bookingData.requesterName })}</p>
                 <p>${t("bookingManagement.email.confirmationMessage")}</p>
                 <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                  <h3 style="margin-top: 0; color: #1f2937;">${booking.propertyData?.name || `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}`}</h3>
-                  <p><strong>${t("bookingManagement.email.checkIn")}</strong> ${new Date(booking.startDate).toLocaleDateString()}</p>
-                  <p><strong>${t("bookingManagement.email.checkOut")}</strong> ${new Date(booking.endDate).toLocaleDateString()}</p>
-                  ${booking.pickUpTime && booking.dropOffTime ? `<p><strong>${t("bookingManagement.email.time")}</strong> ${booking.pickUpTime} - ${booking.dropOffTime}</p>` : ""}
-                  <p><strong>${t("bookingManagement.email.totalPrice")}</strong> $${booking.totalPrice.toFixed(2)}</p>
+                  <h3 style="margin-top: 0; color: #1f2937;">${bookingData.propertyData?.name || `${bookingData.propertyType.charAt(0).toUpperCase() + bookingData.propertyType.slice(1)}`}</h3>
+                  <p><strong>${t("bookingManagement.email.checkIn")}</strong> ${new Date(bookingData.startDate).toLocaleDateString()}</p>
+                  <p><strong>${t("bookingManagement.email.checkOut")}</strong> ${new Date(bookingData.endDate).toLocaleDateString()}</p>
+                  ${bookingData.pickUpTime && bookingData.dropOffTime ? `<p><strong>${t("bookingManagement.email.time")}</strong> ${bookingData.pickUpTime} - ${bookingData.dropOffTime}</p>` : ""}
+                  <p><strong>${t("bookingManagement.email.totalPrice")}</strong> $${bookingData.totalPrice.toFixed(2)}</p>
                   <p><strong>${t("bookingManagement.email.status")}</strong> ${t("bookingManagement.email.confirmed")}</p>
                 </div>
                 <p>${t("bookingManagement.email.questions")}</p>
@@ -465,13 +600,12 @@ export default function BookingsManagement() {
             `;
 
             await sendEmailDirect({
-              to: booking.contactMail,
+              to: bookingData.contactMail,
               subject: emailSubject,
               html: emailHtml,
             });
           } catch (emailError) {
             console.error("Error sending confirmation email:", emailError);
-            // Don't show error to user as the booking update was successful
           }
         }
       }
@@ -1051,6 +1185,70 @@ export default function BookingsManagement() {
           </>
         )}
       </div>
+
+      {/* Cancellation Reason Modal */}
+      <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("bookingManagement.cancelBooking.title", "Cancel Booking")}</DialogTitle>
+            <DialogDescription>
+              {t("bookingManagement.cancelBooking.subtitle", "Please select a reason for cancellation")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {CANCELLATION_REASONS.map((reason) => (
+              <label
+                key={reason}
+                className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedReasons.includes(reason)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedReasons([...selectedReasons, reason]);
+                    } else {
+                      setSelectedReasons(selectedReasons.filter((r) => r !== reason));
+                    }
+                  }}
+                  className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                />
+                <span className="text-sm text-gray-700">
+                  {t(`bookingManagement.cancelBooking.reasons.${reason}`, reason)}
+                </span>
+              </label>
+            ))}
+            {selectedReasons.includes("other") && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("bookingManagement.cancelBooking.customReasonLabel", "Other reason (please specify)")}
+                </label>
+                <textarea
+                  value={customReason}
+                  onChange={(e) => setCustomReason(e.target.value)}
+                  placeholder={t("bookingManagement.cancelBooking.customReasonPlaceholder", "Enter your reason...")}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none resize-none"
+                  rows={3}
+                />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setCancelModalOpen(false)}
+              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              {t("common.cancel", "Cancel")}
+            </button>
+            <button
+              onClick={handleCancelWithReason}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              {t("bookingManagement.cancelBooking.confirmCancel", "Confirm Cancellation")}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Hsidebar>
   );
 }

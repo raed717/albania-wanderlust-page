@@ -589,6 +589,24 @@
   "bookingManagement": {
     "title": "Gestion des réservations",
     "subtitle": "Consultez et gérez toutes les demandes de réservation pour vos biens",
+    "cancelBooking": {
+      "title": "Annuler la réservation",
+      "subtitle": "Veuillez sélectionner une raison d'annulation",
+      "reasonRequired": "Veuillez sélectionner ou fournir une raison pour l'annulation",
+      "reasons": {
+        "dateConflict": "Conflit de dates avec une autre réservation",
+        "propertyUnavailable": "La propriété n'est plus disponible",
+        "pricingIssue": "Erreur de prix ou problème de disponibilité",
+        "customerRequest": "Le client a demandé l'annulation",
+        "maintenance": "Propriété en maintenance",
+        "forceMajeure": "Force majeure / Circonstances imprévues",
+        "other": "Autre raison"
+      },
+      "customReasonLabel": "Autre raison (veuillez préciser)",
+      "customReasonPlaceholder": "Entrez votre raison...",
+      "confirmCancel": "Confirmer l'annulation",
+      "autoCancelled": "Réservation automatiquement annulée en raison d'un conflit de dates avec une autre réservation"
+    },
     "stats": {
       "totalBookings": "Total des réservations",
       "pending": "En attente",
@@ -1293,7 +1311,8 @@
     },
     "bookings": {
       "title": "Réservations",
-      "allBookings": "Toutes les réservations"
+      "allBookings": "Toutes les réservations",
+      "supervision": "Supervision des réservations"
     },
     "destinations": {
       "title": "Destinations",
@@ -1309,6 +1328,69 @@
       "providerRequests": "Demandes de prestataires",
       "propertyRequests": "Demandes de biens"
     }
+  },
+  "adminProvidersList": {
+    "title": "Supervision des réservations",
+    "subtitle": "Surveillez et suivez toutes les réservations sur la plateforme",
+    "searchPlaceholder": "Rechercher des prestataires par nom, e-mail ou lieu...",
+    "totalProviders": "prestataires au total",
+    "noProviders": "Aucun prestataire trouvé",
+    "noProvidersSearch": "Aucun prestataire ne correspond à votre recherche",
+    "viewBookings": "Voir les réservations",
+    "memberSince": "Membre depuis",
+    "unnamed": "Prestataire sans nom",
+    "loading": "Chargement des prestataires...",
+    "error": "Impossible de charger les prestataires"
+  },
+  "adminProviderBookings": {
+    "title": "Réservations du prestataire",
+    "subtitle": "Toutes les réservations gérées par ce prestataire",
+    "backToProviders": "Retour aux prestataires",
+    "booked": "Réservé le",
+    "stats": {
+      "total": "Total",
+      "pending": "En attente",
+      "confirmed": "Confirmées",
+      "canceled": "Annulées",
+      "completed": "Terminées",
+      "revenue": "Revenus"
+    },
+    "filters": {
+      "searchPlaceholder": "Rechercher par client, bien ou ID...",
+      "allStatuses": "Tous les statuts",
+      "allTypes": "Tous les types"
+    },
+    "table": {
+      "property": "Bien",
+      "guest": "Client",
+      "dates": "Dates",
+      "total": "Total",
+      "status": "Statut",
+      "paymentStatus": "Paiement",
+      "cancellationReason": "Motif d'annulation"
+    },
+    "status": {
+      "pending": "En attente",
+      "confirmed": "Confirmée",
+      "canceled": "Annulée",
+      "completed": "Terminée"
+    },
+    "paymentStatus": {
+      "pending": "En attente",
+      "paid": "Payé",
+      "failed": "Échoué",
+      "refunded": "Remboursé"
+    },
+    "propertyTypes": {
+      "car": "Voiture",
+      "apartment": "Appartement",
+      "hotel": "Hôtel"
+    },
+    "noBookings": "Ce prestataire n'a pas encore de réservations",
+    "noBookingsSearch": "Aucune réservation ne correspond à vos filtres",
+    "loading": "Chargement des réservations...",
+    "error": "Impossible de charger les réservations",
+    "noCancellationReason": "Aucun motif fourni"
   },
   "availabilityCalendar": {
     "title": "Disponibilité",
