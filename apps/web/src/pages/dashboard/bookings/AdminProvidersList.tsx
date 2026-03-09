@@ -80,7 +80,7 @@ const AdminProvidersList: React.FC = () => {
 
   return (
     <Hsidebar>
-      <div className="min-h-screen bg-[#0d0d0d] text-white">
+      <div className="-m-8 min-h-[calc(100vh)] bg-[#0d0d0d] text-white">
         {/* ── Header ── */}
         <div className="relative overflow-hidden border-b border-white/5 bg-[#111] px-6 py-8 md:px-10">
           {/* decorative red glow */}

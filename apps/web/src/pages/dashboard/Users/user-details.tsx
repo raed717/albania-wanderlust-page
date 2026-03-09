@@ -1,5 +1,5 @@
-import { useParams, Link } from "react-router-dom";
-import { useEffect, useState, useMemo } from "react";
+﻿import { useParams, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Hsidebar from "@/components/dashboard/hsidebar";
 import {
   ArrowLeft,
@@ -8,63 +8,33 @@ import {
   Mail,
   Calendar,
   X,
-  Contact,
-  Badge,
   Phone,
   MapPin,
   Clock,
+  CheckCircle,
+  XCircle,
+  ShieldCheck,
+  Loader2,
+  AlertCircle,
   User as UserIcon,
 } from "lucide-react";
 import { userService } from "@/services/api/userService";
-import { User, UpdateUserProfileData, UpdateUser } from "@/types/user.types";
+import { User, UpdateUser } from "@/types/user.types";
 import { useTranslation } from "react-i18next";
 
-// --- Components ---
+// ----- helpers -----
 
-const StatusBadge = ({ status }: { status: string }) => {
-  const { t } = useTranslation();
-  let colorClass = "";
-  let dotColor = "";
+const AVATAR_COLORS = [
+  "from-rose-600 to-red-800",
+  "from-amber-500 to-orange-700",
+  "from-emerald-500 to-teal-700",
+  "from-sky-500 to-blue-700",
+  "from-violet-500 to-purple-700",
+  "from-pink-500 to-rose-700",
+];
+const avatarColor = (id: string) =>
+  AVATAR_COLORS[id.charCodeAt(0) % AVATAR_COLORS.length];
 
-  switch (status) {
-    case "active":
-      colorClass = "bg-green-50 text-green-700 ring-green-600/20";
-      dotColor = "bg-green-500";
-      break;
-    case "suspended":
-      colorClass = "bg-red-50 text-red-700 ring-red-600/20";
-      dotColor = "bg-red-500";
-      break;
-    case "pending":
-      colorClass = "bg-yellow-50 text-yellow-700 ring-yellow-600/20";
-      dotColor = "bg-yellow-500";
-      break;
-    default:
-      colorClass = "bg-gray-50 text-gray-700 ring-gray-600/20";
-      dotColor = "bg-gray-500";
-  }
-
-  return (
-    <span
-      className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${colorClass}`}
-    >
-      <span className={`h-1.5 w-1.5 rounded-full mr-1.5 ${dotColor}`}></span>
-      {t(`userDetails.status.${status}`)}
-    </span>
-  );
-};
-
-const RoleTag = ({ role }: { role: string }) => {
-  const { t } = useTranslation();
-  return (
-    <span className="px-3 py-1 text-sm font-semibold rounded-full bg-indigo-100 text-indigo-800 shadow-sm capitalize">
-      <Contact className="inline-block w-4 h-4 mr-1" />
-      {t(`userDetails.roles.${role}`)}
-    </span>
-  );
-};
-
-/** Generates initials from a name or email */
 function getInitials(name?: string | null, email?: string): string {
   if (name) {
     const parts = name.trim().split(/\s+/);
@@ -75,26 +45,81 @@ function getInitials(name?: string | null, email?: string): string {
   return (email?.substring(0, 2) || "??").toUpperCase();
 }
 
-const AvatarFallback = ({
-  name,
-  email,
-  size = "lg",
-}: {
-  name?: string | null;
-  email?: string;
-  size?: "sm" | "lg";
-}) => {
-  const initials = getInitials(name, email);
-  const sizeClass =
-    size === "lg" ? "w-24 h-24 text-2xl" : "w-12 h-12 text-base";
+const STATUS_CFG: Record<string, { cls: string; dot: string; icon: React.ReactNode }> = {
+  active: {
+    cls: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    dot: "bg-emerald-400",
+    icon: <CheckCircle className="h-3 w-3" />,
+  },
+  suspended: {
+    cls: "bg-red-500/10 text-red-400 border-red-500/20",
+    dot: "bg-red-400",
+    icon: <XCircle className="h-3 w-3" />,
+  },
+  pending: {
+    cls: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    dot: "bg-amber-400",
+    icon: <Clock className="h-3 w-3" />,
+  },
+};
+
+const ROLE_CFG: Record<string, string> = {
+  admin: "bg-[#e41e20]/10 text-[#e41e20] border-[#e41e20]/20",
+  provider: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+  user: "bg-sky-500/10 text-sky-400 border-sky-500/20",
+};
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const { t } = useTranslation();
+  const cfg = STATUS_CFG[status] ?? STATUS_CFG.pending;
   return (
-    <div
-      className={`${sizeClass} rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md ring-4 ring-indigo-500/30 select-none`}
-    >
-      {initials}
-    </div>
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${cfg.cls}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+      {t(`userDetails.status.${status}`, status)}
+    </span>
   );
 };
+
+const RoleTag = ({ role }: { role: string }) => {
+  const { t } = useTranslation();
+  const cls = ROLE_CFG[role] ?? ROLE_CFG.user;
+  return (
+    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold capitalize ${cls}`}>
+      {t(`userDetails.roles.${role}`, role)}
+    </span>
+  );
+};
+
+// ----- field row -----
+const Field = ({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+}) => (
+  <div className="flex items-start gap-3">
+    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.06]">
+      {icon}
+    </div>
+    <div className="min-w-0">
+      <dt className="text-[10px] font-medium uppercase tracking-widest text-white/35">{label}</dt>
+      <dd className="mt-0.5 break-all text-sm text-white/80">{value || "-"}</dd>
+    </div>
+  </div>
+);
+
+// ----- dark input -----
+const DarkInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
+  <input
+    {...props}
+    className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white placeholder:text-white/25 focus:border-[#e41e20]/50 focus:outline-none focus:ring-0"
+  />
+);
+
+// ===== Main component =====
 
 function UserDetails() {
   const { t } = useTranslation();
@@ -113,7 +138,7 @@ function UserDetails() {
         if (!userId) return;
         const data = await userService.getUserById(userId);
         setUser(data);
-      } catch (err: any) {
+      } catch {
         setError(t("userDetails.errors.fetchUser"));
       } finally {
         setLoading(false);
@@ -141,11 +166,9 @@ function UserDetails() {
     setSaving(true);
     setError(null);
     try {
-      const updated = await userService.updateProfile(user.id, {
-        status: "suspended",
-      });
+      const updated = await userService.updateProfile(user.id, { status: "suspended" });
       setUser(updated);
-    } catch (err: any) {
+    } catch {
       setError(t("userDetails.errors.suspendUser"));
     } finally {
       setSaving(false);
@@ -157,11 +180,9 @@ function UserDetails() {
     setSaving(true);
     setError(null);
     try {
-      const updated = await userService.updateProfile(user.id, {
-        status: "active",
-      });
+      const updated = await userService.updateProfile(user.id, { status: "active" });
       setUser(updated);
-    } catch (err: any) {
+    } catch {
       setError(t("userDetails.errors.activateUser"));
     } finally {
       setSaving(false);
@@ -169,9 +190,7 @@ function UserDetails() {
   };
 
   const handleEditChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setEditData((prev) => ({ ...prev, [name]: value }));
@@ -185,32 +204,34 @@ function UserDetails() {
       const updated = await userService.updateProfile(user.id, editData);
       setUser(updated);
       setEditOpen(false);
-    } catch (err: any) {
+    } catch {
       setError(t("userDetails.errors.updateProfile"));
     } finally {
       setSaving(false);
     }
   };
 
+  // --- Loading ---
   if (loading) {
     return (
       <Hsidebar>
-        <div className="p-8 bg-gray-50 min-h-screen flex items-center justify-center">
-          <p className="text-lg text-gray-600">{t("userDetails.loading")}</p>
+        <div className="-m-8 flex min-h-[calc(100vh)] items-center justify-center bg-[#0d0d0d]">
+          <Loader2 className="h-8 w-8 animate-spin text-[#e41e20]" />
         </div>
       </Hsidebar>
     );
   }
+
+  // --- Not found ---
   if (!user) {
     return (
       <Hsidebar>
-        <div className="p-8 bg-gray-50 min-h-screen">
-          <p className="text-red-600 text-lg">
-            {error || t("userDetails.errors.userNotFound")}
-          </p>
+        <div className="-m-8 flex min-h-[calc(100vh)] flex-col items-center justify-center gap-4 bg-[#0d0d0d] text-white">
+          <AlertCircle className="h-10 w-10 text-red-400" />
+          <p className="text-sm text-white/50">{error || t("userDetails.errors.userNotFound")}</p>
           <Link
             to="/dashboard/userManagement"
-            className="mt-4 inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
+            className="flex items-center gap-1 text-sm text-[#e41e20]/80 hover:text-[#e41e20]"
           >
             <ArrowLeft size={16} /> {t("userDetails.backToUsers")}
           </Link>
@@ -219,307 +240,246 @@ function UserDetails() {
     );
   }
 
+  const initials = getInitials(user.full_name, user.email);
+  const gradCls = avatarColor(user.id);
+
   return (
     <Hsidebar>
-      {/* Main Container - Responsive Padding and Background */}
-      <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
-        {/* Header Section */}
-        <div className="flex items-center justify-between mb-8">
-          <Link
-            to="/dashboard/userManagement"
-            className="flex items-center gap-1 text-gray-500 hover:text-indigo-600 transition-colors text-sm font-medium"
-          >
-            <ArrowLeft size={18} /> {t("userDetails.backToUserList")}
-          </Link>
-          <h1 className="text-3xl font-extrabold text-gray-900 hidden sm:block">
-            {t("userDetails.userProfile")}
-          </h1>
+      <div className="-m-8 min-h-[calc(100vh)] bg-[#0d0d0d] text-white">
+
+        {/* ── Header ── */}
+        <div className="relative overflow-hidden border-b border-white/5 bg-[#111] px-6 py-6 md:px-10">
+          <div className="pointer-events-none absolute -top-20 left-10 h-56 w-56 rounded-full bg-[#e41e20]/10 blur-3xl" />
+          <div className="relative flex items-center justify-between">
+            <Link
+              to="/dashboard/userManagement"
+              className="flex items-center gap-2 text-sm text-white/40 transition hover:text-white/70"
+            >
+              <ArrowLeft size={16} />
+              {t("userDetails.backToUserList")}
+            </Link>
+            <span className="hidden text-sm font-medium text-white/25 sm:block">
+              {t("userDetails.userProfile")}
+            </span>
+          </div>
         </div>
 
-        {/* --- Profile Overview Card --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-lg p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 border-b pb-6 mb-6">
-              {/* Avatar */}
-              {user.avatar_url ? (
-                <img
-                  className="w-24 h-24 rounded-full object-cover shadow-md ring-4 ring-indigo-500/30"
-                  src={user.avatar_url}
-                  alt={user.full_name || user.email}
-                />
-              ) : (
-                <AvatarFallback
-                  name={user.full_name}
-                  email={user.email}
-                  size="lg"
-                />
-              )}
-              {/* Basic Info */}
-              <div className="min-w-0">
-                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">
-                  {user.full_name || user.email.split("@")[0]}
-                </h2>
-                <p className="text-sm text-gray-500 mt-0.5 truncate">
-                  {user.email}
-                </p>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <RoleTag role={user.role || "user"} />
-                  <StatusBadge status={user.status} />
-                </div>
-              </div>
+        <div className="px-6 py-8 md:px-10">
+          {/* global error banner */}
+          {error && (
+            <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-4 text-sm text-red-400">
+              <AlertCircle className="h-5 w-5 shrink-0" /> {error}
             </div>
+          )}
 
-            {/* Contact and Registration Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-12">
-              {/* Email */}
-              <div className="flex items-start space-x-3">
-                <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                  <Mail className="w-4.5 h-4.5 text-indigo-500" />
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+            {/* ── Profile card ── */}
+            <div className="lg:col-span-2 rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6 sm:p-8">
+
+              {/* Avatar + name */}
+              <div className="flex flex-col gap-5 border-b border-white/5 pb-6 sm:flex-row sm:items-center">
+                <div className={`flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-xl font-bold text-white shadow-lg ${gradCls}`}>
+                  {user.avatar_url ? (
+                    <img
+                      src={user.avatar_url}
+                      alt={user.full_name || user.email}
+                      className="h-full w-full rounded-2xl object-cover"
+                    />
+                  ) : (
+                    initials
+                  )}
                 </div>
                 <div className="min-w-0">
-                  <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t("userDetails.labels.email")}
-                  </dt>
-                  <dd className="text-sm text-gray-900 break-all mt-0.5">
-                    {user.email}
-                  </dd>
+                  <h2 className="truncate text-2xl font-bold text-white">
+                    {user.full_name || user.email.split("@")[0]}
+                  </h2>
+                  <p className="mt-0.5 truncate text-sm text-white/40">{user.email}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <RoleTag role={user.role || "user"} />
+                    <StatusBadge status={user.status} />
+                  </div>
                 </div>
               </div>
 
-              {/* Phone */}
-              <div className="flex items-start space-x-3">
-                <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-4.5 h-4.5 text-indigo-500" />
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t("userDetails.labels.phone")}
-                  </dt>
-                  <dd className="text-sm text-gray-900 mt-0.5">
-                    {user.phone || "-"}
-                  </dd>
-                </div>
+              {/* Fields grid */}
+              <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+                <Field
+                  icon={<Mail className="h-4 w-4 text-white/40" />}
+                  label={t("userDetails.labels.email")}
+                  value={user.email}
+                />
+                <Field
+                  icon={<Phone className="h-4 w-4 text-white/40" />}
+                  label={t("userDetails.labels.phone")}
+                  value={user.phone}
+                />
+                <Field
+                  icon={<Calendar className="h-4 w-4 text-white/40" />}
+                  label={t("userDetails.labels.registrationDate")}
+                  value={user.created_at ? new Date(user.created_at).toLocaleDateString() : undefined}
+                />
+                <Field
+                  icon={<Clock className="h-4 w-4 text-white/40" />}
+                  label={t("userDetails.labels.lastLogin")}
+                  value={user.updated_at ? new Date(user.updated_at).toLocaleString() : undefined}
+                />
               </div>
 
-              {/* Registration Date */}
-              <div className="flex items-start space-x-3">
-                <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                  <Calendar className="w-4.5 h-4.5 text-indigo-500" />
+              {user.location && (
+                <div className="mt-5 border-t border-white/5 pt-5">
+                  <Field
+                    icon={<MapPin className="h-4 w-4 text-white/40" />}
+                    label={t("userDetails.labels.address")}
+                    value={user.location}
+                  />
                 </div>
-                <div>
-                  <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t("userDetails.labels.registrationDate")}
-                  </dt>
-                  <dd className="text-sm text-gray-900 mt-0.5">
-                    {user.created_at
-                      ? new Date(user.created_at).toLocaleDateString()
-                      : "-"}
-                  </dd>
-                </div>
-              </div>
-
-              {/* Last Login */}
-              <div className="flex items-start space-x-3">
-                <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                  <Clock className="w-4.5 h-4.5 text-indigo-500" />
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t("userDetails.labels.lastLogin")}
-                  </dt>
-                  <dd className="text-sm text-gray-900 mt-0.5">
-                    {user.updated_at
-                      ? new Date(user.updated_at).toLocaleString()
-                      : "-"}
-                  </dd>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Address */}
-            <div className="mt-6 pt-6 border-t">
-              <div className="flex items-start space-x-3">
-                <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-4.5 h-4.5 text-indigo-500" />
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t("userDetails.labels.address")}
-                  </dt>
-                  <dd className="text-sm text-gray-900 mt-0.5">
-                    {user.location || "-"}
-                  </dd>
+            {/* ── Sidebar ── */}
+            <div className="space-y-5">
+
+              {/* Actions */}
+              <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6">
+                <h3 className="mb-4 border-b border-white/5 pb-3 text-sm font-semibold text-white/60 uppercase tracking-wider">
+                  {t("userDetails.managementActions")}
+                </h3>
+                <div className="flex flex-col gap-2.5">
+                  <button
+                    onClick={handleEditOpen}
+                    disabled={saving}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/[0.08] disabled:opacity-40"
+                  >
+                    <Edit className="h-4 w-4" />
+                    {t("userDetails.buttons.editProfile")}
+                  </button>
+                  <button
+                    onClick={handelSuspendUser}
+                    disabled={saving || user.status === "suspended"}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-400 transition hover:bg-red-500/20 disabled:opacity-40"
+                  >
+                    <Ban className="h-4 w-4" />
+                    {t("userDetails.buttons.suspendUser")}
+                  </button>
+                  <button
+                    onClick={handelActivateUser}
+                    disabled={saving || user.status === "active"}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-sm font-medium text-emerald-400 transition hover:bg-emerald-500/20 disabled:opacity-40"
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    {t("userDetails.buttons.activateUser")}
+                  </button>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* --- Actions Sidebar --- */}
-          <div className="space-y-6">
-            {/* Actions Card */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-3">
-                {t("userDetails.managementActions")}
-              </h3>
-              <div className="flex flex-col gap-3">
-                <button
-                  className="flex items-center justify-center w-full px-4 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={handleEditOpen}
-                  disabled={saving}
-                >
-                  <Edit className="w-4 h-4 mr-2" />
-                  {t("userDetails.buttons.editProfile")}
-                </button>
-                <button
-                  className="flex items-center justify-center w-full px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={handelSuspendUser}
-                  disabled={saving || user.status === "suspended"}
-                >
-                  <Ban className="w-4 h-4 mr-2" />
-                  {t("userDetails.buttons.suspendUser")}
-                </button>
-                <button
-                  className="flex items-center justify-center w-full px-4 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={handelActivateUser}
-                  disabled={saving || user.status === "active"}
-                >
-                  <Badge className="w-4 h-4 mr-2" />
-                  {t("userDetails.buttons.activateUser")}
-                </button>
+              {/* Activity placeholder */}
+              <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6">
+                <h3 className="mb-3 border-b border-white/5 pb-3 text-sm font-semibold text-white/60 uppercase tracking-wider">
+                  {t("userDetails.recentActivity")}
+                </h3>
+                <p className="text-sm text-white/30">{t("userDetails.noActivityData")}</p>
               </div>
-            </div>
-
-            {/* Quick Info Card */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-3">
-                {t("userDetails.recentActivity")}
-              </h3>
-              <p className="text-sm text-gray-500">
-                {t("userDetails.noActivityData")}
-              </p>
             </div>
           </div>
         </div>
       </div>
-      {/* Edit Modal */}
+
+      {/* ── Edit Modal ── */}
       {editOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-screen overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">
-                {t("userDetails.modal.editUserProfile")}
-              </h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md overflow-y-auto rounded-2xl border border-white/10 bg-[#1a1a1a] p-6 shadow-2xl">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-white">{t("userDetails.modal.editUserProfile")}</h2>
               <button
                 onClick={() => setEditOpen(false)}
                 disabled={saving}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-white/30 transition hover:text-white/70 disabled:opacity-40"
               >
-                <X size={24} />
+                <X size={22} />
               </button>
             </div>
+
             {error && (
-              <p className="text-red-600 mb-4 text-sm bg-red-50 p-3 rounded">
-                {error}
-              </p>
+              <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+              </div>
             )}
+
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleEditSave();
-              }}
+              onSubmit={(e) => { e.preventDefault(); handleEditSave(); }}
               className="space-y-4"
             >
+              {[
+                { name: "full_name", label: t("userDetails.form.fullName"), type: "text" },
+                { name: "avatar_url", label: t("userDetails.form.avatarUrl"), type: "text" },
+                { name: "phone", label: t("userDetails.form.phone"), type: "text" },
+                { name: "location", label: t("userDetails.form.location"), type: "text" },
+              ].map(({ name, label, type }) => (
+                <div key={name}>
+                  <label className="mb-1 block text-xs font-medium text-white/50">{label}</label>
+                  <DarkInput
+                    type={type}
+                    name={name}
+                    value={(editData as any)[name] || ""}
+                    onChange={handleEditChange}
+                  />
+                </div>
+              ))}
+
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  {t("userDetails.form.fullName")}
-                </label>
-                <input
-                  type="text"
-                  name="full_name"
-                  value={editData.full_name || ""}
-                  onChange={handleEditChange}
-                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  {t("userDetails.form.avatarUrl")}
-                </label>
-                <input
-                  type="text"
-                  name="avatar_url"
-                  value={editData.avatar_url || ""}
-                  onChange={handleEditChange}
-                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  {t("userDetails.form.phone")}
-                </label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={editData.phone || ""}
-                  onChange={handleEditChange}
-                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  {t("userDetails.form.bio")}
-                </label>
+                <label className="mb-1 block text-xs font-medium text-white/50">{t("userDetails.form.bio")}</label>
                 <textarea
                   name="bio"
                   value={editData.bio || ""}
                   onChange={handleEditChange}
-                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  rows={3}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white placeholder:text-white/25 focus:border-[#e41e20]/50 focus:outline-none"
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  {t("userDetails.form.location")}
-                </label>
-                <input
-                  type="text"
-                  name="location"
-                  value={editData.location || ""}
-                  onChange={handleEditChange}
-                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  {t("userDetails.form.role")}
-                </label>
+                <label className="mb-1 block text-xs font-medium text-white/50">{t("userDetails.form.role")}</label>
                 <select
                   name="role"
                   value={editData.role || "user"}
                   onChange={handleEditChange}
-                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-white/10 bg-[#1a1a1a] px-3 py-2 text-sm text-white focus:border-[#e41e20]/50 focus:outline-none"
                 >
                   <option value="user">{t("userDetails.form.user")}</option>
-                  <option value="provider">
-                    {t("userDetails.form.provider", "Provider")}
-                  </option>
+                  <option value="provider">{t("userDetails.form.provider", "Provider")}</option>
                   <option value="admin">{t("userDetails.form.admin")}</option>
                 </select>
               </div>
-              <div className="flex gap-2 mt-6 pt-4 border-t">
+
+              <div>
+                <label className="mb-1 block text-xs font-medium text-white/50">{t("userManagement.filters.allStatus")}</label>
+                <select
+                  name="status"
+                  value={editData.status || "active"}
+                  onChange={handleEditChange}
+                  className="w-full rounded-xl border border-white/10 bg-[#1a1a1a] px-3 py-2 text-sm text-white focus:border-[#e41e20]/50 focus:outline-none"
+                >
+                  <option value="active">{t("userManagement.filters.active")}</option>
+                  <option value="suspended">{t("userManagement.filters.suspended")}</option>
+                  <option value="pending">{t("userManagement.filters.pending")}</option>
+                </select>
+              </div>
+
+              <div className="flex gap-2 border-t border-white/5 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:bg-gray-400"
                   disabled={saving}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#e41e20] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#c91a1c] disabled:opacity-50"
                 >
-                  {saving
-                    ? t("userDetails.form.saving")
-                    : t("userDetails.form.save")}
+                  {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  {saving ? t("userDetails.form.saving") : t("userDetails.form.save")}
                 </button>
                 <button
                   type="button"
-                  className="flex-1 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:bg-gray-400"
                   onClick={() => setEditOpen(false)}
                   disabled={saving}
+                  className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white/60 transition hover:bg-white/[0.08] disabled:opacity-50"
                 >
                   {t("userDetails.form.cancel")}
                 </button>

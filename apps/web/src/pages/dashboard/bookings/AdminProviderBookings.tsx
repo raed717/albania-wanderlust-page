@@ -197,7 +197,7 @@ const AdminProviderBookings: React.FC = () => {
   // ── render ────────────────────────────────────────────────────────────
   return (
     <Hsidebar>
-      <div className="min-h-screen bg-[#0d0d0d] text-white">
+      <div className="-m-8 min-h-[calc(100vh)] bg-[#0d0d0d] text-white">
         {/* ── Header ─────────────────────────────────────────────── */}
         <div className="relative overflow-hidden border-b border-white/5 bg-[#111] px-6 py-6 md:px-10">
           <div className="pointer-events-none absolute -top-20 right-10 h-60 w-60 rounded-full bg-[#e41e20]/8 blur-3xl" />
