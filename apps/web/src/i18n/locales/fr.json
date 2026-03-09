@@ -83,6 +83,11 @@
     "login": "Connexion",
     "profile": "Profil"
   },
+  "auth": {
+    "loginRequired": "Connexion requise",
+    "loginToBook": "Veuillez vous connecter pour effectuer une réservation.",
+    "login": "Connexion"
+  },
   "footer": {
     "description": "Votre plateforme de confiance pour découvrir et réserver les meilleurs hébergements et locations de voitures en Albanie.",
     "explore": "Explorer",
@@ -375,6 +380,7 @@
     "yes": "Oui",
     "no": "Non",
     "confirm": "Confirmer",
+    "cancel": "Annuler",
     "day": "jour",
     "days": "jours",
     "pageNotFound": "Oups ! Page non trouvée",

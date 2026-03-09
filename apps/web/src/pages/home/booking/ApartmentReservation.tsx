@@ -46,6 +46,9 @@ import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalenda
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import { useTranslation } from "react-i18next";
 import ReviewsSection from "@/components/reviews/ReviewsSection";
+import Swal from "sweetalert2";
+import { userService } from "@/services/api/userService";
+import { User } from "@/types/user.types";
 
 const ApartmentReservation = () => {
   const { t } = useTranslation();
@@ -57,8 +60,9 @@ const ApartmentReservation = () => {
   const [images, setImages] = useState<string[]>([]);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
-  // Fetch apartment data
+// Fetch apartment data
   useEffect(() => {
     const fetchApartment = async () => {
       if (!id) return;
@@ -79,10 +83,36 @@ const ApartmentReservation = () => {
       }
     };
 
+    const fetchUser = async () => {
+      try {
+        const data = await userService.getCurrentUser();
+        setUser(data);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
     fetchApartment();
+    fetchUser();
   }, [id]);
 
-  const handleReservation = () => {
+const handleReservation = () => {
+    if (!user) {
+      localStorage.setItem("redirectAfterLogin", `/apartmentBilling/${id}`);
+      Swal.fire({
+        title: t("auth.loginRequired"),
+        text: t("auth.loginToBook"),
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: t("auth.login"),
+        cancelButtonText: t("common.cancel"),
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/auth");
+        }
+      });
+      return;
+    }
     navigate(`/apartmentBilling/${id}`);
   };
 

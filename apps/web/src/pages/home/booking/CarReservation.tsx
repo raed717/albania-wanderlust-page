@@ -29,6 +29,9 @@ import { Month, MONTHS, MONTH_NAMES } from "@/types/price.type";
 import { getCarById } from "@/services/api/carService";
 import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
 import { useTranslation } from "react-i18next";
+import Swal from "sweetalert2";
+import { userService } from "@/services/api/userService";
+import { User } from "@/types/user.types";
 
 // Helper to get current month as Month type
 const getCurrentMonth = (): Month => {
@@ -53,8 +56,9 @@ const CarReservation = () => {
   const [images, setImages] = useState<string[]>([]);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
-  // Fetch car data
+// Fetch car data
   useEffect(() => {
     const fetchCar = async () => {
       if (!id) return;
@@ -76,11 +80,36 @@ const CarReservation = () => {
       }
     };
 
+    const fetchUser = async () => {
+      try {
+        const data = await userService.getCurrentUser();
+        setUser(data);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
     fetchCar();
+    fetchUser();
   }, [id]);
 
-  const handleReservation = () => {
-    // navigate to /carBilling/{id}
+const handleReservation = () => {
+    if (!user) {
+      localStorage.setItem("redirectAfterLogin", `/carBilling/${id}`);
+      Swal.fire({
+        title: t("auth.loginRequired"),
+        text: t("auth.loginToBook"),
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: t("auth.login"),
+        cancelButtonText: t("common.cancel"),
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/auth");
+        }
+      });
+      return;
+    }
     navigate(`/carBilling/${id}`);
   };
 

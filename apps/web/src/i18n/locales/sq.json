@@ -84,6 +84,11 @@
     "login": "Hyrje",
     "profile": "Profili"
   },
+  "auth": {
+    "loginRequired": "Kërkohet hyrje",
+    "loginToBook": "Ju lutemi hyni për të bërë një rezervim.",
+    "login": "Hyrje"
+  },
   "footer": {
     "description": "Platforma juaj e besuar për zbulimin dhe rezervimin e akomodimeve dhe makinave me qira në Shqipëri.",
     "explore": "Eksploro",
@@ -383,6 +388,7 @@
     "yes": "Po",
     "no": "Jo",
     "confirm": "Konfirmo",
+    "cancel": "Anulo",
     "day": "ditë",
     "days": "ditë",
     "pageNotFound": "Oops! Faqja nuk u gjet",

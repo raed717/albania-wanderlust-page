@@ -83,6 +83,11 @@
     "login": "Login",
     "profile": "Profile"
   },
+  "auth": {
+    "loginRequired": "Login Required",
+    "loginToBook": "Please login to make a booking.",
+    "login": "Login"
+  },
   "footer": {
     "description": "Your trusted platform for discovering and booking the best accommodations and car rentals in Albania.",
     "explore": "Explore",
@@ -375,6 +380,7 @@
     "yes": "Yes",
     "no": "No",
     "confirm": "Confirm",
+    "cancel": "Cancel",
     "day": "day",
     "days": "days",
     "pageNotFound": "Oops! Page not found",

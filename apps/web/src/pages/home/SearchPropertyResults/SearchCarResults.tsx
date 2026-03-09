@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { AlertCircle, Car as CarIcon } from "lucide-react";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import { CarCard } from "@/components/home/CarCard";
@@ -33,6 +33,7 @@ const SearchCarResults = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const state = location.state as LocationState | null;
+  const navigate = useNavigate();
 
   const [cars, setCars] = useState<Car[]>([]);
   const [carUnavailability, setCarUnavailability] = useState<
@@ -274,7 +275,7 @@ const SearchCarResults = () => {
 
   const handleCarClick = (id: number) => {
     // Navigate to car reservation page
-    window.open(`/carReservation/${id}`, "_blank", "noopener,noreferrer");
+    navigate(`/carReservation/${id}`);
   };
 
   const renderSkeletons = () => {

@@ -1,12 +1,14 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { authService } from "@/services/api/authService";
+import { userService } from "@/services/api/userService";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 
 export default function AuthPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(false);
   const [showManualAuth, setShowManualAuth] = useState(false);
   const [email, setEmail] = useState("");
@@ -17,6 +19,40 @@ export default function AuthPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuthAndRedirect = async () => {
+      // Check for OAuth redirect (has access_token in URL hash)
+      const hasHash = window.location.hash.includes("access_token");
+      
+      // Wait a moment for session to be restored after OAuth redirect
+      if (hasHash) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      try {
+        const user = await userService.getCurrentUser();
+        if (user) {
+          const redirectUrl = localStorage.getItem("redirectAfterLogin");
+          localStorage.removeItem("redirectAfterLogin");
+          navigate(redirectUrl || "/");
+        }
+      } catch (err) {
+        // User not logged in, show auth form
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    checkAuthAndRedirect();
+  }, [navigate]);
+
+  const getRedirectUrl = () => {
+    const redirectUrl = localStorage.getItem("redirectAfterLogin");
+    localStorage.removeItem("redirectAfterLogin");
+    return redirectUrl || "/";
+  };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -53,7 +89,7 @@ export default function AuthPage() {
       setSuccess(t("user.signInSuccessful"));
       // Navigate to dashboard or home after short delay
       setTimeout(() => {
-        navigate("/");
+        navigate(getRedirectUrl());
       }, 1000);
     } catch (err: any) {
       console.error("Login error:", err);
@@ -326,6 +362,14 @@ export default function AuthPage() {
             </div>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-red-50 to-slate-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
       </div>
     );
   }

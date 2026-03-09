@@ -16,6 +16,13 @@ const Index = () => {
       <PrimarySearchAppBar />
       <Hero />
 
+      {/* Cars Section */}
+      <section className="py-12 md:py-16 bg-slate-50 overflow-hidden">
+        <div className="container mx-auto px-4">
+          <CarsPreview />
+        </div>
+      </section>
+
       {/* Trust Indicators Section */}
       <section className="py-8 md:py-10 bg-gradient-to-r from-red-900 via-red-800 to-black">
         <div className="container mx-auto px-4">
@@ -94,13 +101,6 @@ const Index = () => {
               <ApartmentsPreview />
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Cars Section */}
-      <section className="py-12 md:py-16 bg-slate-50 overflow-hidden">
-        <div className="container mx-auto px-4">
-          <CarsPreview />
         </div>
       </section>
 

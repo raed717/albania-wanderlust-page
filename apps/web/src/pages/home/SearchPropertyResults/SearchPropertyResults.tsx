@@ -12,10 +12,12 @@ import { useLocation } from "react-router-dom";
 import { defaultSearchFilters } from "@/types/search.types";
 import MapPreviewCard from "./MapPreviewCard";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 const SearchPropertyResults = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const state = location.state as {
     type: string;
     destination?: string;
@@ -188,13 +190,9 @@ const SearchPropertyResults = () => {
   const handlePropertyClick = (id: number, isHotel: boolean) => {
     // Navigate to property details page
     if (isHotel) {
-      window.open(`/hotelReservation/${id}`, "_blank", "noopener,noreferrer");
+      navigate(`/hotelReservation/${id}`);
     } else {
-      window.open(
-        `/apartmentReservation/${id}`,
-        "_blank",
-        "noopener,noreferrer",
-      );
+      navigate(`/apartmentReservation/${id}`);
     }
   };
 

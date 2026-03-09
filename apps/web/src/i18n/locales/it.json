@@ -83,6 +83,11 @@
     "login": "Accedi",
     "profile": "Profilo"
   },
+  "auth": {
+    "loginRequired": "Accesso richiesto",
+    "loginToBook": "Effettua l'accesso per effettuare una prenotazione.",
+    "login": "Accedi"
+  },
   "footer": {
     "description": "La tua piattaforma affidabile per scoprire e prenotare i migliori alloggi e noleggi auto in Albania.",
     "explore": "Esplora",
@@ -375,6 +380,7 @@
     "yes": "Sì",
     "no": "No",
     "confirm": "Conferma",
+    "cancel": "Annulla",
     "day": "giorno",
     "days": "giorni",
     "pageNotFound": "Oops! Pagina non trovata",
