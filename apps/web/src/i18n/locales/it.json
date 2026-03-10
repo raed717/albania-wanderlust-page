@@ -295,7 +295,27 @@
     "paymentFailed": "Pagamento Fallito",
     "paymentSuccess": "Pagamento Riuscito",
     "refundWillBeProcessed": "Il rimborso verrà elaborato",
-    "downloadInvoice": "Scarica Fattura"
+    "downloadInvoice": "Scarica Fattura",
+    "statusLabel": "Prenotazione",
+    "paymentLabel": "Pagamento",
+    "statusHint": {
+      "pending": "In attesa di conferma dal fornitore",
+      "confirmed": "La tua prenotazione è stata confermata dal fornitore",
+      "canceled": "Questa prenotazione è stata cancellata"
+    },
+    "paymentHint": {
+      "pending": "Il pagamento non è ancora stato completato",
+      "paid": "Pagamento ricevuto con successo",
+      "failed": "Il pagamento è fallito — riprova"
+    },
+    "combinedStatus": {
+      "pendingPending": "In attesa di conferma dal fornitore",
+      "confirmedPending": "Confermato dal fornitore · In attesa del tuo pagamento",
+      "confirmedPaid": "Confermato dal fornitore · Pagamento ricevuto",
+      "canceledPaid": "Prenotazione annullata · Il rimborso verrà elaborato",
+      "canceledPending": "La prenotazione è stata annullata",
+      "confirmedFailed": "Confermato dal fornitore · Pagamento fallito, riprova"
+    }
   },
   "user": {
     "fullName": "Nome Completo",
@@ -373,6 +393,8 @@
     "apartment": "Appartamento",
     "hotel": "Hotel",
     "stay": "Soggiorno",
+    "culture": "Culture",
+    "map": "Mappa",
     "explore": "Esplora di Più",
     "learnMore": "Scopri di Più",
     "tryAgain": "Riprova",

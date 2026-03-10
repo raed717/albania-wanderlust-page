@@ -296,7 +296,27 @@
     "paymentFailed": "Pagesa dështoi",
     "paymentSuccess": "Pagesa e suksesshme",
     "refundWillBeProcessed": "Rimbursimi do të përpilohet",
-    "downloadInvoice": "Shkarko faturën"
+    "downloadInvoice": "Shkarko faturën",
+    "statusLabel": "Rezervimi",
+    "paymentLabel": "Pagesa",
+    "statusHint": {
+      "pending": "Duke pritur konfirmimin nga ofruesi",
+      "confirmed": "Rezervimi juaj është konfirmuar nga ofruesi",
+      "canceled": "Ky rezervim është anuluar"
+    },
+    "paymentHint": {
+      "pending": "Pagesa nuk është kryer ende",
+      "paid": "Pagesa u krye me sukses",
+      "failed": "Pagesa dështoi — ju lutemi provoni përsëri"
+    },
+    "combinedStatus": {
+      "pendingPending": "Duke pritur konfirmimin nga ofruesi",
+      "confirmedPending": "Konfirmuar nga ofruesi · Duke pritur pagesën tuaj",
+      "confirmedPaid": "Konfirmuar nga ofruesi · Pagesa u krye",
+      "canceledPaid": "Rezervimi u anulua · Rimbursimi do të përpunohet",
+      "canceledPending": "Rezervimi u anulua",
+      "confirmedFailed": "Konfirmuar nga ofruesi · Pagesa dështoi, provoni përsëri"
+    }
   },
   "user": {
     "fullName": "Emri i plotë",
@@ -381,6 +401,8 @@
     "apartment": "Apartament",
     "hotel": "Hotel",
     "stay": "Qëndrim",
+    "culture": "Kulturë",
+    "map": "Hartë",
     "explore": "Eksploro Më Shumë",
     "learnMore": "Mëso Më Shumë",
     "tryAgain": "Provo Përsëri",

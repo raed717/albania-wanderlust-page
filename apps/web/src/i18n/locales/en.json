@@ -295,7 +295,27 @@
     "paymentFailed": "Payment Failed",
     "paymentSuccess": "Payment Successful",
     "refundWillBeProcessed": "Refund will be processed",
-    "downloadInvoice": "Download Invoice"
+    "downloadInvoice": "Download Invoice",
+    "statusLabel": "Booking",
+    "paymentLabel": "Payment",
+    "statusHint": {
+      "pending": "Awaiting confirmation from the provider",
+      "confirmed": "Your booking has been confirmed by the provider",
+      "canceled": "This booking has been cancelled"
+    },
+    "paymentHint": {
+      "pending": "Payment has not been completed yet",
+      "paid": "Payment successfully received",
+      "failed": "Payment attempt failed — please retry"
+    },
+    "combinedStatus": {
+      "pendingPending": "Waiting for provider to confirm your booking",
+      "confirmedPending": "Confirmed by provider · Awaiting your payment",
+      "confirmedPaid": "Confirmed by provider · Payment received",
+      "canceledPaid": "Booking cancelled · Refund will be processed",
+      "canceledPending": "Booking was cancelled",
+      "confirmedFailed": "Confirmed by provider · Payment failed, please retry"
+    }
   },
   "user": {
     "fullName": "Full Name",
@@ -373,6 +393,8 @@
     "apartment": "Apartment",
     "hotel": "Hotel",
     "stay": "Stay",
+    "culture": "Culture",
+    "map": "Map",
     "explore": "Explore More",
     "learnMore": "Learn More",
     "tryAgain": "Try Again",

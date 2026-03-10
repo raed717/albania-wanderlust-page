@@ -1,155 +1,109 @@
 import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import MoreIcon from "@mui/icons-material/MoreVert";
-import LogoutIcon from "@mui/icons-material/Logout";
-import LoginIcon from "@mui/icons-material/Login";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PersonIcon from "@mui/icons-material/Person";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import Avatar from "@mui/material/Avatar";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import Divider from "@mui/material/Divider";
-import Skeleton from "@mui/material/Skeleton";
-import Tooltip from "@mui/material/Tooltip";
-import Badge from "@mui/material/Badge";
-import Button from "@mui/material/Button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { authService } from "@/services/api/authService";
 import { userService } from "@/services/api/userService";
 import { User } from "@/types/user.types";
-import { Heart, Home } from "lucide-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import {
+  Heart,
+  CalendarDays,
+  LayoutDashboard,
+  User2,
+  LogOut,
+  LogIn,
+  Menu,
+  X,
+  MapPin,
+  Car,
+  BookOpen,
+  Home,
+  ChevronDown,
+  Building2,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function PrimarySearchAppBar() {
   const { t } = useTranslation();
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
-    React.useState<null | HTMLElement>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [user, setUser] = React.useState<User>(null);
   const [userRole, setUserRole] = React.useState<any>(null);
-  const [userStatus, setUserStaus] = React.useState<any>(null);
+  const [userStatus, setUserStatus] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [avatarError, setAvatarError] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-  const navigate = useNavigate();
+  // Scroll-aware transparency
+  React.useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  // Fetch current user on mount
+  // Close mobile menu on route change
+  React.useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  // Fetch current user
   React.useEffect(() => {
     const fetchUser = async () => {
       try {
         const currentUser = await userService.getCurrentUser();
-
-        // Not signed in → stop here
         if (!currentUser) {
-          console.log("user not found ");
-
           setUser(null);
           setUserRole(null);
-          setUserStaus(null);
+          setUserStatus(null);
           return;
         }
-
-        // User exists → fetch role;
         setUser(currentUser);
         setUserRole(currentUser.role);
-        setUserStaus(currentUser.status);
+        setUserStatus(currentUser.status);
       } catch {
-        // Silent fail — user likely not authenticated
         setUser(null);
         setUserRole(null);
-        setUserStaus(null);
+        setUserStatus(null);
       } finally {
         setLoading(false);
       }
     };
-
     fetchUser();
   }, []);
 
-  // Handle suspended user redirection
+  // Suspended user redirect
   React.useEffect(() => {
     if (userStatus === "suspended") {
       handleLogout();
       window.open("/suspended", "_blank");
     }
-  }, [userStatus, navigate]);
+  }, [userStatus]);
 
-  // Reset avatar error when user or avatar URL changes
   React.useEffect(() => {
     setAvatarError(false);
   }, [user?.avatar_url]);
 
-  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    handleMobileMenuClose();
-  };
-
   const handleLogout = async () => {
-    handleMenuClose();
     await authService.signOut();
     window.location.href = "/";
   };
 
-  const handleLogin = () => {
-    handleMenuClose();
-    setTimeout(() => {
-      navigate("/auth");
-    }, 100);
-  };
-
-  const handleMyAccount = () => {
-    if (!user) return;
-    handleMenuClose();
-    navigate("/myAccount");
-  };
-
-  const handleDashboard = () => {
-    handleMenuClose();
-    navigate("/dashboard/bookings");
-  };
-
-  const handleMyBookings = () => {
-    handleMenuClose();
-    if (!user) {
-      handleLogin();
-      return;
-    }
-    navigate("/myBookings");
-  };
-
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
-
-  // Check if user profile is complete
   const isProfileComplete = React.useMemo(() => {
     if (!user) return false;
     return !!(user.full_name && user.phone && user.location);
   }, [user]);
 
-  // Get user initials for fallback
   const getUserInitials = React.useMemo(() => {
     if (!user) return "";
-    const name = user.full_name || user.email || "";
-    return name
+    return (user.full_name || user.email || "")
       .split(" ")
       .map((n: string) => n[0])
       .join("")
@@ -157,324 +111,385 @@ export default function PrimarySearchAppBar() {
       .slice(0, 2);
   }, [user]);
 
-  // Get display name
-  const getDisplayName = () => {
-    return user?.full_name || user?.email || "User";
-  };
+  const isAdmin = userRole?.role === "admin" || userRole === "admin";
+  const isProvider = userRole?.role === "provider" || userRole === "provider";
+  const isUser = userRole?.role === "user" || userRole === "user";
 
-  // Check if user is admin
-  const isAdmin = React.useMemo(() => {
-    return userRole?.role === "admin" || userRole === "admin";
-  }, [userRole]);
+  const navLinks = [
+    {
+      label: t("sidebar.home") || "Home",
+      href: "/",
+      icon: <Home className="w-4 h-4" />,
+    },
+    {
+      label: t("common.stay") || "Stays",
+      href: "/searchResults",
+      icon: <Building2 className="w-4 h-4" />,
+    },
+    {
+      label: t("common.car") || "Cars",
+      href: "/searchCarResults",
+      icon: <Car className="w-4 h-4" />,
+    },
+    {
+      label: t("common.culture") || "Culture",
+      href: "/CultureDetails",
+      icon: <BookOpen className="w-4 h-4" />,
+    },
+    {
+      label: t("common.map") || "Map",
+      href: "/properties-map",
+      icon: <MapPin className="w-4 h-4" />,
+    },
+  ];
 
-  const isProvider = React.useMemo(() => {
-    return userRole?.role === "provider" || userRole === "provider";
-  }, [userRole]);
-
-  const isUser = React.useMemo(() => {
-    return userRole?.role === "user" || userRole === "user";
-  }, [userRole]);
-
-  const menuId = "primary-search-account-menu";
-  const renderMenu = (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "right",
-      }}
-      id={menuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
-      slotProps={{
-        paper: {
-          elevation: 3,
-          sx: {
-            minWidth: 200,
-            mt: 1.5,
-            borderRadius: 2,
-          },
-        },
-      }}
-    >
-      {user ? (
-        <>
-          <Box sx={{ px: 2, py: 1.5 }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-              {getDisplayName()}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {user?.email}
-            </Typography>
-          </Box>
-          <Divider />
-          {isAdmin && (
-            <MenuItem onClick={handleDashboard} sx={{ py: 1.5 }}>
-              <ListItemIcon>
-                <DashboardIcon fontSize="small" />
-              </ListItemIcon>
-              {t("appBar.dashboard")}
-            </MenuItem>
-          )}
-          <MenuItem onClick={handleMyBookings} sx={{ py: 1.5 }}>
-            <ListItemIcon>
-              <CalendarMonthIcon fontSize="small" />
-            </ListItemIcon>
-            {t("appBar.myBookings")}
-          </MenuItem>
-          {isProvider && isProfileComplete && (
-            <MenuItem onClick={handleDashboard} sx={{ py: 1.5 }}>
-              <ListItemIcon>
-                <Home fontSize="small" />
-              </ListItemIcon>
-              {t("appBar.propertiesManagement")}
-            </MenuItem>
-          )}
-          <MenuItem onClick={handleMyAccount} sx={{ py: 1.5 }}>
-            <ListItemIcon>
-              <PersonIcon fontSize="small" />
-            </ListItemIcon>
-            {isProfileComplete
-              ? t("appBar.myAccount")
-              : t("appBar.completeProfile")}
-          </MenuItem>
-          <Divider />
-          <MenuItem
-            onClick={handleLogout}
-            sx={{ py: 1.5, color: "error.main" }}
-          >
-            <ListItemIcon>
-              <LogoutIcon fontSize="small" color="error" />
-            </ListItemIcon>
-            {t("appBar.logout")}
-          </MenuItem>
-        </>
-      ) : (
-        <MenuItem onClick={handleLogin} sx={{ py: 1.5, color: "primary.main" }}>
-          <ListItemIcon>
-            <LoginIcon fontSize="small" color="primary" />
-          </ListItemIcon>
-          {t("appBar.login")}
-        </MenuItem>
-      )}
-    </Menu>
-  );
-
-  const mobileMenuId = "primary-search-account-menu-mobile";
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "right",
-      }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-      slotProps={{
-        paper: {
-          elevation: 3,
-          sx: {
-            minWidth: 200,
-            mt: 1.5,
-            borderRadius: 2,
-          },
-        },
-      }}
-    >
-      <Divider />
-      <MenuItem onClick={handleProfileMenuOpen} sx={{ py: 1.5 }}>
-        <ListItemIcon>
-          {loading ? (
-            <Skeleton variant="circular" width={24} height={24} />
-          ) : user?.avatar_url && !avatarError ? (
-            <Avatar
-              src={user.avatar_url}
-              alt={user.full_name || user.email}
-              sx={{ width: 24, height: 24 }}
-              imgProps={{
-                onError: () => setAvatarError(true),
-              }}
-            />
-          ) : (
-            <Avatar
-              sx={{
-                width: 24,
-                height: 24,
-                bgcolor: "primary.main",
-                fontSize: "0.75rem",
-              }}
-            >
-              {getUserInitials}
-            </Avatar>
-          )}
-        </ListItemIcon>
-        {t("appBar.profile")}
-      </MenuItem>
-    </Menu>
-  );
-
-  const renderAvatar = () => {
-    if (loading) {
+  const renderAvatar= (size = "md") => {
+    const dim = size === "sm" ? "w-7 h-7 text-[10px]" : "w-8 h-8 text-xs";
+    if (user?.avatar_url && !avatarError) {
       return (
-        <Badge
-          badgeContent={user && !isProfileComplete ? 1 : 0}
-          color="warning"
-          variant="dot"
-        >
-          <Skeleton variant="circular" width={32} height={32} />
-        </Badge>
+        <img
+          src={user.avatar_url}
+          alt={user.full_name || user.email}
+          className={`${dim} rounded-full object-cover`}
+          onError={() => setAvatarError(true)}
+        />
       );
     }
-
-    // Check if we have a valid avatar URL and no error
-    const hasValidAvatar = user?.avatar_url && !avatarError;
-
-    const avatarComponent = hasValidAvatar ? (
-      <Avatar
-        src={user.avatar_url}
-        alt={user.full_name || user.email}
-        sx={{ width: 32, height: 32 }}
-        imgProps={{
-          onError: () => setAvatarError(true),
-        }}
-      />
-    ) : (
-      <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
-        {getUserInitials}
-      </Avatar>
-    );
-
     return (
-      <Badge
-        badgeContent={user && !isProfileComplete ? 1 : 0}
-        color="warning"
-        variant="dot"
+      <div
+        className={`${dim} rounded-full bg-gradient-to-br from-red-600 to-red-900 flex items-center justify-center text-white font-bold flex-shrink-0`}
       >
-        {avatarComponent}
-      </Badge>
+        {getUserInitials}
+      </div>
     );
   };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar
-        position="static"
-        sx={{
-          //backgroundColor: "rgba(0, 15, 100, 0.78)",
-          background:
-            "linear-gradient(135deg, #7f1d1d 0%, #7f1d1d 50%, #120000 100%)",
-
-          color: "white",
-          backdropFilter: "blur(10px)",
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-          zIndex: 1300,
-        }}
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100"
+            : "bg-gradient-to-r from-red-700 via-red-900 to-black shadow-md"
+        }`}
       >
-        <Toolbar>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{
-              display: { xs: "block", sm: "block" },
-              cursor: "pointer",
-              fontWeight: 600,
-              transition: "opacity 0.2s",
-              "&:hover": {
-                opacity: 0.8,
-              },
-            }}
-            onClick={() => navigate("/")}
-          >
-            BOOKinAL.
-          </Typography>
-          <Box sx={{ flexGrow: 1 }} />
-          <Box
-            sx={{
-              display: { xs: "none", md: "flex" },
-              alignItems: "center",
-              gap: 1,
-            }}
-          >
-            {user && (
-              <Button
-                color="inherit"
-                startIcon={<CalendarMonthIcon />}
-                onClick={() => navigate("/myBookings")}
-                sx={{ textTransform: "none", mr: 1 }}
-              >
-                {t("appBar.myBookings")}
-              </Button>
-            )}
-            {user && (
-              <Button
-                color="inherit"
-                startIcon={<Heart />}
-                onClick={() => navigate("/wishlist")}
-                sx={{ textTransform: "none", mr: 1 }}
-              >
-                {t("appBar.myWishlist")}
-              </Button>
-            )}
-            {isUser && (
-              <Button
-                color="inherit"
-                onClick={() => navigate("/ProviderRequest")}
-                sx={{ textTransform: "none", mr: 1 }}
-              >
-                {t("appBar.becomeProvider")}
-              </Button>
-            )}
-            <LanguageSwitcher />
-            <Tooltip title={t("appBar.account")}>
-              <IconButton
-                size="large"
-                edge="end"
-                aria-label="account of current user"
-                aria-controls={menuId}
-                aria-haspopup="true"
-                onClick={handleProfileMenuOpen}
-                color="inherit"
-                sx={{ ml: 1 }}
-              >
-                {renderAvatar()}
-              </IconButton>
-            </Tooltip>
-          </Box>
-          <Box
-            sx={{
-              display: { xs: "flex", md: "none" },
-              alignItems: "center",
-              gap: 1,
-            }}
-          >
-            <LanguageSwitcher />
-            <IconButton
-              size="large"
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+
+            {/* ── Logo ── */}
+            <button
+              onClick={() => navigate("/")}
+              className={`font-black text-xl tracking-tight transition-colors ${
+                !scrolled ? "text-white" : "text-gray-900"
+              }`}
             >
-              <MoreIcon />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      {renderMobileMenu}
-      {renderMenu}
-    </Box>
+              BOOKinAL<span className="text-red-600">.</span>
+            </button>
+
+            {/* ── Desktop Nav Links ── */}
+            <nav className="hidden md:flex items-center gap-0.5">
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                      !scrolled
+                        ? isActive
+                          ? "bg-white/20 text-white"
+                          : "text-white/80 hover:text-white hover:bg-white/15"
+                        : isActive
+                        ? "bg-red-50 text-red-700 font-semibold"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* ── Right Side Actions ── */}
+            <div className="flex items-center gap-1">
+
+              {/* Language Switcher */}
+              <div
+                className={
+                  !scrolled
+                    ? "[&_button]:text-white [&_button:hover]:bg-white/15"
+                    : ""
+                }
+              >
+                <LanguageSwitcher />
+              </div>
+
+              {/* Wishlist — desktop only */}
+              {user && (
+                <button
+                  onClick={() => navigate("/wishlist")}
+                  title={t("appBar.myWishlist")}
+                  className={`hidden md:flex items-center justify-center w-9 h-9 rounded-full transition-colors ${
+                    !scrolled
+                      ? "text-white/80 hover:text-white hover:bg-white/15"
+                      : "text-gray-500 hover:text-red-600 hover:bg-red-50"
+                  }`}
+                >
+                  <Heart className="w-[18px] h-[18px]" />
+                </button>
+              )}
+
+              {/* ── Profile Dropdown (desktop) ── */}
+              <div className="hidden md:block">
+                {loading ? (
+                  <div className="w-8 h-8 rounded-full bg-white/20 animate-pulse" />
+                ) : user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className={`flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full transition-all outline-none ${
+                          !scrolled
+                            ? "hover:bg-white/15 text-white"
+                            : "hover:bg-gray-50 border border-gray-200 text-gray-700"
+                        }`}
+                      >
+                        {/* Profile incomplete dot */}
+                        <div className="relative">
+                          {renderAvatar("sm")}
+                          {!isProfileComplete && (
+                            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-amber-400 border-2 border-white rounded-full" />
+                          )}
+                        </div>
+                        <ChevronDown className="w-3.5 h-3.5 opacity-50" />
+                      </button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent align="end" className="w-60 mt-2 rounded-2xl shadow-xl border-gray-100 p-1">
+                      {/* User info header */}
+                      <div className="px-3 py-3 mb-1">
+                        <div className="flex items-center gap-3">
+                          {renderAvatar()}
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm text-gray-900 truncate">
+                              {user.full_name || "User"}
+                            </p>
+                            <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <DropdownMenuSeparator className="mx-2" />
+
+                      {isAdmin && (
+                        <DropdownMenuItem
+                          onClick={() => navigate("/dashboard/bookings")}
+                          className="rounded-xl mx-1 gap-2.5"
+                        >
+                          <LayoutDashboard className="w-4 h-4 text-gray-400" />
+                          {t("appBar.dashboard")}
+                        </DropdownMenuItem>
+                      )}
+                      {isProvider && isProfileComplete && (
+                        <DropdownMenuItem
+                          onClick={() => navigate("/dashboard/bookings")}
+                          className="rounded-xl mx-1 gap-2.5"
+                        >
+                          <Home className="w-4 h-4 text-gray-400" />
+                          {t("appBar.propertiesManagement")}
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem
+                        onClick={() => navigate("/myBookings")}
+                        className="rounded-xl mx-1 gap-2.5"
+                      >
+                        <CalendarDays className="w-4 h-4 text-gray-400" />
+                        {t("appBar.myBookings")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => navigate("/myAccount")}
+                        className="rounded-xl mx-1 gap-2.5"
+                      >
+                        <User2 className="w-4 h-4 text-gray-400" />
+                        <span className="flex-1">
+                          {isProfileComplete
+                            ? t("appBar.myAccount")
+                            : t("appBar.completeProfile")}
+                        </span>
+                        {!isProfileComplete && (
+                          <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+                        )}
+                      </DropdownMenuItem>
+                      {isUser && (
+                        <DropdownMenuItem
+                          onClick={() => navigate("/ProviderRequest")}
+                          className="rounded-xl mx-1 gap-2.5"
+                        >
+                          <Building2 className="w-4 h-4 text-gray-400" />
+                          {t("appBar.becomeProvider")}
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator className="mx-2" />
+                      <DropdownMenuItem
+                        onClick={handleLogout}
+                        className="rounded-xl mx-1 gap-2.5 text-red-600 focus:text-red-600 focus:bg-red-50"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        {t("appBar.logout")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <button
+                    onClick={() => navigate("/auth")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                      !scrolled
+                        ? "bg-white/15 text-white border border-white/25 hover:bg-white/25"
+                        : "bg-red-600 text-white hover:bg-red-700 shadow-sm"
+                    }`}
+                  >
+                    <LogIn className="w-4 h-4" />
+                    {t("appBar.login")}
+                  </button>
+                )}
+              </div>
+
+              {/* ── Mobile Hamburger ── */}
+              <button
+                onClick={() => setMobileOpen((v) => !v)}
+                className={`md:hidden flex items-center justify-center w-9 h-9 rounded-full transition-colors ${
+                  !scrolled
+                    ? "text-white hover:bg-white/15"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`}
+                aria-label="Toggle menu"
+              >
+                {mobileOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Mobile Menu Panel ── */}
+        <div
+          className={`md:hidden bg-white border-t border-gray-100 overflow-hidden transition-all duration-300 ease-in-out ${
+            mobileOpen ? "max-h-[90vh] opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="container mx-auto px-4 pt-3 pb-6 space-y-1">
+            {/* Nav links */}
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-red-50 text-red-700 font-semibold"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <span
+                    className={`${isActive ? "text-red-500" : "text-gray-400"}`}
+                  >
+                    {link.icon}
+                  </span>
+                  {link.label}
+                </Link>
+              );
+            })}
+
+            {/* Divider */}
+            <div className="border-t border-gray-100 !mt-3 !pt-3 space-y-1">
+              {user ? (
+                <>
+                  {/* User info */}
+                  <div className="flex items-center gap-3 px-4 py-3 mb-1">
+                    {renderAvatar()}
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {user.full_name || "User"}
+                      </p>
+                      <p className="text-xs text-gray-400 truncate">
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => { navigate("/wishlist"); setMobileOpen(false); }}
+                    className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Heart className="w-4 h-4 text-gray-400" />
+                    {t("appBar.myWishlist")}
+                  </button>
+                  <button
+                    onClick={() => { navigate("/myBookings"); setMobileOpen(false); }}
+                    className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <CalendarDays className="w-4 h-4 text-gray-400" />
+                    {t("appBar.myBookings")}
+                  </button>
+                  <button
+                    onClick={() => { navigate("/myAccount"); setMobileOpen(false); }}
+                    className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <User2 className="w-4 h-4 text-gray-400" />
+                    <span className="flex-1">
+                      {isProfileComplete
+                        ? t("appBar.myAccount")
+                        : t("appBar.completeProfile")}
+                    </span>
+                    {!isProfileComplete && (
+                      <span className="w-2 h-2 rounded-full bg-amber-400" />
+                    )}
+                  </button>
+                  {(isAdmin || isProvider) && (
+                    <button
+                      onClick={() => { navigate("/dashboard/bookings"); setMobileOpen(false); }}
+                      className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <LayoutDashboard className="w-4 h-4 text-gray-400" />
+                      {t("appBar.dashboard")}
+                    </button>
+                  )}
+                  {isUser && (
+                    <button
+                      onClick={() => { navigate("/ProviderRequest"); setMobileOpen(false); }}
+                      className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <Building2 className="w-4 h-4 text-gray-400" />
+                      {t("appBar.becomeProvider")}
+                    </button>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    {t("appBar.logout")}
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => { navigate("/auth"); setMobileOpen(false); }}
+                  className="flex w-full items-center justify-center gap-2 px-4 py-3.5 bg-red-600 text-white rounded-xl text-sm font-semibold hover:bg-red-700 transition-colors"
+                >
+                  <LogIn className="w-4 h-4" />
+                  {t("appBar.login")}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Flow spacer — ensures content below the fixed nav is not hidden */}
+      <div className="h-16" />
+    </>
   );
 }
+

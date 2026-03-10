@@ -8,12 +8,9 @@ import { Destination } from "@/types/destination.types";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useState, useEffect } from "react";
-import hotelIcon from "@/assets/map/hotel_icon.png";
-import apartmentIcon from "@/assets/map/home.png";
 import { MapFilters } from "./MapFilters";
-import { IconButton } from "@mui/material";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import CloseIcon from "@mui/icons-material/Close";
+import { Filter, X } from "lucide-react";
+import { useLocalized } from "@/hooks/useLocalized";
 
 type Selected =
   | { type: "hotel"; data: Hotel }
@@ -25,34 +22,74 @@ interface PropertiesMapProps {
   onSelect?: (selected: Selected) => void;
 }
 
-const HotelIcon = new L.Icon({
-  iconUrl: hotelIcon,
-  iconSize: [30, 30],
-  iconAnchor: [12, 41],
-});
+/**
+ * Creates a speech-bubble DivIcon that combines the type emoji + price/label
+ * into one element — eliminates the overlap caused by L.Icon + Tooltip permanent.
+ * The transform translate(-50%, -100%) anchors the bubble's bottom-center on the
+ * map coordinate regardless of text width, so iconAnchor can stay [0, 0].
+ */
+function createPriceMarker(
+  type: "hotel" | "apartment" | "destination",
+  label: string
+): L.DivIcon {
+  const emoji = type === "hotel" ? "🏨" : type === "apartment" ? "🏠" : "📍";
+  const borderColor = type === "destination" ? "#374151" : "#dc2626";
+  const bgHover = type === "destination" ? "#374151" : "#dc2626";
 
-const ApartmentIcon = new L.Icon({
-  iconUrl: apartmentIcon,
-  iconSize: [30, 30],
-  iconAnchor: [12, 41],
-});
+  const html = `
+    <div style="
+      transform:translate(-50%,-100%);
+      display:inline-flex;
+      flex-direction:column;
+      align-items:center;
+      cursor:pointer;
+    ">
+      <div style="
+        background:white;
+        border:2.5px solid ${borderColor};
+        border-radius:20px;
+        padding:4px 10px;
+        font-size:12px;
+        font-weight:700;
+        white-space:nowrap;
+        color:#111111;
+        display:flex;
+        align-items:center;
+        gap:5px;
+        box-shadow:0 2px 8px rgba(0,0,0,0.28);
+        font-family:system-ui,-apple-system,sans-serif;
+        line-height:1.4;
+        transition:background 0.15s,color 0.15s;
+      "
+        onmouseover="this.style.background='${bgHover}';this.style.color='white';"
+        onmouseout="this.style.background='white';this.style.color='#111111';"
+      >
+        <span>${emoji}</span>
+        <span>${label}</span>
+      </div>
+      <div style="
+        width:0;
+        height:0;
+        border-left:7px solid transparent;
+        border-right:7px solid transparent;
+        border-top:8px solid ${borderColor};
+        margin-top:-1px;
+      "></div>
+    </div>
+  `;
 
-// Destination icon using a colored marker
-const DestinationIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
+  return L.divIcon({
+    html,
+    className: "",
+    iconAnchor: [0, 0],
+  });
+}
 
 // Center of Albania (Tirana)
 const ALBANIA_CENTER: [number, number] = [41.3275, 19.8187];
 
 export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
+  const { localize } = useLocalized();
   const [hotelsData, setHotelsData] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [apartmentsData, setApartmentsData] = useState<Apartment[]>([]);
@@ -151,23 +188,13 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
   return (
     <div className="w-full h-full flex relative">
       {/* Mobile Filter Toggle Button */}
-      <IconButton
+      <button
         onClick={() => setIsFilterOpen(!isFilterOpen)}
-        className="lg:hidden"
-        sx={{
-          position: "absolute",
-          top: 16,
-          left: 16,
-          zIndex: 1000,
-          backgroundColor: "white",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-          "&:hover": {
-            backgroundColor: "white",
-          },
-        }}
+        className="lg:hidden absolute top-4 left-4 z-[1000] bg-white rounded-full p-2 shadow-md hover:bg-gray-50 transition-colors"
+        aria-label="Toggle filters"
       >
-        <FilterListIcon />
-      </IconButton>
+        <Filter size={20} className="text-gray-700" />
+      </button>
 
       {/* Sidebar Filters */}
       <div
@@ -184,9 +211,13 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
       >
         {/* Mobile Close Button */}
         <div className="lg:hidden flex justify-end mb-2">
-          <IconButton onClick={() => setIsFilterOpen(false)} size="small">
-            <CloseIcon />
-          </IconButton>
+          <button
+            onClick={() => setIsFilterOpen(false)}
+            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label="Close filters"
+          >
+            <X size={18} className="text-gray-600" />
+          </button>
         </div>
 
         <MapFilters
@@ -227,23 +258,17 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
             <Marker
               key={`hotel-${hotel.id}`}
               position={[hotel.lat || 0, hotel.lng || 0]}
-              icon={HotelIcon}
+              icon={createPriceMarker(
+                "hotel",
+                hotel.price ? `$${hotel.price}` : "Hotel"
+              )}
               eventHandlers={{
                 click: () => onSelect?.({ type: "hotel", data: hotel }),
               }}
             >
-              {hotel.price && (
-                <Tooltip
-                  direction="top"
-                  offset={[0, -20]}
-                  opacity={1}
-                  permanent
-                >
-                  {typeof hotel.price === "number"
-                    ? `$${hotel.price}`
-                    : hotel.price}
-                </Tooltip>
-              )}
+              <Tooltip direction="top" offset={[0, -8]} opacity={0.92}>
+                {hotel.name}
+              </Tooltip>
             </Marker>
           ))}
 
@@ -251,23 +276,17 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
             <Marker
               key={`apartment-${apartment.id}`}
               position={[apartment.lat, apartment.lng]}
-              icon={ApartmentIcon}
+              icon={createPriceMarker(
+                "apartment",
+                apartment.price ? `$${apartment.price}` : "Apartment"
+              )}
               eventHandlers={{
                 click: () => onSelect?.({ type: "apartment", data: apartment }),
               }}
             >
-              {apartment.price && (
-                <Tooltip
-                  direction="top"
-                  offset={[0, -20]}
-                  opacity={1}
-                  permanent
-                >
-                  {typeof apartment.price === "number"
-                    ? `$${apartment.price}`
-                    : apartment.price}
-                </Tooltip>
-              )}
+              <Tooltip direction="top" offset={[0, -8]} opacity={0.92}>
+                {apartment.name}
+              </Tooltip>
             </Marker>
           ))}
 
@@ -275,14 +294,14 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
             <Marker
               key={`destination-${destination.id}`}
               position={[destination.lat || 0, destination.lng || 0]}
-              icon={DestinationIcon}
+              icon={createPriceMarker("destination", destination.category)}
               eventHandlers={{
                 click: () =>
                   onSelect?.({ type: "destination", data: destination }),
               }}
             >
-              <Tooltip direction="top" offset={[0, -20]} opacity={1} permanent>
-                {destination.category}
+              <Tooltip direction="top" offset={[0, -8]} opacity={0.92}>
+                {localize(destination.name)}
               </Tooltip>
             </Marker>
           ))}

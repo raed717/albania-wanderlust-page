@@ -295,7 +295,27 @@
     "paymentFailed": "Paiement échoué",
     "paymentSuccess": "Paiement réussi",
     "refundWillBeProcessed": "Le remboursement sera traité",
-    "downloadInvoice": "Télécharger la facture"
+    "downloadInvoice": "Télécharger la facture",
+    "statusLabel": "Réservation",
+    "paymentLabel": "Paiement",
+    "statusHint": {
+      "pending": "En attente de confirmation du prestataire",
+      "confirmed": "Votre réservation a été confirmée par le prestataire",
+      "canceled": "Cette réservation a été annulée"
+    },
+    "paymentHint": {
+      "pending": "Le paiement n'a pas encore été effectué",
+      "paid": "Paiement reçu avec succès",
+      "failed": "Le paiement a échoué — veuillez réessayer"
+    },
+    "combinedStatus": {
+      "pendingPending": "En attente de confirmation du prestataire",
+      "confirmedPending": "Confirmé par le prestataire · En attente de votre paiement",
+      "confirmedPaid": "Confirmé par le prestataire · Paiement reçu",
+      "canceledPaid": "Réservation annulée · Le remboursement sera traité",
+      "canceledPending": "La réservation a été annulée",
+      "confirmedFailed": "Confirmé par le prestataire · Paiement échoué, veuillez réessayer"
+    }
   },
   "user": {
     "fullName": "Nom complet",
@@ -373,6 +393,8 @@
     "apartment": "Appartement",
     "hotel": "Hôtel",
     "stay": "Séjour",
+    "culture": "Culture",
+    "map": "Carte",
     "explore": "Explorer plus",
     "learnMore": "En savoir plus",
     "tryAgain": "Réessayer",

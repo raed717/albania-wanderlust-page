@@ -219,6 +219,73 @@ export const createBooking = async (
 };
 
 /**
+ * Paginated result shape for user bookings
+ */
+export interface BookingPage {
+  data: Booking[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+/**
+ * Get a single page of bookings for the currently authenticated user.
+ * Uses Supabase .range() for DB-level pagination so only `pageSize` rows
+ * are fetched and enriched instead of the entire table.
+ */
+export const getCurrentUserBookingsPaginated = async (
+  page: number = 1,
+  pageSize: number = 5,
+): Promise<BookingPage> => {
+  const userId = await authService.getCurrentUserId();
+
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data, error, count } = await apiClient
+    .from("booking")
+    .select("*", { count: "exact" })
+    .eq("userId", userId)
+    .order("createdAt", { ascending: false })
+    .range(from, to);
+
+  if (error) {
+    console.error("[Booking Service] Error fetching paginated bookings:", error);
+    throw error;
+  }
+
+  // Enrich only the current page's bookings with property data
+  for (const booking of data || []) {
+    try {
+      if (booking.propertyType === "car") {
+        booking.propertyData = await getCarById(booking.propertyId);
+      } else if (booking.propertyType === "apartment") {
+        booking.propertyData = await getApartmentById(booking.propertyId);
+      } else if (booking.propertyType === "hotel") {
+        booking.propertyData = await getHotelById(booking.propertyId);
+      }
+    } catch {
+      booking.propertyData = null;
+    }
+  }
+
+  const total = count ?? 0;
+
+  return {
+    data: data || [],
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
+};
+
+/**
  * Get all bookings for the currently authenticated user (customer bookings)
  */
 export const getCurrentUserBookings = async (): Promise<Booking[]> => {
@@ -367,6 +434,7 @@ export const getBookingsByPropertyIdAndType = async (
 const bookingService = {
   createBooking,
   getCurrentUserBookings,
+  getCurrentUserBookingsPaginated,
   getBookingsByProviderId,
   updateBookingStatus,
   getBookingsByPropertyIdAndType,
