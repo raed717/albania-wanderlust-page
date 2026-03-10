@@ -83,7 +83,7 @@ const getPropertyName = (booking: Booking): string => {
 
 // ── status helpers ─────────────────────────────────────────────────────────
 
-type BookingStatus = "pending" | "confirmed" | "canceled" | "completed";
+type BookingStatus = "pending" | "confirmed" | "canceled";
 type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
 const STATUS_CONFIG: Record<
@@ -104,12 +104,7 @@ const STATUS_CONFIG: Record<
     label: "Canceled",
     icon: <XCircle className="h-3 w-3" />,
     cls: "bg-red-500/10 text-red-400 border-red-500/20",
-  },
-  completed: {
-    label: "Completed",
-    icon: <CheckCircle2 className="h-3 w-3" />,
-    cls: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  },
+  }
 };
 
 const PAYMENT_CONFIG: Record<PaymentStatus, { label: string; cls: string }> = {
@@ -170,11 +165,10 @@ const AdminProviderBookings: React.FC = () => {
     const pending = bookings.filter((b) => b.status === "pending").length;
     const confirmed = bookings.filter((b) => b.status === "confirmed").length;
     const canceled = bookings.filter((b) => b.status === "canceled").length;
-    const completed = bookings.filter((b) => b.status === "completed").length;
     const revenue = bookings
-      .filter((b) => b.status === "confirmed" || b.status === "completed")
+      .filter((b) => b.status === "confirmed" )
       .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
-    return { total, pending, confirmed, canceled, completed, revenue };
+    return { total, pending, confirmed, canceled, revenue };
   }, [bookings]);
 
   // ── filter ────────────────────────────────────────────────────────────
@@ -280,11 +274,6 @@ const AdminProviderBookings: React.FC = () => {
                   color: "text-red-400",
                 },
                 {
-                  label: t("adminProviderBookings.stats.completed"),
-                  value: stats.completed,
-                  color: "text-blue-400",
-                },
-                {
                   label: t("adminProviderBookings.stats.revenue"),
                   value: `$${stats.revenue.toLocaleString()}`,
                   color: "text-[#e41e20]",
@@ -337,9 +326,6 @@ const AdminProviderBookings: React.FC = () => {
                   </SelectItem>
                   <SelectItem value="canceled">
                     {t("adminProviderBookings.status.canceled")}
-                  </SelectItem>
-                  <SelectItem value="completed">
-                    {t("adminProviderBookings.status.completed")}
                   </SelectItem>
                 </SelectContent>
               </Select>

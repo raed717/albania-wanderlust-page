@@ -70,31 +70,55 @@ const getPropertyIcon = (type: Booking["propertyType"]) => {
   }
 };
 
-const getStatusColor = (status: Booking["status"]) => {
-  switch (status) {
-    case "confirmed":
-      return "bg-emerald-100 text-emerald-700 border-emerald-200";
-    case "pending":
-      return "bg-amber-100 text-amber-700 border-amber-200";
-    case "canceled":
-      return "bg-red-100 text-red-700 border-red-200";
-    default:
-      return "bg-gray-100 text-gray-700 border-gray-200";
-  }
+const BOOKING_STATUS_CFG: Record<
+  string,
+  { cls: string; icon: React.ReactNode }
+> = {
+  confirmed: {
+    cls: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    icon: <CheckCircle2 className="w-3 h-3" />,
+  },
+  pending: {
+    cls: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    icon: <Clock className="w-3 h-3" />,
+  },
+  canceled: {
+    cls: "bg-red-500/10 text-red-400 border-red-500/20",
+    icon: <XCircle className="w-3 h-3" />,
+  },
+  completed: {
+    cls: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    icon: <CheckCircle2 className="w-3 h-3" />,
+  },
 };
 
-const getPaymentStatusColor = (status: Booking["payment_status"]) => {
-  switch (status) {
-    case "paid":
-      return "bg-emerald-100 text-emerald-700 border-emerald-200";
-    case "pending":
-      return "bg-amber-100 text-amber-700 border-amber-200";
-    case "failed":
-      return "bg-red-100 text-red-700 border-red-200";
-    default:
-      return "bg-gray-100 text-gray-700 border-gray-200";
-  }
+const PAYMENT_STATUS_CFG: Record<
+  string,
+  { cls: string; icon: React.ReactNode }
+> = {
+  paid: {
+    cls: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    icon: <CheckCircle2 className="w-3 h-3" />,
+  },
+  pending: {
+    cls: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    icon: <Clock className="w-3 h-3" />,
+  },
+  failed: {
+    cls: "bg-red-500/10 text-red-400 border-red-500/20",
+    icon: <XCircle className="w-3 h-3" />,
+  },
+  refunded: {
+    cls: "bg-sky-500/10 text-sky-400 border-sky-500/20",
+    icon: <AlertCircle className="w-3 h-3" />,
+  },
 };
+
+// keep for legacy icon lookups
+const getStatusColor = (status: Booking["status"]) =>
+  BOOKING_STATUS_CFG[status]?.cls ?? "bg-white/5 text-white/40 border-white/10";
+const getPaymentStatusColor = (status: Booking["payment_status"]) =>
+  PAYMENT_STATUS_CFG[status]?.cls ?? "bg-white/5 text-white/40 border-white/10";
 
 const getPaymentStatusIcon = (status: Booking["payment_status"]) => {
   switch (status) {
@@ -142,21 +166,21 @@ function ContactClientButton({ booking }: { booking: Booking }) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 border border-indigo-200 rounded-lg px-2.5 py-1.5 hover:bg-indigo-50 hover:border-indigo-300 transition-colors">
+        <button className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#e41e20]/80 border border-[#e41e20]/20 rounded-lg px-2.5 py-1.5 hover:bg-[#e41e20]/10 transition-colors">
           <ContactRound className="w-3.5 h-3.5" />
           {t("bookingManagement.contactClient", "Contact Client")}
         </button>
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-72 p-0 shadow-xl rounded-2xl overflow-hidden"
+        className="w-72 p-0 shadow-2xl rounded-2xl overflow-hidden border border-white/10 bg-[#1a1a1a]"
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-3">
+        <div className="bg-[#111] border-b border-white/5 px-4 py-3">
           <p className="text-white font-semibold text-sm">
             {t("bookingManagement.clientContact", "Client Contact")}
           </p>
-          <p className="text-indigo-100 text-xs mt-0.5">
+          <p className="text-white/40 text-xs mt-0.5">
             {booking.requesterName}
           </p>
         </div>
@@ -166,26 +190,26 @@ function ContactClientButton({ booking }: { booking: Booking }) {
           {booking.contactPhone ? (
             <a
               href={`tel:${booking.contactPhone}`}
-              className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 transition-colors"
+              className="flex items-center gap-3 p-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors"
             >
-              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-                <Phone className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                <Phone className="w-4 h-4 text-emerald-400" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs text-emerald-600 font-medium">
+                <p className="text-xs text-emerald-400 font-medium">
                   {t("booking.callPhone", "Call Phone")}
                 </p>
-                <p className="text-sm font-semibold text-gray-800 truncate">
+                <p className="text-sm font-semibold text-white truncate">
                   {booking.contactPhone}
                 </p>
               </div>
             </a>
           ) : (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-                <Phone className="w-4 h-4 text-gray-400" />
+            <div className="flex items-center gap-3 p-3 rounded-xl border border-white/5 bg-white/[0.03]">
+              <div className="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center flex-shrink-0">
+                <Phone className="w-4 h-4 text-white/25" />
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-white/30">
                 {t("booking.noPhone", "No phone number available")}
               </p>
             </div>
@@ -193,16 +217,16 @@ function ContactClientButton({ booking }: { booking: Booking }) {
 
           <a
             href={`mailto:${booking.contactMail}`}
-            className="flex items-center gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100 hover:bg-blue-100 transition-colors"
+            className="flex items-center gap-3 p-3 rounded-xl border border-sky-500/20 bg-sky-500/10 hover:bg-sky-500/20 transition-colors"
           >
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
-              <Mail className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-full bg-sky-500/20 flex items-center justify-center flex-shrink-0">
+              <Mail className="w-4 h-4 text-sky-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-blue-600 font-medium">
+              <p className="text-xs text-sky-400 font-medium">
                 {t("booking.sendEmail", "Send Email")}
               </p>
-              <p className="text-sm font-semibold text-gray-800 truncate">
+              <p className="text-sm font-semibold text-white truncate">
                 {booking.contactMail}
               </p>
             </div>
@@ -230,7 +254,9 @@ export default function BookingsManagement() {
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [selectedReasons, setSelectedReasons] = useState<CancellationReason[]>([]);
+  const [selectedReasons, setSelectedReasons] = useState<CancellationReason[]>(
+    [],
+  );
   const [customReason, setCustomReason] = useState("");
 
   // Fetch current user
@@ -368,7 +394,9 @@ export default function BookingsManagement() {
 
     const reasonText = selectedReasons.includes("other")
       ? customReason
-      : selectedReasons.map((r) => t(`bookingManagement.cancelBooking.reasons.${r}`)).join(", ");
+      : selectedReasons
+          .map((r) => t(`bookingManagement.cancelBooking.reasons.${r}`))
+          .join(", ");
 
     if (!reasonText.trim()) {
       await Swal.fire({
@@ -403,14 +431,20 @@ export default function BookingsManagement() {
     // For auto-cancellation, skip the confirmation dialog
     try {
       setUpdatingStatus(bookingId);
-      const updatedBooking = await updateBookingStatus(bookingId, "canceled", cancellationReason);
+      const updatedBooking = await updateBookingStatus(
+        bookingId,
+        "canceled",
+        cancellationReason,
+      );
       setBookings((prev) =>
         prev.map((b) => (b.id === bookingId ? { ...b, ...updatedBooking } : b)),
       );
 
       // Auto-decline conflicting bookings when confirming
       if (conflictingBookings.length > 0) {
-        const autoCancelReason = t("bookingManagement.cancelBooking.reasons.dateConflict");
+        const autoCancelReason = t(
+          "bookingManagement.cancelBooking.reasons.dateConflict",
+        );
         const declineResults = await Promise.allSettled(
           conflictingBookings.map((cb) =>
             updateBookingStatus(cb.id, "canceled", autoCancelReason),
@@ -423,7 +457,11 @@ export default function BookingsManagement() {
             if (declined) {
               const resultIndex = conflictingBookings.indexOf(declined);
               if (declineResults[resultIndex].status === "fulfilled") {
-                return { ...b, status: "canceled" as const, cancellation_reason: autoCancelReason };
+                return {
+                  ...b,
+                  status: "canceled" as const,
+                  cancellation_reason: autoCancelReason,
+                };
               }
             }
             return b;
@@ -432,8 +470,14 @@ export default function BookingsManagement() {
 
         await Swal.fire({
           icon: "warning",
-          title: t("bookingManagement.confirmations.conflictTitle", "Date Conflict Detected"),
-          text: t("bookingManagement.cancelBooking.autoCancelled", "Booking automatically cancelled due to date conflict with another booking"),
+          title: t(
+            "bookingManagement.confirmations.conflictTitle",
+            "Date Conflict Detected",
+          ),
+          text: t(
+            "bookingManagement.cancelBooking.autoCancelled",
+            "Booking automatically cancelled due to date conflict with another booking",
+          ),
         });
       } else if (!isAutoCancel) {
         await Swal.fire({
@@ -552,7 +596,9 @@ export default function BookingsManagement() {
 
       // Auto-decline conflicting bookings when confirming
       if (newStatus === "confirmed" && conflictingBookings.length > 0) {
-        const autoCancelReason = t("bookingManagement.cancelBooking.reasons.dateConflict");
+        const autoCancelReason = t(
+          "bookingManagement.cancelBooking.reasons.dateConflict",
+        );
         const declineResults = await Promise.allSettled(
           conflictingBookings.map((cb) =>
             updateBookingStatus(cb.id, "canceled", autoCancelReason),
@@ -565,7 +611,11 @@ export default function BookingsManagement() {
             if (declined) {
               const resultIndex = conflictingBookings.indexOf(declined);
               if (declineResults[resultIndex].status === "fulfilled") {
-                return { ...b, status: "canceled" as const, cancellation_reason: autoCancelReason };
+                return {
+                  ...b,
+                  status: "canceled" as const,
+                  cancellation_reason: autoCancelReason,
+                };
               }
             }
             return b;
@@ -579,7 +629,8 @@ export default function BookingsManagement() {
         if (bookingData) {
           try {
             const emailSubject = t("bookingManagement.email.subject", {
-              propertyName: bookingData.propertyData?.name || bookingData.propertyType,
+              propertyName:
+                bookingData.propertyData?.name || bookingData.propertyType,
             });
             const emailHtml = `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -630,8 +681,8 @@ export default function BookingsManagement() {
   if (loading) {
     return (
       <Hsidebar>
-        <div className="flex justify-center items-center h-96">
-          <Loader2 size={48} className="animate-spin text-blue-600" />
+        <div className="-m-8 flex min-h-[calc(100vh)] items-center justify-center bg-[#0d0d0d]">
+          <Loader2 size={40} className="animate-spin text-[#e41e20]" />
         </div>
       </Hsidebar>
     );
@@ -640,11 +691,11 @@ export default function BookingsManagement() {
   if (error) {
     return (
       <Hsidebar>
-        <div className="text-center py-20">
-          <p className="text-red-500 mb-4">{error}</p>
+        <div className="-m-8 flex min-h-[calc(100vh)] flex-col items-center justify-center gap-4 bg-[#0d0d0d]">
+          <p className="text-red-400 text-sm">{error}</p>
           <button
             onClick={fetchBookings}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            className="px-4 py-2 bg-[#e41e20] text-white rounded-xl text-sm hover:bg-[#c91a1c] transition"
           >
             {t("bookingManagement.errors.retry")}
           </button>
@@ -655,236 +706,226 @@ export default function BookingsManagement() {
 
   return (
     <Hsidebar>
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-            <Calendar className="w-8 h-8 text-blue-600" />
-            {t("bookingManagement.title")}
-          </h1>
-          <p className="text-gray-600">{t("bookingManagement.subtitle")}</p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">
-                  {t("bookingManagement.stats.totalBookings")}
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {bookings.length}
-                </p>
-              </div>
-              <Calendar className="w-8 h-8 text-blue-600" />
+      <div className="-m-8 min-h-[calc(100vh)] bg-[#0d0d0d] text-white">
+        {/* ── Header ── */}
+        <div className="relative overflow-hidden border-b border-white/5 bg-[#111] px-6 py-8 md:px-10">
+          <div className="pointer-events-none absolute -top-20 left-10 h-60 w-60 rounded-full bg-[#e41e20]/10 blur-3xl" />
+          <div className="relative flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#e41e20]/15 ring-1 ring-[#e41e20]/40">
+              <Calendar className="h-4 w-4 text-[#e41e20]" />
             </div>
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">
-                  {t("bookingManagement.stats.pending")}
-                </p>
-                <p className="text-2xl font-bold text-amber-600">
-                  {bookings.filter((b) => b.status === "pending").length}
-                </p>
-              </div>
-              <Clock className="w-8 h-8 text-amber-600" />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">
-                  {t("bookingManagement.stats.confirmed")}
-                </p>
-                <p className="text-2xl font-bold text-emerald-600">
-                  {bookings.filter((b) => b.status === "confirmed").length}
-                </p>
-              </div>
-              <CheckCircle2 className="w-8 h-8 text-emerald-600" />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">
-                  {t("bookingManagement.stats.totalRevenue")}
-                </p>
-                <p className="text-2xl font-bold text-green-600">
-                  $
-                  {bookings
-                    .reduce((sum, b) => sum + b.totalPrice, 0)
-                    .toFixed(2)}
-                </p>
-              </div>
-              <DollarSign className="w-8 h-8 text-green-600" />
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-white">
+                {t("bookingManagement.title")}
+              </h1>
+              <p className="text-sm text-white/40">
+                {t("bookingManagement.subtitle")}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8 flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-            <input
-              className="w-full pl-10 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              placeholder={t("bookingManagement.filters.searchPlaceholder")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div className="px-6 py-6 md:px-10">
+          {/* ── Stats ── */}
+          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              {
+                label: t("bookingManagement.stats.totalBookings"),
+                value: bookings.length,
+                color: "text-white",
+              },
+              {
+                label: t("bookingManagement.stats.pending"),
+                value: bookings.filter((b) => b.status === "pending").length,
+                color: "text-amber-400",
+              },
+              {
+                label: t("bookingManagement.stats.confirmed"),
+                value: bookings.filter((b) => b.status === "confirmed").length,
+                color: "text-emerald-400",
+              },
+              {
+                label: t("bookingManagement.stats.totalRevenue"),
+                value: `$${bookings.reduce((s, b) => s + b.totalPrice, 0).toFixed(2)}`,
+                color: "text-[#e41e20]",
+              },
+            ].map((s) => (
+              <div
+                key={s.label}
+                className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3"
+              >
+                <p className="text-[10px] uppercase tracking-widest text-white/30">
+                  {s.label}
+                </p>
+                <p className={`mt-1 text-2xl font-bold ${s.color}`}>
+                  {s.value}
+                </p>
+              </div>
+            ))}
           </div>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-          >
-            <option value="all">
-              {t("bookingManagement.filters.allStatuses")}
-            </option>
-            <option value="pending">
-              {t("bookingManagement.statusOptions.pending")}
-            </option>
-            <option value="confirmed">
-              {t("bookingManagement.statusOptions.confirmed")}
-            </option>
-            <option value="canceled">
-              {t("bookingManagement.statusOptions.canceled")}
-            </option>
-          </select>
-
-          <select
-            value={propertyTypeFilter}
-            onChange={(e) => setPropertyTypeFilter(e.target.value as any)}
-            className="px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-          >
-            <option value="all">
-              {t("bookingManagement.filters.allTypes")}
-            </option>
-            <option value="car">{t("bookingManagement.filters.cars")}</option>
-            <option value="apartment">
-              {t("bookingManagement.filters.apartments")}
-            </option>
-            <option value="hotel">
-              {t("bookingManagement.filters.hotels")}
-            </option>
-          </select>
-        </div>
-
-        {/* Bookings Table */}
-        {filteredBookings.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-            <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 font-medium mb-2">
-              {t("bookingManagement.emptyState.noBookings")}
-            </p>
-            <p className="text-gray-500 text-sm">
-              {searchTerm ||
-              statusFilter !== "all" ||
-              propertyTypeFilter !== "all"
-                ? t("bookingManagement.emptyState.adjustFilters")
-                : t("bookingManagement.emptyState.noBookingsYet")}
-            </p>
+          {/* ── Filters ── */}
+          <div className="mb-6 flex flex-wrap items-center gap-3">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+              <input
+                className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.04] pl-10 text-sm text-white placeholder:text-white/25 focus:border-[#e41e20]/50 focus:outline-none"
+                placeholder={t("bookingManagement.filters.searchPlaceholder")}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+              className="h-10 appearance-none rounded-xl border border-white/10 bg-white/[0.04] px-4 text-sm text-white focus:border-[#e41e20]/50 focus:outline-none"
+            >
+              <option value="all" className="bg-[#1a1a1a]">
+                {t("bookingManagement.filters.allStatuses")}
+              </option>
+              <option value="pending" className="bg-[#1a1a1a]">
+                {t("bookingManagement.statusOptions.pending")}
+              </option>
+              <option value="confirmed" className="bg-[#1a1a1a]">
+                {t("bookingManagement.statusOptions.confirmed")}
+              </option>
+              <option value="canceled" className="bg-[#1a1a1a]">
+                {t("bookingManagement.statusOptions.canceled")}
+              </option>
+            </select>
+            <select
+              value={propertyTypeFilter}
+              onChange={(e) => setPropertyTypeFilter(e.target.value as any)}
+              className="h-10 appearance-none rounded-xl border border-white/10 bg-white/[0.04] px-4 text-sm text-white focus:border-[#e41e20]/50 focus:outline-none"
+            >
+              <option value="all" className="bg-[#1a1a1a]">
+                {t("bookingManagement.filters.allTypes")}
+              </option>
+              <option value="car" className="bg-[#1a1a1a]">
+                {t("bookingManagement.filters.cars")}
+              </option>
+              <option value="apartment" className="bg-[#1a1a1a]">
+                {t("bookingManagement.filters.apartments")}
+              </option>
+              <option value="hotel" className="bg-[#1a1a1a]">
+                {t("bookingManagement.filters.hotels")}
+              </option>
+            </select>
           </div>
-        ) : (
-          <>
-            {/* Mobile Card Layout */}
-            <div className="md:hidden space-y-4">
+
+          {/* ── Empty ── */}
+          {filteredBookings.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03]">
+                <Calendar className="h-7 w-7 text-white/20" />
+              </div>
+              <p className="text-sm font-medium text-white/50">
+                {t("bookingManagement.emptyState.noBookings")}
+              </p>
+              <p className="mt-1 text-xs text-white/30">
+                {searchTerm ||
+                statusFilter !== "all" ||
+                propertyTypeFilter !== "all"
+                  ? t("bookingManagement.emptyState.adjustFilters")
+                  : t("bookingManagement.emptyState.noBookingsYet")}
+              </p>
+            </div>
+          )}
+
+          {/* ── Booking Cards (unified, responsive) ── */}
+          {filteredBookings.length > 0 && (
+            <div className="space-y-3">
               {filteredBookings.map((booking) => {
-                const PropertyIcon = getPropertyIcon(booking.propertyType);
-                const StatusIcon = getStatusIcon(booking.status);
-                const PaymentStatusIcon = getPaymentStatusIcon(
-                  booking.payment_status,
-                );
+                const PropertyIconComp = getPropertyIcon(booking.propertyType);
+                const statusCfg =
+                  BOOKING_STATUS_CFG[booking.status] ??
+                  BOOKING_STATUS_CFG.pending;
+                const paymentCfg =
+                  PAYMENT_STATUS_CFG[booking.payment_status] ??
+                  PAYMENT_STATUS_CFG.pending;
                 const startDate = new Date(booking.startDate);
                 const endDate = new Date(booking.endDate);
 
                 return (
                   <div
                     key={booking.id}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+                    className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 transition-colors hover:border-white/10 hover:bg-white/[0.04]"
                   >
-                    {/* Card Header - Property Info */}
-                    <div
-                      className="flex items-center gap-3 p-4 bg-gray-50 border-b border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
-                      onClick={() => navigate(getPropertyRoute(booking))}
-                    >
-                      <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center overflow-hidden flex-shrink-0">
-                        {booking.propertyData?.imageUrls?.[0] ? (
-                          <img
-                            src={booking.propertyData.imageUrls[0]}
-                            alt={booking.propertyData.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <PropertyIcon className="w-6 h-6 text-blue-600" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate">
-                          {booking.propertyData?.name ||
-                            `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}`}
-                        </p>
-                        <p className="text-xs text-gray-500 capitalize">
-                          {booking.propertyType}
-                        </p>
-                      </div>
-                      <p className="text-lg font-bold text-gray-900 flex-shrink-0">
-                        ${booking.totalPrice.toFixed(2)}
-                      </p>
-                    </div>
-
-                    {/* Card Body */}
-                    <div className="p-4 space-y-3">
-                      {/* Status Badges */}
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
-                            booking.status,
-                          )}`}
-                        >
-                          <StatusIcon className="w-3.5 h-3.5" />
-                          {booking.status}
-                        </span>
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getPaymentStatusColor(
-                            booking.payment_status,
-                          )}`}
-                        >
-                          <PaymentStatusIcon className="w-3.5 h-3.5" />
-                          {booking.payment_status}
-                        </span>
+                    {/* top row */}
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      {/* Property */}
+                      <div
+                        className="flex items-start gap-3 cursor-pointer group"
+                        onClick={() => navigate(getPropertyRoute(booking))}
+                      >
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/[0.06] overflow-hidden">
+                          {booking.propertyData?.imageUrls?.[0] ? (
+                            <img
+                              src={booking.propertyData.imageUrls[0]}
+                              alt={booking.propertyData.name}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <PropertyIconComp className="w-5 h-5 text-white/40" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-white group-hover:text-[#e41e20]/80 transition-colors">
+                            {booking.propertyData?.name ||
+                              `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}`}
+                          </p>
+                          <div className="mt-0.5 flex items-center gap-2">
+                            <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-white/40">
+                              {booking.propertyType}
+                            </span>
+                            <span className="text-[10px] text-white/25">
+                              #{booking.id.slice(0, 8)}
+                            </span>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Dates */}
-                      <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                        <span>
-                          {startDate.toLocaleDateString()}{" "}
-                          {t("bookingManagement.table.to")}{" "}
-                          {endDate.toLocaleDateString()}
-                        </span>
-                      </div>
-                      {booking.pickUpTime && booking.dropOffTime && (
-                        <div className="flex items-center gap-2 text-xs text-gray-500 ml-6">
-                          <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span>
-                            {booking.pickUpTime} - {booking.dropOffTime}
+                      {/* Status badges */}
+                      <div className="flex flex-wrap items-end gap-3">
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-[9px] uppercase tracking-widest text-white/25">
+                            {t(
+                              "bookingManagement.table.headers.bookingStatus",
+                              "Booking",
+                            )}
+                          </span>
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${statusCfg.cls}`}
+                          >
+                            {statusCfg.icon}
+                            {booking.status}
                           </span>
                         </div>
-                      )}
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-[9px] uppercase tracking-widest text-white/25">
+                            {t(
+                              "bookingManagement.table.headers.paymentStatus",
+                              "Payment",
+                            )}
+                          </span>
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${paymentCfg.cls}`}
+                          >
+                            {paymentCfg.icon}
+                            {booking.payment_status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
 
+                    {/* detail row */}
+                    <div className="mt-4 grid gap-4 border-t border-white/5 pt-4 sm:grid-cols-3">
                       {/* Customer */}
-                      <div className="text-sm">
-                        <p className="text-xs text-gray-500 mb-0.5">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest text-white/25">
                           {t("bookingManagement.table.headers.customer")}
                         </p>
-                        <p className="font-medium text-gray-900">
+                        <p className="mt-1 text-sm font-medium text-white">
                           {booking.status === "confirmed" &&
                           booking.payment_status === "paid"
                             ? booking.requesterName
@@ -896,310 +937,171 @@ export default function BookingsManagement() {
                           )}
                       </div>
 
-                      {/* Actions */}
-                      <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
-                        {booking.status === "pending" && (
-                          <>
-                            <button
-                              onClick={() =>
-                                handleStatusUpdate(booking.id, "confirmed")
-                              }
-                              disabled={updatingStatus === booking.id}
-                              className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                              {t(
-                                "bookingManagement.actions.confirm",
-                                "Confirm",
-                              )}
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleStatusUpdate(booking.id, "canceled")
-                              }
-                              disabled={updatingStatus === booking.id}
-                              className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <XCircle className="w-3.5 h-3.5" />
-                              {t(
-                                "bookingManagement.actions.decline",
-                                "Decline",
-                              )}
-                            </button>
-                          </>
-                        )}
-                        {booking.status === "confirmed" &&
-                          booking.payment_status === "pending" && (
-                            <button
-                              onClick={() =>
-                                handleStatusUpdate(booking.id, "canceled")
-                              }
-                              disabled={updatingStatus === booking.id}
-                              className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <XCircle className="w-3.5 h-3.5" />
-                              {t(
-                                "bookingManagement.actions.cancel",
-                                "Cancel Booking",
-                              )}
-                            </button>
-                          )}
-                        {booking.status === "canceled" && (
-                          <p className="text-xs text-gray-400 italic flex-1 text-center">
-                            {t(
-                              "bookingManagement.actions.noActions",
-                              "No actions available",
-                            )}
+                      {/* Dates */}
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest text-white/25">
+                          {t("bookingManagement.table.headers.dates")}
+                        </p>
+                        <div className="mt-1 space-y-0.5">
+                          <p className="flex items-center gap-1.5 text-sm text-white/70">
+                            <Calendar className="h-3.5 w-3.5 text-white/30" />
+                            {startDate.toLocaleDateString(undefined, {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
                           </p>
-                        )}
-                        {booking.status === "confirmed" &&
-                          booking.payment_status === "paid" && (
-                            <p className="text-xs text-emerald-600 font-medium flex-1 text-center">
-                              {t(
-                                "bookingManagement.actions.fullyConfirmed",
-                                "Confirmed & Paid",
-                              )}
+                          <p className="ml-5 text-xs text-white/35">
+                            →{" "}
+                            {endDate.toLocaleDateString(undefined, {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </p>
+                          {booking.pickUpTime && booking.dropOffTime && (
+                            <p className="ml-5 text-xs text-white/35">
+                              {booking.pickUpTime} – {booking.dropOffTime}
                             </p>
                           )}
-                        {updatingStatus === booking.id && (
-                          <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                        )}
+                        </div>
+                      </div>
+
+                      {/* Price + Actions */}
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest text-white/25">
+                          {t("bookingManagement.table.headers.price")}
+                        </p>
+                        <p className="mt-1 flex items-center gap-1 text-xl font-bold text-white">
+                          <DollarSign className="h-4 w-4 text-[#e41e20]" />
+                          {booking.totalPrice.toFixed(2)}
+                        </p>
+
+                        {/* Actions */}
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {booking.status === "pending" && (
+                            <>
+                              <button
+                                onClick={() =>
+                                  handleStatusUpdate(booking.id, "confirmed")
+                                }
+                                disabled={updatingStatus === booking.id}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-400 transition hover:bg-emerald-500/20 disabled:opacity-40"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                {t(
+                                  "bookingManagement.actions.confirm",
+                                  "Confirm",
+                                )}
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleStatusUpdate(booking.id, "canceled")
+                                }
+                                disabled={updatingStatus === booking.id}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20 disabled:opacity-40"
+                              >
+                                <XCircle className="w-3.5 h-3.5" />
+                                {t(
+                                  "bookingManagement.actions.decline",
+                                  "Decline",
+                                )}
+                              </button>
+                            </>
+                          )}
+                          {booking.status === "confirmed" &&
+                            booking.payment_status === "pending" && (
+                              <button
+                                onClick={() =>
+                                  handleStatusUpdate(booking.id, "canceled")
+                                }
+                                disabled={updatingStatus === booking.id}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20 disabled:opacity-40"
+                              >
+                                <XCircle className="w-3.5 h-3.5" />
+                                {t(
+                                  "bookingManagement.actions.cancel",
+                                  "Cancel Booking",
+                                )}
+                              </button>
+                            )}
+                          {booking.status === "canceled" && (
+                            <span className="text-xs text-white/25 italic">
+                              {t(
+                                "bookingManagement.actions.noActions",
+                                "No actions available",
+                              )}
+                            </span>
+                          )}
+                          {booking.status === "confirmed" &&
+                            booking.payment_status === "paid" && (
+                              <span className="text-xs text-emerald-400 font-medium">
+                                {t(
+                                  "bookingManagement.actions.fullyConfirmed",
+                                  "Confirmed & Paid",
+                                )}
+                              </span>
+                            )}
+                          {updatingStatus === booking.id && (
+                            <Loader2 className="w-4 h-4 animate-spin text-[#e41e20]" />
+                          )}
+                        </div>
                       </div>
                     </div>
+
+                    {/* Cancellation reason */}
+                    {booking.status === "canceled" &&
+                      booking.cancellation_reason && (
+                        <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-red-500/15 bg-red-500/[0.07] px-4 py-3">
+                          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+                          <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-red-400/70">
+                              {t(
+                                "adminProviderBookings.table.cancellationReason",
+                                "Cancellation Reason",
+                              )}
+                            </p>
+                            <p className="mt-0.5 text-sm text-red-300/80">
+                              {booking.cancellation_reason}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                    <p className="mt-3 text-[10px] text-white/20">
+                      {t("adminProviderBookings.booked", "Booked")}{" "}
+                      {new Date(booking.createdAt).toLocaleDateString(
+                        undefined,
+                        { day: "numeric", month: "short", year: "numeric" },
+                      )}
+                    </p>
                   </div>
                 );
               })}
             </div>
-
-            {/* Desktop Table Layout */}
-            <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        {t("bookingManagement.table.headers.property")}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        {t("bookingManagement.table.headers.customer")}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        {t("bookingManagement.table.headers.dates")}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        {t("bookingManagement.table.headers.price")}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        {t("bookingManagement.table.headers.bookingStatus")}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        {t("bookingManagement.table.headers.paymentStatus")}
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        {t("bookingManagement.table.headers.actions")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredBookings.map((booking) => {
-                      const PropertyIcon = getPropertyIcon(
-                        booking.propertyType,
-                      );
-                      const StatusIcon = getStatusIcon(booking.status);
-                      const PaymentStatusIcon = getPaymentStatusIcon(
-                        booking.payment_status,
-                      );
-                      const startDate = new Date(booking.startDate);
-                      const endDate = new Date(booking.endDate);
-
-                      return (
-                        <tr
-                          key={booking.id}
-                          className="hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div
-                              className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition-colors"
-                              onClick={() =>
-                                navigate(getPropertyRoute(booking))
-                              }
-                            >
-                              <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center overflow-hidden">
-                                {booking.propertyData?.imageUrls?.[0] ? (
-                                  <img
-                                    src={booking.propertyData.imageUrls[0]}
-                                    alt={booking.propertyData.name}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <PropertyIcon className="w-5 h-5 text-blue-600" />
-                                )}
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium text-gray-900">
-                                  {booking.propertyData?.name ||
-                                    `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}`}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm">
-                              <p className="font-medium text-gray-900">
-                                {booking.status === "confirmed" &&
-                                booking.payment_status === "paid"
-                                  ? booking.requesterName
-                                  : "—"}
-                              </p>
-                              {booking.status === "confirmed" &&
-                                booking.payment_status === "paid" && (
-                                  <ContactClientButton booking={booking} />
-                                )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm">
-                              <p className="text-gray-900">
-                                {startDate.toLocaleDateString()}
-                              </p>
-                              <p className="text-gray-500 text-xs">
-                                {t("bookingManagement.table.to")}
-                              </p>
-                              <p className="text-gray-900">
-                                {endDate.toLocaleDateString()}
-                              </p>
-                              {booking.pickUpTime && booking.dropOffTime && (
-                                <p className="text-gray-500 text-xs mt-1">
-                                  {booking.pickUpTime} - {booking.dropOffTime}
-                                </p>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm">
-                              <p className="font-semibold text-gray-900">
-                                ${booking.totalPrice.toFixed(2)}
-                              </p>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
-                                booking.status,
-                              )}`}
-                            >
-                              <StatusIcon className="w-3.5 h-3.5" />
-                              {booking.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getPaymentStatusColor(
-                                booking.payment_status,
-                              )}`}
-                            >
-                              <PaymentStatusIcon className="w-3.5 h-3.5" />
-                              {booking.payment_status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center gap-2">
-                              {booking.status === "pending" && (
-                                <>
-                                  <button
-                                    onClick={() =>
-                                      handleStatusUpdate(
-                                        booking.id,
-                                        "confirmed",
-                                      )
-                                    }
-                                    disabled={updatingStatus === booking.id}
-                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                    <CheckCircle2 className="w-3.5 h-3.5" />
-                                    {t(
-                                      "bookingManagement.actions.confirm",
-                                      "Confirm",
-                                    )}
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      handleStatusUpdate(booking.id, "canceled")
-                                    }
-                                    disabled={updatingStatus === booking.id}
-                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                    <XCircle className="w-3.5 h-3.5" />
-                                    {t(
-                                      "bookingManagement.actions.decline",
-                                      "Decline",
-                                    )}
-                                  </button>
-                                </>
-                              )}
-                              {booking.status === "confirmed" &&
-                                booking.payment_status === "pending" && (
-                                  <button
-                                    onClick={() =>
-                                      handleStatusUpdate(booking.id, "canceled")
-                                    }
-                                    disabled={updatingStatus === booking.id}
-                                    className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                    <XCircle className="w-3.5 h-3.5" />
-                                    {t(
-                                      "bookingManagement.actions.cancel",
-                                      "Cancel Booking",
-                                    )}
-                                  </button>
-                                )}
-                              {booking.status === "canceled" && (
-                                <span className="text-xs text-gray-400 italic">
-                                  {t(
-                                    "bookingManagement.actions.noActions",
-                                    "No actions available",
-                                  )}
-                                </span>
-                              )}
-                              {booking.status === "confirmed" &&
-                                booking.payment_status === "paid" && (
-                                  <span className="text-xs text-emerald-600 font-medium">
-                                    {t(
-                                      "bookingManagement.actions.fullyConfirmed",
-                                      "Confirmed & Paid",
-                                    )}
-                                  </span>
-                                )}
-                              {updatingStatus === booking.id && (
-                                <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Cancellation Reason Modal */}
       <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md border border-white/10 bg-[#1a1a1a] text-white">
           <DialogHeader>
-            <DialogTitle>{t("bookingManagement.cancelBooking.title", "Cancel Booking")}</DialogTitle>
-            <DialogDescription>
-              {t("bookingManagement.cancelBooking.subtitle", "Please select a reason for cancellation")}
+            <DialogTitle className="text-white">
+              {t("bookingManagement.cancelBooking.title", "Cancel Booking")}
+            </DialogTitle>
+            <DialogDescription className="text-white/40">
+              {t(
+                "bookingManagement.cancelBooking.subtitle",
+                "Please select a reason for cancellation",
+              )}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-2 py-4">
             {CANCELLATION_REASONS.map((reason) => (
               <label
                 key={reason}
-                className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                className="flex items-center gap-3 cursor-pointer rounded-xl border border-white/5 bg-white/[0.03] p-3 transition-colors hover:bg-white/[0.06]"
               >
                 <input
                   type="checkbox"
@@ -1208,43 +1110,57 @@ export default function BookingsManagement() {
                     if (e.target.checked) {
                       setSelectedReasons([...selectedReasons, reason]);
                     } else {
-                      setSelectedReasons(selectedReasons.filter((r) => r !== reason));
+                      setSelectedReasons(
+                        selectedReasons.filter((r) => r !== reason),
+                      );
                     }
                   }}
-                  className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                  className="w-4 h-4 accent-[#e41e20] rounded border-white/20"
                 />
-                <span className="text-sm text-gray-700">
-                  {t(`bookingManagement.cancelBooking.reasons.${reason}`, reason)}
+                <span className="text-sm text-white/70">
+                  {t(
+                    `bookingManagement.cancelBooking.reasons.${reason}`,
+                    reason,
+                  )}
                 </span>
               </label>
             ))}
             {selectedReasons.includes("other") && (
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("bookingManagement.cancelBooking.customReasonLabel", "Other reason (please specify)")}
+              <div className="mt-3">
+                <label className="mb-1.5 block text-xs font-medium text-white/50">
+                  {t(
+                    "bookingManagement.cancelBooking.customReasonLabel",
+                    "Other reason (please specify)",
+                  )}
                 </label>
                 <textarea
                   value={customReason}
                   onChange={(e) => setCustomReason(e.target.value)}
-                  placeholder={t("bookingManagement.cancelBooking.customReasonPlaceholder", "Enter your reason...")}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none resize-none"
+                  placeholder={t(
+                    "bookingManagement.cancelBooking.customReasonPlaceholder",
+                    "Enter your reason...",
+                  )}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.06] p-3 text-sm text-white placeholder:text-white/25 focus:border-[#e41e20]/50 focus:outline-none resize-none"
                   rows={3}
                 />
               </div>
             )}
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <button
               onClick={() => setCancelModalOpen(false)}
-              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 rounded-xl border border-white/10 bg-white/[0.04] text-sm text-white/60 hover:bg-white/[0.08] transition-colors"
             >
               {t("common.cancel", "Cancel")}
             </button>
             <button
               onClick={handleCancelWithReason}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="px-4 py-2 rounded-xl bg-[#e41e20] text-sm text-white font-medium hover:bg-[#c91a1c] transition-colors"
             >
-              {t("bookingManagement.cancelBooking.confirmCancel", "Confirm Cancellation")}
+              {t(
+                "bookingManagement.cancelBooking.confirmCancel",
+                "Confirm Cancellation",
+              )}
             </button>
           </DialogFooter>
         </DialogContent>
