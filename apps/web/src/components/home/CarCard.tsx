@@ -177,7 +177,7 @@ export const CarCard = ({
             ))}
             {features.length > 3 && (
               <Badge variant="secondary" className="text-xs">
-                +{features.length - 3} {t("home.carsPreview.more")}
+                +{features.length - 3} {t("common.more")}
               </Badge>
             )}
           </div>

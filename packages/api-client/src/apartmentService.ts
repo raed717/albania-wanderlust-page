@@ -87,7 +87,10 @@ export const getAllApartments = async (): Promise<Apartment[]> => {
     return apartmentsCache.data;
   }
 
-  const { data, error } = await apiClient.from("apartment").select("*");
+  const { data, error } = await apiClient
+    .from("apartment")
+    .select("*")
+    .not("status", "in", '("maintenance","review")');
   if (error) throw error;
 
   // Update cache

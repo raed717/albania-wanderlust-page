@@ -315,7 +315,9 @@
       "canceledPaid": "Prenotazione annullata · Il rimborso verrà elaborato",
       "canceledPending": "La prenotazione è stata annullata",
       "confirmedFailed": "Confermato dal fornitore · Pagamento fallito, riprova"
-    }
+    },
+    "currentlyRented": "Attualmente noleggiato — puoi ancora prenotare per un altro periodo",
+    "underMaintenance": "In Manutenzione"
   },
   "user": {
     "fullName": "Nome Completo",
@@ -403,6 +405,7 @@
     "no": "No",
     "confirm": "Conferma",
     "cancel": "Annulla",
+    "more": "Altro",
     "day": "giorno",
     "days": "giorni",
     "pageNotFound": "Oops! Pagina non trovata",

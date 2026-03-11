@@ -46,6 +46,15 @@ export default function CarBilling() {
         const data = await getCarById(parseInt(id));
         if (!data) {
           setCar(null);
+        } else if (data.status === "maintenance" || data.status === "review") {
+          Swal.fire({
+            title: "Not Available",
+            text: "This vehicle is currently unavailable for booking.",
+            icon: "error",
+            confirmButtonText: "Go Back",
+            confirmButtonColor: "#e41e20",
+          }).then(() => navigate(`/carReservation/${id}`));
+          return;
         } else {
           setCar(data);
           // If car has a single image string, convert to array

@@ -44,6 +44,15 @@ export default function ApartmentBilling() {
         const data = await getApartmentById(parseInt(id));
         if (!data) {
           setApartment(null);
+        } else if (data.status === "maintenance" || data.status === "review") {
+          Swal.fire({
+            title: "Not Available",
+            text: "This property is currently unavailable for booking.",
+            icon: "error",
+            confirmButtonText: "Go Back",
+            confirmButtonColor: "#e41e20",
+          }).then(() => navigate(`/apartmentReservation/${id}`));
+          return;
         } else {
           setApartment(data);
           try {

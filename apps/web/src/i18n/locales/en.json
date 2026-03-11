@@ -315,7 +315,9 @@
       "canceledPaid": "Booking cancelled · Refund will be processed",
       "canceledPending": "Booking was cancelled",
       "confirmedFailed": "Confirmed by provider · Payment failed, please retry"
-    }
+    },
+    "currentlyRented": "Currently rented — you can still book for another period",
+    "underMaintenance": "Under Maintenance"
   },
   "user": {
     "fullName": "Full Name",
@@ -403,6 +405,7 @@
     "no": "No",
     "confirm": "Confirm",
     "cancel": "Cancel",
+    "more": "More",
     "day": "day",
     "days": "days",
     "pageNotFound": "Oops! Page not found",

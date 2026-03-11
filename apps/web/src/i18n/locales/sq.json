@@ -316,7 +316,9 @@
       "canceledPaid": "Rezervimi u anulua · Rimbursimi do të përpunohet",
       "canceledPending": "Rezervimi u anulua",
       "confirmedFailed": "Konfirmuar nga ofruesi · Pagesa dështoi, provoni përsëri"
-    }
+    },
+    "currentlyRented": "Aktualisht me qira — mund të rezervoni për një periudhë tjetër",
+    "underMaintenance": "Në Mirëmbajtje"
   },
   "user": {
     "fullName": "Emri i plotë",
@@ -411,6 +413,7 @@
     "no": "Jo",
     "confirm": "Konfirmo",
     "cancel": "Anulo",
+    "more": "Më shumë",
     "day": "ditë",
     "days": "ditë",
     "pageNotFound": "Oops! Faqja nuk u gjet",

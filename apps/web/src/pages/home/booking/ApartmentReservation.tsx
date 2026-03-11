@@ -62,7 +62,7 @@ const ApartmentReservation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
-// Fetch apartment data
+  // Fetch apartment data
   useEffect(() => {
     const fetchApartment = async () => {
       if (!id) return;
@@ -96,7 +96,7 @@ const ApartmentReservation = () => {
     fetchUser();
   }, [id]);
 
-const handleReservation = () => {
+  const handleReservation = () => {
     if (!user) {
       localStorage.setItem("redirectAfterLogin", `/apartmentBilling/${id}`);
       Swal.fire({
@@ -204,7 +204,14 @@ const handleReservation = () => {
           <ArrowLeft className="mr-2" size={16} />
           {t("navigation.backToApartments")}
         </Button>
-
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/properties-map")}
+          className="mb-6 hover:bg-white/50"
+        >
+          <ArrowLeft className="mr-2" size={16} />
+          {t("common.map")}
+        </Button>
         {/* Hero Section with Image Gallery */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8">
           <div className="relative">
@@ -437,20 +444,32 @@ const handleReservation = () => {
                 )}
               </div>
 
+              {apartment.status === "rented" && (
+                <div className="mb-4 flex items-center justify-center gap-2 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-2">
+                  <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="text-xs font-medium text-amber-600">
+                    {t("booking.currentlyRented")}
+                  </span>
+                </div>
+              )}
+
               <Button
                 onClick={handleReservation}
-                disabled={apartment.status !== "available"}
+                disabled={
+                  apartment.status === "maintenance" ||
+                  apartment.status === "review"
+                }
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Calendar className="mr-2" size={20} />
-                {apartment.status === "available"
-                  ? t("booking.bookNow")
-                  : apartment.status === "rented"
-                    ? "Already Rented"
-                    : "Under Maintenance"}
+                {apartment.status === "maintenance" ||
+                apartment.status === "review"
+                  ? t("booking.underMaintenance")
+                  : t("booking.bookNow")}
               </Button>
 
-              {apartment.status === "available" && (
+              {(apartment.status === "available" ||
+                apartment.status === "rented") && (
                 <p className="text-center text-xs text-gray-500 mt-4">
                   {t("billing.flexibleCancellation")}
                 </p>

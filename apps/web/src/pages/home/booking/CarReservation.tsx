@@ -58,7 +58,7 @@ const CarReservation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
-// Fetch car data
+  // Fetch car data
   useEffect(() => {
     const fetchCar = async () => {
       if (!id) return;
@@ -93,7 +93,7 @@ const CarReservation = () => {
     fetchUser();
   }, [id]);
 
-const handleReservation = () => {
+  const handleReservation = () => {
     if (!user) {
       localStorage.setItem("redirectAfterLogin", `/carBilling/${id}`);
       Swal.fire({
@@ -392,7 +392,9 @@ const handleReservation = () => {
                 return (
                   <div className="text-center mb-6">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                      <p className="text-gray-600 text-sm">{t("billing.pricePerDay")}</p>
+                      <p className="text-gray-600 text-sm">
+                        {t("billing.pricePerDay")}
+                      </p>
                       {hasSeasonalPrice && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
                           <TrendingUp size={12} />
@@ -411,7 +413,9 @@ const handleReservation = () => {
                         Base: ${car.pricePerDay}/day
                       </p>
                     )}
-                    <p className="text-gray-500 text-sm mt-2">+ {t("billing.insurance")}</p>
+                    <p className="text-gray-500 text-sm mt-2">
+                      + {t("billing.insurance")}
+                    </p>
                   </div>
                 );
               })()}
@@ -420,7 +424,9 @@ const handleReservation = () => {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <Gauge size={20} className="text-blue-600" />
-                    <span className="font-medium text-gray-700">{t("searchResults.cars.Mileage")}</span>
+                    <span className="font-medium text-gray-700">
+                      {t("searchResults.cars.Mileage")}
+                    </span>
                   </div>
                   <span className="font-bold text-gray-900">
                     {car.mileage.toLocaleString()} km
@@ -430,7 +436,9 @@ const handleReservation = () => {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <Users size={20} className="text-blue-600" />
-                    <span className="font-medium text-gray-700">{t("searchResults.cars.seats")}</span>
+                    <span className="font-medium text-gray-700">
+                      {t("searchResults.cars.seats")}
+                    </span>
                   </div>
                   <span className="font-bold text-gray-900">{car.seats}</span>
                 </div>
@@ -438,7 +446,9 @@ const handleReservation = () => {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <Palette size={20} className="text-blue-600" />
-                    <span className="font-medium text-gray-700">{t("searchResults.cars.color")}</span>
+                    <span className="font-medium text-gray-700">
+                      {t("searchResults.cars.color")}
+                    </span>
                   </div>
                   <span className="font-bold text-gray-900 capitalize">
                     {car.color}
@@ -448,7 +458,9 @@ const handleReservation = () => {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <Hash size={20} className="text-blue-600" />
-                    <span className="font-medium text-gray-700">{t("searchResults.cars.plate")}</span>
+                    <span className="font-medium text-gray-700">
+                      {t("searchResults.cars.plate")}
+                    </span>
                   </div>
                   <span className="font-bold text-gray-900 font-mono">
                     {car.plateNumber}
@@ -456,20 +468,29 @@ const handleReservation = () => {
                 </div>
               </div>
 
+              {car.status === "rented" && (
+                <div className="mb-4 flex items-center justify-center gap-2 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-2">
+                  <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="text-xs font-medium text-amber-600">
+                    {t("booking.currentlyRented")}
+                  </span>
+                </div>
+              )}
+
               <Button
                 onClick={handleReservation}
-                disabled={car.status !== "available"}
+                disabled={
+                  car.status === "maintenance" || car.status === "review"
+                }
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Calendar className="mr-2" size={20} />
-                {car.status === "available"
-                  ? t("booking.bookNow")
-                  : car.status === "rented"
-                    ? "Currently Rented"
-                    : "Under Maintenance"}
+                {car.status === "maintenance" || car.status === "review"
+                  ? t("booking.underMaintenance")
+                  : t("booking.bookNow")}
               </Button>
 
-              {car.status === "available" && (
+              {(car.status === "available" || car.status === "rented") && (
                 <p className="text-center text-xs text-gray-500 mt-4">
                   {t("billing.flexibleCancellation")}
                 </p>

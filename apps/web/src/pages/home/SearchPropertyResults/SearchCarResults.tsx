@@ -135,7 +135,11 @@ const SearchCarResults = () => {
       setLoading(true);
       setError(null);
       const data = await getAllCars();
-      setCars(data);
+      //  exclude cars with status "maintenance" or "review"
+      const availableCars = data.filter(
+        (car) => car.status !== "maintenance" && car.status !== "review",
+      );
+      setCars(availableCars);
     } catch (err) {
       console.error("Error fetching cars:", err);
       setError(t("searchResults.cars.errorFetch"));
