@@ -8,10 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Plus, Loader2, Clock } from "lucide-react";
+import { Plus, Loader2, Clock, X } from "lucide-react";
 import { propertyRequestService } from "@/services/api/propertyRequest";
 import { authService } from "@/services/api/authService";
 import {
@@ -23,8 +20,8 @@ import { createApartment } from "@/services/api/apartmentService";
 import { MapPicker } from "@/components/dashboard/mapPicker";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
 import { useTranslation } from "react-i18next";
-import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
+
 interface AddApartmentDialogProps {
   onApartmentAdded: (apartment: Apartment) => void;
 }
@@ -33,6 +30,7 @@ export const AddApartmentDialog: React.FC<AddApartmentDialogProps> = ({
   onApartmentAdded,
 }) => {
   const { t } = useTranslation();
+  const { isDark } = useTheme();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
@@ -56,450 +54,250 @@ export const AddApartmentDialog: React.FC<AddApartmentDialogProps> = ({
     lng: undefined,
   });
 
+  const tk = {
+    dialogBg: isDark ? '#111115' : '#ffffff',
+    dialogText: isDark ? '#ffffff' : '#111115',
+    labelText: isDark ? 'rgba(255,255,255,0.55)' : '#44403c',
+    inputBg: isDark ? 'rgba(255,255,255,0.04)' : '#faf8f5',
+    inputBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+    inputText: isDark ? '#ffffff' : '#111115',
+    mutedText: isDark ? 'rgba(255,255,255,0.40)' : '#6b6663',
+    optionBg: isDark ? '#1a1a1a' : '#ffffff',
+    chipSelectedBg: isDark ? 'rgba(232,25,44,0.12)' : '#dbeafe',
+    chipSelectedText: isDark ? '#E8192C' : '#1d4ed8',
+    chipSelectedBorder: isDark ? 'rgba(232,25,44,0.30)' : '#93c5fd',
+    chipUnselBg: isDark ? 'rgba(255,255,255,0.04)' : '#f3f4f6',
+    chipUnselText: isDark ? 'rgba(255,255,255,0.60)' : '#374151',
+    chipUnselBorder: isDark ? 'rgba(255,255,255,0.08)' : '#e5e7eb',
+    ghostBtnBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+    ghostBtnText: isDark ? 'rgba(255,255,255,0.70)' : '#44403c',
+    successPendingBg: isDark ? 'rgba(234,179,8,0.10)' : '#fefce8',
+    successPendingBorder: isDark ? 'rgba(234,179,8,0.25)' : '#fde047',
+    successPendingText: isDark ? '#fde047' : '#854d0e',
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '8px 12px',
+    borderRadius: 6,
+    border: `1px solid ${tk.inputBorder}`,
+    background: tk.inputBg,
+    color: tk.inputText,
+    fontSize: 14,
+    outline: 'none',
+    boxSizing: 'border-box',
+  };
+
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        name === "rating" ||
-        name === "rooms" ||
-        name === "beds" ||
-        name === "kitchens" ||
-        name === "bathrooms" ||
-        name === "livingRooms" ||
-        name === "price"
-          ? parseFloat(value) || 0
-          : value,
+      [name]: name === "rating" || name === "rooms" || name === "beds" || name === "kitchens" || name === "bathrooms" || name === "livingRooms" || name === "price"
+        ? parseFloat(value) || 0
+        : value,
     }));
   };
 
   const handleLocationSelect = (lat: number, lng: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      lat,
-      lng,
-    }));
+    setFormData((prev) => ({ ...prev, lat, lng }));
   };
 
   const handleAmenityToggle = (amenity: string) => {
     setFormData((prev) => {
       const currentAmenities = prev.amenities || [];
       const isSelected = currentAmenities.includes(amenity);
-
-      if (isSelected) {
-        return {
-          ...prev,
-          amenities: currentAmenities.filter((a) => a !== amenity),
-        };
-      } else {
-        return {
-          ...prev,
-          amenities: [...currentAmenities, amenity],
-        };
-      }
+      return {
+        ...prev,
+        amenities: isSelected
+          ? currentAmenities.filter((a) => a !== amenity)
+          : [...currentAmenities, amenity],
+      };
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Basic validation
     if (!formData.name || formData.price <= 0) {
       alert(t("apartment.requiredFields"));
       return;
     }
-
     if (selectedImageFiles.length === 0) {
       alert(t("apartment.uploadImage"));
       return;
     }
-
     setLoading(true);
     try {
-      // Get the current user's ID for the property request
       const providerId = await authService.getCurrentUserId();
-      if (!providerId) {
-        throw new Error("User not authenticated");
-      }
+      if (!providerId) throw new Error("User not authenticated");
 
-      // Create the apartment with 'review' status - needs admin approval
-      const apartmentData: CreateApartmentDto = {
-        ...formData,
-        status: "review",
-      };
-
-      const newApartment = await createApartment(
-        apartmentData,
-        selectedImageFiles,
-      );
-
-      // Create a property request for admin review
+      const apartmentData: CreateApartmentDto = { ...formData, status: "review" };
+      const newApartment = await createApartment(apartmentData, selectedImageFiles);
       await propertyRequestService.createRequest(
-        providerId,
-        newApartment.id.toString(),
-        "apartment",
+        providerId, newApartment.id.toString(), "apartment",
         `New apartment listing: ${formData.name}`,
       );
-
       onApartmentAdded(newApartment);
       setSubmissionSuccess(true);
-
-      // Reset form
-      setFormData({
-        name: "",
-        address: "",
-        location: "",
-        rating: 0,
-        rooms: 1,
-        beds: 1,
-        kitchens: 1,
-        bathrooms: 1,
-        livingRooms: 1,
-        price: 0,
-        status: "review",
-        imageUrls: [],
-        description: "",
-        amenities: [],
-        lat: undefined,
-        lng: undefined,
-      });
+      setFormData({ name: "", address: "", location: "", rating: 0, rooms: 1, beds: 1, kitchens: 1, bathrooms: 1, livingRooms: 1, price: 0, status: "review", imageUrls: [], description: "", amenities: [], lat: undefined, lng: undefined });
       setSelectedImageFiles([]);
     } catch (error) {
       console.error("Error adding apartment:", error);
-      alert(
-        `${t("apartment.addFailed")}: ${error instanceof Error ? error.message : t("common.tryAgain")}`,
-      );
+      alert(`${t("apartment.addFailed")}: ${error instanceof Error ? error.message : t("common.tryAgain")}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(isOpen) => {
-        setOpen(isOpen);
-        if (!isOpen) {
-          setSubmissionSuccess(false);
-        }
-      }}
-    >
+    <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); if (!isOpen) setSubmissionSuccess(false); }}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg">
-          <Plus className="mr-2" size={20} />
-          {t("apartment.addApartment")}
-        </Button>
+        <button
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 8, background: '#E8192C', color: '#ffffff', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
+        >
+          <Plus size={18} /> {t("apartment.addApartment")}
+        </button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent style={{ background: tk.dialogBg, color: tk.dialogText, maxWidth: 640, maxHeight: '90vh', overflowY: 'auto' }}>
         {submissionSuccess ? (
-          <div>
-            {/* Success State */}
-            <div className="py-12 text-center">
-              <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-6">
-                <Clock className="w-8 h-8 text-yellow-600" />
-              </div>
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-gray-900 mb-2">
-                  {t("apartment.successTitle")}
-                </DialogTitle>
-                <DialogDescription className="text-gray-600 max-w-md mx-auto">
-                  {t("apartment.successMessage")}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg max-w-md mx-auto">
-                <div className="flex items-center gap-2 text-yellow-800">
-                  <Clock className="w-5 h-5" />
-                  <span className="font-medium">
-                    {t("apartment.statusPending")}
-                  </span>
-                </div>
-                <p className="text-sm text-yellow-700 mt-2">
-                  {t("apartment.statusDescription")}
-                </p>
-              </div>
-              <Button
-                onClick={() => {
-                  setOpen(false);
-                  setSubmissionSuccess(false);
-                }}
-                className="mt-8 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
-              >
-                {t("apartment.close")}
-              </Button>
+          <div style={{ padding: '48px 0', textAlign: 'center' }}>
+            <div style={{ width: 64, height: 64, borderRadius: '50%', background: isDark ? 'rgba(234,179,8,0.15)' : '#fef9c3', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+              <Clock size={32} style={{ color: '#ca8a04' }} />
             </div>
+            <DialogHeader>
+              <DialogTitle style={{ fontSize: 22, fontWeight: 700, color: tk.dialogText, marginBottom: 8 }}>
+                {t("apartment.successTitle")}
+              </DialogTitle>
+              <DialogDescription style={{ color: tk.mutedText, maxWidth: 380, margin: '0 auto' }}>
+                {t("apartment.successMessage")}
+              </DialogDescription>
+            </DialogHeader>
+            <div style={{ marginTop: 32, padding: 16, background: tk.successPendingBg, border: `1px solid ${tk.successPendingBorder}`, borderRadius: 8, maxWidth: 380, marginLeft: 'auto', marginRight: 'auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: tk.successPendingText, fontWeight: 500 }}>
+                <Clock size={18} /> {t("apartment.statusPending")}
+              </div>
+              <p style={{ fontSize: 13, color: isDark ? 'rgba(234,179,8,0.70)' : '#713f12', marginTop: 8 }}>{t("apartment.statusDescription")}</p>
+            </div>
+            <button
+              onClick={() => { setOpen(false); setSubmissionSuccess(false); }}
+              style={{ marginTop: 32, padding: '10px 24px', borderRadius: 8, background: '#E8192C', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+            >
+              {t("apartment.close")}
+            </button>
           </div>
         ) : (
           <div>
-            {/* Form State */}
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              <DialogTitle style={{ fontSize: 22, fontWeight: 700, color: '#E8192C' }}>
                 {t("apartment.addNewApartment")}
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription style={{ color: tk.mutedText }}>
                 {t("apartment.addDescription")}
               </DialogDescription>
             </DialogHeader>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24, marginTop: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 {/* Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium">
-                    {t("apartment.apartmentName")}{" "}
-                    <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Luxury Downtown Apartment"
-                    required
-                    className="w-full"
-                  />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: tk.labelText, marginBottom: 6 }}>{t("apartment.apartmentName")} <span style={{ color: '#E8192C' }}>*</span></p>
+                  <input id="name" name="name" value={formData.name} onChange={handleChange} placeholder="Luxury Downtown Apartment" required style={inputStyle} />
                 </div>
-
                 {/* Address */}
-                <div className="space-y-2">
-                  <Label htmlFor="address" className="text-sm font-medium">
-                    {t("apartment.address")}
-                  </Label>
-                  <Input
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    placeholder="123 Main Street, Tirana"
-                    className="w-full"
-                  />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: tk.labelText, marginBottom: 6 }}>{t("apartment.address")}</p>
+                  <input id="address" name="address" value={formData.address} onChange={handleChange} placeholder="123 Main Street, Tirana" style={inputStyle} />
                 </div>
-
                 {/* Location */}
-                <div className="space-y-2">
-                  <Label htmlFor="location" className="text-sm font-medium">
-                    {t("apartment.cityLocation")}
-                  </Label>
-                  <Input
-                    id="location"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    placeholder="Tirana, Albania"
-                    className="w-full"
-                  />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: tk.labelText, marginBottom: 6 }}>{t("apartment.cityLocation")}</p>
+                  <input id="location" name="location" value={formData.location} onChange={handleChange} placeholder="Tirana, Albania" style={inputStyle} />
                 </div>
-
                 {/* Rating */}
-                <div className="space-y-2">
-                  <Label htmlFor="rating" className="text-sm font-medium">
-                    {t("apartment.rating")}
-                  </Label>
-                  <Input
-                    id="rating"
-                    name="rating"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="5"
-                    value={formData.rating}
-                    onChange={handleChange}
-                    placeholder="4.5"
-                    className="w-full"
-                  />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: tk.labelText, marginBottom: 6 }}>{t("apartment.rating")}</p>
+                  <input id="rating" name="rating" type="number" step="0.1" min="0" max="5" value={formData.rating} onChange={handleChange} placeholder="4.5" style={inputStyle} />
                 </div>
-
                 {/* Price */}
-                <div className="space-y-2">
-                  <Label htmlFor="price" className="text-sm font-medium">
-                    {t("apartment.pricePerDay")}{" "}
-                    <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="price"
-                    name="price"
-                    type="number"
-                    min="0"
-                    value={formData.price}
-                    onChange={handleChange}
-                    placeholder="150"
-                    required
-                    className="w-full"
-                  />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: tk.labelText, marginBottom: 6 }}>{t("apartment.pricePerDay")} <span style={{ color: '#E8192C' }}>*</span></p>
+                  <input id="price" name="price" type="number" min="0" value={formData.price} onChange={handleChange} placeholder="150" required style={inputStyle} />
                 </div>
-
                 {/* Rooms */}
-                <div className="space-y-2">
-                  <Label htmlFor="rooms" className="text-sm font-medium">
-                    {t("apartment.rooms")}
-                  </Label>
-                  <Input
-                    id="rooms"
-                    name="rooms"
-                    type="number"
-                    min="0"
-                    value={formData.rooms}
-                    onChange={handleChange}
-                    placeholder="3"
-                    className="w-full"
-                  />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: tk.labelText, marginBottom: 6 }}>{t("apartment.rooms")}</p>
+                  <input id="rooms" name="rooms" type="number" min="0" value={formData.rooms} onChange={handleChange} placeholder="3" style={inputStyle} />
                 </div>
-
                 {/* Beds */}
-                <div className="space-y-2">
-                  <Label htmlFor="beds" className="text-sm font-medium">
-                    {t("apartment.beds")}
-                  </Label>
-                  <Input
-                    id="beds"
-                    name="beds"
-                    type="number"
-                    min="0"
-                    value={formData.beds}
-                    onChange={handleChange}
-                    placeholder="2"
-                    className="w-full"
-                  />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: tk.labelText, marginBottom: 6 }}>{t("apartment.beds")}</p>
+                  <input id="beds" name="beds" type="number" min="0" value={formData.beds} onChange={handleChange} placeholder="2" style={inputStyle} />
                 </div>
-
                 {/* Kitchens */}
-                <div className="space-y-2">
-                  <Label htmlFor="kitchens" className="text-sm font-medium">
-                    {t("apartment.kitchens")}
-                  </Label>
-                  <Input
-                    id="kitchens"
-                    name="kitchens"
-                    type="number"
-                    min="0"
-                    value={formData.kitchens}
-                    onChange={handleChange}
-                    placeholder="1"
-                    className="w-full"
-                  />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: tk.labelText, marginBottom: 6 }}>{t("apartment.kitchens")}</p>
+                  <input id="kitchens" name="kitchens" type="number" min="0" value={formData.kitchens} onChange={handleChange} placeholder="1" style={inputStyle} />
                 </div>
-
                 {/* Bathrooms */}
-                <div className="space-y-2">
-                  <Label htmlFor="bathrooms" className="text-sm font-medium">
-                    {t("apartment.bathrooms")}
-                  </Label>
-                  <Input
-                    id="bathrooms"
-                    name="bathrooms"
-                    type="number"
-                    min="0"
-                    value={formData.bathrooms}
-                    onChange={handleChange}
-                    placeholder="1"
-                    className="w-full"
-                  />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: tk.labelText, marginBottom: 6 }}>{t("apartment.bathrooms")}</p>
+                  <input id="bathrooms" name="bathrooms" type="number" min="0" value={formData.bathrooms} onChange={handleChange} placeholder="1" style={inputStyle} />
                 </div>
-
                 {/* Living Rooms */}
-                <div className="space-y-2">
-                  <Label htmlFor="livingRooms" className="text-sm font-medium">
-                    {t("apartment.livingRooms")}
-                  </Label>
-                  <Input
-                    id="livingRooms"
-                    name="livingRooms"
-                    type="number"
-                    min="0"
-                    value={formData.livingRooms}
-                    onChange={handleChange}
-                    placeholder="1"
-                    className="w-full"
-                  />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: tk.labelText, marginBottom: 6 }}>{t("apartment.livingRooms")}</p>
+                  <input id="livingRooms" name="livingRooms" type="number" min="0" value={formData.livingRooms} onChange={handleChange} placeholder="1" style={inputStyle} />
                 </div>
               </div>
 
               {/* Amenities */}
-              <div className="space-y-3">
-                <Label className="text-sm font-medium">
-                  {t("apartment.amenities")}
-                </Label>
-
-                {/* Selected Amenities */}
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 500, color: tk.labelText, marginBottom: 8 }}>{t("apartment.amenities")}</p>
                 {formData.amenities && formData.amenities.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
                     {formData.amenities.map((amenity) => (
-                      <Badge
+                      <span
                         key={amenity}
-                        variant="default"
-                        className="cursor-pointer hover:bg-red-500 hover:text-white transition-colors flex items-center gap-1"
                         onClick={() => handleAmenityToggle(amenity)}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 20, background: tk.chipSelectedBg, color: tk.chipSelectedText, border: `1px solid ${tk.chipSelectedBorder}`, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
                       >
-                        {amenity}
-                        <X size={12} />
-                      </Badge>
+                        {amenity} <X size={11} />
+                      </span>
                     ))}
                   </div>
                 )}
-
-                {/* Available Amenities */}
-                <div className="space-y-2">
-                  <Label className="text-xs text-gray-500">
-                    Click to select amenities:
-                  </Label>
-                  <div className="flex flex-wrap gap-2">
-                    {PREDEFINED_AMENITIES.map((amenity) => {
-                      const isSelected =
-                        formData.amenities?.includes(amenity) || false;
-                      return (
-                        <Badge
-                          key={amenity}
-                          variant={isSelected ? "default" : "outline"}
-                          className={`cursor-pointer transition-colors ${
-                            isSelected
-                              ? "bg-blue-500 hover:bg-blue-600"
-                              : "hover:bg-gray-100"
-                          }`}
-                          onClick={() => handleAmenityToggle(amenity)}
-                        >
-                          {amenity}
-                        </Badge>
-                      );
-                    })}
-                  </div>
+                <p style={{ fontSize: 12, color: tk.mutedText, marginBottom: 8 }}>Click to select amenities:</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {PREDEFINED_AMENITIES.map((amenity) => {
+                    const isSelected = formData.amenities?.includes(amenity) || false;
+                    return (
+                      <span
+                        key={amenity}
+                        onClick={() => handleAmenityToggle(amenity)}
+                        style={{
+                          display: 'inline-block', padding: '4px 10px', borderRadius: 20, fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                          background: isSelected ? tk.chipSelectedBg : tk.chipUnselBg,
+                          color: isSelected ? tk.chipSelectedText : tk.chipUnselText,
+                          border: `1px solid ${isSelected ? tk.chipSelectedBorder : tk.chipUnselBorder}`,
+                        }}
+                      >
+                        {amenity}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Image Upload Component */}
-              <ImageUpload
-                propertyType="Apartment"
-                onImagesSelected={(files) => {
-                  setSelectedImageFiles(files);
-                }}
-                selectedFiles={selectedImageFiles}
-                onRemoveFile={(index) => {
-                  setSelectedImageFiles((prev) =>
-                    prev.filter((_, i) => i !== index),
-                  );
-                }}
-                maxImages={10}
-                isLoading={loading}
-              />
+              {/* Image Upload */}
+              <ImageUpload propertyType="Apartment" onImagesSelected={(files) => setSelectedImageFiles(files)} selectedFiles={selectedImageFiles} onRemoveFile={(index) => setSelectedImageFiles(prev => prev.filter((_, i) => i !== index))} maxImages={10} isLoading={loading} />
 
-              {/* Map Picker Component */}
-              <MapPicker
-                lat={formData.lat}
-                lng={formData.lng}
-                onLocationSelect={handleLocationSelect}
-                label={t("apartment.selectLocation")}
-                defaultCenter={[41.327953, 19.819025]}
-                defaultZoom={8}
-                showCoordinates={true}
-              />
+              {/* Map */}
+              <MapPicker lat={formData.lat} lng={formData.lng} onLocationSelect={handleLocationSelect} label={t("apartment.selectLocation")} defaultCenter={[41.327953, 19.819025]} defaultZoom={8} showCoordinates={true} />
 
               {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-sm font-medium">
-                  {t("apartment.description")}
-                </Label>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 500, color: tk.labelText, marginBottom: 6 }}>{t("apartment.description")}</p>
                 <textarea
                   id="description"
                   name="description"
@@ -507,36 +305,26 @@ export const AddApartmentDialog: React.FC<AddApartmentDialogProps> = ({
                   onChange={handleChange}
                   placeholder="Describe the apartment features, amenities, and location..."
                   rows={3}
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                  style={{ ...inputStyle, resize: 'none', fontFamily: 'inherit' }}
                 />
               </div>
 
               <DialogFooter>
-                <Button
+                <button
                   type="button"
-                  variant="outline"
                   onClick={() => setOpen(false)}
                   disabled={loading}
+                  style={{ padding: '10px 18px', borderRadius: 8, background: 'transparent', border: `1px solid ${tk.ghostBtnBorder}`, color: tk.ghostBtnText, cursor: 'pointer', fontWeight: 500 }}
                 >
                   {t("apartment.cancel")}
-                </Button>
-                <Button
+                </button>
+                <button
                   type="submit"
                   disabled={loading}
-                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 8, background: '#E8192C', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600, opacity: loading ? 0.7 : 1 }}
                 >
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 animate-spin" size={16} />
-                      {t("apartment.adding")}
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="mr-2" size={16} />
-                      {t("apartment.addApartment")}
-                    </>
-                  )}
-                </Button>
+                  {loading ? <><Loader2 className="animate-spin" size={15} /> {t("apartment.adding")}</> : <><Plus size={15} /> {t("apartment.addApartment")}</>}
+                </button>
               </DialogFooter>
             </form>
           </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Booking } from "@/types/booking.type";
+import { useTheme } from "@/context/ThemeContext";
 import {
   getBookingsByProviderId,
   updateBookingStatus,
@@ -240,6 +241,42 @@ function ContactClientButton({ booking }: { booking: Booking }) {
 export default function BookingsManagement() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { isDark } = useTheme();
+
+  const tk = {
+    pageBg: isDark ? '#0d0d0d' : '#f5f4f1',
+    pageText: isDark ? '#ffffff' : '#111115',
+    headerBg: isDark ? '#111111' : '#ffffff',
+    headerBorder: isDark ? 'rgba(255,255,255,0.05)' : '#e5e2de',
+    cardBg: isDark ? 'rgba(255,255,255,0.025)' : '#ffffff',
+    cardBorder: isDark ? 'rgba(255,255,255,0.07)' : '#ede9e5',
+    inputBg: isDark ? 'rgba(255,255,255,0.04)' : '#faf8f5',
+    inputBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+    inputText: isDark ? '#ffffff' : '#111115',
+    mutedText: isDark ? 'rgba(255,255,255,0.40)' : '#6b6663',
+    dimText: isDark ? 'rgba(255,255,255,0.70)' : '#44403c',
+    statBg: isDark ? 'rgba(255,255,255,0.03)' : '#f5f2ee',
+    statBorder: isDark ? 'rgba(255,255,255,0.05)' : '#e5e2de',
+    optionBg: isDark ? '#1a1a1a' : '#ffffff',
+    divider: isDark ? 'rgba(255,255,255,0.05)' : '#e5e2de',
+    emptyBg: isDark ? 'rgba(255,255,255,0.03)' : '#f0ece8',
+    emptyBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+    emptyIcon: isDark ? 'rgba(255,255,255,0.20)' : '#b8b4b0',
+    labelText: isDark ? 'rgba(255,255,255,0.25)' : '#9e9994',
+    modalBg: isDark ? '#1a1a1a' : '#ffffff',
+    modalHeaderBg: isDark ? '#111111' : '#f5f2ee',
+    modalHeaderBorder: isDark ? 'rgba(255,255,255,0.05)' : '#e5e2de',
+    checkboxRowBg: isDark ? 'rgba(255,255,255,0.03)' : '#f5f2ee',
+    checkboxRowBorder: isDark ? 'rgba(255,255,255,0.05)' : '#e5e2de',
+    popoverBg: isDark ? '#1a1a1a' : '#ffffff',
+    popoverHeaderBg: isDark ? '#111111' : '#f5f2ee',
+    popoverHeaderBorder: isDark ? 'rgba(255,255,255,0.05)' : '#e5e2de',
+    cancelBtnBg: isDark ? 'rgba(255,255,255,0.04)' : '#f0ece8',
+    cancelBtnBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+    iconMuted: isDark ? 'rgba(255,255,255,0.30)' : '#b8b4b0',
+    textareaBg: isDark ? 'rgba(255,255,255,0.06)' : '#f5f2ee',
+    textareaBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+  };
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -681,7 +718,7 @@ export default function BookingsManagement() {
   if (loading) {
     return (
       <Hsidebar>
-        <div className="-m-8 flex min-h-[calc(100vh)] items-center justify-center bg-[#0d0d0d]">
+        <div className="-m-8 flex min-h-[calc(100vh)] items-center justify-center" style={{ background: tk.pageBg }}>
           <Loader2 size={40} className="animate-spin text-[#e41e20]" />
         </div>
       </Hsidebar>
@@ -691,7 +728,7 @@ export default function BookingsManagement() {
   if (error) {
     return (
       <Hsidebar>
-        <div className="-m-8 flex min-h-[calc(100vh)] flex-col items-center justify-center gap-4 bg-[#0d0d0d]">
+        <div className="-m-8 flex min-h-[calc(100vh)] flex-col items-center justify-center gap-4" style={{ background: tk.pageBg }}>
           <p className="text-red-400 text-sm">{error}</p>
           <button
             onClick={fetchBookings}
@@ -706,19 +743,19 @@ export default function BookingsManagement() {
 
   return (
     <Hsidebar>
-      <div className="-m-8 min-h-[calc(100vh)] bg-[#0d0d0d] text-white">
+      <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
         {/* ── Header ── */}
-        <div className="relative overflow-hidden border-b border-white/5 bg-[#111] px-6 py-8 md:px-10">
+        <div className="relative overflow-hidden px-6 py-8 md:px-10" style={{ background: tk.headerBg, borderBottom: `1px solid ${tk.headerBorder}` }}>
           <div className="pointer-events-none absolute -top-20 left-10 h-60 w-60 rounded-full bg-[#e41e20]/10 blur-3xl" />
           <div className="relative flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#e41e20]/15 ring-1 ring-[#e41e20]/40">
               <Calendar className="h-4 w-4 text-[#e41e20]" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white">
+              <h1 className="text-2xl font-bold tracking-tight" style={{ color: tk.pageText }}>
                 {t("bookingManagement.title")}
               </h1>
-              <p className="text-sm text-white/40">
+              <p className="text-sm" style={{ color: tk.mutedText }}>
                 {t("bookingManagement.subtitle")}
               </p>
             </div>
@@ -732,32 +769,33 @@ export default function BookingsManagement() {
               {
                 label: t("bookingManagement.stats.totalBookings"),
                 value: bookings.length,
-                color: "text-white",
+                color: tk.pageText,
               },
               {
                 label: t("bookingManagement.stats.pending"),
                 value: bookings.filter((b) => b.status === "pending").length,
-                color: "text-amber-400",
+                color: "#f59e0b",
               },
               {
                 label: t("bookingManagement.stats.confirmed"),
                 value: bookings.filter((b) => b.status === "confirmed").length,
-                color: "text-emerald-400",
+                color: "#10b981",
               },
               {
                 label: t("bookingManagement.stats.totalRevenue"),
                 value: `$${bookings.reduce((s, b) => s + b.totalPrice, 0).toFixed(2)}`,
-                color: "text-[#e41e20]",
+                color: "#e41e20",
               },
             ].map((s) => (
               <div
                 key={s.label}
-                className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3"
+                className="rounded-xl px-4 py-3"
+                style={{ background: tk.statBg, border: `1px solid ${tk.statBorder}` }}
               >
-                <p className="text-[10px] uppercase tracking-widest text-white/30">
+                <p className="text-[10px] uppercase tracking-widest" style={{ color: tk.labelText }}>
                   {s.label}
                 </p>
-                <p className={`mt-1 text-2xl font-bold ${s.color}`}>
+                <p className="mt-1 text-2xl font-bold" style={{ color: s.color }}>
                   {s.value}
                 </p>
               </div>
@@ -767,9 +805,10 @@ export default function BookingsManagement() {
           {/* ── Filters ── */}
           <div className="mb-6 flex flex-wrap items-center gap-3">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: tk.iconMuted }} />
               <input
-                className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.04] pl-10 text-sm text-white placeholder:text-white/25 focus:border-[#e41e20]/50 focus:outline-none"
+                className="h-10 w-full rounded-xl pl-10 text-sm focus:outline-none"
+                style={{ background: tk.inputBg, border: `1px solid ${tk.inputBorder}`, color: tk.inputText }}
                 placeholder={t("bookingManagement.filters.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -778,51 +817,37 @@ export default function BookingsManagement() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="h-10 appearance-none rounded-xl border border-white/10 bg-white/[0.04] px-4 text-sm text-white focus:border-[#e41e20]/50 focus:outline-none"
+              className="h-10 appearance-none rounded-xl px-4 text-sm focus:outline-none"
+              style={{ background: tk.inputBg, border: `1px solid ${tk.inputBorder}`, color: tk.inputText }}
             >
-              <option value="all" className="bg-[#1a1a1a]">
-                {t("bookingManagement.filters.allStatuses")}
-              </option>
-              <option value="pending" className="bg-[#1a1a1a]">
-                {t("bookingManagement.statusOptions.pending")}
-              </option>
-              <option value="confirmed" className="bg-[#1a1a1a]">
-                {t("bookingManagement.statusOptions.confirmed")}
-              </option>
-              <option value="canceled" className="bg-[#1a1a1a]">
-                {t("bookingManagement.statusOptions.canceled")}
-              </option>
+              <option value="all" style={{ background: tk.optionBg }}>{t("bookingManagement.filters.allStatuses")}</option>
+              <option value="pending" style={{ background: tk.optionBg }}>{t("bookingManagement.statusOptions.pending")}</option>
+              <option value="confirmed" style={{ background: tk.optionBg }}>{t("bookingManagement.statusOptions.confirmed")}</option>
+              <option value="canceled" style={{ background: tk.optionBg }}>{t("bookingManagement.statusOptions.canceled")}</option>
             </select>
             <select
               value={propertyTypeFilter}
               onChange={(e) => setPropertyTypeFilter(e.target.value as any)}
-              className="h-10 appearance-none rounded-xl border border-white/10 bg-white/[0.04] px-4 text-sm text-white focus:border-[#e41e20]/50 focus:outline-none"
+              className="h-10 appearance-none rounded-xl px-4 text-sm focus:outline-none"
+              style={{ background: tk.inputBg, border: `1px solid ${tk.inputBorder}`, color: tk.inputText }}
             >
-              <option value="all" className="bg-[#1a1a1a]">
-                {t("bookingManagement.filters.allTypes")}
-              </option>
-              <option value="car" className="bg-[#1a1a1a]">
-                {t("bookingManagement.filters.cars")}
-              </option>
-              <option value="apartment" className="bg-[#1a1a1a]">
-                {t("bookingManagement.filters.apartments")}
-              </option>
-              <option value="hotel" className="bg-[#1a1a1a]">
-                {t("bookingManagement.filters.hotels")}
-              </option>
+              <option value="all" style={{ background: tk.optionBg }}>{t("bookingManagement.filters.allTypes")}</option>
+              <option value="car" style={{ background: tk.optionBg }}>{t("bookingManagement.filters.cars")}</option>
+              <option value="apartment" style={{ background: tk.optionBg }}>{t("bookingManagement.filters.apartments")}</option>
+              <option value="hotel" style={{ background: tk.optionBg }}>{t("bookingManagement.filters.hotels")}</option>
             </select>
           </div>
 
           {/* ── Empty ── */}
           {filteredBookings.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03]">
-                <Calendar className="h-7 w-7 text-white/20" />
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl" style={{ background: tk.emptyBg, border: `1px solid ${tk.emptyBorder}` }}>
+                <Calendar className="h-7 w-7" style={{ color: tk.emptyIcon }} />
               </div>
-              <p className="text-sm font-medium text-white/50">
+              <p className="text-sm font-medium" style={{ color: tk.mutedText }}>
                 {t("bookingManagement.emptyState.noBookings")}
               </p>
-              <p className="mt-1 text-xs text-white/30">
+              <p className="mt-1 text-xs" style={{ color: tk.labelText }}>
                 {searchTerm ||
                 statusFilter !== "all" ||
                 propertyTypeFilter !== "all"
@@ -849,7 +874,8 @@ export default function BookingsManagement() {
                 return (
                   <div
                     key={booking.id}
-                    className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 transition-colors hover:border-white/10 hover:bg-white/[0.04]"
+                    className="rounded-2xl p-5 transition-colors"
+                    style={{ background: tk.cardBg, border: `1px solid ${tk.cardBorder}` }}
                   >
                     {/* top row */}
                     <div className="flex flex-wrap items-start justify-between gap-4">
@@ -858,7 +884,7 @@ export default function BookingsManagement() {
                         className="flex items-start gap-3 cursor-pointer group"
                         onClick={() => navigate(getPropertyRoute(booking))}
                       >
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/[0.06] overflow-hidden">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg overflow-hidden" style={{ background: tk.statBg }}>
                           {booking.propertyData?.imageUrls?.[0] ? (
                             <img
                               src={booking.propertyData.imageUrls[0]}
@@ -866,19 +892,19 @@ export default function BookingsManagement() {
                               className="h-full w-full object-cover"
                             />
                           ) : (
-                            <PropertyIconComp className="w-5 h-5 text-white/40" />
+                            <PropertyIconComp className="w-5 h-5" style={{ color: tk.mutedText }} />
                           )}
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-white group-hover:text-[#e41e20]/80 transition-colors">
+                          <p className="text-sm font-semibold group-hover:text-[#e41e20]/80 transition-colors" style={{ color: tk.pageText }}>
                             {booking.propertyData?.name ||
                               `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}`}
                           </p>
                           <div className="mt-0.5 flex items-center gap-2">
-                            <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-white/40">
+                            <span className="rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wide" style={{ background: tk.statBg, color: tk.mutedText }}>
                               {booking.propertyType}
                             </span>
-                            <span className="text-[10px] text-white/25">
+                            <span className="text-[10px]" style={{ color: tk.labelText }}>
                               #{booking.id.slice(0, 8)}
                             </span>
                           </div>
@@ -888,29 +914,19 @@ export default function BookingsManagement() {
                       {/* Status badges */}
                       <div className="flex flex-wrap items-end gap-3">
                         <div className="flex flex-col items-center gap-1">
-                          <span className="text-[9px] uppercase tracking-widest text-white/25">
-                            {t(
-                              "bookingManagement.table.headers.bookingStatus",
-                              "Booking",
-                            )}
+                          <span className="text-[9px] uppercase tracking-widest" style={{ color: tk.labelText }}>
+                            {t("bookingManagement.table.headers.bookingStatus", "Booking")}
                           </span>
-                          <span
-                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${statusCfg.cls}`}
-                          >
+                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${statusCfg.cls}`}>
                             {statusCfg.icon}
                             {booking.status}
                           </span>
                         </div>
                         <div className="flex flex-col items-center gap-1">
-                          <span className="text-[9px] uppercase tracking-widest text-white/25">
-                            {t(
-                              "bookingManagement.table.headers.paymentStatus",
-                              "Payment",
-                            )}
+                          <span className="text-[9px] uppercase tracking-widest" style={{ color: tk.labelText }}>
+                            {t("bookingManagement.table.headers.paymentStatus", "Payment")}
                           </span>
-                          <span
-                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${paymentCfg.cls}`}
-                          >
+                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${paymentCfg.cls}`}>
                             {paymentCfg.icon}
                             {booking.payment_status}
                           </span>
@@ -919,13 +935,13 @@ export default function BookingsManagement() {
                     </div>
 
                     {/* detail row */}
-                    <div className="mt-4 grid gap-4 border-t border-white/5 pt-4 sm:grid-cols-3">
+                    <div className="mt-4 grid gap-4 pt-4 sm:grid-cols-3" style={{ borderTop: `1px solid ${tk.divider}` }}>
                       {/* Customer */}
                       <div>
-                        <p className="text-[10px] uppercase tracking-widest text-white/25">
+                        <p className="text-[10px] uppercase tracking-widest" style={{ color: tk.labelText }}>
                           {t("bookingManagement.table.headers.customer")}
                         </p>
-                        <p className="mt-1 text-sm font-medium text-white">
+                        <p className="mt-1 text-sm font-medium" style={{ color: tk.pageText }}>
                           {booking.status === "confirmed" &&
                           booking.payment_status === "paid"
                             ? booking.requesterName
@@ -939,19 +955,19 @@ export default function BookingsManagement() {
 
                       {/* Dates */}
                       <div>
-                        <p className="text-[10px] uppercase tracking-widest text-white/25">
+                        <p className="text-[10px] uppercase tracking-widest" style={{ color: tk.labelText }}>
                           {t("bookingManagement.table.headers.dates")}
                         </p>
                         <div className="mt-1 space-y-0.5">
-                          <p className="flex items-center gap-1.5 text-sm text-white/70">
-                            <Calendar className="h-3.5 w-3.5 text-white/30" />
+                          <p className="flex items-center gap-1.5 text-sm" style={{ color: tk.dimText }}>
+                            <Calendar className="h-3.5 w-3.5" style={{ color: tk.iconMuted }} />
                             {startDate.toLocaleDateString(undefined, {
                               day: "numeric",
                               month: "short",
                               year: "numeric",
                             })}
                           </p>
-                          <p className="ml-5 text-xs text-white/35">
+                          <p className="ml-5 text-xs" style={{ color: tk.labelText }}>
                             →{" "}
                             {endDate.toLocaleDateString(undefined, {
                               day: "numeric",
@@ -960,7 +976,7 @@ export default function BookingsManagement() {
                             })}
                           </p>
                           {booking.pickUpTime && booking.dropOffTime && (
-                            <p className="ml-5 text-xs text-white/35">
+                            <p className="ml-5 text-xs" style={{ color: tk.labelText }}>
                               {booking.pickUpTime} – {booking.dropOffTime}
                             </p>
                           )}
@@ -969,10 +985,10 @@ export default function BookingsManagement() {
 
                       {/* Price + Actions */}
                       <div>
-                        <p className="text-[10px] uppercase tracking-widest text-white/25">
+                        <p className="text-[10px] uppercase tracking-widest" style={{ color: tk.labelText }}>
                           {t("bookingManagement.table.headers.price")}
                         </p>
-                        <p className="mt-1 flex items-center gap-1 text-xl font-bold text-white">
+                        <p className="mt-1 flex items-center gap-1 text-xl font-bold" style={{ color: tk.pageText }}>
                           <DollarSign className="h-4 w-4 text-[#e41e20]" />
                           {booking.totalPrice.toFixed(2)}
                         </p>
@@ -982,66 +998,43 @@ export default function BookingsManagement() {
                           {booking.status === "pending" && (
                             <>
                               <button
-                                onClick={() =>
-                                  handleStatusUpdate(booking.id, "confirmed")
-                                }
+                                onClick={() => handleStatusUpdate(booking.id, "confirmed")}
                                 disabled={updatingStatus === booking.id}
                                 className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-400 transition hover:bg-emerald-500/20 disabled:opacity-40"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />
-                                {t(
-                                  "bookingManagement.actions.confirm",
-                                  "Confirm",
-                                )}
+                                {t("bookingManagement.actions.confirm", "Confirm")}
                               </button>
                               <button
-                                onClick={() =>
-                                  handleStatusUpdate(booking.id, "canceled")
-                                }
+                                onClick={() => handleStatusUpdate(booking.id, "canceled")}
                                 disabled={updatingStatus === booking.id}
                                 className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20 disabled:opacity-40"
                               >
                                 <XCircle className="w-3.5 h-3.5" />
-                                {t(
-                                  "bookingManagement.actions.decline",
-                                  "Decline",
-                                )}
+                                {t("bookingManagement.actions.decline", "Decline")}
                               </button>
                             </>
                           )}
-                          {booking.status === "confirmed" &&
-                            booking.payment_status === "pending" && (
-                              <button
-                                onClick={() =>
-                                  handleStatusUpdate(booking.id, "canceled")
-                                }
-                                disabled={updatingStatus === booking.id}
-                                className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20 disabled:opacity-40"
-                              >
-                                <XCircle className="w-3.5 h-3.5" />
-                                {t(
-                                  "bookingManagement.actions.cancel",
-                                  "Cancel Booking",
-                                )}
-                              </button>
-                            )}
+                          {booking.status === "confirmed" && booking.payment_status === "pending" && (
+                            <button
+                              onClick={() => handleStatusUpdate(booking.id, "canceled")}
+                              disabled={updatingStatus === booking.id}
+                              className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20 disabled:opacity-40"
+                            >
+                              <XCircle className="w-3.5 h-3.5" />
+                              {t("bookingManagement.actions.cancel", "Cancel Booking")}
+                            </button>
+                          )}
                           {booking.status === "canceled" && (
-                            <span className="text-xs text-white/25 italic">
-                              {t(
-                                "bookingManagement.actions.noActions",
-                                "No actions available",
-                              )}
+                            <span className="text-xs italic" style={{ color: tk.labelText }}>
+                              {t("bookingManagement.actions.noActions", "No actions available")}
                             </span>
                           )}
-                          {booking.status === "confirmed" &&
-                            booking.payment_status === "paid" && (
-                              <span className="text-xs text-emerald-400 font-medium">
-                                {t(
-                                  "bookingManagement.actions.fullyConfirmed",
-                                  "Confirmed & Paid",
-                                )}
-                              </span>
-                            )}
+                          {booking.status === "confirmed" && booking.payment_status === "paid" && (
+                            <span className="text-xs text-emerald-400 font-medium">
+                              {t("bookingManagement.actions.fullyConfirmed", "Confirmed & Paid")}
+                            </span>
+                          )}
                           {updatingStatus === booking.id && (
                             <Loader2 className="w-4 h-4 animate-spin text-[#e41e20]" />
                           )}
@@ -1050,30 +1043,23 @@ export default function BookingsManagement() {
                     </div>
 
                     {/* Cancellation reason */}
-                    {booking.status === "canceled" &&
-                      booking.cancellation_reason && (
-                        <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-red-500/15 bg-red-500/[0.07] px-4 py-3">
-                          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
-                          <div>
-                            <p className="text-[10px] font-semibold uppercase tracking-widest text-red-400/70">
-                              {t(
-                                "adminProviderBookings.table.cancellationReason",
-                                "Cancellation Reason",
-                              )}
-                            </p>
-                            <p className="mt-0.5 text-sm text-red-300/80">
-                              {booking.cancellation_reason}
-                            </p>
-                          </div>
+                    {booking.status === "canceled" && booking.cancellation_reason && (
+                      <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-red-500/15 bg-red-500/[0.07] px-4 py-3">
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+                        <div>
+                          <p className="text-[10px] font-semibold uppercase tracking-widest text-red-400/70">
+                            {t("adminProviderBookings.table.cancellationReason", "Cancellation Reason")}
+                          </p>
+                          <p className="mt-0.5 text-sm text-red-300/80">
+                            {booking.cancellation_reason}
+                          </p>
                         </div>
-                      )}
+                      </div>
+                    )}
 
-                    <p className="mt-3 text-[10px] text-white/20">
+                    <p className="mt-3 text-[10px]" style={{ color: tk.labelText }}>
                       {t("adminProviderBookings.booked", "Booked")}{" "}
-                      {new Date(booking.createdAt).toLocaleDateString(
-                        undefined,
-                        { day: "numeric", month: "short", year: "numeric" },
-                      )}
+                      {new Date(booking.createdAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
                     </p>
                   </div>
                 );
@@ -1085,23 +1071,21 @@ export default function BookingsManagement() {
 
       {/* Cancellation Reason Modal */}
       <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
-        <DialogContent className="sm:max-w-md border border-white/10 bg-[#1a1a1a] text-white">
+        <DialogContent className="sm:max-w-md" style={{ background: tk.modalBg, border: `1px solid ${tk.headerBorder}`, color: tk.pageText }}>
           <DialogHeader>
-            <DialogTitle className="text-white">
+            <DialogTitle style={{ color: tk.pageText }}>
               {t("bookingManagement.cancelBooking.title", "Cancel Booking")}
             </DialogTitle>
-            <DialogDescription className="text-white/40">
-              {t(
-                "bookingManagement.cancelBooking.subtitle",
-                "Please select a reason for cancellation",
-              )}
+            <DialogDescription style={{ color: tk.mutedText }}>
+              {t("bookingManagement.cancelBooking.subtitle", "Please select a reason for cancellation")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 py-4">
             {CANCELLATION_REASONS.map((reason) => (
               <label
                 key={reason}
-                className="flex items-center gap-3 cursor-pointer rounded-xl border border-white/5 bg-white/[0.03] p-3 transition-colors hover:bg-white/[0.06]"
+                className="flex items-center gap-3 cursor-pointer rounded-xl p-3 transition-colors hover:opacity-80"
+                style={{ background: tk.checkboxRowBg, border: `1px solid ${tk.checkboxRowBorder}` }}
               >
                 <input
                   type="checkbox"
@@ -1110,37 +1094,27 @@ export default function BookingsManagement() {
                     if (e.target.checked) {
                       setSelectedReasons([...selectedReasons, reason]);
                     } else {
-                      setSelectedReasons(
-                        selectedReasons.filter((r) => r !== reason),
-                      );
+                      setSelectedReasons(selectedReasons.filter((r) => r !== reason));
                     }
                   }}
-                  className="w-4 h-4 accent-[#e41e20] rounded border-white/20"
+                  className="w-4 h-4 accent-[#e41e20] rounded"
                 />
-                <span className="text-sm text-white/70">
-                  {t(
-                    `bookingManagement.cancelBooking.reasons.${reason}`,
-                    reason,
-                  )}
+                <span className="text-sm" style={{ color: tk.dimText }}>
+                  {t(`bookingManagement.cancelBooking.reasons.${reason}`, reason)}
                 </span>
               </label>
             ))}
             {selectedReasons.includes("other") && (
               <div className="mt-3">
-                <label className="mb-1.5 block text-xs font-medium text-white/50">
-                  {t(
-                    "bookingManagement.cancelBooking.customReasonLabel",
-                    "Other reason (please specify)",
-                  )}
+                <label className="mb-1.5 block text-xs font-medium" style={{ color: tk.mutedText }}>
+                  {t("bookingManagement.cancelBooking.customReasonLabel", "Other reason (please specify)")}
                 </label>
                 <textarea
                   value={customReason}
                   onChange={(e) => setCustomReason(e.target.value)}
-                  placeholder={t(
-                    "bookingManagement.cancelBooking.customReasonPlaceholder",
-                    "Enter your reason...",
-                  )}
-                  className="w-full rounded-xl border border-white/10 bg-white/[0.06] p-3 text-sm text-white placeholder:text-white/25 focus:border-[#e41e20]/50 focus:outline-none resize-none"
+                  placeholder={t("bookingManagement.cancelBooking.customReasonPlaceholder", "Enter your reason...")}
+                  className="w-full rounded-xl p-3 text-sm focus:outline-none resize-none"
+                  style={{ background: tk.textareaBg, border: `1px solid ${tk.textareaBorder}`, color: tk.inputText }}
                   rows={3}
                 />
               </div>
@@ -1149,7 +1123,8 @@ export default function BookingsManagement() {
           <DialogFooter className="gap-2">
             <button
               onClick={() => setCancelModalOpen(false)}
-              className="px-4 py-2 rounded-xl border border-white/10 bg-white/[0.04] text-sm text-white/60 hover:bg-white/[0.08] transition-colors"
+              className="px-4 py-2 rounded-xl text-sm transition-colors hover:opacity-80"
+              style={{ background: tk.cancelBtnBg, border: `1px solid ${tk.cancelBtnBorder}`, color: tk.mutedText }}
             >
               {t("common.cancel", "Cancel")}
             </button>
@@ -1157,10 +1132,7 @@ export default function BookingsManagement() {
               onClick={handleCancelWithReason}
               className="px-4 py-2 rounded-xl bg-[#e41e20] text-sm text-white font-medium hover:bg-[#c91a1c] transition-colors"
             >
-              {t(
-                "bookingManagement.cancelBooking.confirmCancel",
-                "Confirm Cancellation",
-              )}
+              {t("bookingManagement.cancelBooking.confirmCancel", "Confirm Cancellation")}
             </button>
           </DialogFooter>
         </DialogContent>

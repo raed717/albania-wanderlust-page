@@ -6,6 +6,7 @@ import { User } from "@/types/user.types";
 import { getBookingsByProviderIdForAdmin } from "@/services/api/bookingService";
 import { userService } from "@/services/api/userService";
 import Hsidebar from "@/components/dashboard/hsidebar";
+import { useTheme } from "@/context/ThemeContext";
 import {
   ArrowLeft,
   Search,
@@ -27,15 +28,7 @@ import {
   AlertTriangle,
   Filter,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -121,6 +114,32 @@ const AdminProviderBookings: React.FC = () => {
   const { providerId } = useParams<{ providerId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isDark } = useTheme();
+
+  const tk = {
+    pageBg: isDark ? '#0d0d0d' : '#f5f4f1',
+    pageText: isDark ? '#ffffff' : '#111115',
+    headerBg: isDark ? '#111111' : '#ffffff',
+    headerBorder: isDark ? 'rgba(255,255,255,0.05)' : '#e5e2de',
+    cardBg: isDark ? 'rgba(255,255,255,0.025)' : '#ffffff',
+    cardBorder: isDark ? 'rgba(255,255,255,0.07)' : '#ede9e5',
+    inputBg: isDark ? 'rgba(255,255,255,0.04)' : '#faf8f5',
+    inputBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+    inputText: isDark ? '#ffffff' : '#111115',
+    mutedText: isDark ? 'rgba(255,255,255,0.40)' : '#6b6663',
+    dimText: isDark ? 'rgba(255,255,255,0.70)' : '#44403c',
+    statBg: isDark ? 'rgba(255,255,255,0.03)' : '#f5f2ee',
+    statBorder: isDark ? 'rgba(255,255,255,0.05)' : '#e5e2de',
+    labelText: isDark ? 'rgba(255,255,255,0.25)' : '#9e9994',
+    divider: isDark ? 'rgba(255,255,255,0.05)' : '#e5e2de',
+    emptyBg: isDark ? 'rgba(255,255,255,0.03)' : '#f0ece8',
+    emptyBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+    emptyIcon: isDark ? 'rgba(255,255,255,0.20)' : '#b8b4b0',
+    iconMuted: isDark ? 'rgba(255,255,255,0.30)' : '#b8b4b0',
+    iconRow: isDark ? 'rgba(255,255,255,0.06)' : '#f0ece8',
+    typeTag: isDark ? 'rgba(255,255,255,0.05)' : '#ede9e5',
+    backBtn: isDark ? 'rgba(255,255,255,0.40)' : '#6b6663',
+  };
 
   // Provider can be passed via navigation state for instant render
   const stateProvider = (location.state as { provider?: User })?.provider;
@@ -166,7 +185,7 @@ const AdminProviderBookings: React.FC = () => {
     const confirmed = bookings.filter((b) => b.status === "confirmed").length;
     const canceled = bookings.filter((b) => b.status === "canceled").length;
     const revenue = bookings
-      .filter((b) => b.status === "confirmed" )
+      .filter((b) => b.status === "confirmed" && b.payment_status === "paid")
       .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
     return { total, pending, confirmed, canceled, revenue };
   }, [bookings]);
@@ -191,15 +210,16 @@ const AdminProviderBookings: React.FC = () => {
   // ── render ────────────────────────────────────────────────────────────
   return (
     <Hsidebar>
-      <div className="-m-8 min-h-[calc(100vh)] bg-[#0d0d0d] text-white">
+      <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
         {/* ── Header ─────────────────────────────────────────────── */}
-        <div className="relative overflow-hidden border-b border-white/5 bg-[#111] px-6 py-6 md:px-10">
+        <div className="relative overflow-hidden px-6 py-6 md:px-10" style={{ background: tk.headerBg, borderBottom: `1px solid ${tk.headerBorder}` }}>
           <div className="pointer-events-none absolute -top-20 right-10 h-60 w-60 rounded-full bg-[#e41e20]/8 blur-3xl" />
 
           {/* Back */}
           <button
             onClick={() => navigate("/dashboard/bookings/providers")}
-            className="mb-4 flex items-center gap-1.5 text-xs text-white/40 transition-colors hover:text-white/70"
+            className="mb-4 flex items-center gap-1.5 text-xs transition-colors hover:opacity-80"
+            style={{ color: tk.backBtn }}
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             {t("adminProviderBookings.backToProviders")}
@@ -222,10 +242,10 @@ const AdminProviderBookings: React.FC = () => {
                 )}
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">
+                <h1 className="text-xl font-bold" style={{ color: tk.pageText }}>
                   {provider.full_name || t("adminProvidersList.unnamed")}
                 </h1>
-                <div className="mt-0.5 flex flex-wrap items-center gap-3 text-xs text-white/40">
+                <div className="mt-0.5 flex flex-wrap items-center gap-3 text-xs" style={{ color: tk.mutedText }}>
                   <span className="flex items-center gap-1">
                     <Mail className="h-3 w-3" />
                     {provider.email}
@@ -253,42 +273,15 @@ const AdminProviderBookings: React.FC = () => {
           {!loading && !error && (
             <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               {[
-                {
-                  label: t("adminProviderBookings.stats.total"),
-                  value: stats.total,
-                  color: "text-white",
-                },
-                {
-                  label: t("adminProviderBookings.stats.pending"),
-                  value: stats.pending,
-                  color: "text-amber-400",
-                },
-                {
-                  label: t("adminProviderBookings.stats.confirmed"),
-                  value: stats.confirmed,
-                  color: "text-emerald-400",
-                },
-                {
-                  label: t("adminProviderBookings.stats.canceled"),
-                  value: stats.canceled,
-                  color: "text-red-400",
-                },
-                {
-                  label: t("adminProviderBookings.stats.revenue"),
-                  value: `$${stats.revenue.toLocaleString()}`,
-                  color: "text-[#e41e20]",
-                },
+                { label: t("adminProviderBookings.stats.total"), value: stats.total, color: tk.pageText },
+                { label: t("adminProviderBookings.stats.pending"), value: stats.pending, color: "#f59e0b" },
+                { label: t("adminProviderBookings.stats.confirmed"), value: stats.confirmed, color: "#10b981" },
+                { label: t("adminProviderBookings.stats.canceled"), value: stats.canceled, color: "#f87171" },
+                { label: t("adminProviderBookings.stats.revenue"), value: `$${stats.revenue.toLocaleString()}`, color: "#e41e20" },
               ].map((s) => (
-                <div
-                  key={s.label}
-                  className="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3"
-                >
-                  <p className="text-[10px] uppercase tracking-widest text-white/30">
-                    {s.label}
-                  </p>
-                  <p className={`mt-1 text-xl font-bold ${s.color}`}>
-                    {s.value}
-                  </p>
+                <div key={s.label} className="rounded-xl px-4 py-3" style={{ background: tk.statBg, border: `1px solid ${tk.statBorder}` }}>
+                  <p className="text-[10px] uppercase tracking-widest" style={{ color: tk.labelText }}>{s.label}</p>
+                  <p className="mt-1 text-xl font-bold" style={{ color: s.color }}>{s.value}</p>
                 </div>
               ))}
             </div>
@@ -298,67 +291,47 @@ const AdminProviderBookings: React.FC = () => {
           {!loading && !error && bookings.length > 0 && (
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
-                <Input
+                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: tk.iconMuted }} />
+                <input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={t(
-                    "adminProviderBookings.filters.searchPlaceholder",
-                  )}
-                  className="h-10 rounded-xl border border-white/10 bg-white/[0.04] pl-10 text-sm text-white placeholder:text-white/25 focus:border-[#e41e20]/50 focus:ring-0"
+                  placeholder={t("adminProviderBookings.filters.searchPlaceholder")}
+                  className="h-10 w-full rounded-xl pl-10 text-sm focus:outline-none"
+                  style={{ background: tk.inputBg, border: `1px solid ${tk.inputBorder}`, color: tk.inputText }}
                 />
               </div>
 
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-10 w-[150px] rounded-xl border border-white/10 bg-white/[0.04] text-sm text-white focus:ring-0">
-                  <Filter className="mr-2 h-3.5 w-3.5 text-white/30" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="border-white/10 bg-[#1a1a1a] text-white">
-                  <SelectItem value="all">
-                    {t("adminProviderBookings.filters.allStatuses")}
-                  </SelectItem>
-                  <SelectItem value="pending">
-                    {t("adminProviderBookings.status.pending")}
-                  </SelectItem>
-                  <SelectItem value="confirmed">
-                    {t("adminProviderBookings.status.confirmed")}
-                  </SelectItem>
-                  <SelectItem value="canceled">
-                    {t("adminProviderBookings.status.canceled")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="h-10 w-[150px] rounded-xl appearance-none px-3 text-sm focus:outline-none"
+                style={{ background: tk.inputBg, border: `1px solid ${tk.inputBorder}`, color: tk.inputText }}
+              >
+                <option value="all">{t("adminProviderBookings.filters.allStatuses")}</option>
+                <option value="pending">{t("adminProviderBookings.status.pending")}</option>
+                <option value="confirmed">{t("adminProviderBookings.status.confirmed")}</option>
+                <option value="canceled">{t("adminProviderBookings.status.canceled")}</option>
+              </select>
 
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="h-10 w-[150px] rounded-xl border border-white/10 bg-white/[0.04] text-sm text-white focus:ring-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="border-white/10 bg-[#1a1a1a] text-white">
-                  <SelectItem value="all">
-                    {t("adminProviderBookings.filters.allTypes")}
-                  </SelectItem>
-                  <SelectItem value="car">
-                    {t("adminProviderBookings.propertyTypes.car")}
-                  </SelectItem>
-                  <SelectItem value="apartment">
-                    {t("adminProviderBookings.propertyTypes.apartment")}
-                  </SelectItem>
-                  <SelectItem value="hotel">
-                    {t("adminProviderBookings.propertyTypes.hotel")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="h-10 w-[150px] rounded-xl appearance-none px-3 text-sm focus:outline-none"
+                style={{ background: tk.inputBg, border: `1px solid ${tk.inputBorder}`, color: tk.inputText }}
+              >
+                <option value="all">{t("adminProviderBookings.filters.allTypes")}</option>
+                <option value="car">{t("adminProviderBookings.propertyTypes.car")}</option>
+                <option value="apartment">{t("adminProviderBookings.propertyTypes.apartment")}</option>
+                <option value="hotel">{t("adminProviderBookings.propertyTypes.hotel")}</option>
+              </select>
             </div>
           )}
 
           {/* ── Loading ──────────────────────────────────────────────── */}
           {loading && (
-            <div className="flex flex-col items-center justify-center py-24 text-white/40">
+            <div className="flex flex-col items-center justify-center py-24" style={{ color: tk.mutedText }}>
               <Loader2 className="h-8 w-8 animate-spin text-[#e41e20]" />
-              <p className="mt-3 text-sm">
-                {t("adminProviderBookings.loading")}
-              </p>
+              <p className="mt-3 text-sm">{t("adminProviderBookings.loading")}</p>
             </div>
           )}
 
@@ -373,10 +346,10 @@ const AdminProviderBookings: React.FC = () => {
           {/* ── Empty ────────────────────────────────────────────────── */}
           {!loading && !error && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03]">
-                <Calendar className="h-7 w-7 text-white/20" />
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl" style={{ background: tk.emptyBg, border: `1px solid ${tk.emptyBorder}` }}>
+                <Calendar className="h-7 w-7" style={{ color: tk.emptyIcon }} />
               </div>
-              <p className="text-sm font-medium text-white/50">
+              <p className="text-sm font-medium" style={{ color: tk.mutedText }}>
                 {searchQuery || statusFilter !== "all" || typeFilter !== "all"
                   ? t("adminProviderBookings.noBookingsSearch")
                   : t("adminProviderBookings.noBookings")}
@@ -399,24 +372,23 @@ const AdminProviderBookings: React.FC = () => {
                 return (
                   <div
                     key={booking.id}
-                    className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 transition-colors hover:border-white/10 hover:bg-white/[0.04]"
+                    className="rounded-2xl p-5 transition-colors"
+                    style={{ background: tk.cardBg, border: `1px solid ${tk.cardBorder}` }}
                   >
                     {/* top row */}
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       {/* Property info */}
                       <div className="flex items-start gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.06] text-white/50">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: tk.iconRow, color: tk.mutedText }}>
                           <PropertyIcon type={booking.propertyType} />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-white">
-                            {propertyName}
-                          </p>
+                          <p className="text-sm font-semibold" style={{ color: tk.pageText }}>{propertyName}</p>
                           <div className="mt-0.5 flex items-center gap-2">
-                            <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-white/40">
+                            <span className="rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wider" style={{ background: tk.typeTag, color: tk.mutedText }}>
                               {booking.propertyType}
                             </span>
-                            <span className="text-[10px] text-white/25">
+                            <span className="text-[10px]" style={{ color: tk.labelText }}>
                               #{booking.id.slice(0, 8)}
                             </span>
                           </div>
@@ -425,9 +397,7 @@ const AdminProviderBookings: React.FC = () => {
 
                       {/* Status badges */}
                       <div className="flex items-center gap-2">
-                        <span
-                          className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${statusCfg.cls}`}
-                        >
+                        <span className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${statusCfg.cls}`}>
                           {statusCfg.icon}
                           {t(`adminProviderBookings.status.${booking.status}`)}
                         </span>
@@ -435,23 +405,23 @@ const AdminProviderBookings: React.FC = () => {
                     </div>
 
                     {/* middle row: guest + dates + price */}
-                    <div className="mt-4 grid gap-4 border-t border-white/5 pt-4 sm:grid-cols-3">
+                    <div className="mt-4 grid gap-4 pt-4 sm:grid-cols-3" style={{ borderTop: `1px solid ${tk.divider}` }}>
                       {/* Guest */}
                       <div>
-                        <p className="text-[10px] uppercase tracking-widest text-white/25">
+                        <p className="text-[10px] uppercase tracking-widest" style={{ color: tk.labelText }}>
                           {t("adminProviderBookings.table.guest")}
                         </p>
                         <div className="mt-1 space-y-0.5">
-                          <p className="flex items-center gap-1.5 text-sm font-medium text-white">
-                            <UserIcon className="h-3.5 w-3.5 text-white/30" />
+                          <p className="flex items-center gap-1.5 text-sm font-medium" style={{ color: tk.pageText }}>
+                            <UserIcon className="h-3.5 w-3.5" style={{ color: tk.iconMuted }} />
                             {booking.requesterName || "—"}
                           </p>
-                          <p className="flex items-center gap-1.5 text-xs text-white/40">
+                          <p className="flex items-center gap-1.5 text-xs" style={{ color: tk.mutedText }}>
                             <Mail className="h-3 w-3" />
                             {booking.contactMail || "—"}
                           </p>
                           {booking.contactPhone && (
-                            <p className="flex items-center gap-1.5 text-xs text-white/40">
+                            <p className="flex items-center gap-1.5 text-xs" style={{ color: tk.mutedText }}>
                               <Phone className="h-3 w-3" />
                               {booking.contactPhone}
                             </p>
@@ -461,41 +431,22 @@ const AdminProviderBookings: React.FC = () => {
 
                       {/* Dates */}
                       <div>
-                        <p className="text-[10px] uppercase tracking-widest text-white/25">
+                        <p className="text-[10px] uppercase tracking-widest" style={{ color: tk.labelText }}>
                           {t("adminProviderBookings.table.dates")}
                         </p>
                         <div className="mt-1 space-y-0.5">
-                          <p className="flex items-center gap-1.5 text-sm text-white/70">
-                            <Calendar className="h-3.5 w-3.5 text-white/30" />
-                            {new Date(booking.startDate).toLocaleDateString(
-                              undefined,
-                              {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              },
-                            )}
+                          <p className="flex items-center gap-1.5 text-sm" style={{ color: tk.dimText }}>
+                            <Calendar className="h-3.5 w-3.5" style={{ color: tk.iconMuted }} />
+                            {new Date(booking.startDate).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
                           </p>
-                          <p className="ml-5 text-xs text-white/35">
-                            →{" "}
-                            {new Date(booking.endDate).toLocaleDateString(
-                              undefined,
-                              {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              },
-                            )}
+                          <p className="ml-5 text-xs" style={{ color: tk.labelText }}>
+                            → {new Date(booking.endDate).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
                           </p>
-                          {(booking.pickUpLocation ||
-                            booking.dropOffLocation) && (
-                            <p className="flex items-center gap-1.5 text-xs text-white/35">
+                          {(booking.pickUpLocation || booking.dropOffLocation) && (
+                            <p className="flex items-center gap-1.5 text-xs" style={{ color: tk.labelText }}>
                               <MapPin className="h-3 w-3" />
                               {booking.pickUpLocation}
-                              {booking.dropOffLocation &&
-                                booking.dropOffLocation !==
-                                  booking.pickUpLocation &&
-                                ` → ${booking.dropOffLocation}`}
+                              {booking.dropOffLocation && booking.dropOffLocation !== booking.pickUpLocation && ` → ${booking.dropOffLocation}`}
                             </p>
                           )}
                         </div>
@@ -503,23 +454,19 @@ const AdminProviderBookings: React.FC = () => {
 
                       {/* Price & payment */}
                       <div>
-                        <p className="text-[10px] uppercase tracking-widest text-white/25">
+                        <p className="text-[10px] uppercase tracking-widest" style={{ color: tk.labelText }}>
                           {t("adminProviderBookings.table.total")}
                         </p>
-                        <p className="mt-1 flex items-center gap-1.5 text-xl font-bold text-white">
+                        <p className="mt-1 flex items-center gap-1.5 text-xl font-bold" style={{ color: tk.pageText }}>
                           <DollarSign className="h-4 w-4 text-[#e41e20]" />
                           {(booking.totalPrice || 0).toLocaleString()}
                         </p>
-                        <p
-                          className={`mt-0.5 flex items-center gap-1 text-xs ${paymentCfg.cls}`}
-                        >
+                        <p className={`mt-0.5 flex items-center gap-1 text-xs ${paymentCfg.cls}`}>
                           <CreditCard className="h-3 w-3" />
-                          {t(
-                            `adminProviderBookings.paymentStatus.${booking.payment_status}`,
-                          )}
+                          {t(`adminProviderBookings.paymentStatus.${booking.payment_status}`)}
                         </p>
                         {booking.paid_at && (
-                          <p className="mt-0.5 text-[10px] text-white/25">
+                          <p className="mt-0.5 text-[10px]" style={{ color: tk.labelText }}>
                             {new Date(booking.paid_at).toLocaleDateString()}
                           </p>
                         )}
@@ -532,29 +479,19 @@ const AdminProviderBookings: React.FC = () => {
                         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
                         <div>
                           <p className="text-[10px] font-semibold uppercase tracking-widest text-red-400/70">
-                            {t(
-                              "adminProviderBookings.table.cancellationReason",
-                            )}
+                            {t("adminProviderBookings.table.cancellationReason")}
                           </p>
                           <p className="mt-0.5 text-sm text-red-300/80">
-                            {booking.cancellation_reason ||
-                              t("adminProviderBookings.noCancellationReason")}
+                            {booking.cancellation_reason || t("adminProviderBookings.noCancellationReason")}
                           </p>
                         </div>
                       </div>
                     )}
 
                     {/* Created at */}
-                    <p className="mt-3 text-[10px] text-white/20">
+                    <p className="mt-3 text-[10px]" style={{ color: tk.labelText }}>
                       {t("adminProviderBookings.booked")}{" "}
-                      {new Date(booking.createdAt).toLocaleDateString(
-                        undefined,
-                        {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        },
-                      )}
+                      {new Date(booking.createdAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
                     </p>
                   </div>
                 );

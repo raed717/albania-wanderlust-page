@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Hsidebar from "../../../components/dashboard/hsidebar";
+import { useTheme } from "@/context/ThemeContext";
 import {
   Search,
   Filter,
@@ -69,6 +70,41 @@ const confirmDelete = async (t: any): Promise<boolean> => {
 const AllApartments = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { isDark } = useTheme();
+
+  const tk = {
+    pageBg: isDark ? '#0d0d0d' : '#f5f4f1',
+    pageText: isDark ? '#ffffff' : '#111115',
+    headerBg: isDark ? '#111111' : '#ffffff',
+    headerBorder: isDark ? 'rgba(255,255,255,0.05)' : '#e5e2de',
+    cardBg: isDark ? 'rgba(255,255,255,0.025)' : '#ffffff',
+    cardBorder: isDark ? 'rgba(255,255,255,0.07)' : '#ede9e5',
+    cardHoverBg: isDark ? 'rgba(255,255,255,0.04)' : '#faf8f5',
+    inputBg: isDark ? 'rgba(255,255,255,0.04)' : '#faf8f5',
+    inputBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+    inputText: isDark ? '#ffffff' : '#111115',
+    inputPlaceholder: isDark ? 'rgba(255,255,255,0.25)' : '#9e9994',
+    mutedText: isDark ? 'rgba(255,255,255,0.40)' : '#6b6663',
+    dimText: isDark ? 'rgba(255,255,255,0.70)' : '#44403c',
+    statBg: isDark ? 'rgba(255,255,255,0.04)' : '#f0ece8',
+    statBorder: isDark ? 'rgba(255,255,255,0.04)' : '#e5e2de',
+    optionBg: isDark ? '#1a1a1a' : '#ffffff',
+    actionBg: isDark ? 'rgba(255,255,255,0.04)' : '#f5f2ee',
+    actionBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+    divider: isDark ? 'rgba(255,255,255,0.05)' : '#e5e2de',
+    emptyBg: isDark ? 'rgba(255,255,255,0.03)' : '#f0ece8',
+    emptyBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+    emptyIcon: isDark ? 'rgba(255,255,255,0.20)' : '#b8b4b0',
+    paginationBg: isDark ? 'rgba(255,255,255,0.04)' : '#f5f2ee',
+    paginationBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+    paginationText: isDark ? 'rgba(255,255,255,0.50)' : '#6b6663',
+    amenityBg: isDark ? 'rgba(255,255,255,0.06)' : '#f0ece8',
+    amenityBorder: isDark ? 'rgba(255,255,255,0.10)' : '#ddd9d5',
+    amenityText: isDark ? 'rgba(255,255,255,0.50)' : '#6b6663',
+    priceText: isDark ? '#ffffff' : '#111115',
+    priceSubText: isDark ? 'rgba(255,255,255,0.35)' : '#9e9994',
+    iconMuted: isDark ? 'rgba(255,255,255,0.30)' : '#b8b4b0',
+  };
 
   const [currentUser, setUser] = useState<User | null>(null);
 
@@ -205,7 +241,7 @@ const AllApartments = () => {
   if (loading) {
     return (
       <Hsidebar>
-        <div className="-m-8 flex min-h-[calc(100vh)] items-center justify-center bg-[#0d0d0d]">
+        <div className="-m-8 flex min-h-[calc(100vh)] items-center justify-center" style={{ background: tk.pageBg }}>
           <Loader2 size={40} className="animate-spin text-[#e41e20]" />
         </div>
       </Hsidebar>
@@ -215,7 +251,7 @@ const AllApartments = () => {
   if (error) {
     return (
       <Hsidebar>
-        <div className="-m-8 flex min-h-[calc(100vh)] flex-col items-center justify-center gap-4 bg-[#0d0d0d]">
+        <div className="-m-8 flex min-h-[calc(100vh)] flex-col items-center justify-center gap-4" style={{ background: tk.pageBg }}>
           <p className="text-red-400 text-sm">{error}</p>
           <button
             onClick={() => currentUser && fetchApartments(currentUser)}
@@ -232,9 +268,9 @@ const AllApartments = () => {
 
   return (
     <Hsidebar>
-      <div className="-m-8 min-h-[calc(100vh)] bg-[#0d0d0d] text-white">
+      <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
         {/* ── Header ── */}
-        <div className="relative overflow-hidden border-b border-white/5 bg-[#111] px-6 py-8 md:px-10">
+        <div className="relative overflow-hidden px-6 py-8 md:px-10" style={{ background: tk.headerBg, borderBottom: `1px solid ${tk.headerBorder}` }}>
           <div className="pointer-events-none absolute -top-20 left-10 h-60 w-60 rounded-full bg-[#e41e20]/10 blur-3xl" />
           <div className="relative flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -242,10 +278,10 @@ const AllApartments = () => {
                 <Building2 className="h-4 w-4 text-[#e41e20]" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold tracking-tight text-white">
+                <h1 className="text-2xl font-bold tracking-tight" style={{ color: tk.pageText }}>
                   {t("apartment.allApartments")}
                 </h1>
-                <p className="text-sm text-white/40">
+                <p className="text-sm" style={{ color: tk.mutedText }}>
                   {t("apartment.manageApartments")}
                 </p>
               </div>
@@ -258,9 +294,10 @@ const AllApartments = () => {
           {/* ── Filters ── */}
           <div className="mb-6 flex flex-wrap items-center gap-3">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: tk.iconMuted }} />
               <input
-                className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.04] pl-10 text-sm text-white placeholder:text-white/25 focus:border-[#e41e20]/50 focus:outline-none"
+                className="h-10 w-full rounded-xl pl-10 text-sm focus:outline-none"
+                style={{ background: tk.inputBg, border: `1px solid ${tk.inputBorder}`, color: tk.inputText }}
                 placeholder={t("apartment.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => {
@@ -275,18 +312,19 @@ const AllApartments = () => {
                 setStatusFilter(e.target.value as any);
                 setCurrentPage(1);
               }}
-              className="h-10 appearance-none rounded-xl border border-white/10 bg-white/[0.04] px-4 text-sm text-white focus:border-[#e41e20]/50 focus:outline-none"
+              className="h-10 appearance-none rounded-xl px-4 text-sm focus:outline-none"
+              style={{ background: tk.inputBg, border: `1px solid ${tk.inputBorder}`, color: tk.inputText }}
             >
-              <option value="all" className="bg-[#1a1a1a]">
+              <option value="all" style={{ background: tk.optionBg }}>
                 {t("apartment.allStatuses")}
               </option>
-              <option value="available" className="bg-[#1a1a1a]">
+              <option value="available" style={{ background: tk.optionBg }}>
                 {t("apartment.available")}
               </option>
-              <option value="rented" className="bg-[#1a1a1a]">
+              <option value="rented" style={{ background: tk.optionBg }}>
                 {t("apartment.rented")}
               </option>
-              <option value="maintenance" className="bg-[#1a1a1a]">
+              <option value="maintenance" style={{ background: tk.optionBg }}>
                 {t("apartment.maintenance")}
               </option>
             </select>
@@ -296,15 +334,16 @@ const AllApartments = () => {
                 setRatingFilter(e.target.value as any);
                 setCurrentPage(1);
               }}
-              className="h-10 appearance-none rounded-xl border border-white/10 bg-white/[0.04] px-4 text-sm text-white focus:border-[#e41e20]/50 focus:outline-none"
+              className="h-10 appearance-none rounded-xl px-4 text-sm focus:outline-none"
+              style={{ background: tk.inputBg, border: `1px solid ${tk.inputBorder}`, color: tk.inputText }}
             >
-              <option value="all" className="bg-[#1a1a1a]">
+              <option value="all" style={{ background: tk.optionBg }}>
                 {t("apartment.allRatings")}
               </option>
-              <option value="4.5+" className="bg-[#1a1a1a]">
+              <option value="4.5+" style={{ background: tk.optionBg }}>
                 {t("apartment.rating4_5")}
               </option>
-              <option value="4+" className="bg-[#1a1a1a]">
+              <option value="4+" style={{ background: tk.optionBg }}>
                 {t("apartment.rating4")}
               </option>
             </select>
@@ -313,10 +352,10 @@ const AllApartments = () => {
           {/* ── Grid ── */}
           {filteredApartments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03]">
-                <Building2 className="h-7 w-7 text-white/20" />
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl" style={{ background: tk.emptyBg, border: `1px solid ${tk.emptyBorder}` }}>
+                <Building2 className="h-7 w-7" style={{ color: tk.emptyIcon }} />
               </div>
-              <p className="text-sm font-medium text-white/50">
+              <p className="text-sm font-medium" style={{ color: tk.mutedText }}>
                 {t("apartment.noApartmentsFound")}
               </p>
             </div>
@@ -329,6 +368,7 @@ const AllApartments = () => {
                   onView={handleView}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  tk={tk}
                 />
               ))}
             </div>
@@ -340,7 +380,8 @@ const AllApartments = () => {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => p - 1)}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/50 transition hover:bg-white/[0.08] disabled:opacity-30"
+                className="flex h-9 w-9 items-center justify-center rounded-xl transition disabled:opacity-30"
+                style={{ background: tk.paginationBg, border: `1px solid ${tk.paginationBorder}`, color: tk.paginationText }}
               >
                 <ChevronLeft size={16} />
               </button>
@@ -348,11 +389,10 @@ const AllApartments = () => {
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`h-9 w-9 rounded-xl text-sm font-medium transition ${
-                    currentPage === i + 1
-                      ? "bg-[#e41e20] text-white"
-                      : "border border-white/10 bg-white/[0.04] text-white/50 hover:bg-white/[0.08]"
-                  }`}
+                  className="h-9 w-9 rounded-xl text-sm font-medium transition"
+                  style={currentPage === i + 1
+                    ? { background: '#e41e20', color: '#fff' }
+                    : { background: tk.paginationBg, border: `1px solid ${tk.paginationBorder}`, color: tk.paginationText }}
                 >
                   {i + 1}
                 </button>
@@ -360,7 +400,8 @@ const AllApartments = () => {
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => p + 1)}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/50 transition hover:bg-white/[0.08] disabled:opacity-30"
+                className="flex h-9 w-9 items-center justify-center rounded-xl transition disabled:opacity-30"
+                style={{ background: tk.paginationBg, border: `1px solid ${tk.paginationBorder}`, color: tk.paginationText }}
               >
                 <ChevronRight size={16} />
               </button>
@@ -381,6 +422,7 @@ interface CardProps {
   onView: (id: number) => void;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
+  tk: Record<string, string>;
 }
 
 const ApartmentCard: React.FC<CardProps> = ({
@@ -388,6 +430,7 @@ const ApartmentCard: React.FC<CardProps> = ({
   onView,
   onEdit,
   onDelete,
+  tk,
 }) => {
   const { t } = useTranslation();
 
@@ -399,7 +442,7 @@ const ApartmentCard: React.FC<CardProps> = ({
         : "bg-red-500/10 text-red-400 border-red-500/20";
 
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] overflow-hidden transition-colors hover:border-white/10 hover:bg-white/[0.04]">
+    <div className="rounded-2xl overflow-hidden transition-colors" style={{ background: tk.cardBg, border: `1px solid ${tk.cardBorder}` }}>
       {/* Image */}
       <div
         className="relative h-48 bg-cover bg-center"
@@ -417,59 +460,38 @@ const ApartmentCard: React.FC<CardProps> = ({
 
       {/* Body */}
       <div className="p-5">
-        <h3 className="text-base font-bold text-white truncate">
+        <h3 className="text-base font-bold truncate" style={{ color: tk.pageText }}>
           {apartment.name}
         </h3>
-        <div className="mt-1 flex items-center gap-1.5 text-xs text-white/40">
+        <div className="mt-1 flex items-center gap-1.5 text-xs" style={{ color: tk.mutedText }}>
           <MapPin className="h-3.5 w-3.5" />
           {apartment.address ?? t("apartment.noAddress")}
         </div>
 
         {/* Stats grid */}
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <div className="flex items-center gap-2 rounded-lg bg-white/[0.04] px-3 py-2">
-            <Star className="h-3.5 w-3.5 text-amber-400" />
-            <span className="text-xs text-white/70">{apartment.rating}</span>
-          </div>
-          <div className="flex items-center gap-2 rounded-lg bg-white/[0.04] px-3 py-2">
-            <Bed className="h-3.5 w-3.5 text-white/30" />
-            <span className="text-xs text-white/70">
-              {t("apartment.roomsCount", { count: apartment.rooms })}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 rounded-lg bg-white/[0.04] px-3 py-2">
-            <BedDouble className="h-3.5 w-3.5 text-white/30" />
-            <span className="text-xs text-white/70">
-              {t("apartment.bedCount", { count: apartment.beds })}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 rounded-lg bg-white/[0.04] px-3 py-2">
-            <ChefHat className="h-3.5 w-3.5 text-white/30" />
-            <span className="text-xs text-white/70">
-              {t("apartment.kitchenCount", { count: apartment.kitchens })}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 rounded-lg bg-white/[0.04] px-3 py-2">
-            <Bath className="h-3.5 w-3.5 text-white/30" />
-            <span className="text-xs text-white/70">
-              {t("apartment.bathroomCount", { count: apartment.bathrooms })}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 rounded-lg bg-white/[0.04] px-3 py-2">
-            <Sofa className="h-3.5 w-3.5 text-white/30" />
-            <span className="text-xs text-white/70">
-              {t("apartment.livingRoomCount", { count: apartment.livingRooms })}
-            </span>
-          </div>
+          {[
+            { icon: <Star className="h-3.5 w-3.5 text-amber-400" />, label: String(apartment.rating) },
+            { icon: <Bed className="h-3.5 w-3.5" style={{ color: tk.iconMuted }} />, label: t("apartment.roomsCount", { count: apartment.rooms }) },
+            { icon: <BedDouble className="h-3.5 w-3.5" style={{ color: tk.iconMuted }} />, label: t("apartment.bedCount", { count: apartment.beds }) },
+            { icon: <ChefHat className="h-3.5 w-3.5" style={{ color: tk.iconMuted }} />, label: t("apartment.kitchenCount", { count: apartment.kitchens }) },
+            { icon: <Bath className="h-3.5 w-3.5" style={{ color: tk.iconMuted }} />, label: t("apartment.bathroomCount", { count: apartment.bathrooms }) },
+            { icon: <Sofa className="h-3.5 w-3.5" style={{ color: tk.iconMuted }} />, label: t("apartment.livingRoomCount", { count: apartment.livingRooms }) },
+          ].map((s, i) => (
+            <div key={i} className="flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: tk.statBg }}>
+              {s.icon}
+              <span className="text-xs" style={{ color: tk.dimText }}>{s.label}</span>
+            </div>
+          ))}
         </div>
 
         {/* Price */}
         <div className="mt-3 flex items-center gap-1">
           <DollarSign className="h-4 w-4 text-[#e41e20]" />
-          <span className="text-xl font-bold text-white">
+          <span className="text-xl font-bold" style={{ color: tk.priceText }}>
             {apartment.price}
           </span>
-          <span className="text-xs text-white/35">{t("apartment.perDay")}</span>
+          <span className="text-xs" style={{ color: tk.priceSubText }}>{t("apartment.perDay")}</span>
         </div>
 
         {/* Amenities */}
@@ -478,29 +500,32 @@ const ApartmentCard: React.FC<CardProps> = ({
             {apartment.amenities.map((amenity, i) => (
               <span
                 key={i}
-                className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[10px] text-white/50"
+                className="rounded-full px-2 py-0.5 text-[10px]"
+                style={{ background: tk.amenityBg, border: `1px solid ${tk.amenityBorder}`, color: tk.amenityText }}
               >
                 {amenity}
               </span>
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-xs text-white/25">
+          <p className="mt-3 text-xs" style={{ color: tk.priceSubText }}>
             {t("apartment.noAmenities")}
           </p>
         )}
 
         {/* Actions */}
-        <div className="mt-4 flex gap-2 border-t border-white/5 pt-4">
+        <div className="mt-4 flex gap-2 pt-4" style={{ borderTop: `1px solid ${tk.divider}` }}>
           <button
             onClick={() => onView(apartment.id)}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] py-2 text-xs font-medium text-white/70 transition hover:bg-white/[0.08]"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition hover:opacity-80"
+            style={{ background: tk.actionBg, border: `1px solid ${tk.actionBorder}`, color: tk.dimText }}
           >
             <Eye size={14} /> {t("apartment.view")}
           </button>
           <button
             onClick={() => onEdit(apartment.id)}
-            className="flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] p-2 text-white/50 transition hover:bg-white/[0.08]"
+            className="flex items-center justify-center rounded-xl p-2 transition hover:opacity-80"
+            style={{ background: tk.actionBg, border: `1px solid ${tk.actionBorder}`, color: tk.mutedText }}
           >
             <Edit size={14} />
           </button>

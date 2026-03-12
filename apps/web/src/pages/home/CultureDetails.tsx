@@ -12,8 +12,11 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useTheme } from "@/context/ThemeContext";
 
 const CultureDetails = () => {
+  const { isDark } = useTheme();
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -127,12 +130,26 @@ const CultureDetails = () => {
 
   const tabs = [
     { id: "cuisine", label: "Cuisine", icon: <ChefHat className="w-4 h-4" /> },
-    { id: "festivals", label: "Festivals", icon: <Calendar className="w-4 h-4" /> },
-    { id: "traditions", label: "Traditions", icon: <Heart className="w-4 h-4" /> },
+    {
+      id: "festivals",
+      label: "Festivals",
+      icon: <Calendar className="w-4 h-4" />,
+    },
+    {
+      id: "traditions",
+      label: "Traditions",
+      icon: <Heart className="w-4 h-4" />,
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div
+      className="min-h-screen"
+      style={{
+        background: isDark ? "#0a0a0c" : "#ffffff",
+        transition: "background 0.3s",
+      }}
+    >
       <PrimarySearchAppBar />
 
       {/* ── HERO ── */}
@@ -159,41 +176,41 @@ const CultureDetails = () => {
             <span className="inline-block text-red-300 text-xs font-bold uppercase tracking-[0.3em] mb-5">
               Albania · Heritage & Culture
             </span>
-
-            <h1 className="text-5xl md:text-7xl font-black text-white leading-[0.9] tracking-tight mb-6">
-              Albanian<br />
-              <span className="bg-gradient-to-r from-red-400 to-red-200 bg-clip-text text-transparent">
-                Culture & Cuisine
-              </span>
+            <h1 className="text-5xl md:text-7xl font-black text-white leading-none mb-6">
+              Albanian
+              <br />
+              <span className="text-red-400">Culture</span>
             </h1>
-
-            <p className="text-white/70 text-lg md:text-xl max-w-xl leading-relaxed">
-              Discover the spirit of Albania through its rich traditions,
-              ancient customs, and unforgettable cuisine.
+            <p className="text-white/60 text-lg leading-relaxed max-w-xl">
+              Discover the rich traditions, vibrant festivals, and exquisite
+              cuisine that define Albania's unique cultural identity.
             </p>
           </div>
         </div>
-
-        {/* Bottom fade to white */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent" />
       </section>
 
-      {/* ── STICKY TABS ── */}
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
+      {/* ── TAB NAV ── */}
+      <div
+        className="sticky top-0 z-30 border-b"
+        style={{
+          background: isDark ? "rgba(10,10,12,0.95)" : "rgba(255,255,255,0.95)",
+          borderColor: isDark ? "rgba(255,255,255,0.08)" : "#f0f0f0",
+          backdropFilter: "blur(12px)",
+        }}
+      >
         <div className="container mx-auto px-4">
-          <div className="flex gap-1 py-3 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1 py-3">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`
-                  flex items-center gap-2 px-6 py-2.5 rounded-full font-semibold text-sm
-                  transition-all duration-300 whitespace-nowrap flex-shrink-0
-                  ${activeTab === tab.id
-                    ? "bg-gradient-to-r from-red-700 to-black text-white shadow-lg shadow-red-900/30"
-                    : "text-gray-500 hover:text-red-700 hover:bg-red-50"
-                  }
-                `}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? "bg-gradient-to-r from-red-600 to-red-900 text-white shadow-md shadow-red-900/30"
+                    : isDark
+                      ? "text-white/50 hover:text-white/80 hover:bg-white/5"
+                      : "text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                }`}
               >
                 {tab.icon}
                 {tab.label}
@@ -206,20 +223,24 @@ const CultureDetails = () => {
       {/* ── CUISINE TAB ── */}
       {activeTab === "cuisine" && (
         <section className="py-16 px-4">
-          <div className="container mx-auto max-w-7xl">
-
-            {/* Section heading */}
-            <div className="flex items-end justify-between mb-12 animate-fade-in">
+          <div className="container mx-auto max-w-6xl">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12 animate-fade-in">
               <div>
                 <span className="text-red-600 text-[11px] font-bold uppercase tracking-[0.25em] flex items-center gap-2 mb-3">
                   <UtensilsCrossed className="w-3.5 h-3.5" />
-                  Traditional Dishes
+                  Traditional Flavors
                 </span>
-                <h2 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight">
-                  Albanian Kitchen
+                <h2
+                  className="text-4xl md:text-5xl font-black"
+                  style={{ color: isDark ? "#f0ece8" : "#111115" }}
+                >
+                  Albanian Cuisine
                 </h2>
               </div>
-              <p className="hidden md:block text-gray-500 max-w-xs text-sm leading-relaxed text-right">
+              <p
+                className="hidden md:block text-sm leading-relaxed text-right max-w-xs"
+                style={{ color: isDark ? "rgba(240,236,232,0.45)" : "#6b7280" }}
+              >
                 Mediterranean freshness meets Balkan heartiness in every plate.
               </p>
             </div>
@@ -277,8 +298,9 @@ const CultureDetails = () => {
                   </h3>
                   <p className="text-white/65 leading-relaxed max-w-xl">
                     Albania's wine tradition dates to Illyrian times, producing
-                    unique wines from ancient grapes like Shesh i Zi and Kallmet.
-                    Raki remains the national spirit — shared proudly with guests.
+                    unique wines from ancient grapes like Shesh i Zi and
+                    Kallmet. Raki remains the national spirit — shared proudly
+                    with guests.
                   </p>
                 </div>
               </div>
@@ -291,14 +313,17 @@ const CultureDetails = () => {
       {activeTab === "festivals" && (
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-4xl">
-
             <div className="mb-12 animate-fade-in">
               <span className="text-red-600 text-[11px] font-bold uppercase tracking-[0.25em] flex items-center gap-2 mb-3">
                 <Calendar className="w-3.5 h-3.5" />
                 Throughout the Year
               </span>
-              <h2 className="text-4xl md:text-5xl font-black text-gray-900">
-                Festivals &<br />Celebrations
+              <h2
+                className="text-4xl md:text-5xl font-black"
+                style={{ color: isDark ? "#f0ece8" : "#111115" }}
+              >
+                Festivals &<br />
+                Celebrations
               </h2>
             </div>
 
@@ -359,13 +384,15 @@ const CultureDetails = () => {
       {activeTab === "traditions" && (
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-5xl">
-
             <div className="mb-12 animate-fade-in">
               <span className="text-red-600 text-[11px] font-bold uppercase tracking-[0.25em] flex items-center gap-2 mb-3">
                 <Heart className="w-3.5 h-3.5" />
                 Centuries of Heritage
               </span>
-              <h2 className="text-4xl md:text-5xl font-black text-gray-900">
+              <h2
+                className="text-4xl md:text-5xl font-black"
+                style={{ color: isDark ? "#f0ece8" : "#111115" }}
+              >
                 Cultural Traditions
               </h2>
             </div>
@@ -401,7 +428,10 @@ const CultureDetails = () => {
                 {/* Decorative dots */}
                 <div className="flex justify-center gap-1.5 mb-6">
                   {[...Array(5)].map((_, i) => (
-                    <span key={i} className={`block rounded-full bg-red-400 ${i === 2 ? "w-6 h-1.5" : "w-1.5 h-1.5 opacity-50"}`} />
+                    <span
+                      key={i}
+                      className={`block rounded-full bg-red-400 ${i === 2 ? "w-6 h-1.5" : "w-1.5 h-1.5 opacity-50"}`}
+                    />
                   ))}
                 </div>
 
