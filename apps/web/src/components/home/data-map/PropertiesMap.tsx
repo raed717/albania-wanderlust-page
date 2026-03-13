@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { MapFilters } from "./MapFilters";
 import { Filter, X } from "lucide-react";
 import { useLocalized } from "@/hooks/useLocalized";
+import { useTheme } from "@/context/ThemeContext";
 
 type Selected =
   | { type: "hotel"; data: Hotel }
@@ -90,11 +91,23 @@ const ALBANIA_CENTER: [number, number] = [41.3275, 19.8187];
 
 export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
   const { localize } = useLocalized();
+  const { isDark } = useTheme();
   const [hotelsData, setHotelsData] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [apartmentsData, setApartmentsData] = useState<Apartment[]>([]);
   const [destinationsData, setDestinationsData] = useState<Destination[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const tk = {
+    sidebarBg: isDark ? "#111115" : "#ffffff",
+    sidebarBorder: isDark ? "rgba(255,255,255,0.07)" : "#e5e2de",
+    filterBtnBg: isDark ? "#1a1a1e" : "#ffffff",
+    filterBtnText: isDark ? "rgba(255,255,255,0.80)" : "#374151",
+    filterBtnShadow: "0 2px 8px rgba(0,0,0,0.28)",
+    closeBtnHover: isDark ? "rgba(255,255,255,0.08)" : "#f3f4f6",
+    closeIconColor: isDark ? "rgba(255,255,255,0.60)" : "#4b5563",
+    overlayBg: "rgba(0,0,0,0.55)",
+  };
 
   // Filter states
   const [selectedTypes, setSelectedTypes] = useState<string[]>([
@@ -190,10 +203,16 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
       {/* Mobile Filter Toggle Button */}
       <button
         onClick={() => setIsFilterOpen(!isFilterOpen)}
-        className="lg:hidden absolute top-4 left-4 z-[1000] bg-white rounded-full p-2 shadow-md hover:bg-gray-50 transition-colors"
+        className="lg:hidden absolute top-4 left-4 z-[1000] rounded-full p-2 transition-colors"
+        style={{
+          background: tk.filterBtnBg,
+          boxShadow: tk.filterBtnShadow,
+          color: tk.filterBtnText,
+          border: "none",
+        }}
         aria-label="Toggle filters"
       >
-        <Filter size={20} className="text-gray-700" />
+        <Filter size={20} />
       </button>
 
       {/* Sidebar Filters */}
@@ -204,19 +223,27 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
           fixed lg:relative
           top-0 left-0
           w-80 h-full
-          bg-white shadow-lg border-r border-gray-200 p-4 overflow-y-auto
+          shadow-lg overflow-y-auto
           transition-transform duration-300 ease-in-out
           z-[999]
         `}
+        style={{
+          background: tk.sidebarBg,
+          borderRight: `1px solid ${tk.sidebarBorder}`,
+          padding: "16px",
+        }}
       >
         {/* Mobile Close Button */}
         <div className="lg:hidden flex justify-end mb-2">
           <button
             onClick={() => setIsFilterOpen(false)}
-            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            className="p-1 rounded-full transition-colors"
+            style={{ background: "none", border: "none", cursor: "pointer" }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = tk.closeBtnHover)}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
             aria-label="Close filters"
           >
-            <X size={18} className="text-gray-600" />
+            <X size={18} style={{ color: tk.closeIconColor }} />
           </button>
         </div>
 
@@ -234,7 +261,8 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
       {/* Overlay for mobile when sidebar is open */}
       {isFilterOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-[998]"
+          className="lg:hidden fixed inset-0 z-[998]"
+          style={{ background: tk.overlayBg }}
           onClick={() => setIsFilterOpen(false)}
         />
       )}

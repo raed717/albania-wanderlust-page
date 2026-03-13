@@ -2,8 +2,8 @@ import React from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@/context/ThemeContext";
 
 // Fix for default marker icon issue in React-Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -56,6 +56,21 @@ export const MapPicker: React.FC<MapPickerProps> = ({
   openOnGoogleMaps = true,
 }) => {
   const { t } = useTranslation();
+  const { isDark } = useTheme();
+
+  const tk = {
+    wrapperBg: isDark ? "rgba(232,25,44,0.06)" : "#fff7f7",
+    wrapperBorder: isDark ? "rgba(232,25,44,0.25)" : "#fca5a5",
+    mapBorder: isDark ? "rgba(232,25,44,0.30)" : "#fca5a5",
+    labelText: isDark ? "rgba(255,255,255,0.80)" : "#111115",
+    hintText: isDark ? "rgba(255,255,255,0.45)" : "#6b6663",
+    coordBg: isDark ? "rgba(255,255,255,0.04)" : "#ffffff",
+    coordBorder: isDark ? "rgba(255,255,255,0.10)" : "#fca5a5",
+    coordLabel: isDark ? "rgba(255,255,255,0.55)" : "#6b6663",
+    coordValue: "#E8192C",
+    linkColor: "#E8192C",
+  };
+
   const mapPosition: [number, number] | null =
     lat !== undefined && lng !== undefined ? [lat, lng] : null;
 
@@ -64,11 +79,21 @@ export const MapPicker: React.FC<MapPickerProps> = ({
   };
 
   return (
-    <div className="space-y-3 border border-blue-200 rounded-lg p-4 bg-blue-50">
-      <Label className="text-sm font-medium">{label}</Label>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: "12px",
+      border: `1px solid ${tk.wrapperBorder}`,
+      borderRadius: "10px",
+      padding: "16px",
+      background: tk.wrapperBg,
+    }}>
+      <label style={{ fontSize: "13px", fontWeight: 600, color: tk.labelText }}>
+        {label}
+      </label>
 
       {/* Map */}
-      <div className="h-64 rounded-lg overflow-hidden border border-blue-300">
+      <div style={{ height: "256px", borderRadius: "8px", overflow: "hidden", border: `1px solid ${tk.mapBorder}` }}>
         <MapContainer
           center={mapPosition || defaultCenter}
           zoom={defaultZoom}
@@ -87,28 +112,45 @@ export const MapPicker: React.FC<MapPickerProps> = ({
 
       {/* Coordinates Display */}
       {showCoordinates && (
-        <div className="text-sm">
-          <p className="text-gray-600 mb-2">
+        <div style={{ fontSize: "13px" }}>
+          <p style={{ color: tk.hintText, marginBottom: "8px" }}>
             Click on the map to select a location
           </p>
           {lat !== undefined && lng !== undefined ? (
-            <div className="grid grid-cols-2 gap-2">
-              <div className="bg-white p-2 rounded border border-blue-200">
-                <span className="font-medium text-gray-600">Latitude:</span>
-                <p className="text-blue-600 font-semibold">{lat.toFixed(6)}</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+              <div style={{
+                background: tk.coordBg,
+                padding: "8px",
+                borderRadius: "6px",
+                border: `1px solid ${tk.coordBorder}`,
+              }}>
+                <span style={{ fontWeight: 600, color: tk.coordLabel }}>Latitude:</span>
+                <p style={{ color: tk.coordValue, fontWeight: 700 }}>{lat.toFixed(6)}</p>
               </div>
-              <div className="bg-white p-2 rounded border border-blue-200">
-                <span className="font-medium text-gray-600">Longitude:</span>
-                <p className="text-blue-600 font-semibold">{lng.toFixed(6)}</p>
+              <div style={{
+                background: tk.coordBg,
+                padding: "8px",
+                borderRadius: "6px",
+                border: `1px solid ${tk.coordBorder}`,
+              }}>
+                <span style={{ fontWeight: 600, color: tk.coordLabel }}>Longitude:</span>
+                <p style={{ color: tk.coordValue, fontWeight: 700 }}>{lng.toFixed(6)}</p>
               </div>
             </div>
           ) : (
-            <div className="text-gray-600 p-2 bg-white rounded border border-blue-200">
+            <div style={{
+              color: tk.hintText,
+              padding: "8px",
+              background: tk.coordBg,
+              borderRadius: "6px",
+              border: `1px solid ${tk.coordBorder}`,
+            }}>
               No location selected yet
             </div>
           )}
         </div>
       )}
+
       {/* Google Maps Link */}
       {openOnGoogleMaps && lat !== undefined && lng !== undefined && (
         <div>
@@ -116,8 +158,10 @@ export const MapPicker: React.FC<MapPickerProps> = ({
             href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:underline text-sm font-medium"
-          > 
+            style={{ color: tk.linkColor, textDecoration: "none", fontSize: "13px", fontWeight: 600 }}
+            onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+            onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+          >
             {t("map.openInGoogleMaps")}
           </a>
         </div>

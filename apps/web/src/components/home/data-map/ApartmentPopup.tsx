@@ -1,57 +1,61 @@
 import { Apartment } from "@/types/apartment.type";
 import { Link } from "react-router-dom";
+import { useTheme } from "@/context/ThemeContext";
 
 interface ApartmentPopupProps {
   apartment: Apartment;
 }
 
 export function ApartmentPopup({ apartment }: ApartmentPopupProps) {
+  const { isDark } = useTheme();
+
+  const popupBg = isDark ? '#1a1a1e' : '#ffffff';
+  const popupText = isDark ? '#f5f5f5' : '#111115';
+  const mutedText = isDark ? 'rgba(255,255,255,0.5)' : '#6b6663';
+  const statBg = isDark ? 'rgba(255,255,255,0.06)' : '#f5f2ee';
+
   return (
-    <div className="w-64 space-y-3">
+    <div style={{ width: '16rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', background: popupBg, color: popupText }}>
       <div>
-        <h3 className="font-semibold text-base">{apartment.name}</h3>
-        <p className="text-sm text-gray-600">{apartment.location}</p>
+        <h3 style={{ fontWeight: 600, fontSize: '1rem', margin: 0 }}>{apartment.name}</h3>
+        <p style={{ fontSize: '0.875rem', color: mutedText, margin: '0.25rem 0 0' }}>{apartment.location}</p>
       </div>
       <img
         src={apartment.imageUrls[0]}
-        className="w-full h-32 object-cover rounded-md"
+        style={{ width: '100%', height: '8rem', objectFit: 'cover', borderRadius: '0.375rem' }}
       />
 
-      <div className="space-y-1 text-sm">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.875rem' }}>
         {apartment.price && (
-          <p>
-            <span className="font-medium">Price:</span> €{apartment.price} /
-            night
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0.5rem', background: statBg, borderRadius: '0.375rem' }}>
+            <span style={{ fontWeight: 500 }}>Price:</span>
+            <span style={{ color: '#E8192C', fontWeight: 700 }}>€{apartment.price} / night</span>
+          </div>
         )}
         {apartment.rooms && (
-          <p>
-            <span className="font-medium">Rooms:</span> {apartment.rooms}
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ fontWeight: 500 }}>Rooms:</span>
+            <span>{apartment.rooms}</span>
+          </div>
         )}
         {apartment.rating && (
-          <p className="text-yellow-600">
-            <span className="font-medium">Rating:</span> ★ {apartment.rating}
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ fontWeight: 500 }}>Rating:</span>
+            <span style={{ color: '#f59e0b', fontWeight: 600 }}>★ {apartment.rating}</span>
+          </div>
         )}
         {apartment.status && (
-          <p>
-            <span className="font-medium">Status:</span>{" "}
-            <span
-              className={`px-2 py-1 rounded-full text-xs ${
-                apartment.status === "available"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-gray-100 text-gray-800"
-              }`}
-            >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 500 }}>Status:</span>
+            <span style={{ padding: '0.125rem 0.5rem', borderRadius: '9999px', fontSize: '0.75rem', background: apartment.status === 'available' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.08)', color: apartment.status === 'available' ? '#10b981' : mutedText }}>
               {apartment.status}
             </span>
-          </p>
+          </div>
         )}
       </div>
 
       <Link to={`/apartmentReservation/${apartment.id}`}>
-        <button className="w-full bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition font-medium text-sm">
+        <button style={{ width: '100%', background: '#E8192C', color: '#fff', padding: '0.5rem 1rem', borderRadius: '0.375rem', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', transition: 'opacity 0.15s' }}>
           View Details
         </button>
       </Link>

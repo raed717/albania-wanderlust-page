@@ -4,6 +4,7 @@ import { authService } from "@/services/api/authService";
 import { userService } from "@/services/api/userService";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@/context/ThemeContext";
 
 const PageMotionStyles = () => (
   <style>{`
@@ -22,6 +23,7 @@ const PageMotionStyles = () => (
 
 export default function AuthPage() {
   const { t } = useTranslation();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
   const [showManualAuth, setShowManualAuth] = useState(false);
@@ -169,9 +171,28 @@ export default function AuthPage() {
     setSuccess("");
   };
 
+  const cardBg = isDark ? '#111115' : '#ffffff';
+  const cardBorder = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+  const inputBg = isDark ? 'rgba(255,255,255,0.06)' : '#ffffff';
+  const inputBorder = isDark ? 'rgba(255,255,255,0.12)' : '#e2e8f0';
+  const inputText = isDark ? '#ffffff' : '#1e293b';
+  const inputPlaceholder = isDark ? 'rgba(255,255,255,0.30)' : undefined;
+  const labelText = isDark ? 'rgba(255,255,255,0.80)' : '#1e293b';
+  const mutedText = isDark ? 'rgba(255,255,255,0.45)' : '#64748b';
+  const dividerBg = isDark ? 'rgba(255,255,255,0.10)' : '#e2e8f0';
+  const fadeBottomGradient = isDark
+    ? 'linear-gradient(to top, #0a0a0c, transparent)'
+    : 'linear-gradient(to top, #ffffff, transparent)';
+  const googleBtnBg = isDark ? 'rgba(255,255,255,0.06)' : '#ffffff';
+  const googleBtnBorder = isDark ? 'rgba(255,255,255,0.12)' : '#e2e8f0';
+  const googleBtnText = isDark ? '#ffffff' : '#1e293b';
+  const createAccountBtnBg = isDark ? 'transparent' : '#ffffff';
+  const createAccountBtnBorder = isDark ? '#E8192C' : '#b91c1c';
+  const createAccountBtnText = isDark ? '#fca5a5' : '#991b1b';
+
   if (showManualAuth) {
     return (
-      <div className="min-h-screen relative overflow-hidden bg-white">
+      <div className="min-h-screen relative overflow-hidden" style={{ background: isDark ? '#0a0a0c' : '#ffffff' }}>
         {/* Albania flag gradient — red to black */}
         <div className="absolute inset-0 bg-gradient-to-br from-red-700 via-red-950 to-black" />
 
@@ -188,8 +209,8 @@ export default function AuthPage() {
         {/* Vignette */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.72)_100%)]" />
 
-        {/* Bottom fade to white */}
-        <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-white to-transparent" />
+        {/* Bottom fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-28" style={{ background: fadeBottomGradient }} />
 
         <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-10">
           <div className="w-full max-w-5xl">
@@ -256,18 +277,31 @@ export default function AuthPage() {
 
               {/* Auth card */}
               <div className="lg:col-span-7 animate-fade-in-up" style={{ animationDelay: "80ms" }}>
-                <div className="rounded-3xl bg-white shadow-2xl overflow-hidden border border-black/5">
+                <div
+                  className="rounded-3xl overflow-hidden shadow-2xl"
+                  style={{ background: cardBg, border: `1px solid ${cardBorder}` }}
+                >
                   <div className="h-2 bg-gradient-to-r from-red-700 via-red-600 to-black" />
 
                   <div className="p-7 md:p-10">
                     {error && (
-                      <div className="bg-red-50 border border-red-100 text-red-800 px-4 py-3 rounded-2xl mb-4 animate-fade-in">
+                      <div style={{
+                        background: isDark ? 'rgba(239,68,68,0.12)' : '#fef2f2',
+                        border: `1px solid ${isDark ? 'rgba(239,68,68,0.30)' : '#fecaca'}`,
+                        color: isDark ? '#fca5a5' : '#991b1b',
+                        padding: '12px 16px', borderRadius: 16, marginBottom: 16,
+                      }} className="animate-fade-in">
                         <p className="text-sm font-semibold">{error}</p>
                       </div>
                     )}
 
                     {success && (
-                      <div className="bg-emerald-50 border border-emerald-100 text-emerald-900 px-4 py-3 rounded-2xl mb-4 animate-fade-in">
+                      <div style={{
+                        background: isDark ? 'rgba(16,185,129,0.12)' : '#ecfdf5',
+                        border: `1px solid ${isDark ? 'rgba(16,185,129,0.30)' : '#a7f3d0'}`,
+                        color: isDark ? '#6ee7b7' : '#065f46',
+                        padding: '12px 16px', borderRadius: 16, marginBottom: 16,
+                      }} className="animate-fade-in">
                         <p className="text-sm font-semibold">{success}</p>
                       </div>
                     )}
@@ -278,14 +312,20 @@ export default function AuthPage() {
                     >
                       {isSignUp && (
                         <div className="animate-fade-in">
-                          <label className="block text-slate-800 text-sm font-bold mb-2">
+                          <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: labelText, marginBottom: 8 }}>
                             {t("user.fullNameLabel")}
                           </label>
                           <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-600/60 focus:border-transparent transition-all bg-white shadow-sm"
+                            style={{
+                              width: '100%', padding: '12px 16px',
+                              border: `1px solid ${inputBorder}`, borderRadius: 16,
+                              background: inputBg, color: inputText,
+                              outline: 'none', transition: 'border-color 0.2s',
+                              boxSizing: 'border-box',
+                            }}
                             placeholder={t("user.fullNamePlaceholder")}
                             required
                           />
@@ -293,28 +333,40 @@ export default function AuthPage() {
                       )}
 
                       <div>
-                        <label className="block text-slate-800 text-sm font-bold mb-2">
+                        <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: labelText, marginBottom: 8 }}>
                           {t("user.emailLabel")}
                         </label>
                         <input
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-600/60 focus:border-transparent transition-all bg-white shadow-sm"
+                          style={{
+                            width: '100%', padding: '12px 16px',
+                            border: `1px solid ${inputBorder}`, borderRadius: 16,
+                            background: inputBg, color: inputText,
+                            outline: 'none', transition: 'border-color 0.2s',
+                            boxSizing: 'border-box',
+                          }}
                           placeholder={t("user.emailPlaceholder")}
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-slate-800 text-sm font-bold mb-2">
+                        <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: labelText, marginBottom: 8 }}>
                           {t("user.passwordLabel")}
                         </label>
                         <input
                           type="password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-600/60 focus:border-transparent transition-all bg-white shadow-sm"
+                          style={{
+                            width: '100%', padding: '12px 16px',
+                            border: `1px solid ${inputBorder}`, borderRadius: 16,
+                            background: inputBg, color: inputText,
+                            outline: 'none', transition: 'border-color 0.2s',
+                            boxSizing: 'border-box',
+                          }}
                           placeholder={t("user.passwordPlaceholder")}
                           required
                         />
@@ -323,27 +375,39 @@ export default function AuthPage() {
                       {isSignUp && (
                         <>
                           <div className="animate-fade-in">
-                            <label className="block text-slate-800 text-sm font-bold mb-2">
+                            <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: labelText, marginBottom: 8 }}>
                               {t("user.confirmPasswordLabel")}
                             </label>
                             <input
                               type="password"
                               value={confirmPassword}
                               onChange={(e) => setConfirmPassword(e.target.value)}
-                              className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-600/60 focus:border-transparent transition-all bg-white shadow-sm"
+                              style={{
+                                width: '100%', padding: '12px 16px',
+                                border: `1px solid ${inputBorder}`, borderRadius: 16,
+                                background: inputBg, color: inputText,
+                                outline: 'none', transition: 'border-color 0.2s',
+                                boxSizing: 'border-box',
+                              }}
                               placeholder={t("user.passwordPlaceholder")}
                               required
                             />
                           </div>
                           <div className="animate-fade-in">
-                            <label className="block text-slate-800 text-sm font-bold mb-2">
+                            <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: labelText, marginBottom: 8 }}>
                               {t("user.locationLabel")}
                             </label>
                             <input
                               type="text"
                               value={location}
                               onChange={(e) => setLocation(e.target.value)}
-                              className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-600/60 focus:border-transparent transition-all bg-white shadow-sm"
+                              style={{
+                                width: '100%', padding: '12px 16px',
+                                border: `1px solid ${inputBorder}`, borderRadius: 16,
+                                background: inputBg, color: inputText,
+                                outline: 'none', transition: 'border-color 0.2s',
+                                boxSizing: 'border-box',
+                              }}
                               placeholder={t("user.locationPlaceholder")}
                               required
                             />
@@ -392,10 +456,10 @@ export default function AuthPage() {
 
                     <div className="relative my-7">
                       <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-slate-200"></div>
+                        <div className="w-full border-t" style={{ borderColor: dividerBg }}></div>
                       </div>
                       <div className="relative flex justify-center text-sm">
-                        <span className="px-4 bg-white text-slate-500 font-semibold">
+                        <span className="px-4 font-semibold" style={{ background: cardBg, color: mutedText }}>
                           {t("user.or")}
                         </span>
                       </div>
@@ -407,7 +471,18 @@ export default function AuthPage() {
                         handleGoogleSignIn();
                       }}
                       disabled={loading}
-                      className="w-full bg-white border border-slate-200 text-slate-800 py-3.5 px-4 rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all font-bold flex items-center justify-center shadow-sm hover:shadow-md"
+                      style={{
+                        width: '100%',
+                        background: googleBtnBg,
+                        border: `1px solid ${googleBtnBorder}`,
+                        color: googleBtnText,
+                        padding: '14px 16px',
+                        borderRadius: 16,
+                        fontWeight: 700,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', transition: 'opacity 0.2s',
+                        opacity: loading ? 0.7 : 1,
+                      }}
                     >
                       <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                         <path
@@ -431,14 +506,15 @@ export default function AuthPage() {
                     </button>
 
                     <div className="text-center mt-7">
-                      <p className="text-sm text-slate-600">
+                      <p className="text-sm" style={{ color: mutedText }}>
                         {isSignUp
                           ? t("user.alreadyHaveAccountText")
                           : t("user.dontHaveAccountText")}
                         <button
                           type="button"
                           onClick={toggleAuthMode}
-                          className="ml-1 text-red-700 hover:text-black font-bold transition-colors"
+                          className="ml-1 font-bold transition-colors"
+                          style={{ color: '#E8192C', background: 'transparent', border: 'none', cursor: 'pointer' }}
                         >
                           {isSignUp ? t("user.signIn") : t("user.register")}
                         </button>
@@ -457,14 +533,13 @@ export default function AuthPage() {
 
   if (initialLoading) {
     return (
-      <div className="min-h-screen relative overflow-hidden bg-white flex items-center justify-center">
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center" style={{ background: isDark ? '#0a0a0c' : '#ffffff' }}>
         <div className="absolute inset-0 bg-gradient-to-br from-red-700 via-red-950 to-black" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.72)_100%)]" />
         <div
           className="absolute inset-0 opacity-[0.05]"
           style={{
-            backgroundImage:
-              "repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%)",
+            backgroundImage: "repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%)",
             backgroundSize: "14px 14px",
           }}
         />
@@ -481,7 +556,7 @@ export default function AuthPage() {
 
   // OAuth page view
   return (
-    <div className="min-h-screen relative overflow-hidden bg-white">
+    <div className="min-h-screen relative overflow-hidden" style={{ background: isDark ? '#0a0a0c' : '#ffffff' }}>
       {/* Albania flag gradient — red to black */}
       <div className="absolute inset-0 bg-gradient-to-br from-red-700 via-red-950 to-black" />
 
@@ -489,8 +564,7 @@ export default function AuthPage() {
       <div
         className="absolute inset-0 opacity-[0.05]"
         style={{
-          backgroundImage:
-            "repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%)",
+          backgroundImage: "repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%)",
           backgroundSize: "14px 14px",
         }}
       />
@@ -498,8 +572,8 @@ export default function AuthPage() {
       {/* Vignette */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.72)_100%)]" />
 
-      {/* Bottom fade to white */}
-      <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-white to-transparent" />
+      {/* Bottom fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-28" style={{ background: fadeBottomGradient }} />
 
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-5xl">
@@ -553,72 +627,64 @@ export default function AuthPage() {
                   {[...Array(5)].map((_, i) => (
                     <span
                       key={i}
-                      className={`block rounded-full bg-red-300 ${
-                        i === 2 ? "w-7 h-1.5" : "w-1.5 h-1.5 opacity-50"
-                      }`}
+                      className={`block rounded-full bg-red-300 ${i === 2 ? "w-7 h-1.5" : "w-1.5 h-1.5 opacity-50"}`}
                     />
                   ))}
                 </div>
                 <p className="text-xs text-white/65 text-center leading-relaxed">
                   {t("user.termsAgreement")}{" "}
-                  <span className="text-white/85 font-semibold">
-                    {t("user.termsOfService")}
-                  </span>{" "}
+                  <span className="text-white/85 font-semibold">{t("user.termsOfService")}</span>{" "}
                   {t("user.and")}{" "}
-                  <span className="text-white/85 font-semibold">
-                    {t("user.privacyPolicy")}
-                  </span>
+                  <span className="text-white/85 font-semibold">{t("user.privacyPolicy")}</span>
                 </p>
               </div>
             </div>
 
             {/* Auth card */}
             <div className="lg:col-span-6 animate-fade-in-up" style={{ animationDelay: "90ms" }}>
-              <div className="rounded-3xl bg-white shadow-2xl overflow-hidden border border-black/5">
+              <div
+                className="rounded-3xl shadow-2xl overflow-hidden"
+                style={{ background: cardBg, border: `1px solid ${cardBorder}` }}
+              >
                 <div className="h-2 bg-gradient-to-r from-red-700 via-red-600 to-black" />
 
                 <div className="p-7 md:p-10">
-                  <h2 className="text-2xl font-black text-slate-900 mb-6">
+                  <h2 className="text-2xl font-black mb-6" style={{ color: labelText }}>
                     {t("user.getStarted")}
                   </h2>
 
                   <button
                     onClick={handleGoogleSignIn}
                     disabled={loading}
-                    className={`w-full bg-white border border-slate-200 text-slate-900 py-3.5 px-4 rounded-2xl hover:bg-slate-50 hover:border-slate-300 hover:shadow-lg transition-all duration-200 font-bold flex items-center justify-center shadow-sm group ${
-                      loading ? "opacity-70 cursor-not-allowed" : ""
-                    }`}
+                    style={{
+                      width: '100%',
+                      background: googleBtnBg,
+                      border: `1px solid ${googleBtnBorder}`,
+                      color: googleBtnText,
+                      padding: '14px 16px',
+                      borderRadius: 16,
+                      fontWeight: 700,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      opacity: loading ? 0.7 : 1,
+                      transition: 'opacity 0.2s',
+                    }}
                   >
-                    <svg
-                      className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        fill="#4285F4"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      />
-                      <path
-                        fill="#EA4335"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
+                    <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                     </svg>
                     {t("user.continueWithGoogle")}
                   </button>
 
                   <div className="relative my-7">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-slate-200"></div>
+                      <div className="w-full border-t" style={{ borderColor: dividerBg }}></div>
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-4 bg-white text-slate-500 font-semibold">
+                      <span className="px-4 font-semibold" style={{ background: cardBg, color: mutedText }}>
                         {t("user.orContinueWithEmail")}
                       </span>
                     </div>
@@ -626,41 +692,37 @@ export default function AuthPage() {
 
                   <div className="space-y-3">
                     <button
-                      onClick={() => {
-                        setShowManualAuth(true);
-                        setIsSignUp(false);
-                      }}
+                      onClick={() => { setShowManualAuth(true); setIsSignUp(false); }}
                       className="w-full bg-gradient-to-r from-red-700 via-red-600 to-black text-white py-3.5 px-4 rounded-2xl hover:from-red-800 hover:via-red-700 hover:to-black transition-all duration-200 font-bold shadow-lg shadow-red-900/25 hover:shadow-xl transform hover:scale-[1.01]"
                     >
                       {t("user.signInWithEmail")}
                     </button>
 
                     <button
-                      onClick={() => {
-                        setShowManualAuth(true);
-                        setIsSignUp(true);
+                      onClick={() => { setShowManualAuth(true); setIsSignUp(true); }}
+                      style={{
+                        width: '100%',
+                        background: createAccountBtnBg,
+                        border: `1px solid ${createAccountBtnBorder}`,
+                        color: createAccountBtnText,
+                        padding: '14px 16px',
+                        borderRadius: 16,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'opacity 0.2s, transform 0.1s',
                       }}
-                      className="w-full bg-white border border-red-700 text-red-800 py-3.5 px-4 rounded-2xl hover:bg-red-50 hover:border-black transition-all duration-200 font-bold transform hover:scale-[1.01]"
+                      onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.opacity = '0.85'}
+                      onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.opacity = '1'}
                     >
                       {t("user.createNewAccount")}
                     </button>
                   </div>
 
-                  <p className="text-center text-xs text-slate-500 mt-7 leading-relaxed">
+                  <p className="text-center text-xs mt-7 leading-relaxed" style={{ color: mutedText }}>
                     {t("user.termsAgreement")}{" "}
-                    <a
-                      href="#"
-                      className="text-red-800 hover:text-black font-bold"
-                    >
-                      {t("user.termsOfService")}
-                    </a>{" "}
+                    <a href="#" className="font-bold" style={{ color: '#E8192C' }}>{t("user.termsOfService")}</a>{" "}
                     {t("user.and")}{" "}
-                    <a
-                      href="#"
-                      className="text-red-800 hover:text-black font-bold"
-                    >
-                      {t("user.privacyPolicy")}
-                    </a>
+                    <a href="#" className="font-bold" style={{ color: '#E8192C' }}>{t("user.privacyPolicy")}</a>
                   </p>
                 </div>
               </div>

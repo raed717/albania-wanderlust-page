@@ -1,5 +1,6 @@
 // Rewritten full component/module
 import React, { useState } from "react";
+import { useTheme } from "@/context/ThemeContext";
 import {
   Sidebar,
   Menu,
@@ -141,6 +142,7 @@ const hasAccess = (roles: string[], userRole: string | undefined): boolean => {
 // ====================
 const Hsidebar = ({ children }) => {
   const { t } = useTranslation();
+  const { isDark } = useTheme();
   const [user, setUser] = React.useState<User | null>(null);
   const [collapsed, setCollapsed] = useState(true);
 
@@ -394,7 +396,7 @@ const Hsidebar = ({ children }) => {
       </Sidebar>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-8 bg-gray-50 overflow-y-auto">{children}</main>
+      <main className="flex-1 p-8 overflow-y-auto" style={{ background: isDark ? "#0d0d0d" : "#f5f4f1" }}>{children}</main>
     </div>
   );
 };

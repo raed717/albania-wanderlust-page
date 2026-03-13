@@ -1,9 +1,7 @@
-import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { useTheme } from "@/context/ThemeContext";
 
 interface MapFiltersProps {
   selectedTypes: string[];
@@ -36,7 +34,26 @@ export function MapFilters({
   selectedCategories = [],
   onCategoriesChange,
 }: MapFiltersProps) {
+  const { isDark } = useTheme();
   const [showCategoryFilter, setShowCategoryFilter] = useState(false);
+
+  const tk = {
+    headerText: isDark ? "#ffffff" : "#111115",
+    mutedText: isDark ? "rgba(255,255,255,0.45)" : "#6b6663",
+    labelText: isDark ? "rgba(255,255,255,0.80)" : "#111115",
+    border: isDark ? "rgba(255,255,255,0.08)" : "#e5e2de",
+    subBorder: isDark ? "rgba(232,25,44,0.35)" : "#fca5a5",
+    catText: isDark ? "#f87171" : "#dc2626",
+    catHover: isDark ? "#fca5a5" : "#991b1b",
+    checkBg: isDark ? "rgba(255,255,255,0.06)" : "#faf8f5",
+    checkBorder: isDark ? "rgba(255,255,255,0.15)" : "#d1cdc9",
+    checkAccent: "#E8192C",
+    rangeText: isDark ? "rgba(255,255,255,0.50)" : "#9e9994",
+    btnBg: isDark ? "rgba(255,255,255,0.06)" : "#f5f2ee",
+    btnBorder: isDark ? "rgba(255,255,255,0.12)" : "#ddd9d5",
+    btnText: isDark ? "rgba(255,255,255,0.80)" : "#44403c",
+    btnHoverBg: isDark ? "rgba(255,255,255,0.12)" : "#ebe7e3",
+  };
 
   const handleTypeChange = (typeId: string, checked: boolean) => {
     if (checked) {
@@ -58,45 +75,84 @@ export function MapFilters({
   const isDestinationSelected = selectedTypes.includes("destination");
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       {/* Header */}
-      <div className="border-b border-gray-200 pb-4">
-        <h2 className="text-xl font-semibold text-gray-900">
+      <div style={{ borderBottom: `1px solid ${tk.border}`, paddingBottom: "16px" }}>
+        <h2 style={{ fontSize: "18px", fontWeight: 700, color: tk.headerText, margin: 0 }}>
           Filter Properties
         </h2>
-        <p className="text-sm text-gray-600 mt-1">Customize your map view</p>
+        <p style={{ fontSize: "13px", color: tk.mutedText, marginTop: "4px" }}>
+          Customize your map view
+        </p>
       </div>
 
       {/* Property Types */}
       <div>
-        <h4 className="font-medium mb-2">Property Types</h4>
-        <div className="flex flex-wrap gap-4">
-          {PROPERTY_TYPES.map((type) => (
-            <div key={type.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={type.id}
-                checked={selectedTypes.includes(type.id)}
-                onCheckedChange={(checked) =>
-                  handleTypeChange(type.id, checked as boolean)
-                }
-              />
+        <h4 style={{ fontWeight: 600, fontSize: "13px", color: tk.labelText, marginBottom: "10px" }}>
+          Property Types
+        </h4>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+          {PROPERTY_TYPES.map((type) => {
+            const checked = selectedTypes.includes(type.id);
+            return (
               <label
-                htmlFor={type.id}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                key={type.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  color: tk.labelText,
+                }}
               >
+                <span
+                  onClick={() => handleTypeChange(type.id, !checked)}
+                  style={{
+                    width: "16px",
+                    height: "16px",
+                    borderRadius: "4px",
+                    border: `2px solid ${checked ? tk.checkAccent : tk.checkBorder}`,
+                    background: checked ? tk.checkAccent : tk.checkBg,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {checked && (
+                    <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                      <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </span>
                 {type.label}
               </label>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
       {/* Destination Categories Sub-filter */}
       {isDestinationSelected && onCategoriesChange && (
-        <div className="pl-4 border-l-2 border-blue-200">
+        <div style={{ paddingLeft: "12px", borderLeft: `2px solid ${tk.subBorder}` }}>
           <button
             onClick={() => setShowCategoryFilter(!showCategoryFilter)}
-            className="flex items-center gap-1 font-medium mb-2 text-sm text-blue-600 hover:text-blue-800"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              fontSize: "13px",
+              fontWeight: 600,
+              color: tk.catText,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+              marginBottom: "8px",
+            }}
           >
             {showCategoryFilter ? (
               <ChevronDown className="w-4 h-4" />
@@ -106,24 +162,47 @@ export function MapFilters({
             Destination Categories
           </button>
           {showCategoryFilter && (
-            <div className="flex flex-wrap gap-3 ml-1">
-              {DESTINATION_CATEGORIES.map((category) => (
-                <div key={category.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`category-${category.id}`}
-                    checked={selectedCategories.includes(category.id)}
-                    onCheckedChange={(checked) =>
-                      handleCategoryChange(category.id, checked as boolean)
-                    }
-                  />
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginLeft: "4px" }}>
+              {DESTINATION_CATEGORIES.map((category) => {
+                const checked = selectedCategories.includes(category.id);
+                return (
                   <label
-                    htmlFor={`category-${category.id}`}
-                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    key={category.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      cursor: "pointer",
+                      fontSize: "13px",
+                      color: tk.labelText,
+                    }}
                   >
+                    <span
+                      onClick={() => handleCategoryChange(category.id, !checked)}
+                      style={{
+                        width: "16px",
+                        height: "16px",
+                        borderRadius: "4px",
+                        border: `2px solid ${checked ? tk.checkAccent : tk.checkBorder}`,
+                        background: checked ? tk.checkAccent : tk.checkBg,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        flexShrink: 0,
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      {checked && (
+                        <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                          <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </span>
                     {category.label}
                   </label>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -131,35 +210,48 @@ export function MapFilters({
 
       {/* Price Range */}
       <div>
-        <h4 className="font-medium mb-2">
-          Price Range: €{priceRange[0]} - €{priceRange[1]}
+        <h4 style={{ fontWeight: 600, fontSize: "13px", color: tk.labelText, marginBottom: "10px" }}>
+          Price Range: €{priceRange[0]} – €{priceRange[1]}
         </h4>
         <Slider
           value={priceRange}
-          onValueChange={(value) =>
-            onPriceRangeChange(value as [number, number])
-          }
+          onValueChange={(value) => onPriceRangeChange(value as [number, number])}
           max={500}
           min={0}
           step={10}
           className="w-full"
         />
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>€0</span>
-          <span>€500+</span>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px" }}>
+          <span style={{ fontSize: "11px", color: tk.rangeText }}>€0</span>
+          <span style={{ fontSize: "11px", color: tk.rangeText }}>€500+</span>
         </div>
       </div>
 
       {/* Reset Button */}
       <div>
-        <Button
+        <button
           onClick={onReset}
-          variant="outline"
-          size="sm"
-          className="w-full"
+          style={{
+            width: "100%",
+            padding: "8px 0",
+            background: tk.btnBg,
+            border: `1px solid ${tk.btnBorder}`,
+            borderRadius: "8px",
+            color: tk.btnText,
+            fontSize: "13px",
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = tk.btnHoverBg;
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = tk.btnBg;
+          }}
         >
           Reset Filters
-        </Button>
+        </button>
       </div>
     </div>
   );
