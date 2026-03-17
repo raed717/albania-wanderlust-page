@@ -361,7 +361,7 @@ export default function PropertyRequestsManagement() {
             {filteredRequests.map((request) => (
               <div
                 key={request.id}
-                className="rounded-xl p-6 border transition-shadow hover:shadow-lg"
+                className="rounded-xl p-6 border transition-shadow hover:shadow-lg hover:-translate-y-0.5 transform duration-200"
                 style={{ background: tk.cardBg, borderColor: tk.cardBorder }}
               >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">

@@ -329,14 +329,11 @@ export default function RequestsManagement() {
                 </div>
 
                 {request.status === "pending" && (
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3 mt-2">
                     <button
                       onClick={() => handleApprove(request.id)}
                       disabled={processing === request.id}
-                      className="flex-1 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
-                      style={{ background: '#16a34a', color: '#ffffff' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = '#15803d')}
-                      onMouseLeave={e => (e.currentTarget.style.background = '#16a34a')}
+                      className="flex-1 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors bg-emerald-600 hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent text-white shadow-sm hover:shadow-md"
                     >
                       {processing === request.id ? (
                         <>
@@ -353,10 +350,7 @@ export default function RequestsManagement() {
                     <button
                       onClick={() => handleReject(request.id)}
                       disabled={processing === request.id}
-                      className="flex-1 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
-                      style={{ background: '#dc2626', color: '#ffffff' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = '#b91c1c')}
-                      onMouseLeave={e => (e.currentTarget.style.background = '#dc2626')}
+                      className="flex-1 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors bg-red-600 hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent text-white shadow-sm hover:shadow-md"
                     >
                       {processing === request.id ? (
                         <>
