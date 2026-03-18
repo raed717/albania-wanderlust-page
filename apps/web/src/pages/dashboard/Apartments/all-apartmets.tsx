@@ -1,10 +1,9 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Hsidebar from "../../../components/dashboard/hsidebar";
 import { useTheme } from "@/context/ThemeContext";
 import {
   Search,
-  Filter,
   MapPin,
   Star,
   Bed,
@@ -15,22 +14,18 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Cookie,
   ChefHat,
-  Toilet,
   Bath,
   Sofa,
   BedDouble,
   Building2,
 } from "lucide-react";
-import { getAllApartments } from "@/services/api/apartmentService";
 import {
-  getApartmentsByProviderId,
+  getDashboardApartments,
   deleteApartment,
 } from "@/services/api/apartmentService";
 import { Apartment, ApartmentFilters } from "@/types/apartment.type";
 import Swal from "sweetalert2";
-import { Room } from "@mui/icons-material";
 import { User } from "@/types/user.types";
 import { userService } from "@/services/api/userService";
 import { AddApartmentDialog } from "./AddApartmentDialog";
@@ -109,7 +104,9 @@ const AllApartments = () => {
   const [currentUser, setUser] = useState<User | null>(null);
 
   const [apartments, setApartments] = useState<Apartment[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] =
     useState<ApartmentFilters["status"]>("all");
   const [ratingFilter, setRatingFilter] = useState<"all" | "4+" | "4.5+">(
@@ -126,13 +123,13 @@ const AllApartments = () => {
   React.useEffect(() => {
     const fetchUser = async () => {
       try {
-        const currentUser = await userService.getCurrentUser();
-        if (!currentUser) {
+        const user = await userService.getCurrentUser();
+        if (!user) {
           console.log("user not found");
           setUser(null);
           return;
         }
-        setUser(currentUser);
+        setUser(user);
       } catch {
         setUser(null);
       }
@@ -140,18 +137,29 @@ const AllApartments = () => {
     fetchUser();
   }, []);
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   const fetchApartments = async (user: User) => {
     try {
       setLoading(true);
       setError(null);
+      const providerId = user.role === "admin" ? undefined : user.id;
 
-      if (user.role === "admin") {
-        const data = await getAllApartments();
-        setApartments(data);
-      } else {
-        const data = await getApartmentsByProviderId(user.id);
-        setApartments(data);
-      }
+      const { data, total } = await getDashboardApartments({
+        providerId,
+        page: currentPage,
+        limit: itemsPerPage,
+        search: debouncedSearch,
+        status: statusFilter,
+        rating: ratingFilter,
+      });
+      
+      setApartments(data);
+      setTotalItems(total);
     } catch (err) {
       console.error(err);
       setError(t("apartment.loadFailed"));
@@ -163,7 +171,7 @@ const AllApartments = () => {
   useEffect(() => {
     if (!currentUser) return;
     fetchApartments(currentUser);
-  }, [currentUser]);
+  }, [currentUser, currentPage, debouncedSearch, statusFilter, ratingFilter]);
 
   /* ------------------------------- Handlers -------------------------------- */
 
@@ -173,7 +181,9 @@ const AllApartments = () => {
 
     try {
       await deleteApartment(id);
-      setApartments((prev) => prev.filter((a) => a.id !== id));
+      if (currentUser) {
+        fetchApartments(currentUser); // Refetch to maintain correct pagination and total count
+      }
     } catch (err: any) {
       console.error("Error deleting apartment:", err);
       Swal.fire({
@@ -198,32 +208,16 @@ const AllApartments = () => {
     navigate(`/dashboard/apartments/${id}?edit=true`);
   };
 
-  const handleApartmentAdded = (newApartment: Apartment) => {
-    setApartments((prev) => [newApartment, ...prev]);
+  const handleApartmentAdded = () => {
+    if (currentUser) {
+      setCurrentPage(1); // Go back to page 1 to see the new addition at the top
+      fetchApartments(currentUser);
+    }
   };
-
-  /* ------------------------------ Filtering -------------------------------- */
-
-  const filteredApartments = useMemo(() => {
-    return apartments.filter((a) => {
-      const matchesSearch =
-        a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (a.address ?? "").toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesStatus = statusFilter === "all" || a.status === statusFilter;
-
-      const matchesRating =
-        ratingFilter === "all" ||
-        (ratingFilter === "4+" && a.rating >= 4) ||
-        (ratingFilter === "4.5+" && a.rating >= 4.5);
-
-      return matchesSearch && matchesStatus && matchesRating;
-    });
-  }, [apartments, searchTerm, statusFilter, ratingFilter]);
 
   /* ------------------------------ Pagination -------------------------------- */
 
-  const totalPages = Math.ceil(filteredApartments.length / itemsPerPage);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
@@ -231,14 +225,9 @@ const AllApartments = () => {
     }
   }, [currentPage, totalPages]);
 
-  const paginatedApartments = filteredApartments.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  );
-
   /* ------------------------------ States UI -------------------------------- */
 
-  if (loading) {
+  if (loading && apartments.length === 0) {
     return (
       <Hsidebar>
         <div className="-m-8 flex min-h-[calc(100vh)] items-center justify-center" style={{ background: tk.pageBg }}>
@@ -282,7 +271,7 @@ const AllApartments = () => {
                   {t("apartment.allApartments")}
                 </h1>
                 <p className="text-sm" style={{ color: tk.mutedText }}>
-                  {t("apartment.manageApartments")}
+                  {t("apartment.manageApartments")} ({totalItems})
                 </p>
               </div>
             </div>
@@ -350,7 +339,13 @@ const AllApartments = () => {
           </div>
 
           {/* ── Grid ── */}
-          {filteredApartments.length === 0 ? (
+          {loading && apartments.length > 0 && (
+            <div className="flex justify-center mb-4">
+              <Loader2 className="animate-spin text-[#e41e20]" size={24} />
+            </div>
+          )}
+          
+          {apartments.length === 0 && !loading ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl" style={{ background: tk.emptyBg, border: `1px solid ${tk.emptyBorder}` }}>
                 <Building2 className="h-7 w-7" style={{ color: tk.emptyIcon }} />
@@ -360,8 +355,8 @@ const AllApartments = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {paginatedApartments.map((a) => (
+            <div className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
+              {apartments.map((a) => (
                 <ApartmentCard
                   key={a.id}
                   apartment={a}
@@ -446,7 +441,7 @@ const ApartmentCard: React.FC<CardProps> = ({
       {/* Image */}
       <div
         className="relative h-48 bg-cover bg-center"
-        style={{ backgroundImage: `url(${apartment.imageUrls[0]})` }}
+        style={{ backgroundImage: `url(${apartment.imageUrls?.[0] || ''})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-3 left-3">

@@ -162,6 +162,92 @@ export const searchCars = async (
 };
 
 /**
+ * Fetch cars for dashboard with server-side filtering and pagination
+ */
+export const getDashboardCars = async (
+  page: number = 1,
+  limit: number = 6,
+  filters: {
+    searchTerm?: string;
+    status?: string;
+    type?: string;
+    transmission?: string;
+    providerId?: string;
+  } = {}
+): Promise<{ data: Car[]; total: number }> => {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let query = apiClient.from("car").select("*", { count: "exact" });
+
+  if (filters.providerId) {
+    query = query.eq("providerId", filters.providerId);
+  }
+
+  if (filters.status && filters.status !== "all") {
+    query = query.eq("status", filters.status);
+  }
+
+  if (filters.type && filters.type !== "all") {
+    query = query.eq("type", filters.type);
+  }
+
+  if (filters.transmission && filters.transmission !== "all") {
+    query = query.eq("transmission", filters.transmission);
+  }
+
+  if (filters.searchTerm && filters.searchTerm.trim()) {
+    const term = `%${filters.searchTerm}%`;
+    query = query.or(`name.ilike.${term},brand.ilike.${term},plateNumber.ilike.${term}`);
+  }
+
+  query = query.order("created_at", { ascending: false });
+  query = query.range(from, to);
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    console.error("[Car Service] Error fetching dashboard cars:", error);
+    throw error;
+  }
+
+  return {
+    data: data as Car[],
+    total: count || 0,
+  };
+};
+
+/**
+ * Get basic car stats for the dashboard (lightweight query)
+ */
+export const getCarDashboardStats = async (providerId?: string) => {
+  let query = apiClient.from("car").select("status, pricePerDay");
+  if (providerId) {
+    query = query.eq("providerId", providerId);
+  }
+  
+  const { data, error } = await query;
+  if (error || !data) {
+    return { available: 0, rented: 0, maintenance: 0, avgPrice: 0 };
+  }
+
+  let available = 0, rented = 0, maintenance = 0, sum = 0;
+  data.forEach((c) => {
+    if (c.status === "available") available++;
+    else if (c.status === "rented") rented++;
+    else if (c.status === "maintenance") maintenance++;
+    sum += c.pricePerDay || 0;
+  });
+
+  return {
+    available,
+    rented,
+    maintenance,
+    avgPrice: data.length > 0 ? sum / data.length : 0,
+  };
+};
+
+/**
  * Fetch all cars (with persistent caching using localStorage)
  */
 export const getAllCars = async (): Promise<Car[]> => {

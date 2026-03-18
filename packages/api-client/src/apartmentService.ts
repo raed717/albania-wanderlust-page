@@ -197,6 +197,50 @@ export const getApartmentsByProviderId = async (
 };
 
 /**
+ * Get dashboard apartments with server-side pagination and filtering
+ */
+export const getDashboardApartments = async (params: {
+  providerId?: string;
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  rating?: string;
+}): Promise<{ data: Apartment[]; total: number }> => {
+  const { providerId, page = 1, limit = 6, search, status, rating } = params;
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let query = apiClient.from("apartment").select("*", { count: "exact" });
+
+  if (providerId) {
+    query = query.eq("providerId", providerId);
+  }
+
+  if (status && status !== "all") {
+    query = query.eq("status", status);
+  }
+
+  if (search && search.trim()) {
+    const term = `%${search}%`;
+    query = query.or(`name.ilike.${term},location.ilike.${term},address.ilike.${term}`);
+  }
+
+  if (rating && rating !== "all") {
+    const threshold = parseFloat(rating);
+    query = query.gte("rating", threshold);
+  }
+
+  query = query.order("created_at", { ascending: false });
+  query = query.range(from, to);
+
+  const { data, error, count } = await query;
+  if (error) throw error;
+
+  return { data: (data as Apartment[]) || [], total: count || 0 };
+};
+
+/**
  * fetch a single apartment by ID
  */
 export const getApartmentById = async (
@@ -387,6 +431,7 @@ const apartmentService = {
   updateApartment,
   deleteApartment,
   searchApartments,
+  getDashboardApartments,
   getApartmentUnavailabilityDates,
 };
 

@@ -19,9 +19,9 @@ import {
 } from "lucide-react";
 import { AddHotelDialog } from "./components/AddHotelDialog";
 import {
-  getAllHotels,
   deleteHotel,
-  getAllHotelsByProviderId,
+  getDashboardHotels,
+  getHotelDashboardStats,
 } from "@/services/api/hotelService";
 import { Hotel } from "@/types/hotel.types";
 import Swal from "sweetalert2";
@@ -67,8 +67,21 @@ const AllHotels = () => {
   const [ratingFilter, setRatingFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [totalHotels, setTotalHotels] = useState(0);
+  const [stats, setStats] = useState({ totalHotels: 0, totalRooms: 0, avgOccupancy: 0, avgRating: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Debounced search term
+  const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1); // Reset page on new search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const { t } = useTranslation();
 
@@ -132,13 +145,21 @@ const AllHotels = () => {
     try {
       setLoading(true);
       setError(null);
-      if (user.role === "admin") {
-        const data = await getAllHotels();
-        setHotels(data);
-      } else {
-        const data = await getAllHotelsByProviderId(user.id);
-        setHotels(data);
-      }
+      const filters = {
+        searchTerm: debouncedSearch,
+        status: statusFilter,
+        rating: ratingFilter,
+        providerId: user.role === "admin" ? undefined : user.id,
+      };
+      
+      const [hotelsResponse, statsResponse] = await Promise.all([
+        getDashboardHotels(currentPage, itemsPerPage, filters),
+        getHotelDashboardStats(user.role === "admin" ? undefined : user.id)
+      ]);
+      
+      setHotels(hotelsResponse.data);
+      setTotalHotels(hotelsResponse.total);
+      setStats(statsResponse);
     } catch (err) {
       console.error("Error fetching hotels:", err);
       setError("Failed to load hotels. Please try again later.");
@@ -150,11 +171,10 @@ const AllHotels = () => {
   useEffect(() => {
     if (!currentUser) return;
     fetchHotels(currentUser);
-  }, [currentUser]);
+  }, [currentUser, currentPage, debouncedSearch, statusFilter, ratingFilter]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1);
   };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -188,7 +208,12 @@ const AllHotels = () => {
   };
 
   const handleHotelAdded = (newHotel: Hotel) => {
-    setHotels((prev) => [newHotel, ...prev]);
+    // If on the first page, just re-fetch to ensure correct sorting and count
+    if (currentPage === 1 && currentUser) {
+      fetchHotels(currentUser);
+    } else {
+      setCurrentPage(1); // Navigating to page 1 will trigger a refetch
+    }
   };
 
   const handleViewHotel = (id: number) => {
@@ -199,32 +224,13 @@ const AllHotels = () => {
     navigate(`/dashboard/hotels/${id}?edit=true`);
   };
 
-  const filteredHotels = useMemo(() => {
-    return hotels.filter((hotel) => {
-      const matchesSearch =
-        hotel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        hotel.location.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" || hotel.status === statusFilter;
-      const matchesRating =
-        ratingFilter === "all" ||
-        (ratingFilter === "4+" && hotel.rating >= 4) ||
-        (ratingFilter === "4.5+" && hotel.rating >= 4.5);
-
-      return matchesSearch && matchesStatus && matchesRating;
-    });
-  }, [searchTerm, statusFilter, ratingFilter, hotels]);
-
-  const totalPages = Math.ceil(filteredHotels.length / itemsPerPage);
+  const totalPages = Math.ceil(totalHotels / itemsPerPage);
 
   useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(totalPages);
     }
   }, [totalPages, currentPage]);
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedHotels = filteredHotels.slice(startIndex, startIndex + itemsPerPage);
 
   const selectStyle: React.CSSProperties = {
     background: tk.inputBg,
@@ -307,25 +313,22 @@ const AllHotels = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
             <StatCard
               label={t("hotels.allHotels.stats.totalHotels")}
-              value={hotels.length}
+              value={stats.totalHotels}
               gradient="from-blue-500 to-indigo-600"
             />
             <StatCard
               label={t("hotels.allHotels.stats.totalRooms")}
-              value={hotels.reduce((sum, hotel) => sum + hotel.rooms, 0)}
+              value={stats.totalRooms}
               gradient="from-fuchsia-400 to-pink-500"
             />
             <StatCard
               label={t("hotels.allHotels.stats.avgOccupancy")}
-              value={`${(hotels.reduce((sum, hotel) => sum + hotel.occupancy, 0) / (hotels.length || 1)).toFixed(0)}%`}
+              value={`${stats.avgOccupancy.toFixed(0)}%`}
               gradient="from-sky-400 to-cyan-500"
             />
             <StatCard
               label={t("hotels.allHotels.stats.avgRating")}
-              value={(
-                hotels.reduce((sum, hotel) => sum + hotel.rating, 0) /
-                (hotels.length || 1)
-              ).toFixed(1)}
+              value={stats.avgRating.toFixed(1)}
               gradient="from-emerald-400 to-teal-400"
             />
           </div>
@@ -405,13 +408,13 @@ const AllHotels = () => {
               </div>
 
               <div className="text-sm hidden lg:block" style={{ color: tk.mutedText, whiteSpace: 'nowrap' }}>
-                {t("hotels.allHotels.results", { count: filteredHotels.length })}
+                {t("hotels.allHotels.results", { count: totalHotels })}
               </div>
             </div>
           </div>
 
           {/* Hotels Grid */}
-          {filteredHotels.length === 0 ? (
+          {hotels.length === 0 ? (
             <div
               className="text-center py-20 rounded-xl"
               style={{ background: tk.emptyBg, border: `1px solid ${tk.emptyBorder}` }}
@@ -428,7 +431,7 @@ const AllHotels = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-              {paginatedHotels.map((hotel) => (
+              {hotels.map((hotel) => (
                 <HotelCard
                   key={hotel.id}
                   hotel={hotel}

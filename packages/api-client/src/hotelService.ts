@@ -290,6 +290,90 @@ export const deleteHotel = async (id: number): Promise<void> => {
 };
 
 /**
+ * Fetch hotels for dashboard with server-side filtering and pagination
+ */
+export const getDashboardHotels = async (
+  page: number = 1,
+  limit: number = 6,
+  filters: {
+    searchTerm?: string;
+    status?: string;
+    rating?: string;
+    providerId?: string;
+  } = {}
+): Promise<{ data: Hotel[]; total: number }> => {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let query = apiClient.from("hotel").select("*", { count: "exact" });
+
+  if (filters.providerId) {
+    query = query.eq("providerId", filters.providerId);
+  }
+
+  if (filters.status && filters.status !== "all") {
+    query = query.eq("status", filters.status);
+  }
+
+  if (filters.searchTerm && filters.searchTerm.trim()) {
+    const term = `%${filters.searchTerm}%`;
+    query = query.or(`name.ilike.${term},location.ilike.${term},address.ilike.${term}`);
+  }
+
+  if (filters.rating && filters.rating !== "all") {
+    const minRating = parseFloat(filters.rating.replace("+", ""));
+    if (!isNaN(minRating)) {
+      query = query.gte("rating", minRating);
+    }
+  }
+
+  // Ensure latest created are first (optional but good for dashboard)
+  query = query.order("created_at", { ascending: false });
+  query = query.range(from, to);
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    console.error("[Hotel Service] Error fetching dashboard hotels:", error);
+    throw error;
+  }
+
+  return {
+    data: data as Hotel[],
+    total: count || 0,
+  };
+};
+
+/**
+ * Get basic hotel stats for the dashboard (lightweight query)
+ */
+export const getHotelDashboardStats = async (providerId?: string) => {
+  let query = apiClient.from("hotel").select("rooms, occupancy, rating");
+  if (providerId) {
+    query = query.eq("providerId", providerId);
+  }
+
+  const { data, error } = await query;
+  if (error || !data) {
+    return { totalHotels: 0, totalRooms: 0, avgOccupancy: 0, avgRating: 0 };
+  }
+
+  let totalRooms = 0, sumOccupancy = 0, sumRating = 0;
+  data.forEach((h) => {
+    totalRooms += h.rooms || 0;
+    sumOccupancy += h.occupancy || 0;
+    sumRating += h.rating || 0;
+  });
+
+  return {
+    totalHotels: data.length,
+    totalRooms,
+    avgOccupancy: data.length > 0 ? sumOccupancy / data.length : 0,
+    avgRating: data.length > 0 ? sumRating / data.length : 0,
+  };
+};
+
+/**
  * Search hotels with DB-level filtering and pagination
  */
 export const searchHotels = async (

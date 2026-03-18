@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import Hsidebar from "../../../components/dashboard/hsidebar";
 import { useTheme } from "@/context/ThemeContext";
 import {
-  getAllCars,
   deleteCar,
-  getCarsByOwnerId,
+  getDashboardCars,
+  getCarDashboardStats,
 } from "@/services/api/carService";
 import { Car } from "@/types/car.types";
 import { useNavigate } from "react-router-dom";
@@ -83,7 +83,20 @@ const AllCars = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [carsData, setCarsData] = useState<Car[]>([]);
+  const [totalCars, setTotalCars] = useState(0);
+  const [stats, setStats] = useState({ available: 0, rented: 0, maintenance: 0, avgPrice: 0 });
   const [currentUser, setUser] = useState<User | null>(null);
+  
+  // Debounced search term
+  const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
   const itemsPerPage = 6;
 
   React.useEffect(() => {
@@ -108,13 +121,24 @@ const AllCars = () => {
       setLoading(true);
       setError(null);
 
-      if (user.role === "admin") {
-        const data = await getAllCars();
-        setCarsData(data || []);
-      } else {
-        const data = await getCarsByOwnerId(user.id);
-        setCarsData(data || []);
-      }
+      const filters = {
+        searchTerm: debouncedSearch,
+        status: statusFilter,
+        type: typeFilter,
+        transmission: transmissionFilter,
+        providerId: user.role === "admin" ? undefined : user.id,
+      };
+
+      const [carsResponse, statsResponse] = await Promise.all([
+        getDashboardCars(currentPage, itemsPerPage, filters),
+        // Only need to fetch stats when filters change? No, stats don't need filters except providerId
+        // Wait, stats usually shouldn't depend on the search filters, they should be global.
+        getCarDashboardStats(user.role === "admin" ? undefined : user.id)
+      ]);
+
+      setCarsData(carsResponse.data);
+      setTotalCars(carsResponse.total);
+      setStats(statsResponse);
     } catch (err) {
       console.error("Error fetching cars:", err);
       setError(t("cars.allCars.error"));
@@ -123,65 +147,20 @@ const AllCars = () => {
     }
   };
 
-  // Fetch cars on component mount
+  // Fetch cars on component mount or when filters change
   useEffect(() => {
     if (!currentUser) return;
     fetchCars(currentUser);
-  }, [currentUser]);
+  }, [currentUser, currentPage, debouncedSearch, statusFilter, typeFilter, transmissionFilter]);
 
-  // Filter and search cars
-  const filteredCars = useMemo(() => {
-    return carsData.filter((car) => {
-      // 1. Search Term Check
-      const lowerSearchTerm = searchTerm.toLowerCase();
-      const matchesSearch =
-        car.name.toLowerCase().includes(lowerSearchTerm) ||
-        car.brand.toLowerCase().includes(lowerSearchTerm) ||
-        car.plateNumber.toLowerCase().includes(lowerSearchTerm);
+  // Pagination is based on the server total
+  const totalPages = Math.max(1, Math.ceil(totalCars / itemsPerPage));
 
-      // 2. Status Filter Check
-      const matchesStatus =
-        statusFilter === "all" || car.status === statusFilter;
-
-      // 3. Type Filter Check
-      const matchesType = typeFilter === "all" || car.type === typeFilter;
-
-      // 4. Transmission Filter Check
-      const matchesTransmission =
-        transmissionFilter === "all" || car.transmission === transmissionFilter;
-
-      return (
-        matchesSearch && matchesStatus && matchesType && matchesTransmission
-      );
-    });
-  }, [carsData, searchTerm, statusFilter, typeFilter, transmissionFilter]);
-
-  // Reset page when filters change
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, statusFilter, typeFilter, transmissionFilter]);
-
-  // Calculate stats based on ALL cars, not just filtered ones
-  const availableCars = carsData.filter(
-    (car) => car.status === "available",
-  ).length;
-  const rentedCars = carsData.filter((car) => car.status === "rented").length;
-  const maintenanceCars = carsData.filter(
-    (car) => car.status === "maintenance",
-  ).length;
-  const avgPrice =
-    carsData.length > 0
-      ? carsData.reduce((sum, car) => sum + car.pricePerDay, 0) /
-        carsData.length
-      : 0;
-
-  // Pagination is based on the filtered results
-  const totalPages = Math.ceil(filteredCars.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedCars = filteredCars.slice(
-    startIndex,
-    startIndex + itemsPerPage,
-  );
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
 
   // Handler functions - moved outside of map
   const handleViewCar = (id: number) => {
@@ -341,7 +320,7 @@ const AllCars = () => {
               {t("cars.allCars.stats.available")}
             </div>
             <div style={{ fontSize: "28px", fontWeight: 700 }}>
-              {availableCars}
+              {stats.available}
             </div>
             <div style={{ fontSize: "12px", opacity: 0.8, marginTop: "4px" }}>
               {t("cars.allCars.stats.availableDesc")}
@@ -363,7 +342,7 @@ const AllCars = () => {
               {t("cars.allCars.stats.rented")}
             </div>
             <div style={{ fontSize: "28px", fontWeight: 700 }}>
-              {rentedCars}
+              {stats.rented}
             </div>
             <div style={{ fontSize: "12px", opacity: 0.8, marginTop: "4px" }}>
               {t("cars.allCars.stats.rentedDesc")}
@@ -385,7 +364,7 @@ const AllCars = () => {
               {t("cars.allCars.stats.maintenance")}
             </div>
             <div style={{ fontSize: "28px", fontWeight: 700 }}>
-              {maintenanceCars}
+              {stats.maintenance}
             </div>
             <div style={{ fontSize: "12px", opacity: 0.8, marginTop: "4px" }}>
               {t("cars.allCars.stats.maintenanceDesc")}
@@ -407,7 +386,7 @@ const AllCars = () => {
               {t("cars.allCars.stats.avgRate")}
             </div>
             <div style={{ fontSize: "28px", fontWeight: 700 }}>
-              ${avgPrice.toFixed(0)}
+              ${stats.avgPrice.toFixed(0)}
             </div>
             <div style={{ fontSize: "12px", opacity: 0.8, marginTop: "4px" }}>
               {t("cars.allCars.stats.avgRateDesc")}
@@ -517,15 +496,15 @@ const AllCars = () => {
 
             {/* Results count */}
             <div style={{ fontSize: '0.875rem', color: tk.subText, textAlign: 'left' }}>
-              <span style={{ fontWeight: 600, color: tk.headerText }}>{filteredCars.length}</span>{" "}
-              {t("cars.allCars.results", { count: filteredCars.length })}
+              <span style={{ fontWeight: 600, color: tk.headerText }}>{totalCars}</span>{" "}
+              {t("cars.allCars.results", { count: totalCars })}
             </div>
           </div>
         </div>
 
         {/* Cars Grid - Responsive */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-8">
-          {paginatedCars.map((car) => {
+          {carsData.map((car) => {
             const statusColor = getStatusColor(car.status);
 
             return (
@@ -765,7 +744,7 @@ const AllCars = () => {
           })}
 
           {/* Message if no cars found */}
-          {filteredCars.length === 0 && (
+          {carsData.length === 0 && (
             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem 0' }}>
               <p style={{ fontSize: '1.1rem', fontWeight: 600, color: tk.subText, marginBottom: '0.5rem' }}>
                 {t("cars.allCars.empty.title")}

@@ -881,30 +881,30 @@ export default function BookingsManagement() {
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       {/* Property */}
                       <div
-                        className="flex items-start gap-3 cursor-pointer group"
+                        className="flex items-start gap-4 cursor-pointer group flex-1"
                         onClick={() => navigate(getPropertyRoute(booking))}
                       >
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg overflow-hidden" style={{ background: tk.statBg }}>
+                        <div className="flex h-16 w-24 shrink-0 items-center justify-center rounded-xl overflow-hidden shadow-sm" style={{ background: tk.statBg }}>
                           {booking.propertyData?.imageUrls?.[0] ? (
                             <img
                               src={booking.propertyData.imageUrls[0]}
                               alt={booking.propertyData.name}
-                              className="h-full w-full object-cover"
+                              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                           ) : (
-                            <PropertyIconComp className="w-5 h-5" style={{ color: tk.mutedText }} />
+                            <PropertyIconComp className="w-6 h-6" style={{ color: tk.mutedText }} />
                           )}
                         </div>
-                        <div>
-                          <p className="text-sm font-semibold group-hover:text-[#e41e20]/80 transition-colors" style={{ color: tk.pageText }}>
+                        <div className="pt-1">
+                          <p className="text-base font-bold group-hover:text-[#e41e20] transition-colors line-clamp-1" style={{ color: tk.pageText }}>
                             {booking.propertyData?.name ||
                               `${booking.propertyType.charAt(0).toUpperCase() + booking.propertyType.slice(1)}`}
                           </p>
-                          <div className="mt-0.5 flex items-center gap-2">
-                            <span className="rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wide" style={{ background: tk.statBg, color: tk.mutedText }}>
+                          <div className="mt-1.5 flex items-center gap-2">
+                            <span className="rounded px-2 py-0.5 text-[10px] font-medium uppercase tracking-widest" style={{ background: tk.statBg, color: tk.mutedText }}>
                               {booking.propertyType}
                             </span>
-                            <span className="text-[10px]" style={{ color: tk.labelText }}>
+                            <span className="text-[11px] font-mono" style={{ color: tk.labelText }}>
                               #{booking.id.slice(0, 8)}
                             </span>
                           </div>
