@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { AlertCircle, Building2 } from "lucide-react";
+import { useEffect, useMemo } from "react";
+import { AlertCircle, Building2, Loader2 } from "lucide-react";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import FilterBar from "./FilterBar";
 import { PropertyCard } from "@/components/home/PropertyCard";
@@ -10,6 +10,12 @@ import MapPreviewCard from "./MapPreviewCard";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/context/ThemeContext";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
+import { searchHotels } from "@/services/api/hotelService";
+import { searchApartments } from "@/services/api/apartmentService";
+
+const PROPERTIES_PER_PAGE = 9;
 
 const SearchPropertyResults = () => {
   const { t } = useTranslation();
@@ -66,15 +72,11 @@ const SearchPropertyResults = () => {
 
   const {
     filters,
-    results,
-    loading,
-    error,
     setFilters,
     setPropertyType,
     setHotelFilters,
     setApartmentFilters,
     resetFilters,
-    applyFilters,
   } = useSearchFilters(initialFilters);
 
   // Set filters from navigation state
@@ -126,12 +128,83 @@ const SearchPropertyResults = () => {
         }
       }
     }
-  }, [state, setFilters, setHotelFilters, setApartmentFilters]);
+  }, [
+    state,
+    setFilters,
+    setHotelFilters,
+    setApartmentFilters,
+    filters.hotelFilters.rooms?.max,
+    filters.apartmentFilters.beds?.max,
+    filters.apartmentFilters.rooms?.max,
+  ]);
 
-  // Fetch properties on mount
+  // Infinite Query
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["searchProperties", filters],
+    queryFn: async ({ pageParam = 1 }) => {
+      const propertyType = filters.propertyType;
+      const shouldFetchHotels = propertyType === "hotel" || propertyType === "both";
+      const shouldFetchApartments = propertyType === "apartment" || propertyType === "both";
+
+      const [hotelsRes, apartmentsRes] = await Promise.all([
+        shouldFetchHotels
+          ? searchHotels(filters, pageParam, PROPERTIES_PER_PAGE)
+          : Promise.resolve({ data: [], total: 0 }),
+        shouldFetchApartments
+          ? searchApartments(filters, pageParam, PROPERTIES_PER_PAGE)
+          : Promise.resolve({ data: [], total: 0 }),
+      ]);
+
+      const combinedData = [...hotelsRes.data, ...apartmentsRes.data];
+
+      return {
+        combined: combinedData,
+        total: hotelsRes.total + apartmentsRes.total,
+      };
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      const totalLoaded = allPages.reduce((acc, page) => acc + page.combined.length, 0);
+      if (totalLoaded < lastPage.total) {
+        return allPages.length + 1;
+      }
+      return undefined;
+    },
+  });
+
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+  });
+
   useEffect(() => {
-    applyFilters();
-  }, [applyFilters]);
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const combinedResults = useMemo(() => {
+    return data?.pages.flatMap((page) => page.combined) || [];
+  }, [data]);
+
+  const totalResults = useMemo(() => {
+    return data?.pages[0]?.total || 0;
+  }, [data]);
+
+  const applyFilters = () => {
+    // With react-query, queryKey change triggers refetch automatically.
+    // This is just a dummy func to pass down if needed, but the button shouldn't strictly be needed 
+    // since it updates in real time. We'll leave it to force a refetch if desired.
+    refetch();
+  };
 
   const handleDateChange = (dates: {
     checkInDate?: string | null;
@@ -141,7 +214,6 @@ const SearchPropertyResults = () => {
       checkInDate: dates.checkInDate ?? filters.checkInDate,
       checkOutDate: dates.checkOutDate ?? filters.checkOutDate,
     });
-    setTimeout(() => applyFilters(), 0);
   };
 
   const handleGuestsChange = (guests: {
@@ -172,7 +244,6 @@ const SearchPropertyResults = () => {
         },
       });
     }
-    setTimeout(() => applyFilters(), 0);
   };
 
   const handlePropertyClick = (id: number, isHotel: boolean) => {
@@ -207,10 +278,10 @@ const SearchPropertyResults = () => {
       : "none",
   };
 
-  const renderSkeletons = () =>
-    Array.from({ length: 6 }).map((_, idx) => (
+  const renderSkeletons = (count: number = 6) =>
+    Array.from({ length: count }).map((_, idx) => (
       <div
-        key={idx}
+        key={`skeleton-${idx}`}
         style={{
           background: tk.skeletonBg,
           border: `1px solid ${tk.skeletonBorder}`,
@@ -235,6 +306,8 @@ const SearchPropertyResults = () => {
         </div>
       </div>
     ));
+
+  const isLoading = status === "pending";
 
   return (
     <div className="min-h-screen" style={{ background: tk.pageBg, transition: 'background 0.3s' }}>
@@ -359,24 +432,24 @@ const SearchPropertyResults = () => {
                 onGuestsChange={handleGuestsChange}
                 onResetFilters={resetFilters}
                 onApplyFilters={applyFilters}
-                loading={loading}
+                loading={isFetching}
               />
             </div>
 
             {/* Main Content */}
             <div className="flex-1 w-full">
               {/* Result count */}
-              {!loading && !error && (
+              {!isLoading && status !== "error" && (
                 <div style={{ marginBottom: 28 }}>
                   <span className="alb-count-badge alb-body">
                     <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#E8192C', flexShrink: 0 }} />
-                    {t("searchResults.properties.found", { count: results.combined.length })}
+                    {t("searchResults.properties.found", { count: totalResults })}
                   </span>
                 </div>
               )}
 
               {/* Error State */}
-              {error && (
+              {status === "error" && (
                 <div style={{
                   background: isDark ? 'rgba(232,25,44,0.07)' : 'rgba(232,25,44,0.05)',
                   border: '1px solid rgba(232,25,44,0.3)',
@@ -391,22 +464,17 @@ const SearchPropertyResults = () => {
                   transition: 'background 0.3s',
                 }}>
                   <AlertCircle style={{ color: '#E8192C', width: 20, height: 20, flexShrink: 0 }} />
-                  <span className="alb-body" style={{ flex: 1, fontSize: '1rem' }}>{error}</span>
-                  <button className="alb-retry-btn" onClick={applyFilters}>
-                    {t("searchResults.cars.tryAgain")}
+                  <span className="alb-body" style={{ flex: 1, fontSize: '1rem' }}>
+                    {error instanceof Error ? error.message : "Failed to fetch properties"}
+                  </span>
+                  <button className="alb-retry-btn" onClick={() => fetchNextPage()}>
+                    {t("searchResults.cars.tryAgain", "Try Again")}
                   </button>
                 </div>
               )}
 
-              {/* Loading State */}
-              {loading && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {renderSkeletons()}
-                </div>
-              )}
-
               {/* Empty State */}
-              {!loading && !error && results.combined.length === 0 && (
+              {!isLoading && status !== "error" && combinedResults.length === 0 && (
                 <div style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -459,32 +527,44 @@ const SearchPropertyResults = () => {
               )}
 
               {/* Results Grid */}
-              {!loading && !error && results.combined.length > 0 && (
-                <div className="alb-card-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {results.combined.map((property, index) => {
-                    const isHotel = "occupancy" in property;
-                    const propertyType = isHotel ? "hotel" : "apartment";
-                    const uniqueKey = `${propertyType}-${property.id}-${index}`;
-                    return (
-                      <div key={uniqueKey} style={{ animationDelay: `${index * 0.05}s`, animation: 'fadeUpGrid 0.5s ease both' }}>
-                        <PropertyCard
-                          id={property.id}
-                          name={property.name}
-                          image={property.imageUrls?.[0]}
-                          rating={property.rating}
-                          price={property.price}
-                          location={property.location}
-                          address={property.address}
-                          rooms={property.rooms}
-                          amenities={property.amenities || []}
-                          status={property.status}
-                          propertyType={propertyType}
-                          onClick={() => handlePropertyClick(property.id, isHotel)}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
+              <div className="alb-card-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {combinedResults.map((property, index) => {
+                  const isHotel = "occupancy" in property;
+                  const propertyType = isHotel ? "hotel" : "apartment";
+                  const uniqueKey = `${propertyType}-${property.id}-${index}`;
+                  return (
+                    <div key={uniqueKey} style={{ animationDelay: `${(index % PROPERTIES_PER_PAGE) * 0.05}s`, animation: 'fadeUpGrid 0.5s ease both' }}>
+                      <PropertyCard
+                        id={property.id}
+                        name={property.name}
+                        image={property.imageUrls?.[0]}
+                        rating={property.rating}
+                        price={'pricePerNight' in property ? property.pricePerNight : property.price}
+                        location={property.location}
+                        address={property.address}
+                        rooms={property.rooms}
+                        amenities={property.amenities || []}
+                        status={property.status}
+                        propertyType={propertyType}
+                        onClick={() => handlePropertyClick(property.id, isHotel)}
+                      />
+                    </div>
+                  );
+                })}
+                
+                {/* Initial Loading or Fetching Next Page State */}
+                {(isLoading || isFetchingNextPage) && renderSkeletons(isLoading ? 6 : 3)}
+              </div>
+
+              {/* Intersection Observer target for infinite scrolling */}
+              <div ref={ref} style={{ height: '40px', marginTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {isFetchingNextPage && <Loader2 className="animate-spin text-red-600" size={24} />}
+              </div>
+              
+              {!hasNextPage && combinedResults.length > 0 && (
+                <p className="text-center text-sm alb-body opacity-60 mt-8">
+                  {t("searchResults.properties.noMoreResults", "No more properties to load")}
+                </p>
               )}
             </div>
           </div>

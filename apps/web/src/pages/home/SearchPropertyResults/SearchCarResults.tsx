@@ -1,24 +1,18 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { AlertCircle, Car as CarIcon } from "lucide-react";
+import { AlertCircle, Car as CarIcon, Loader2 } from "lucide-react";
 import PrimarySearchAppBar from "@/components/home/AppBar";
 import { CarCard } from "@/components/home/CarCard";
 import {
-  getAllCars,
-  getCarUnavailabilityDates,
+  searchCars,
+  SearchCarFilters,
 } from "@/services/api/carService";
-import { getMonthlyPrices } from "@/services/api/monthlyPriceService";
 import { Car } from "@/types/car.types";
-import { Month, MONTHS } from "@/types/price.type";
 import { CarFilterBar, CarFilterState } from "./CarFilterBar";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/context/ThemeContext";
-
-// Helper to get current month as Month type
-const getCurrentMonth = (): Month => {
-  const monthIndex = new Date().getMonth();
-  return MONTHS[monthIndex];
-};
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
 
 interface LocationState {
   type?: string;
@@ -27,25 +21,14 @@ interface LocationState {
   returnDate?: string | null;
 }
 
+const CARS_PER_PAGE = 9;
+
 const SearchCarResults = () => {
   const { t } = useTranslation();
   const { isDark } = useTheme();
   const location = useLocation();
   const state = location.state as LocationState | null;
   const navigate = useNavigate();
-
-  const [cars, setCars] = useState<Car[]>([]);
-  const [carUnavailability, setCarUnavailability] = useState<
-    Record<number, string[]>
-  >({});
-  const [carMonthlyPrices, setCarMonthlyPrices] = useState<
-    Record<number, number | null>
-  >({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Get current month for pricing
-  const currentMonth = getCurrentMonth();
 
   // Extract search params from navigation state
   const initialDestination = state?.destination || "";
@@ -66,196 +49,85 @@ const SearchCarResults = () => {
     returnDate: returnDate,
   });
 
-  useEffect(() => {
-    fetchCars();
-  }, []);
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
+    queryKey: ["searchCars", filters],
+    queryFn: async ({ pageParam = 1 }) => {
+      // Map frontend CarFilterState to api-client SearchCarFilters
+      const apiFilters: SearchCarFilters = {
+        searchTerm: filters.searchTerm,
+        status: filters.status,
+        type: filters.type,
+        transmission: filters.transmission,
+        fuelType: filters.fuelType,
+        priceRange: filters.priceRange,
+        features: filters.features,
+        seats: filters.seats,
+        pickupDate: filters.pickupDate,
+        returnDate: filters.returnDate,
+      };
 
-  // Fetch monthly prices for all cars when loaded
-  useEffect(() => {
-    const fetchMonthlyPrices = async () => {
-      if (cars.length === 0) return;
-
-      const pricesMap: Record<number, number | null> = {};
-      await Promise.all(
-        cars.map(async (car) => {
-          try {
-            const prices = await getMonthlyPrices(car.id, "car");
-            const currentMonthPrice = prices.find(
-              (p) => p.month === currentMonth,
-            );
-            pricesMap[car.id] = currentMonthPrice?.pricePerDay ?? null;
-          } catch (err) {
-            console.error(
-              `Error fetching monthly prices for car ${car.id}:`,
-              err,
-            );
-            pricesMap[car.id] = null;
-          }
-        }),
-      );
-      setCarMonthlyPrices(pricesMap);
-    };
-
-    fetchMonthlyPrices();
-  }, [cars, currentMonth]);
-
-  // Fetch unavailability dates when cars are loaded or date filters change
-  useEffect(() => {
-    const fetchUnavailability = async () => {
-      if (cars.length === 0) return;
-      if (!filters.pickupDate && !filters.returnDate) {
-        setCarUnavailability({});
-        return;
+      const res = await searchCars(apiFilters, pageParam, CARS_PER_PAGE);
+      return res;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      const totalLoaded = allPages.reduce((acc, page) => acc + page.data.length, 0);
+      if (totalLoaded < lastPage.total) {
+        return allPages.length + 1;
       }
+      return undefined;
+    },
+  });
 
-      const unavailabilityMap: Record<number, string[]> = {};
-      await Promise.all(
-        cars.map(async (car) => {
-          try {
-            const dates = await getCarUnavailabilityDates(car.id);
-            unavailabilityMap[car.id] = dates;
-          } catch (err) {
-            console.error(
-              `Error fetching unavailability for car ${car.id}:`,
-              err,
-            );
-            unavailabilityMap[car.id] = [];
-          }
-        }),
-      );
-      setCarUnavailability(unavailabilityMap);
-    };
+  // Setup infinite scrolling observer
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+  });
 
-    fetchUnavailability();
-  }, [cars, filters.pickupDate, filters.returnDate]);
-
-  const fetchCars = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getAllCars();
-      //  exclude cars with status "maintenance" or "review"
-      const availableCars = data.filter(
-        (car) => car.status !== "maintenance" && car.status !== "review",
-      );
-      setCars(availableCars);
-    } catch (err) {
-      console.error("Error fetching cars:", err);
-      setError(t("searchResults.cars.errorFetch"));
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
-  };
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Extract unique features from all cars
+  // Flatten infinite query data
+  const filteredCars = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) || [];
+  }, [data]);
+
+  const carMonthlyPrices = useMemo(() => {
+    let pricesMap: Record<number, number> = {};
+    if (data?.pages) {
+      data.pages.forEach(page => {
+        pricesMap = { ...pricesMap, ...page.monthlyPrices };
+      });
+    }
+    return pricesMap;
+  }, [data]);
+
+  const totalResults = useMemo(() => {
+    return data?.pages[0]?.total || 0;
+  }, [data]);
+
+  // We are currently not fetching ALL cars just to extract features, 
+  // since that defeats the purpose of pagination.
+  // Assuming the `CarFilterBar` accepts standard available features or we can leave it empty if dynamic.
+  // We'll extract them from loaded cars for now, but a robust app might query a distinct list of features.
   const availableFeatures = useMemo(() => {
     const featuresSet = new Set<string>();
-    cars.forEach((car) => {
+    filteredCars.forEach((car) => {
       car.features?.forEach((feature) => featuresSet.add(feature));
     });
     return Array.from(featuresSet).sort();
-  }, [cars]);
-
-  // Helper function to check if car is available for the selected date range
-  const isCarAvailableForDateRange = (
-    carId: number,
-    pickup: Date | null,
-    returnD: Date | null,
-  ): boolean => {
-    if (!pickup || !returnD) return true; // No date filter applied
-
-    const unavailableDates = carUnavailability[carId] || [];
-    if (unavailableDates.length === 0) return true;
-
-    // Get all dates in the requested range
-    const requestedDates: string[] = [];
-    const currentDate = new Date(pickup);
-    while (currentDate <= returnD) {
-      requestedDates.push(currentDate.toISOString().split("T")[0]);
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    // Check if any requested date is unavailable
-    return !requestedDates.some((date) => unavailableDates.includes(date));
-  };
-
-  // Filter logic
-  const filteredCars = useMemo(() => {
-    return cars.filter((car) => {
-      // Search Term (Brand, Name, Location)
-      if (filters.searchTerm) {
-        const term = filters.searchTerm.toLowerCase();
-        const matchName = car.name.toLowerCase().includes(term);
-        const matchBrand = car.brand.toLowerCase().includes(term);
-        const matchLocation = car.pickUpLocation?.toLowerCase().includes(term);
-        if (!matchName && !matchBrand && !matchLocation) return false;
-      }
-
-      // Status
-      if (
-        filters.status &&
-        filters.status !== "all" &&
-        car.status !== filters.status
-      )
-        return false;
-
-      // Type
-      if (filters.type && filters.type !== "all" && car.type !== filters.type)
-        return false;
-
-      // Transmission
-      if (
-        filters.transmission &&
-        filters.transmission !== "all" &&
-        car.transmission !== filters.transmission
-      )
-        return false;
-
-      // Fuel Type
-      if (
-        filters.fuelType &&
-        filters.fuelType !== "all" &&
-        car.fuelType !== filters.fuelType
-      )
-        return false;
-
-      // Price Range (use current month price if available, otherwise base price)
-      if (filters.priceRange) {
-        const effectivePrice = carMonthlyPrices[car.id] ?? car.pricePerDay;
-        if (
-          effectivePrice < filters.priceRange.min ||
-          effectivePrice > filters.priceRange.max
-        )
-          return false;
-      }
-
-      // Seats
-      if (filters.seats && car.seats < filters.seats) return false;
-
-      // Features (Must have all selected features)
-      if (filters.features && filters.features.length > 0) {
-        const hasAllFeatures = filters.features.every((f) =>
-          car.features?.includes(f),
-        );
-        if (!hasAllFeatures) return false;
-      }
-
-      // Date Availability
-      if (filters.pickupDate || filters.returnDate) {
-        if (
-          !isCarAvailableForDateRange(
-            car.id,
-            filters.pickupDate ?? null,
-            filters.returnDate ?? null,
-          )
-        ) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [cars, filters, carUnavailability, carMonthlyPrices]);
+  }, [filteredCars]);
 
   const handleFilterChange = (newFilters: Partial<CarFilterState>) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -277,7 +149,6 @@ const SearchCarResults = () => {
   };
 
   const handleCarClick = (id: number) => {
-    // Navigate to car reservation page
     navigate(`/carReservation/${id}`);
   };
 
@@ -305,10 +176,10 @@ const SearchCarResults = () => {
       : "none",
   };
 
-  const renderSkeletons = () => {
-    return Array.from({ length: 6 }).map((_, idx) => (
+  const renderSkeletons = (count: number = 6) => {
+    return Array.from({ length: count }).map((_, idx) => (
       <div
-        key={idx}
+        key={`skeleton-${idx}`}
         style={{
           background: tk.skeletonBg,
           border: `1px solid ${tk.skeletonBorder}`,
@@ -338,6 +209,8 @@ const SearchCarResults = () => {
       </div>
     ));
   };
+
+  const isLoading = status === "pending";
 
   return (
     <div className="min-h-screen" style={{ background: tk.pageBg, transition: 'background 0.3s' }}>
@@ -457,23 +330,23 @@ const SearchCarResults = () => {
               onFilterChange={handleFilterChange}
               onResetFilters={handleResetFilters}
               availableFeatures={availableFeatures}
-              featuresLoading={loading}
+              featuresLoading={isLoading}
             />
 
             {/* Main Content */}
             <div className="flex-1 w-full">
               {/* Result count */}
-              {!loading && !error && (
+              {!isLoading && status !== "error" && (
                 <div style={{ marginBottom: 28 }}>
                   <span className="alb-count-badge alb-body">
                     <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#E8192C', flexShrink: 0 }} />
-                    {t("searchResults.cars.found", { count: filteredCars.length })}
+                    {t("searchResults.cars.found", { count: totalResults })}
                   </span>
                 </div>
               )}
 
               {/* Error State */}
-              {error && (
+              {status === "error" && (
                 <div style={{
                   background: isDark ? 'rgba(232,25,44,0.07)' : 'rgba(232,25,44,0.05)',
                   border: '1px solid rgba(232,25,44,0.3)',
@@ -488,22 +361,17 @@ const SearchCarResults = () => {
                   transition: 'background 0.3s',
                 }}>
                   <AlertCircle style={{ color: '#E8192C', width: 20, height: 20, flexShrink: 0 }} />
-                  <span className="alb-body" style={{ flex: 1, fontSize: '1rem' }}>{error}</span>
-                  <button className="alb-retry-btn" onClick={fetchCars}>
+                  <span className="alb-body" style={{ flex: 1, fontSize: '1rem' }}>
+                    {error instanceof Error ? error.message : t("searchResults.cars.errorFetch")}
+                  </span>
+                  <button className="alb-retry-btn" onClick={() => fetchNextPage()}>
                     {t("searchResults.cars.tryAgain")}
                   </button>
                 </div>
               )}
 
-              {/* Loading State */}
-              {loading && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {renderSkeletons()}
-                </div>
-              )}
-
               {/* Empty State */}
-              {!loading && !error && filteredCars.length === 0 && (
+              {!isLoading && status !== "error" && filteredCars.length === 0 && (
                 <div style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -556,18 +424,30 @@ const SearchCarResults = () => {
               )}
 
               {/* Results Grid */}
-              {!loading && !error && filteredCars.length > 0 && (
-                <div className="alb-card-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredCars.map((car, idx) => (
-                    <div key={car.id} style={{ animationDelay: `${idx * 0.05}s`, animation: 'fadeUpGrid 0.5s ease both' }}>
-                      <CarCard
-                        {...car}
-                        currentMonthPrice={carMonthlyPrices[car.id] ?? undefined}
-                        onClick={() => handleCarClick(car.id)}
-                      />
-                    </div>
-                  ))}
-                </div>
+              <div className="alb-card-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredCars.map((car, idx) => (
+                  <div key={`${car.id}-${idx}`} style={{ animationDelay: `${(idx % CARS_PER_PAGE) * 0.05}s`, animation: 'fadeUpGrid 0.5s ease both' }}>
+                    <CarCard
+                      {...car}
+                      currentMonthPrice={carMonthlyPrices[car.id] ?? undefined}
+                      onClick={() => handleCarClick(car.id)}
+                    />
+                  </div>
+                ))}
+                
+                {/* Initial Loading or Fetching Next Page State */}
+                {(isLoading || isFetchingNextPage) && renderSkeletons(isLoading ? 6 : 3)}
+              </div>
+
+              {/* Intersection Observer target for infinite scrolling */}
+              <div ref={ref} style={{ height: '40px', marginTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {isFetchingNextPage && <Loader2 className="animate-spin text-red-600" size={24} />}
+              </div>
+              
+              {!hasNextPage && filteredCars.length > 0 && (
+                <p className="text-center text-sm alb-body opacity-60 mt-8">
+                  {t("searchResults.cars.noMoreResults", "No more cars to load")}
+                </p>
               )}
             </div>
           </div>

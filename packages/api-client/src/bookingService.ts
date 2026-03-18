@@ -431,6 +431,40 @@ export const getBookingsByPropertyIdAndType = async (
   return data as Booking[] | null;
 };
 
+/**
+ * Get IDs of properties of a specific type that are unavailable for a given date range.
+ * This checks for overlapping 'confirmed' bookings.
+ */
+export const getUnavailablePropertyIds = async (
+  propertyType: Booking["propertyType"],
+  startDate: Date,
+  endDate: Date,
+): Promise<number[]> => {
+  // Convert dates to ISO strings for DB comparison
+  const startStr = startDate.toISOString().split('T')[0];
+  const endStr = endDate.toISOString().split('T')[0];
+
+  // We find any confirmed booking where the booking period overlaps with the requested period:
+  // Overlap condition: booking.startDate <= requested.endDate AND booking.endDate >= requested.startDate
+  const { data, error } = await apiClient
+    .from("booking")
+    .select("propertyId")
+    .eq("propertyType", propertyType)
+    .eq("status", "confirmed")
+    .lte("startDate", endStr)
+    .gte("endDate", startStr);
+
+  if (error) {
+    console.error("[Booking Service] Error fetching unavailable property IDs:", error);
+    return [];
+  }
+
+  // Ensure propertyIds are parsed as numbers since DB might store them as strings sometimes
+  const ids = data?.map((b) => parseInt(b.propertyId, 10)).filter(id => !isNaN(id)) || [];
+  // Return unique IDs
+  return Array.from(new Set(ids));
+};
+
 const bookingService = {
   createBooking,
   getCurrentUserBookings,
