@@ -304,7 +304,10 @@ const Destinations = () => {
     <section
       id="destinations"
       ref={sectionRef}
-      className="py-24 bg-gradient-to-b from-muted via-muted to-muted relative overflow-hidden"
+      className="py-24 relative overflow-hidden transition-colors duration-300"
+      style={{
+        backgroundColor: isDark ? '#0A0A0B' : '#f8fafc',
+      }}
     >
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -316,13 +319,15 @@ const Destinations = () => {
         <div className="text-center mb-16">
           <h2
             ref={headingRef}
-            className="mb-4 text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70"
+            className="mb-4 text-4xl md:text-5xl font-bold transition-colors duration-300"
+            style={{ color: isDark ? '#ffffff' : '#0f172a' }}
           >
             {t("home.destinations.title")}
           </h2>
           <p
             ref={subtitleRef}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+            className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed transition-colors duration-300"
+            style={{ color: isDark ? 'rgba(255, 255, 255, 0.7)' : '#475569' }}
           >
             {t("home.destinations.description")}
           </p>
