@@ -27,8 +27,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { User } from "@/types/user.types";
-import { userService } from "@/services/api/userService";
+import { useAuth } from "@/context/AuthContext";
 
 // ====================
 // CONFIGURATION ARRAYS
@@ -143,26 +142,8 @@ const hasAccess = (roles: string[], userRole: string | undefined): boolean => {
 const Hsidebar = ({ children }) => {
   const { t } = useTranslation();
   const { isDark } = useTheme();
-  const [user, setUser] = React.useState<User | null>(null);
+  const { user } = useAuth();
   const [collapsed, setCollapsed] = useState(true);
-
-  // Fetch current user on mount
-  React.useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const currentUser = await userService.getCurrentUser();
-        if (!currentUser) {
-          console.log("user not found");
-          setUser(null);
-          return;
-        }
-        setUser(currentUser);
-      } catch {
-        setUser(null);
-      }
-    };
-    fetchUser();
-  }, []);
 
   // Get user role
   const userRole = user?.role?.toLowerCase();

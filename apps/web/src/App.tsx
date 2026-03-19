@@ -9,6 +9,7 @@ import { I18nextProvider } from "react-i18next";
 import ScrollToTop from "./components/ScrollToTop";
 import i18n from "./i18n/i18n";
 import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider } from "./context/AuthContext";
 import Index from "./pages/home/Index";
 import OAuthSignInPage from "./pages/home/Auth";
 import NotFound from "./pages/NotFound";
@@ -70,6 +71,7 @@ const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID || "";
 
 const App = () => (
   <ThemeProvider>
+  <AuthProvider>
   <I18nextProvider i18n={i18n}>
     <PayPalScriptProvider
       options={{
@@ -179,6 +181,7 @@ const App = () => (
       </QueryClientProvider>
     </PayPalScriptProvider>
   </I18nextProvider>
+  </AuthProvider>
   </ThemeProvider>
 );
 

@@ -6,6 +6,7 @@ import { User } from "@/types/user.types";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
 import {
   Heart,
   CalendarDays,
@@ -37,11 +38,8 @@ export default function PrimarySearchAppBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
+  const { user, userRole, loading, handleLogout } = useAuth();
 
-  const [user, setUser] = React.useState<User>(null);
-  const [userRole, setUserRole] = React.useState<any>(null);
-  const [userStatus, setUserStatus] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
   const [avatarError, setAvatarError] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -58,47 +56,9 @@ export default function PrimarySearchAppBar() {
     setMobileOpen(false);
   }, [location.pathname]);
 
-  // Fetch current user
-  React.useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const currentUser = await userService.getCurrentUser();
-        if (!currentUser) {
-          setUser(null);
-          setUserRole(null);
-          setUserStatus(null);
-          return;
-        }
-        setUser(currentUser);
-        setUserRole(currentUser.role);
-        setUserStatus(currentUser.status);
-      } catch {
-        setUser(null);
-        setUserRole(null);
-        setUserStatus(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser();
-  }, []);
-
-  // Suspended user redirect
-  React.useEffect(() => {
-    if (userStatus === "suspended") {
-      handleLogout();
-      window.open("/suspended", "_blank");
-    }
-  }, [userStatus]);
-
   React.useEffect(() => {
     setAvatarError(false);
   }, [user?.avatar_url]);
-
-  const handleLogout = async () => {
-    await authService.signOut();
-    window.location.href = "/";
-  };
 
   const isProfileComplete = React.useMemo(() => {
     if (!user) return false;
