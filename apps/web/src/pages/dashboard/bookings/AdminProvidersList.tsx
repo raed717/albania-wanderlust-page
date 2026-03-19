@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { User } from "@/types/user.types";
 import { userService } from "@/services/api/userService";
-import Hsidebar from "@/components/dashboard/hsidebar";
 import { useTheme } from "@/context/ThemeContext";
 import {
   Search,
@@ -104,8 +103,7 @@ const AdminProvidersList: React.FC = () => {
   }, [providers, searchQuery]);
 
   return (
-    <Hsidebar>
-      <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
+    <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
         {/* ── Header ── */}
         <div
           className="relative overflow-hidden px-6 py-8 md:px-10"
@@ -292,7 +290,6 @@ const AdminProvidersList: React.FC = () => {
           )}
         </div>
       </div>
-    </Hsidebar>
   );
 };
 

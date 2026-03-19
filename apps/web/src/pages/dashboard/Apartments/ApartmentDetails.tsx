@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import Hsidebar from "../../../components/dashboard/hsidebar";
 import {
   ArrowLeft,
   Edit,
@@ -157,18 +156,15 @@ const ApartmentDetails = () => {
 
   if (loading) {
     return (
-      <Hsidebar>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: tk.pageBg }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: tk.pageBg }}>
           <Loader2 className="animate-spin" size={48} style={{ color: '#E8192C' }} />
         </div>
-      </Hsidebar>
     );
   }
 
   if (!apartment) {
     return (
-      <Hsidebar>
-        <div style={{ background: tk.pageBg, minHeight: '100vh', color: tk.pageText }}>
+      <div style={{ background: tk.pageBg, minHeight: '100vh', color: tk.pageText }}>
           <div style={{ textAlign: 'center', paddingTop: 80 }}>
             <h3 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16 }}>{t("apartment.apartmentNotFound")}</h3>
             <button
@@ -179,13 +175,11 @@ const ApartmentDetails = () => {
             </button>
           </div>
         </div>
-      </Hsidebar>
     );
   }
 
   return (
-    <Hsidebar>
-      <div style={{ background: tk.pageBg, minHeight: '100vh', color: tk.pageText, padding: '24px' }}>
+    <div style={{ background: tk.pageBg, minHeight: '100vh', color: tk.pageText, padding: '24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           {/* Header */}
           <div style={{ marginBottom: 32, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
@@ -437,7 +431,6 @@ const ApartmentDetails = () => {
           </div>
         </div>
       </div>
-    </Hsidebar>
   );
 };
 

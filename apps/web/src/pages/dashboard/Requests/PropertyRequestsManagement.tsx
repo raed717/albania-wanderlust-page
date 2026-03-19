@@ -36,7 +36,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import Hsidebar from "@/components/dashboard/hsidebar";
 import { useTheme } from "@/context/ThemeContext";
 
 // Property type icon mapping
@@ -258,17 +257,14 @@ export default function PropertyRequestsManagement() {
 
   if (loading) {
     return (
-      <Hsidebar>
-        <div className="flex items-center justify-center p-12 min-h-screen -m-8" style={{ background: tk.pageBg }}>
+      <div className="flex items-center justify-center p-12 min-h-screen -m-8" style={{ background: tk.pageBg }}>
           <Loader2 className="w-8 h-8 animate-spin text-[#e41e20]" />
         </div>
-      </Hsidebar>
     );
   }
 
   return (
-    <Hsidebar>
-      <div style={{ background: tk.pageBg, color: tk.pageText }} className="-m-8 min-h-screen p-8">
+    <div style={{ background: tk.pageBg, color: tk.pageText }} className="-m-8 min-h-screen p-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2" style={{ color: tk.pageText }}>
@@ -818,6 +814,5 @@ export default function PropertyRequestsManagement() {
           </DialogContent>
         </Dialog>
       </div>
-    </Hsidebar>
   );
 }

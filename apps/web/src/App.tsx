@@ -48,6 +48,7 @@ import Wishlist from "./pages/home/Wishlist";
 import DestinationsManagement from "./pages/dashboard/Destinations/DestinationsManagement";
 import SupportChat from "./pages/dashboard/SupportChat";
 import { UserChatWidget } from "./components/chat/UserChatWidget";
+import DashboardLayout from "./components/dashboard/DashboardLayout";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -118,55 +119,57 @@ const App = () => (
               <Route path="/ProviderRequest" element={<ProviderRequest />} />
 
               <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/dashboard/HotelsList" element={<AllHotels />} />
-                <Route
-                  path="/dashboard/hotels/:id"
-                  element={<HotelDetails />}
-                />
-                <Route
-                  path="/dashboard/ApartmentsList"
-                  element={<AllApartments />}
-                />
-                <Route
-                  path="/dashboard/apartments/:id"
-                  element={<ApartmentDetails />}
-                />
-                <Route path="/dashboard/carsList" element={<AllCars />} />
-                <Route path="/dashboard/carInfo/:id" element={<CarDetails />} />
-                <Route
-                  path="/dashboard/userManagement"
-                  element={<UserManagement />}
-                />
-                <Route
-                  path="/dashboard/requestsManagement"
-                  element={<RequestsManagement />}
-                />
-                <Route
-                  path="/dashboard/propertyRequestsManagement"
-                  element={<PropertyRequestsManagement />}
-                />
-                <Route
-                  path="/dashboard/user-details/:userId"
-                  element={<UserDetails />}
-                />
-                <Route
-                  path="/dashboard/bookings"
-                  element={<BookingsManagement />}
-                />
-                <Route
-                  path="/dashboard/bookings/providers"
-                  element={<AdminProvidersList />}
-                />
-                <Route
-                  path="/dashboard/bookings/provider/:providerId"
-                  element={<AdminProviderBookings />}
-                />
-                <Route
-                  path="/dashboard/destinations"
-                  element={<DestinationsManagement />}
-                />
-                <Route path="/dashboard/support" element={<SupportChat />} />
+                <Route element={<DashboardLayout />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/dashboard/HotelsList" element={<AllHotels />} />
+                  <Route
+                    path="/dashboard/hotels/:id"
+                    element={<HotelDetails />}
+                  />
+                  <Route
+                    path="/dashboard/ApartmentsList"
+                    element={<AllApartments />}
+                  />
+                  <Route
+                    path="/dashboard/apartments/:id"
+                    element={<ApartmentDetails />}
+                  />
+                  <Route path="/dashboard/carsList" element={<AllCars />} />
+                  <Route path="/dashboard/carInfo/:id" element={<CarDetails />} />
+                  <Route
+                    path="/dashboard/userManagement"
+                    element={<UserManagement />}
+                  />
+                  <Route
+                    path="/dashboard/requestsManagement"
+                    element={<RequestsManagement />}
+                  />
+                  <Route
+                    path="/dashboard/propertyRequestsManagement"
+                    element={<PropertyRequestsManagement />}
+                  />
+                  <Route
+                    path="/dashboard/user-details/:userId"
+                    element={<UserDetails />}
+                  />
+                  <Route
+                    path="/dashboard/bookings"
+                    element={<BookingsManagement />}
+                  />
+                  <Route
+                    path="/dashboard/bookings/providers"
+                    element={<AdminProvidersList />}
+                  />
+                  <Route
+                    path="/dashboard/bookings/provider/:providerId"
+                    element={<AdminProviderBookings />}
+                  />
+                  <Route
+                    path="/dashboard/destinations"
+                    element={<DestinationsManagement />}
+                  />
+                  <Route path="/dashboard/support" element={<SupportChat />} />
+                </Route>
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

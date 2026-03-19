@@ -7,7 +7,6 @@ import {
   getBookingsByProviderId,
   updateBookingStatus,
 } from "@/services/api/bookingService";
-import Hsidebar from "@/components/dashboard/hsidebar";
 import { getCarById } from "@/services/api/carService";
 import { getApartmentById } from "@/services/api/apartmentService";
 import { getHotelById } from "@/services/api/hotelService";
@@ -717,18 +716,15 @@ export default function BookingsManagement() {
 
   if (loading) {
     return (
-      <Hsidebar>
-        <div className="-m-8 flex min-h-[calc(100vh)] items-center justify-center" style={{ background: tk.pageBg }}>
+      <div className="-m-8 flex min-h-[calc(100vh)] items-center justify-center" style={{ background: tk.pageBg }}>
           <Loader2 size={40} className="animate-spin text-[#e41e20]" />
         </div>
-      </Hsidebar>
     );
   }
 
   if (error) {
     return (
-      <Hsidebar>
-        <div className="-m-8 flex min-h-[calc(100vh)] flex-col items-center justify-center gap-4" style={{ background: tk.pageBg }}>
+      <div className="-m-8 flex min-h-[calc(100vh)] flex-col items-center justify-center gap-4" style={{ background: tk.pageBg }}>
           <p className="text-red-400 text-sm">{error}</p>
           <button
             onClick={fetchBookings}
@@ -737,13 +733,12 @@ export default function BookingsManagement() {
             {t("bookingManagement.errors.retry")}
           </button>
         </div>
-      </Hsidebar>
     );
   }
 
   return (
-    <Hsidebar>
-      <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
+    
+    <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
         {/* ── Header ── */}
         <div className="relative overflow-hidden px-6 py-8 md:px-10" style={{ background: tk.headerBg, borderBottom: `1px solid ${tk.headerBorder}` }}>
           <div className="pointer-events-none absolute -top-20 left-10 h-60 w-60 rounded-full bg-[#e41e20]/10 blur-3xl" />
@@ -1067,7 +1062,7 @@ export default function BookingsManagement() {
             </div>
           )}
         </div>
-      </div>
+      </div>);
 
       {/* Cancellation Reason Modal */}
       <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
@@ -1137,6 +1132,5 @@ export default function BookingsManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Hsidebar>
-  );
+  
 }

@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import Hsidebar from "../../../components/dashboard/hsidebar";
 import { useTheme } from "@/context/ThemeContext";
 import {
   deleteCar,
@@ -242,23 +241,20 @@ const AllCars = () => {
   // Show loading state
   if (loading) {
     return (
-      <Hsidebar>
-        <div style={{ background: tk.pageBg, minHeight: '100vh' }} className="p-4 sm:p-6 lg:p-8 flex items-center justify-center">
+      <div style={{ background: tk.pageBg, minHeight: '100vh' }} className="p-4 sm:p-6 lg:p-8 flex items-center justify-center">
           <div className="text-center">
             <div style={{ fontSize: '1.2rem', fontWeight: 600, color: tk.subText }}>
               {t("cars.allCars.loading")}
             </div>
           </div>
         </div>
-      </Hsidebar>
     );
   }
 
   // Show error state
   if (error) {
     return (
-      <Hsidebar>
-        <div style={{ background: tk.pageBg, minHeight: '100vh' }} className="p-4 sm:p-6 lg:p-8 flex items-center justify-center">
+      <div style={{ background: tk.pageBg, minHeight: '100vh' }} className="p-4 sm:p-6 lg:p-8 flex items-center justify-center">
           <div className="text-center">
             <div style={{ fontSize: '1.2rem', fontWeight: 600, color: '#ef4444' }}>{error}</div>
             <button
@@ -278,7 +274,6 @@ const AllCars = () => {
             </button>
           </div>
         </div>
-      </Hsidebar>
     );
   }
 
@@ -287,8 +282,7 @@ const AllCars = () => {
   }
 
   return (
-    <Hsidebar>
-      <div style={{ background: tk.pageBg, minHeight: '100vh', fontFamily: "'Inter', sans-serif" }} className="p-4 sm:p-6 lg:p-8">
+    <div style={{ background: tk.pageBg, minHeight: '100vh', fontFamily: "'Inter', sans-serif" }} className="p-4 sm:p-6 lg:p-8">
         {/* Header */}
         <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
           <div>
@@ -823,7 +817,6 @@ const AllCars = () => {
           </div>
         )}
       </div>
-    </Hsidebar>
   );
 };
 

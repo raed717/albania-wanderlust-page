@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import Hsidebar from "../../../components/dashboard/hsidebar";
 import {
   Search,
   Filter,
@@ -349,17 +348,14 @@ export default function DestinationsManagement() {
 
   if (loading) {
     return (
-      <Hsidebar>
-        <div className="flex justify-center items-center h-96 -m-8" style={{ background: tk.pageBg }}>
+      <div className="flex justify-center items-center h-96 -m-8" style={{ background: tk.pageBg }}>
           <Loader2 size={48} className="animate-spin text-[#e41e20]" />
         </div>
-      </Hsidebar>
     );
   }
 
   return (
-    <Hsidebar>
-      <div style={{ background: tk.pageBg, color: tk.pageText }} className="-m-8 min-h-screen p-8 space-y-6">
+    <div style={{ background: tk.pageBg, color: tk.pageText }} className="-m-8 min-h-screen p-8 space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
@@ -485,10 +481,9 @@ export default function DestinationsManagement() {
             </button>
           </div>
         )}
-      </div>
 
-      {/* Dialog for Create/Edit/View */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        {/* Dialog for Create/Edit/View */}
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent style={{ background: tk.dialogBg, color: tk.dialogText, maxWidth: 800, maxHeight: '90vh', overflowY: 'auto' }}>
           <DialogHeader>
             <DialogTitle style={{ color: tk.dialogText }}>
@@ -662,7 +657,7 @@ export default function DestinationsManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Hsidebar>
+    </div>
   );
 }
 
@@ -767,5 +762,6 @@ function DestinationCard({ destination, onView, onEdit, onDelete, tk, isDark }: 
         </div>
       </div>
     </div>
+
   );
 }

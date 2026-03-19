@@ -1,5 +1,4 @@
 import { useMemo, useState, useEffect } from "react";
-import Hsidebar from "@/components/dashboard/hsidebar";
 import { Link } from "react-router-dom";
 import { userService } from "@/services/api/userService";
 import type { User } from "@/types/user.types";
@@ -178,8 +177,7 @@ function UserManagement() {
   };
 
   return (
-    <Hsidebar>
-      <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
+    <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
         {/* Header */}
         <div
           className="relative overflow-hidden px-6 py-8 md:px-10"
@@ -434,7 +432,6 @@ function UserManagement() {
           )}
         </div>
       </div>
-    </Hsidebar>
   );
 }
 

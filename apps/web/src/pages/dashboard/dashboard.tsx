@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import Hsidebar from "../../components/dashboard/hsidebar";
 import { authService } from "@/services/api/authService";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -28,8 +27,7 @@ const Dashboard = () => {
   }
 
   return (
-    <Hsidebar>
-      <div>
+    <div>
         <h1
           style={{
             fontSize: "28px",
@@ -45,7 +43,6 @@ const Dashboard = () => {
         </p>
         {/* Add your dashboard widgets, charts, etc. here */}
       </div>
-    </Hsidebar>
   );
 };
 

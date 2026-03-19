@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import Hsidebar from "../../../components/dashboard/hsidebar";
 import {
   ArrowLeft,
   Edit,
@@ -169,19 +168,16 @@ const CarDetails = () => {
 
   if (loading) {
     return (
-      <Hsidebar>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: tk.pageBg, color: tk.pageText }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: tk.pageBg, color: tk.pageText }}>
           <Loader2 className="animate-spin" size={48} style={{ color: '#E8192C' }} />
           <span style={{ marginLeft: 8, fontSize: 18 }}>{t("cars.carDetails.loading")}</span>
         </div>
-      </Hsidebar>
     );
   }
 
   if (!car) {
     return (
-      <Hsidebar>
-        <div style={{ background: tk.pageBg, minHeight: '100vh', color: tk.pageText }}>
+      <div style={{ background: tk.pageBg, minHeight: '100vh', color: tk.pageText }}>
           <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center', paddingTop: 80 }}>
             <h3 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16 }}>{t("cars.carDetails.notFound.title")}</h3>
             <p style={{ color: tk.mutedText, marginBottom: 32 }}>{t("cars.carDetails.notFound.message")}</p>
@@ -193,13 +189,11 @@ const CarDetails = () => {
             </button>
           </div>
         </div>
-      </Hsidebar>
     );
   }
 
   return (
-    <Hsidebar>
-      <div style={{ background: tk.pageBg, minHeight: '100vh', color: tk.pageText, padding: '24px' }}>
+    <div style={{ background: tk.pageBg, minHeight: '100vh', color: tk.pageText, padding: '24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           {/* Header */}
           <div style={{ marginBottom: 32, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
@@ -554,7 +548,6 @@ const CarDetails = () => {
           </div>
         </div>
       </div>
-    </Hsidebar>
   );
 };
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Hsidebar from "../../../components/dashboard/hsidebar";
 import { useTheme } from "@/context/ThemeContext";
 import {
   Search,
@@ -229,18 +228,15 @@ const AllApartments = () => {
 
   if (loading && apartments.length === 0) {
     return (
-      <Hsidebar>
-        <div className="-m-8 flex min-h-[calc(100vh)] items-center justify-center" style={{ background: tk.pageBg }}>
+      <div className="-m-8 flex min-h-[calc(100vh)] items-center justify-center" style={{ background: tk.pageBg }}>
           <Loader2 size={40} className="animate-spin text-[#e41e20]" />
         </div>
-      </Hsidebar>
     );
   }
 
   if (error) {
     return (
-      <Hsidebar>
-        <div className="-m-8 flex min-h-[calc(100vh)] flex-col items-center justify-center gap-4" style={{ background: tk.pageBg }}>
+      <div className="-m-8 flex min-h-[calc(100vh)] flex-col items-center justify-center gap-4" style={{ background: tk.pageBg }}>
           <p className="text-red-400 text-sm">{error}</p>
           <button
             onClick={() => currentUser && fetchApartments(currentUser)}
@@ -249,15 +245,13 @@ const AllApartments = () => {
             {t("apartment.retry")}
           </button>
         </div>
-      </Hsidebar>
     );
   }
 
   /* ------------------------------- Render ---------------------------------- */
 
   return (
-    <Hsidebar>
-      <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
+    <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
         {/* ── Header ── */}
         <div className="relative overflow-hidden px-6 py-8 md:px-10" style={{ background: tk.headerBg, borderBottom: `1px solid ${tk.headerBorder}` }}>
           <div className="pointer-events-none absolute -top-20 left-10 h-60 w-60 rounded-full bg-[#e41e20]/10 blur-3xl" />
@@ -404,7 +398,6 @@ const AllApartments = () => {
           )}
         </div>
       </div>
-    </Hsidebar>
   );
 };
 

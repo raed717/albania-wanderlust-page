@@ -14,7 +14,6 @@ import {
 import { roleRequestService } from "@/services/api/roleRequestService";
 import { authService } from "@/services/api/authService";
 import { RoleRequest } from "@/types/request.type";
-import Hsidebar from "../../../components/dashboard/hsidebar";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -179,20 +178,17 @@ export default function RequestsManagement() {
 
   if (loading) {
     return (
-      <Hsidebar>
-        <div
+      <div
           className="flex items-center justify-center p-12 min-h-screen -m-8"
           style={{ background: tk.pageBg }}
         >
           <Loader2 className="w-8 h-8 animate-spin text-[#e41e20]" />
         </div>
-      </Hsidebar>
     );
   }
 
   return (
-    <Hsidebar>
-      <div style={{ background: tk.pageBg, color: tk.pageText }} className="-m-8 min-h-screen p-8">
+    <div style={{ background: tk.pageBg, color: tk.pageText }} className="-m-8 min-h-screen p-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2" style={{ color: tk.pageText }}>
@@ -371,6 +367,5 @@ export default function RequestsManagement() {
           </div>
         )}
       </div>
-    </Hsidebar>
   );
 }

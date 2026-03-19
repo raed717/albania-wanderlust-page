@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Hsidebar from "../../../components/dashboard/hsidebar";
 import { useTheme } from "@/context/ThemeContext";
 import {
   Search,
@@ -246,8 +245,7 @@ const AllHotels = () => {
 
   if (loading) {
     return (
-      <Hsidebar>
-        <div className="-m-8 min-h-[calc(100vh)] flex items-center justify-center" style={{ background: tk.pageBg }}>
+      <div className="-m-8 min-h-[calc(100vh)] flex items-center justify-center" style={{ background: tk.pageBg }}>
           <div className="text-center">
             <Loader2 size={48} className="animate-spin text-[#e41e20] mx-auto mb-4" />
             <p className="text-lg" style={{ color: tk.mutedText }}>
@@ -255,14 +253,12 @@ const AllHotels = () => {
             </p>
           </div>
         </div>
-      </Hsidebar>
     );
   }
 
   if (error) {
     return (
-      <Hsidebar>
-        <div className="-m-8 min-h-[calc(100vh)] flex items-center justify-center" style={{ background: tk.pageBg }}>
+      <div className="-m-8 min-h-[calc(100vh)] flex items-center justify-center" style={{ background: tk.pageBg }}>
           <div className="text-center">
             <div className="text-[#e41e20] mb-4">
               <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -282,13 +278,11 @@ const AllHotels = () => {
             </button>
           </div>
         </div>
-      </Hsidebar>
     );
   }
 
   return (
-    <Hsidebar>
-      <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
+    <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
         {/* Header */}
         <div
           className="relative overflow-hidden px-6 py-8 md:px-10"
@@ -499,7 +493,6 @@ const AllHotels = () => {
           )}
         </div>
       </div>
-    </Hsidebar>
   );
 };
 

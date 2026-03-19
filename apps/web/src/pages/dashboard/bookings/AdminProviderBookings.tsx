@@ -5,7 +5,6 @@ import { Booking } from "@/types/booking.type";
 import { User } from "@/types/user.types";
 import { getBookingsByProviderIdForAdmin } from "@/services/api/bookingService";
 import { userService } from "@/services/api/userService";
-import Hsidebar from "@/components/dashboard/hsidebar";
 import { useTheme } from "@/context/ThemeContext";
 import {
   ArrowLeft,
@@ -209,8 +208,7 @@ const AdminProviderBookings: React.FC = () => {
 
   // ── render ────────────────────────────────────────────────────────────
   return (
-    <Hsidebar>
-      <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
+    <div className="-m-8 min-h-[calc(100vh)]" style={{ background: tk.pageBg, color: tk.pageText }}>
         {/* ── Header ─────────────────────────────────────────────── */}
         <div className="relative overflow-hidden px-6 py-6 md:px-10" style={{ background: tk.headerBg, borderBottom: `1px solid ${tk.headerBorder}` }}>
           <div className="pointer-events-none absolute -top-20 right-10 h-60 w-60 rounded-full bg-[#e41e20]/8 blur-3xl" />
@@ -500,7 +498,6 @@ const AdminProviderBookings: React.FC = () => {
           )}
         </div>
       </div>
-    </Hsidebar>
   );
 };
 
