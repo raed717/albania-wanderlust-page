@@ -1062,10 +1062,9 @@ export default function BookingsManagement() {
             </div>
           )}
         </div>
-      </div>);
 
-      {/* Cancellation Reason Modal */}
-      <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
+        {/* Cancellation Reason Modal */}
+        <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
         <DialogContent className="sm:max-w-md" style={{ background: tk.modalBg, border: `1px solid ${tk.headerBorder}`, color: tk.pageText }}>
           <DialogHeader>
             <DialogTitle style={{ color: tk.pageText }}>
@@ -1132,5 +1131,6 @@ export default function BookingsManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-  
+    </div>
+  );
 }

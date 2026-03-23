@@ -469,15 +469,6 @@ const CarReservation = () => {
                   </div>
                 </div>
 
-                <div style={{ background: tk.statBg }} className="flex items-start gap-4 p-4 rounded-xl">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(232,25,44,0.12)' }}>
-                    <CarIcon size={20} style={{ color: '#E8192C' }} />
-                  </div>
-                  <div>
-                    <p style={{ color: tk.mutedText }} className="text-sm font-medium mb-1">Provider ID</p>
-                    <p style={{ color: tk.pageText }} className="font-medium font-mono">{car.providerId}</p>
-                  </div>
-                </div>
               </div>
             </div>
 

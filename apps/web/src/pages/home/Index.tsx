@@ -5,6 +5,7 @@ import PrimarySearchAppBar from "@/components/home/AppBar";
 import HotelsPreview from "@/components/home/HotelsPreview";
 import ApartmentsPreview from "@/components/home/ApartmentsPreview";
 import CarsPreview from "@/components/home/CarsPreview";
+import LoadingScreen from "@/components/home/LoadingScreen";
 import { Building2, Car, Star, Users, Shield } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/context/ThemeContext";
@@ -23,6 +24,7 @@ const Index = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: sectionMain }}>
+      <LoadingScreen />
       <PrimarySearchAppBar />
       <Hero />
 

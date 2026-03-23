@@ -778,23 +778,25 @@ export default function BookingsSummary() {
                     background: tk.cardBg,
                     borderRadius: 16,
                     borderLeft: `4px solid ${statusBorderColor}`,
-                    overflow: 'hidden',
-                    boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.08)',
+                    overflow: "hidden",
+                    boxShadow: isDark ? "none" : "0 1px 3px rgba(0,0,0,0.08)",
                     border: `1px solid ${tk.cardBorder}`,
                     borderLeftColor: statusBorderColor,
                   }}
                 >
-                  <div style={{ display: 'flex', flexDirection: 'column' }} className="sm:flex-row">
-
+                  <div
+                    style={{ display: "flex", flexDirection: "column" }}
+                    className="sm:flex-row"
+                  >
                     {/* ── Property Image Strip ── */}
                     <div
                       style={{
-                        position: 'relative',
-                        width: '100%',
+                        position: "relative",
+                        width: "100%",
                         height: 144,
                         flexShrink: 0,
-                        cursor: 'pointer',
-                        overflow: 'hidden',
+                        cursor: "pointer",
+                        overflow: "hidden",
                         background: tk.imagePlaceholder,
                       }}
                       className="sm:w-40 sm:h-auto"
@@ -806,83 +808,217 @@ export default function BookingsSummary() {
                           "/images/placeholder.png"
                         }
                         alt={booking.propertyData?.name || "Property"}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }}
-                        onMouseEnter={e => (e.currentTarget as HTMLImageElement).style.transform = 'scale(1.05)'}
-                        onMouseLeave={e => (e.currentTarget as HTMLImageElement).style.transform = 'scale(1)'}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          transition: "transform 0.5s",
+                        }}
+                        onMouseEnter={(e) =>
+                          ((
+                            e.currentTarget as HTMLImageElement
+                          ).style.transform = "scale(1.05)")
+                        }
+                        onMouseLeave={(e) =>
+                          ((
+                            e.currentTarget as HTMLImageElement
+                          ).style.transform = "scale(1)")
+                        }
                       />
-                      <div style={{
-                        position: 'absolute', inset: 0,
-                        background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)',
-                      }} />
+                      <div
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          background:
+                            "linear-gradient(to top, rgba(0,0,0,0.6), transparent)",
+                        }}
+                      />
                       {/* Property type icon */}
-                      <div style={{
-                        position: 'absolute', bottom: 8, left: 8,
-                        width: 28, height: 28, borderRadius: '50%',
-                        background: 'rgba(255,255,255,0.95)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
-                      }}>
-                        <Icon style={{ width: 14, height: 14, color: '#E8192C' }} />
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: 8,
+                          left: 8,
+                          width: 28,
+                          height: 28,
+                          borderRadius: "50%",
+                          background: "rgba(255,255,255,0.95)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+                        }}
+                      >
+                        <Icon
+                          style={{ width: 14, height: 14, color: "#E8192C" }}
+                        />
                       </div>
                     </div>
 
                     {/* ── Card Body ── */}
-                    <div style={{ display: 'flex', flex: 1, padding: 20, gap: 20 }} className="flex-col sm:flex-row">
-
+                    <div
+                      style={{ display: "flex", flex: 1, padding: 20, gap: 20 }}
+                      className="flex-col sm:flex-row"
+                    >
                       {/* Left: Booking Info */}
                       <div
-                        style={{ flex: 1, minWidth: 0, cursor: 'pointer' }}
+                        style={{ flex: 1, minWidth: 0, cursor: "pointer" }}
                         onClick={() => navigate(getPropertyRoute(booking))}
                       >
                         {/* Type + Reference */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                          <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#E8192C', fontWeight: 700 }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            marginBottom: 2,
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: 10,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.1em",
+                              color: "#E8192C",
+                              fontWeight: 700,
+                            }}
+                          >
                             {booking.propertyType}
                           </span>
-                          <span style={{
-                            fontSize: 10, color: tk.refText,
-                            fontFamily: 'monospace',
-                            background: tk.refBg,
-                            padding: '2px 6px', borderRadius: 4,
-                          }}>
+                          <span
+                            style={{
+                              fontSize: 10,
+                              color: tk.refText,
+                              fontFamily: "monospace",
+                              background: tk.refBg,
+                              padding: "2px 6px",
+                              borderRadius: 4,
+                            }}
+                          >
                             #{booking.id.slice(0, 8).toUpperCase()}
                           </span>
                         </div>
 
                         {/* Property Name */}
-                        <h3 style={{
-                          fontWeight: 900, fontSize: 18, color: tk.pageText,
-                          lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                        }}>
+                        <h3
+                          style={{
+                            fontWeight: 900,
+                            fontSize: 18,
+                            color: tk.pageText,
+                            lineHeight: 1.2,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {booking.propertyData?.name || "Property"}
                         </h3>
 
                         {/* Details */}
-                        <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
-                            <Calendar style={{ width: 16, height: 16, color: '#E8192C', flexShrink: 0 }} />
-                            <span style={{ fontWeight: 600, color: tk.pageText }}>{formatDate(start)}</span>
-                            <span style={{ color: tk.mutedText, fontSize: 12 }}>→</span>
-                            <span style={{ fontWeight: 600, color: tk.pageText }}>{formatDate(end)}</span>
+                        <div
+                          style={{
+                            marginTop: 12,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 6,
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                              fontSize: 14,
+                            }}
+                          >
+                            <Calendar
+                              style={{
+                                width: 16,
+                                height: 16,
+                                color: "#E8192C",
+                                flexShrink: 0,
+                              }}
+                            />
+                            <span
+                              style={{ fontWeight: 600, color: tk.pageText }}
+                            >
+                              {formatDate(start)}
+                            </span>
+                            <span style={{ color: tk.mutedText, fontSize: 12 }}>
+                              →
+                            </span>
+                            <span
+                              style={{ fontWeight: 600, color: tk.pageText }}
+                            >
+                              {formatDate(end)}
+                            </span>
                           </div>
 
-                          {(booking.pickUpLocation || booking.dropOffLocation) && (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: tk.dimText }}>
-                              <MapPin style={{ width: 16, height: 16, color: '#E8192C', opacity: 0.7, flexShrink: 0 }} />
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                {booking.pickUpLocation} → {booking.dropOffLocation}
+                          {(booking.pickUpLocation ||
+                            booking.dropOffLocation) && (
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                                fontSize: 14,
+                                color: tk.dimText,
+                              }}
+                            >
+                              <MapPin
+                                style={{
+                                  width: 16,
+                                  height: 16,
+                                  color: "#E8192C",
+                                  opacity: 0.7,
+                                  flexShrink: 0,
+                                }}
+                              />
+                              <span
+                                style={{
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {booking.pickUpLocation} →{" "}
+                                {booking.dropOffLocation}
                               </span>
                             </div>
                           )}
 
                           {(booking.pickUpTime || booking.dropOffTime) && (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: tk.dimText }}>
-                              <Clock style={{ width: 16, height: 16, color: '#E8192C', opacity: 0.7, flexShrink: 0 }} />
-                              <span>{booking.pickUpTime} → {booking.dropOffTime}</span>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                                fontSize: 14,
+                                color: tk.dimText,
+                              }}
+                            >
+                              <Clock
+                                style={{
+                                  width: 16,
+                                  height: 16,
+                                  color: "#E8192C",
+                                  opacity: 0.7,
+                                  flexShrink: 0,
+                                }}
+                              />
+                              <span>
+                                {booking.pickUpTime} → {booking.dropOffTime}
+                              </span>
                             </div>
                           )}
 
-                          <p style={{ fontSize: 12, color: tk.mutedText, paddingTop: 2 }}>
+                          <p
+                            style={{
+                              fontSize: 12,
+                              color: tk.mutedText,
+                              paddingTop: 2,
+                            }}
+                          >
                             {booking.requesterName} · {booking.contactMail}
                           </p>
                         </div>
@@ -890,32 +1026,59 @@ export default function BookingsSummary() {
                         {/* Combined status description */}
                         {(() => {
                           const key =
-                            booking.status === "pending" && booking.payment_status === "pending"
+                            booking.status === "pending" &&
+                            booking.payment_status === "pending"
                               ? "pendingPending"
-                              : booking.status === "confirmed" && booking.payment_status === "pending"
+                              : booking.status === "confirmed" &&
+                                  booking.payment_status === "pending"
                                 ? "confirmedPending"
-                                : booking.status === "confirmed" && booking.payment_status === "paid"
+                                : booking.status === "confirmed" &&
+                                    booking.payment_status === "paid"
                                   ? "confirmedPaid"
-                                  : booking.status === "canceled" && booking.payment_status === "paid"
+                                  : booking.status === "canceled" &&
+                                      booking.payment_status === "paid"
                                     ? "canceledPaid"
-                                    : booking.status === "canceled" && booking.payment_status === "pending"
+                                    : booking.status === "canceled" &&
+                                        booking.payment_status === "pending"
                                       ? "canceledPending"
-                                      : booking.status === "confirmed" && booking.payment_status === "failed"
+                                      : booking.status === "confirmed" &&
+                                          booking.payment_status === "failed"
                                         ? "confirmedFailed"
                                         : null;
                           if (!key) return null;
-                          const isWarning = key === "confirmedPending" || key === "pendingPending" || key === "confirmedFailed";
+                          const isWarning =
+                            key === "confirmedPending" ||
+                            key === "pendingPending" ||
+                            key === "confirmedFailed";
                           const isSuccess = key === "confirmedPaid";
-                          const isDanger = key === "canceledPaid" || key === "canceledPending";
+                          const isDanger =
+                            key === "canceledPaid" || key === "canceledPending";
                           return (
-                            <div style={{
-                              marginTop: 12,
-                              display: 'flex', alignItems: 'flex-start', gap: 8,
-                              padding: '8px 12px', borderRadius: 8,
-                              fontSize: 12, fontWeight: 500,
-                              ...getCombinedStatusStyle(isSuccess, isWarning, isDanger),
-                            }}>
-                              <span style={{ marginTop: 2, flexShrink: 0, fontSize: 14, lineHeight: 1 }}>
+                            <div
+                              style={{
+                                marginTop: 12,
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: 8,
+                                padding: "8px 12px",
+                                borderRadius: 8,
+                                fontSize: 12,
+                                fontWeight: 500,
+                                ...getCombinedStatusStyle(
+                                  isSuccess,
+                                  isWarning,
+                                  isDanger,
+                                ),
+                              }}
+                            >
+                              <span
+                                style={{
+                                  marginTop: 2,
+                                  flexShrink: 0,
+                                  fontSize: 14,
+                                  lineHeight: 1,
+                                }}
+                              >
                                 {isSuccess ? "✓" : isWarning ? "⏳" : "✕"}
                               </span>
                               <span>{t(`booking.combinedStatus.${key}`)}</span>
@@ -932,13 +1095,27 @@ export default function BookingsSummary() {
                             }}
                             style={{
                               marginTop: 12,
-                              display: 'flex', alignItems: 'center', gap: 6,
-                              fontSize: 12, color: '#E8192C', fontWeight: 600,
-                              background: 'transparent', border: 'none', cursor: 'pointer',
-                              transition: 'opacity 0.2s',
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 6,
+                              fontSize: 12,
+                              color: "#E8192C",
+                              fontWeight: 600,
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                              transition: "opacity 0.2s",
                             }}
-                            onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.opacity = '0.7'}
-                            onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.opacity = '1'}
+                            onMouseEnter={(e) =>
+                              ((
+                                e.currentTarget as HTMLButtonElement
+                              ).style.opacity = "0.7")
+                            }
+                            onMouseLeave={(e) =>
+                              ((
+                                e.currentTarget as HTMLButtonElement
+                              ).style.opacity = "1")
+                            }
                           >
                             <FileText style={{ width: 14, height: 14 }} />
                             {t("booking.downloadInvoice")}
@@ -948,35 +1125,90 @@ export default function BookingsSummary() {
                       </div>
 
                       {/* Right: Price + Status + Actions */}
-                      <div style={{
-                        display: 'flex', flexDirection: 'column',
-                        alignItems: 'flex-end', justifyContent: 'space-between',
-                        gap: 12, minWidth: 168,
-                      }}>
-
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-end",
+                          justifyContent: "space-between",
+                          gap: 12,
+                          minWidth: 168,
+                        }}
+                      >
                         {/* Price */}
-                        <div style={{ textAlign: 'right' }}>
-                          <p style={{ fontSize: 10, color: tk.mutedText, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                        <div style={{ textAlign: "right" }}>
+                          <p
+                            style={{
+                              fontSize: 10,
+                              color: tk.mutedText,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.1em",
+                            }}
+                          >
                             Total
                           </p>
-                          <p style={{ fontSize: 24, fontWeight: 900, color: tk.pageText, lineHeight: 1 }}>
+                          <p
+                            style={{
+                              fontSize: 24,
+                              fontWeight: 900,
+                              color: tk.pageText,
+                              lineHeight: 1,
+                            }}
+                          >
                             ${booking.totalPrice.toFixed(2)}
+                          </p>
+                          <p
+                            style={{
+                              fontSize: 14,
+                              fontWeight: 900,
+                              color: tk.pageText,
+                              lineHeight: 1,
+                            }}
+                          >
+                            + ${(booking.totalPrice * 0.07).toFixed(2)} Fee
                           </p>
                         </div>
 
                         {/* Status Badges */}
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "flex-end",
+                            gap: 8,
+                          }}
+                        >
                           {/* Booking status row */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontSize: 10, color: tk.mutedText, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 500 }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: 10,
+                                color: tk.mutedText,
+                                textTransform: "uppercase",
+                                letterSpacing: "0.05em",
+                                fontWeight: 500,
+                              }}
+                            >
                               {t("booking.statusLabel")}
                             </span>
                             <span
-                              title={t(`booking.statusHint.${booking.status}`, "")}
+                              title={t(
+                                `booking.statusHint.${booking.status}`,
+                                "",
+                              )}
                               style={{
-                                cursor: 'help',
-                                fontSize: 11, padding: '4px 10px', borderRadius: 999,
-                                fontWeight: 700, textTransform: 'capitalize',
+                                cursor: "help",
+                                fontSize: 11,
+                                padding: "4px 10px",
+                                borderRadius: 999,
+                                fontWeight: 700,
+                                textTransform: "capitalize",
                                 ...getStatusBadgeStyle(booking.status),
                               }}
                             >
@@ -986,20 +1218,42 @@ export default function BookingsSummary() {
 
                           {/* Payment status row */}
                           {booking.payment_status && (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <span style={{ fontSize: 10, color: tk.mutedText, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 500 }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontSize: 10,
+                                  color: tk.mutedText,
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.05em",
+                                  fontWeight: 500,
+                                }}
+                              >
                                 {t("booking.paymentLabel")}
                               </span>
                               <span
-                                title={t(`booking.paymentHint.${booking.payment_status}`, "")}
+                                title={t(
+                                  `booking.paymentHint.${booking.payment_status}`,
+                                  "",
+                                )}
                                 style={{
-                                  cursor: 'help',
-                                  fontSize: 11, padding: '4px 10px', borderRadius: 999,
-                                  fontWeight: 700, textTransform: 'capitalize',
+                                  cursor: "help",
+                                  fontSize: 11,
+                                  padding: "4px 10px",
+                                  borderRadius: 999,
+                                  fontWeight: 700,
+                                  textTransform: "capitalize",
                                   ...getStatusBadgeStyle(
-                                    booking.payment_status === 'paid' ? 'confirmed'
-                                    : booking.payment_status === 'pending' ? 'pending'
-                                    : 'canceled'
+                                    booking.payment_status === "paid"
+                                      ? "confirmed"
+                                      : booking.payment_status === "pending"
+                                        ? "pending"
+                                        : "canceled",
                                   ),
                                 }}
                               >
@@ -1012,27 +1266,58 @@ export default function BookingsSummary() {
                         </div>
 
                         {/* ── Action Zone ── */}
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, width: '100%' }}>
-
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "flex-end",
+                            gap: 8,
+                            width: "100%",
+                          }}
+                        >
                           {/* CASE 1: Confirmed + Payment Pending */}
                           {booking.status === "confirmed" &&
                             booking.payment_status === "pending" && (
                               <>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: isDark ? '#fcd34d' : '#92400e' }}>
-                                  <CreditCard style={{ width: 12, height: 12 }} />
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 4,
+                                    fontSize: 12,
+                                    color: isDark ? "#fcd34d" : "#92400e",
+                                  }}
+                                >
+                                  <CreditCard
+                                    style={{ width: 12, height: 12 }}
+                                  />
                                   <span>{t("booking.paymentRequired")}</span>
                                 </div>
                                 <StripePaymentButton booking={booking} />
                                 <button
-                                  onClick={() => handlePendingBookingCancel(booking)}
+                                  onClick={() =>
+                                    handlePendingBookingCancel(booking)
+                                  }
                                   style={{
-                                    fontSize: 12, color: tk.mutedText,
-                                    background: 'transparent', border: 'none', cursor: 'pointer',
-                                    textDecoration: 'underline', textUnderlineOffset: 2,
-                                    transition: 'color 0.2s',
+                                    fontSize: 12,
+                                    color: tk.mutedText,
+                                    background: "transparent",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    textDecoration: "underline",
+                                    textUnderlineOffset: 2,
+                                    transition: "color 0.2s",
                                   }}
-                                  onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.color = '#E8192C'}
-                                  onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.color = tk.mutedText}
+                                  onMouseEnter={(e) =>
+                                    ((
+                                      e.currentTarget as HTMLButtonElement
+                                    ).style.color = "#E8192C")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    ((
+                                      e.currentTarget as HTMLButtonElement
+                                    ).style.color = tk.mutedText)
+                                  }
                                 >
                                   {t("booking.cancelBooking")}
                                 </button>
@@ -1043,19 +1328,39 @@ export default function BookingsSummary() {
                           {booking.status === "pending" &&
                             booking.payment_status === "pending" && (
                               <>
-                                <p style={{ fontSize: 12, color: isDark ? '#fcd34d' : '#92400e', textAlign: 'right' }}>
+                                <p
+                                  style={{
+                                    fontSize: 12,
+                                    color: isDark ? "#fcd34d" : "#92400e",
+                                    textAlign: "right",
+                                  }}
+                                >
                                   {t("booking.awaitingConfirmation")}
                                 </p>
                                 <button
-                                  onClick={() => handlePendingBookingCancel(booking)}
+                                  onClick={() =>
+                                    handlePendingBookingCancel(booking)
+                                  }
                                   style={{
-                                    fontSize: 12, color: tk.mutedText,
-                                    background: 'transparent', border: 'none', cursor: 'pointer',
-                                    textDecoration: 'underline', textUnderlineOffset: 2,
-                                    transition: 'color 0.2s',
+                                    fontSize: 12,
+                                    color: tk.mutedText,
+                                    background: "transparent",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    textDecoration: "underline",
+                                    textUnderlineOffset: 2,
+                                    transition: "color 0.2s",
                                   }}
-                                  onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.color = '#E8192C'}
-                                  onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.color = tk.mutedText}
+                                  onMouseEnter={(e) =>
+                                    ((
+                                      e.currentTarget as HTMLButtonElement
+                                    ).style.color = "#E8192C")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    ((
+                                      e.currentTarget as HTMLButtonElement
+                                    ).style.color = tk.mutedText)
+                                  }
                                 >
                                   {t("booking.cancelBooking")}
                                 </button>
@@ -1065,7 +1370,14 @@ export default function BookingsSummary() {
                           {/* CASE 3: Paid */}
                           {booking.payment_status === "paid" &&
                             booking.status !== "canceled" && (
-                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "flex-end",
+                                  gap: 6,
+                                }}
+                              >
                                 {(booking.propertyType === "car" ||
                                   booking.propertyType === "apartment") && (
                                   <button
@@ -1074,32 +1386,69 @@ export default function BookingsSummary() {
                                       setReviewBooking(booking);
                                     }}
                                     style={{
-                                      display: 'flex', alignItems: 'center', gap: 6,
-                                      fontSize: 12, padding: '6px 12px', borderRadius: 999,
-                                      border: `1px solid ${isDark ? 'rgba(245,158,11,0.40)' : '#fcd34d'}`,
-                                      color: isDark ? '#fcd34d' : '#92400e',
-                                      background: 'transparent', cursor: 'pointer', fontWeight: 700,
-                                      transition: 'background 0.2s',
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 6,
+                                      fontSize: 12,
+                                      padding: "6px 12px",
+                                      borderRadius: 999,
+                                      border: `1px solid ${isDark ? "rgba(245,158,11,0.40)" : "#fcd34d"}`,
+                                      color: isDark ? "#fcd34d" : "#92400e",
+                                      background: "transparent",
+                                      cursor: "pointer",
+                                      fontWeight: 700,
+                                      transition: "background 0.2s",
                                     }}
-                                    onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = isDark ? 'rgba(245,158,11,0.10)' : '#fffbeb'}
-                                    onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = 'transparent'}
+                                    onMouseEnter={(e) =>
+                                      ((
+                                        e.currentTarget as HTMLButtonElement
+                                      ).style.background = isDark
+                                        ? "rgba(245,158,11,0.10)"
+                                        : "#fffbeb")
+                                    }
+                                    onMouseLeave={(e) =>
+                                      ((
+                                        e.currentTarget as HTMLButtonElement
+                                      ).style.background = "transparent")
+                                    }
                                   >
-                                    <Star style={{ width: 12, height: 12, fill: '#f59e0b', color: '#f59e0b' }} />
+                                    <Star
+                                      style={{
+                                        width: 12,
+                                        height: 12,
+                                        fill: "#f59e0b",
+                                        color: "#f59e0b",
+                                      }}
+                                    />
                                     {t("review.addReview", "Add Review")}
                                   </button>
                                 )}
-                                <ProviderContactButton providerId={booking.providerId} />
+                                <ProviderContactButton
+                                  providerId={booking.providerId}
+                                />
                               </div>
                             )}
 
                           {/* CASE 4: Canceled */}
                           {booking.status === "canceled" && (
-                            <div style={{ textAlign: 'right' }}>
-                              <p style={{ fontSize: 12, fontWeight: 700, color: '#E8192C' }}>
+                            <div style={{ textAlign: "right" }}>
+                              <p
+                                style={{
+                                  fontSize: 12,
+                                  fontWeight: 700,
+                                  color: "#E8192C",
+                                }}
+                              >
                                 {t("booking.cancelled")}
                               </p>
                               {booking.payment_status === "paid" && (
-                                <p style={{ fontSize: 12, color: tk.mutedText, marginTop: 2 }}>
+                                <p
+                                  style={{
+                                    fontSize: 12,
+                                    color: tk.mutedText,
+                                    marginTop: 2,
+                                  }}
+                                >
                                   {t("booking.refundWillBeProcessed")}
                                 </p>
                               )}
@@ -1110,22 +1459,46 @@ export default function BookingsSummary() {
                           {booking.payment_status === "failed" &&
                             booking.status === "confirmed" && (
                               <>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: isDark ? '#fca5a5' : '#991b1b' }}>
-                                  <AlertCircle style={{ width: 12, height: 12 }} />
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 4,
+                                    fontSize: 12,
+                                    color: isDark ? "#fca5a5" : "#991b1b",
+                                  }}
+                                >
+                                  <AlertCircle
+                                    style={{ width: 12, height: 12 }}
+                                  />
                                   <span>{t("booking.paymentFailed")}</span>
                                 </div>
                                 <StripePaymentButton booking={booking} />
                                 <PayPalPaymentButton booking={booking} />
                                 <button
-                                  onClick={() => handlePendingBookingCancel(booking)}
+                                  onClick={() =>
+                                    handlePendingBookingCancel(booking)
+                                  }
                                   style={{
-                                    fontSize: 12, color: tk.mutedText,
-                                    background: 'transparent', border: 'none', cursor: 'pointer',
-                                    textDecoration: 'underline', textUnderlineOffset: 2,
-                                    transition: 'color 0.2s',
+                                    fontSize: 12,
+                                    color: tk.mutedText,
+                                    background: "transparent",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    textDecoration: "underline",
+                                    textUnderlineOffset: 2,
+                                    transition: "color 0.2s",
                                   }}
-                                  onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.color = '#E8192C'}
-                                  onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.color = tk.mutedText}
+                                  onMouseEnter={(e) =>
+                                    ((
+                                      e.currentTarget as HTMLButtonElement
+                                    ).style.color = "#E8192C")
+                                  }
+                                  onMouseLeave={(e) =>
+                                    ((
+                                      e.currentTarget as HTMLButtonElement
+                                    ).style.color = tk.mutedText)
+                                  }
                                 >
                                   {t("booking.cancelBooking")}
                                 </button>

@@ -49,6 +49,7 @@ import DestinationsManagement from "./pages/dashboard/Destinations/DestinationsM
 import SupportChat from "./pages/dashboard/SupportChat";
 import { UserChatWidget } from "./components/chat/UserChatWidget";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
+import RentalTerms from "./pages/home/RentalTerms";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -117,6 +118,7 @@ const App = () => (
               />
               <Route path="/myBookings" element={<BookingsSummary />} />
               <Route path="/ProviderRequest" element={<ProviderRequest />} />
+              <Route path="/rental-terms" element={<RentalTerms />} />
 
               <Route element={<ProtectedRoute />}>
                 <Route element={<DashboardLayout />}>
