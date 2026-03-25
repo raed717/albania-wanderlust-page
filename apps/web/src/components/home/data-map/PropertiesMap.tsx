@@ -5,11 +5,10 @@ import { getAllDestinations } from "@/services/api/destinationService";
 import { Apartment } from "@/types/apartment.type";
 import { Hotel } from "@/types/hotel.types";
 import { Destination } from "@/types/destination.types";
+import { SearchFiltersState } from "@/types/search.types";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useState, useEffect } from "react";
-import { MapFilters } from "./MapFilters";
-import { Filter, X } from "lucide-react";
 import { useLocalized } from "@/hooks/useLocalized";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -21,6 +20,7 @@ type Selected =
 
 interface PropertiesMapProps {
   onSelect?: (selected: Selected) => void;
+  filters?: SearchFiltersState;
 }
 
 /**
@@ -89,14 +89,13 @@ function createPriceMarker(
 // Center of Albania (Tirana)
 const ALBANIA_CENTER: [number, number] = [41.3275, 19.8187];
 
-export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
+export default function PropertiesMap({ onSelect, filters }: PropertiesMapProps) {
   const { localize } = useLocalized();
   const { isDark } = useTheme();
   const [hotelsData, setHotelsData] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [apartmentsData, setApartmentsData] = useState<Apartment[]>([]);
   const [destinationsData, setDestinationsData] = useState<Destination[]>([]);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const tk = {
     sidebarBg: isDark ? "#111115" : "#ffffff",
@@ -109,19 +108,9 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
     overlayBg: "rgba(0,0,0,0.55)",
   };
 
-  // Filter states
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([
-    "hotel",
-    "apartment",
-    "destination",
-  ]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([
-    "Adventure",
-    "Historic",
-    "Beach",
-  ]);
-
+  // Remove the local MapFilters states since we rely on `filters` prop now.
+  // Filter data based on selected types and price range
+  
   useEffect(() => {
     const fetchHotels = async () => {
       try {
@@ -129,12 +118,10 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
         setHotelsData(data || []);
       } catch (error) {
         console.error("Failed to fetch hotels:", error);
-        setHotelsData([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchHotels();
   }, []);
 
@@ -145,12 +132,8 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
         setApartmentsData(data || []);
       } catch (error) {
         console.error("Failed to fetch apartments:", error);
-        setApartmentsData([]);
-      } finally {
-        setLoading(false);
       }
     };
-
     fetchApartments();
   }, []);
 
@@ -161,112 +144,58 @@ export default function PropertiesMap({ onSelect }: PropertiesMapProps) {
         setDestinationsData(data || []);
       } catch (error) {
         console.error("Failed to fetch destinations:", error);
-        setDestinationsData([]);
-      } finally {
-        setLoading(false);
       }
     };
-
     fetchDestinations();
   }, []);
 
-  // Filter data based on selected types and price range
-  const filteredHotels = hotelsData.filter(
-    (hotel) =>
-      selectedTypes.includes("hotel") &&
-      hotel.price >= priceRange[0] &&
-      hotel.price <= priceRange[1],
-  );
+  const propertyType = filters?.propertyType || "hotel";
+  const hotelFilters = filters?.hotelFilters;
+  const apartmentFilters = filters?.apartmentFilters;
+  const destinationFilters = filters?.destinationFilters;
 
-  const filteredApartments = apartmentsData.filter(
-    (apartment) =>
-      selectedTypes.includes("apartment") &&
-      apartment.price >= priceRange[0] &&
-      apartment.price <= priceRange[1],
-  );
+  const filteredHotels = hotelsData.filter((hotel) => {
+    if (propertyType !== "hotel") return false;
+    
+    // Default filter logic for hotels
+    if (hotelFilters) {
+      if (hotelFilters.searchTerm && !hotel.name.toLowerCase().includes(hotelFilters.searchTerm.toLowerCase())) return false;
+      if (hotelFilters.priceRange) {
+        if (hotel.price < hotelFilters.priceRange.min || hotel.price > hotelFilters.priceRange.max) return false;
+      }
+      // Add more local filters if needed (status, rating, etc.)
+    }
+    return true;
+  });
 
-  const filteredDestinations = destinationsData.filter(
-    (destination) =>
-      selectedTypes.includes("destination") &&
-      (selectedCategories.length === 0 ||
-        selectedCategories.includes(destination.category)),
-  );
+  const filteredApartments = apartmentsData.filter((apartment) => {
+    if (propertyType !== "apartment") return false;
+    
+    // Default filter logic for apartments
+    if (apartmentFilters) {
+      if (apartmentFilters.searchTerm && !apartment.name.toLowerCase().includes(apartmentFilters.searchTerm.toLowerCase())) return false;
+      if (apartmentFilters.priceRange) {
+        if (apartment.price < apartmentFilters.priceRange.min || apartment.price > apartmentFilters.priceRange.max) return false;
+      }
+      // Add more local filters if needed
+    }
+    return true;
+  });
 
-  const handleResetFilters = () => {
-    setSelectedTypes(["hotel", "apartment", "destination"]);
-    setPriceRange([0, 500]);
-    setSelectedCategories(["Adventure", "Historic", "Beach"]);
-  };
+  const filteredDestinations = destinationsData.filter((destination) => {
+    if (propertyType !== "destination") return false;
+    
+    if (destinationFilters) {
+      if (destinationFilters.searchTerm && !localize(destination.name).toLowerCase().includes(destinationFilters.searchTerm.toLowerCase())) return false;
+      if (destinationFilters.categories && destinationFilters.categories.length > 0) {
+        if (!destinationFilters.categories.includes(destination.category)) return false;
+      }
+    }
+    return true;
+  });
 
   return (
     <div className="w-full h-full flex relative">
-      {/* Mobile Filter Toggle Button */}
-      <button
-        onClick={() => setIsFilterOpen(!isFilterOpen)}
-        className="lg:hidden absolute top-4 left-4 z-[1000] rounded-full p-2 transition-colors"
-        style={{
-          background: tk.filterBtnBg,
-          boxShadow: tk.filterBtnShadow,
-          color: tk.filterBtnText,
-          border: "none",
-        }}
-        aria-label="Toggle filters"
-      >
-        <Filter size={20} />
-      </button>
-
-      {/* Sidebar Filters */}
-      <div
-        className={`
-          ${isFilterOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:translate-x-0
-          fixed lg:relative
-          top-0 left-0
-          w-80 h-full
-          shadow-lg overflow-y-auto
-          transition-transform duration-300 ease-in-out
-          z-[999]
-        `}
-        style={{
-          background: tk.sidebarBg,
-          borderRight: `1px solid ${tk.sidebarBorder}`,
-          padding: "16px",
-        }}
-      >
-        {/* Mobile Close Button */}
-        <div className="lg:hidden flex justify-end mb-2">
-          <button
-            onClick={() => setIsFilterOpen(false)}
-            className="p-1 rounded-full transition-colors"
-            style={{ background: "none", border: "none", cursor: "pointer" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = tk.closeBtnHover)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
-            aria-label="Close filters"
-          >
-            <X size={18} style={{ color: tk.closeIconColor }} />
-          </button>
-        </div>
-
-        <MapFilters
-          selectedTypes={selectedTypes}
-          onTypesChange={setSelectedTypes}
-          priceRange={priceRange}
-          onPriceRangeChange={setPriceRange}
-          onReset={handleResetFilters}
-          selectedCategories={selectedCategories}
-          onCategoriesChange={setSelectedCategories}
-        />
-      </div>
-
-      {/* Overlay for mobile when sidebar is open */}
-      {isFilterOpen && (
-        <div
-          className="lg:hidden fixed inset-0 z-[998]"
-          style={{ background: tk.overlayBg }}
-          onClick={() => setIsFilterOpen(false)}
-        />
-      )}
-
       {/* Map Container */}
       <div className="flex-1 relative w-full h-full">
         <MapContainer

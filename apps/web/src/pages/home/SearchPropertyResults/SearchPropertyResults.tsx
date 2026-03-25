@@ -152,8 +152,8 @@ const SearchPropertyResults = () => {
     queryKey: ["searchProperties", filters],
     queryFn: async ({ pageParam = 1 }) => {
       const propertyType = filters.propertyType;
-      const shouldFetchHotels = propertyType === "hotel" || propertyType === "both";
-      const shouldFetchApartments = propertyType === "apartment" || propertyType === "both";
+      const shouldFetchHotels = propertyType === "hotel";
+      const shouldFetchApartments = propertyType === "apartment";
 
       const [hotelsRes, apartmentsRes] = await Promise.all([
         shouldFetchHotels
@@ -421,7 +421,7 @@ const SearchPropertyResults = () => {
         <main className="container mx-auto px-4 py-8" style={{ position: 'relative', zIndex: 1 }}>
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Filter Sidebar & Map Preview */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, flexShrink: 0 }}>
+            <div className="w-full lg:w-[280px]" style={{ display: 'flex', flexDirection: 'column', gap: 16, flexShrink: 0 }}>
               <MapPreviewCard />
               <FilterBar
                 filters={filters}

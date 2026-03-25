@@ -6,14 +6,16 @@ import { useTheme } from "@/context/ThemeContext";
 import {
   HotelFiltersInput,
   ApartmentFiltersInput,
+  DestinationFiltersInput,
   SearchFiltersState,
 } from "@/types/search.types";
 
 interface FilterBarProps {
   filters: SearchFiltersState;
-  onPropertyTypeChange: (type: "hotel" | "apartment" | "both") => void;
+  onPropertyTypeChange: (type: "hotel" | "apartment" | "destination") => void;
   onHotelFiltersChange: (filters: Partial<HotelFiltersInput>) => void;
   onApartmentFiltersChange: (filters: Partial<ApartmentFiltersInput>) => void;
+  onDestinationFiltersChange?: (filters: Partial<DestinationFiltersInput>) => void;
   onDateChange: (dates: {
     checkInDate?: string | null;
     checkOutDate?: string | null;
@@ -26,6 +28,8 @@ interface FilterBarProps {
   onResetFilters: () => void;
   onApplyFilters: () => void;
   loading: boolean;
+  hideMapButton?: boolean;
+  availableTypes?: Array<"hotel" | "apartment" | "destination">;
 }
 
 const AccSection = ({
@@ -87,11 +91,14 @@ export const FilterBar = ({
   onPropertyTypeChange,
   onHotelFiltersChange,
   onApartmentFiltersChange,
+  onDestinationFiltersChange,
   onDateChange,
   onGuestsChange,
   onResetFilters,
   onApplyFilters,
   loading,
+  hideMapButton,
+  availableTypes = ["hotel", "apartment"],
 }: FilterBarProps) => {
   const { t } = useTranslation();
   const { isDark } = useTheme();
@@ -167,22 +174,34 @@ export const FilterBar = ({
     let count = 0;
     const hf = filters.hotelFilters;
     const af = filters.apartmentFilters;
-    if (filters.checkInDate || filters.checkOutDate) count++;
-    if (filters.adults || filters.children || filters.rooms) count++;
-    if (hf.searchTerm) count++;
-    if (hf.rating !== "all") count++;
-    if (hf.status !== "all") count++;
-    if (hf.rooms?.min || hf.rooms?.max) count++;
-    if (hf.priceRange?.min !== 0 || hf.priceRange?.max !== 500) count++;
-    if (hf.amenities && Object.values(hf.amenities).some((v) => v)) count++;
-    if (af.searchTerm) count++;
-    if (af.rating !== "all") count++;
-    if (af.status !== "all") count++;
-    if (af.rooms?.min || af.rooms?.max) count++;
-    if (af.beds?.min || af.beds?.max) count++;
-    if (af.bathrooms?.min || af.bathrooms?.max) count++;
-    if (af.priceRange?.min !== 0 || af.priceRange?.max !== 500) count++;
-    if (af.amenities && af.amenities.length > 0) count++;
+    const df = filters.destinationFilters;
+    
+    if (filters.propertyType !== "destination") {
+      if (filters.checkInDate || filters.checkOutDate) count++;
+      if (filters.adults || filters.children || filters.rooms) count++;
+      
+      if (filters.propertyType === "hotel") {
+        if (hf.searchTerm) count++;
+        if (hf.rating !== "all") count++;
+        if (hf.status !== "all") count++;
+        if (hf.rooms?.min || hf.rooms?.max) count++;
+        if (hf.priceRange?.min !== 0 || hf.priceRange?.max !== 500) count++;
+        if (hf.amenities && Object.values(hf.amenities).some((v) => v)) count++;
+      } else {
+        if (af.searchTerm) count++;
+        if (af.rating !== "all") count++;
+        if (af.status !== "all") count++;
+        if (af.rooms?.min || af.rooms?.max) count++;
+        if (af.beds?.min || af.beds?.max) count++;
+        if (af.bathrooms?.min || af.bathrooms?.max) count++;
+        if (af.priceRange?.min !== 0 || af.priceRange?.max !== 500) count++;
+        if (af.amenities && af.amenities.length > 0) count++;
+      }
+    } else {
+      if (df?.searchTerm) count++;
+      if (df?.categories && df.categories.length > 0) count++;
+    }
+    
     return count;
   };
 
@@ -363,7 +382,7 @@ export const FilterBar = ({
       <div style={{ marginBottom: 20 }}>
         <label style={labelStyle}>{t("searchResults.filters.propertyType")}</label>
         <div style={{ display: 'flex', gap: 6 }}>
-          {(["both", "hotel", "apartment"] as const).map((type) => {
+          {availableTypes.map((type) => {
             const active = filters.propertyType === type;
             return (
               <button
@@ -383,9 +402,7 @@ export const FilterBar = ({
                   transition: 'all 0.15s',
                 }}
               >
-                {type === "both"
-                  ? t("searchResults.filters.all")
-                  : t(`searchResults.filters.${type}`)}
+                {t(`searchResults.filters.${type}`)}
               </button>
             );
           })}
@@ -402,17 +419,12 @@ export const FilterBar = ({
               ? filters.hotelFilters.searchTerm || ""
               : filters.propertyType === "apartment"
                 ? filters.apartmentFilters.searchTerm || ""
-                : filters.hotelFilters.searchTerm || filters.apartmentFilters.searchTerm || ""
+                : filters.destinationFilters?.searchTerm || ""
           }
           onChange={e => {
-            if (filters.propertyType === "hotel") {
-              onHotelFiltersChange({ searchTerm: e.target.value });
-            } else if (filters.propertyType === "apartment") {
-              onApartmentFiltersChange({ searchTerm: e.target.value });
-            } else {
-              onHotelFiltersChange({ searchTerm: e.target.value });
-              onApartmentFiltersChange({ searchTerm: e.target.value });
-            }
+            onHotelFiltersChange({ searchTerm: e.target.value });
+            onApartmentFiltersChange({ searchTerm: e.target.value });
+            onDestinationFiltersChange?.({ searchTerm: e.target.value });
           }}
           onFocus={e => (e.currentTarget.style.borderColor = 'rgba(232,25,44,0.5)')}
           onBlur={e => (e.currentTarget.style.borderColor = tk.inputBorder)}
@@ -420,200 +432,231 @@ export const FilterBar = ({
       </AccSection>
 
       {/* Stay Dates */}
-      <AccSection
-        label={t("searchResults.filters.stayDates")}
-        defaultOpen={!!(filters.checkInDate || filters.checkOutDate)}
-        isDark={isDark}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div>
-            <label style={labelStyle}>{t("searchResults.filters.checkInDate")}</label>
-            <input
-              type="date"
-              style={{ ...inputStyle, colorScheme: tk.colorScheme as any }}
-              value={filters.checkInDate ? new Date(filters.checkInDate).toISOString().split("T")[0] : ""}
-              onChange={e => onDateChange({ checkInDate: e.target.value ? new Date(e.target.value).toISOString() : null })}
-              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(232,25,44,0.5)')}
-              onBlur={e => (e.currentTarget.style.borderColor = tk.inputBorder)}
-            />
-          </div>
-          <div>
-            <label style={labelStyle}>{t("searchResults.filters.checkOutDate")}</label>
-            <input
-              type="date"
-              style={{ ...inputStyle, colorScheme: tk.colorScheme as any }}
-              value={filters.checkOutDate ? new Date(filters.checkOutDate).toISOString().split("T")[0] : ""}
-              min={filters.checkInDate ? new Date(filters.checkInDate).toISOString().split("T")[0] : undefined}
-              onChange={e => onDateChange({ checkOutDate: e.target.value ? new Date(e.target.value).toISOString() : null })}
-              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(232,25,44,0.5)')}
-              onBlur={e => (e.currentTarget.style.borderColor = tk.inputBorder)}
-            />
-          </div>
-          {(filters.checkInDate || filters.checkOutDate) && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <Calendar style={{ width: 11, height: 11, color: tk.infoText }} />
-              <span style={{ fontFamily: 'Crimson Pro, Georgia, serif', fontSize: '0.82rem', color: tk.infoText }}>
-                {t("searchResults.filters.showingPropertiesForDates")}
-              </span>
+      {filters.propertyType !== "destination" && (
+        <AccSection
+          label={t("searchResults.filters.stayDates")}
+          defaultOpen={!!(filters.checkInDate || filters.checkOutDate)}
+          isDark={isDark}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div>
+              <label style={labelStyle}>{t("searchResults.filters.checkInDate")}</label>
+              <input
+                type="date"
+                style={{ ...inputStyle, colorScheme: tk.colorScheme as any }}
+                value={filters.checkInDate ? new Date(filters.checkInDate).toISOString().split("T")[0] : ""}
+                onChange={e => onDateChange({ checkInDate: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                onFocus={e => (e.currentTarget.style.borderColor = 'rgba(232,25,44,0.5)')}
+                onBlur={e => (e.currentTarget.style.borderColor = tk.inputBorder)}
+              />
             </div>
-          )}
-        </div>
-      </AccSection>
+            <div>
+              <label style={labelStyle}>{t("searchResults.filters.checkOutDate")}</label>
+              <input
+                type="date"
+                style={{ ...inputStyle, colorScheme: tk.colorScheme as any }}
+                value={filters.checkOutDate ? new Date(filters.checkOutDate).toISOString().split("T")[0] : ""}
+                min={filters.checkInDate ? new Date(filters.checkInDate).toISOString().split("T")[0] : undefined}
+                onChange={e => onDateChange({ checkOutDate: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                onFocus={e => (e.currentTarget.style.borderColor = 'rgba(232,25,44,0.5)')}
+                onBlur={e => (e.currentTarget.style.borderColor = tk.inputBorder)}
+              />
+            </div>
+            {(filters.checkInDate || filters.checkOutDate) && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Calendar style={{ width: 11, height: 11, color: tk.infoText }} />
+                <span style={{ fontFamily: 'Crimson Pro, Georgia, serif', fontSize: '0.82rem', color: tk.infoText }}>
+                  {t("searchResults.filters.showingPropertiesForDates")}
+                </span>
+              </div>
+            )}
+          </div>
+        </AccSection>
+      )}
 
       {/* Guests */}
-      <AccSection
-        label={t("searchResults.filters.guests")}
-        defaultOpen={!!(filters.adults || filters.children || filters.rooms)}
-        isDark={isDark}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div>
-            <label style={labelStyle}>{t("searchResults.filters.adults")}</label>
-            <NumInput
-              value={filters.adults}
-              min="1"
-              onChange={v => {
-                onGuestsChange({ adults: v, children: filters.children, rooms: filters.rooms });
-                onApartmentFiltersChange({ beds: { min: v + (filters.children || 0), max: filters.apartmentFilters.beds?.max } });
-              }}
-              onClear={() => {
-                onGuestsChange({ adults: 0, children: filters.children, rooms: filters.rooms });
-                onApartmentFiltersChange({ beds: { min: filters.children || 0, max: filters.apartmentFilters.beds?.max } });
-              }}
-            />
-          </div>
-          <div>
-            <label style={labelStyle}>{t("searchResults.filters.children")}</label>
-            <NumInput
-              value={filters.children}
-              min="0"
-              onChange={v => {
-                onGuestsChange({ adults: filters.adults, children: v, rooms: filters.rooms });
-                onApartmentFiltersChange({ beds: { min: (filters.adults || 2) + v, max: filters.apartmentFilters.beds?.max } });
-              }}
-              onClear={() => {
-                onGuestsChange({ adults: filters.adults, children: 0, rooms: filters.rooms });
-                onApartmentFiltersChange({ beds: { min: filters.adults || 2, max: filters.apartmentFilters.beds?.max } });
-              }}
-            />
-          </div>
-          <div>
-            <label style={labelStyle}>{t("searchResults.filters.rooms")}</label>
-            <NumInput
-              value={filters.rooms}
-              min="1"
-              onChange={v => {
-                onGuestsChange({ adults: filters.adults, children: filters.children, rooms: v });
-                onApartmentFiltersChange({ rooms: { min: v, max: filters.apartmentFilters.rooms?.max } });
-              }}
-              onClear={() => {
-                onGuestsChange({ adults: filters.adults, children: filters.children, rooms: 0 });
-                onApartmentFiltersChange({ rooms: { min: 0, max: filters.apartmentFilters.rooms?.max } });
-              }}
-            />
-          </div>
-          {(filters.adults || filters.children || filters.rooms) ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <Filter style={{ width: 11, height: 11, color: tk.infoText }} />
-              <span style={{ fontFamily: 'Crimson Pro, Georgia, serif', fontSize: '0.82rem', color: tk.infoText }}>
-                {t("searchResults.filters.filteringApartments", {
-                  beds: (filters.adults || 2) + (filters.children || 0),
-                  rooms: filters.rooms || 1,
-                })}
-              </span>
+      {filters.propertyType !== "destination" && (
+        <AccSection
+          label={t("searchResults.filters.guests")}
+          defaultOpen={!!(filters.adults || filters.children || filters.rooms)}
+          isDark={isDark}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div>
+              <label style={labelStyle}>{t("searchResults.filters.adults")}</label>
+              <NumInput
+                value={filters.adults}
+                min="1"
+                onChange={v => {
+                  onGuestsChange({ adults: v, children: filters.children, rooms: filters.rooms });
+                  onApartmentFiltersChange({ beds: { min: v + (filters.children || 0), max: filters.apartmentFilters.beds?.max } });
+                }}
+                onClear={() => {
+                  onGuestsChange({ adults: 0, children: filters.children, rooms: filters.rooms });
+                  onApartmentFiltersChange({ beds: { min: filters.children || 0, max: filters.apartmentFilters.beds?.max } });
+                }}
+              />
             </div>
-          ) : null}
-        </div>
-      </AccSection>
+            <div>
+              <label style={labelStyle}>{t("searchResults.filters.children")}</label>
+              <NumInput
+                value={filters.children}
+                min="0"
+                onChange={v => {
+                  onGuestsChange({ adults: filters.adults, children: v, rooms: filters.rooms });
+                  onApartmentFiltersChange({ beds: { min: (filters.adults || 2) + v, max: filters.apartmentFilters.beds?.max } });
+                }}
+                onClear={() => {
+                  onGuestsChange({ adults: filters.adults, children: 0, rooms: filters.rooms });
+                  onApartmentFiltersChange({ beds: { min: filters.adults || 2, max: filters.apartmentFilters.beds?.max } });
+                }}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>{t("searchResults.filters.rooms")}</label>
+              <NumInput
+                value={filters.rooms}
+                min="1"
+                onChange={v => {
+                  onGuestsChange({ adults: filters.adults, children: filters.children, rooms: v });
+                  onApartmentFiltersChange({ rooms: { min: v, max: filters.apartmentFilters.rooms?.max } });
+                }}
+                onClear={() => {
+                  onGuestsChange({ adults: filters.adults, children: filters.children, rooms: 0 });
+                  onApartmentFiltersChange({ rooms: { min: 0, max: filters.apartmentFilters.rooms?.max } });
+                }}
+              />
+            </div>
+            {(filters.adults || filters.children || filters.rooms) ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Filter style={{ width: 11, height: 11, color: tk.infoText }} />
+                <span style={{ fontFamily: 'Crimson Pro, Georgia, serif', fontSize: '0.82rem', color: tk.infoText }}>
+                  {t("searchResults.filters.filteringApartments", {
+                    beds: (filters.adults || 2) + (filters.children || 0),
+                    rooms: filters.rooms || 1,
+                  })}
+                </span>
+              </div>
+            ) : null}
+          </div>
+        </AccSection>
+      )}
+
+      {/* Destination Categories */}
+      {filters.propertyType === "destination" && (
+        <AccSection label={t("searchResults.filters.categories", "Categories")} defaultOpen isDark={isDark}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+            {[
+              { id: "Adventure", label: t("searchResults.filters.catAdventure", "Adventure") },
+              { id: "Historic", label: t("searchResults.filters.catHistoric", "Historic") },
+              { id: "Beach", label: t("searchResults.filters.catBeach", "Beach") },
+            ].map(cat => (
+              <CheckRow
+                key={cat.id}
+                checked={filters.destinationFilters?.categories?.includes(cat.id) || false}
+                label={cat.label}
+                onChange={checked => {
+                  const current = filters.destinationFilters?.categories || [];
+                  const next = checked 
+                    ? [...current, cat.id] 
+                    : current.filter(c => c !== cat.id);
+                  onDestinationFiltersChange?.({ categories: next });
+                }}
+              />
+            ))}
+          </div>
+        </AccSection>
+      )}
 
       {/* Price Range */}
-      <AccSection label={t("searchResults.filters.priceRange")} defaultOpen isDark={isDark}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-          <span style={{ fontFamily: 'Bebas Neue, Impact, sans-serif', fontSize: '1rem', color: tk.priceText, letterSpacing: '0.05em' }}>
-            €{filters.hotelFilters.priceRange?.min || 0}
-          </span>
-          <span style={{ fontFamily: 'Bebas Neue, Impact, sans-serif', fontSize: '1rem', color: '#E8192C', letterSpacing: '0.05em' }}>
-            €{filters.hotelFilters.priceRange?.max || 500}
-          </span>
-        </div>
-        <Slider
-          min={0}
-          max={500}
-          step={10}
-          value={[filters.hotelFilters.priceRange?.min || 0, filters.hotelFilters.priceRange?.max || 500]}
-          onValueChange={value => {
-            if (filters.propertyType === "hotel") {
-              onHotelFiltersChange({ priceRange: { min: value[0], max: value[1] } });
-            } else if (filters.propertyType === "apartment") {
-              onApartmentFiltersChange({ priceRange: { min: value[0], max: value[1] } });
-            } else {
-              onHotelFiltersChange({ priceRange: { min: value[0], max: value[1] } });
-              onApartmentFiltersChange({ priceRange: { min: value[0], max: value[1] } });
+      {filters.propertyType !== "destination" && (
+        <AccSection label={t("searchResults.filters.priceRange")} defaultOpen isDark={isDark}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+            <span style={{ fontFamily: 'Bebas Neue, Impact, sans-serif', fontSize: '1rem', color: tk.priceText, letterSpacing: '0.05em' }}>
+              €{filters.propertyType === "hotel" ? (filters.hotelFilters.priceRange?.min || 0) : (filters.apartmentFilters.priceRange?.min || 0)}
+            </span>
+            <span style={{ fontFamily: 'Bebas Neue, Impact, sans-serif', fontSize: '1rem', color: '#E8192C', letterSpacing: '0.05em' }}>
+              €{filters.propertyType === "hotel" ? (filters.hotelFilters.priceRange?.max || 500) : (filters.apartmentFilters.priceRange?.max || 500)}
+            </span>
+          </div>
+          <Slider
+            min={0}
+            max={500}
+            step={10}
+            value={filters.propertyType === "hotel" 
+              ? [filters.hotelFilters.priceRange?.min || 0, filters.hotelFilters.priceRange?.max || 500] 
+              : [filters.apartmentFilters.priceRange?.min || 0, filters.apartmentFilters.priceRange?.max || 500]
             }
-          }}
-          className="py-1"
-        />
-        <p style={{ fontFamily: 'Crimson Pro, Georgia, serif', fontSize: '0.78rem', color: isDark ? 'rgba(240,236,232,0.3)' : 'rgba(17,17,21,0.35)', marginTop: 8 }}>
-          {filters.propertyType === "hotel"
-            ? t("searchResults.filters.perNight")
-            : t("searchResults.filters.perDay")}
-        </p>
-      </AccSection>
+            onValueChange={value => {
+              onHotelFiltersChange({ priceRange: { min: value[0], max: value[1] } });
+              onApartmentFiltersChange({ priceRange: { min: value[0], max: value[1] } });
+            }}
+            className="py-1"
+          />
+          <p style={{ fontFamily: 'Crimson Pro, Georgia, serif', fontSize: '0.78rem', color: isDark ? 'rgba(240,236,232,0.3)' : 'rgba(17,17,21,0.35)', marginTop: 8 }}>
+            {filters.propertyType === "hotel"
+              ? t("searchResults.filters.perNight")
+              : t("searchResults.filters.perDay")}
+          </p>
+        </AccSection>
+      )}
 
       {/* Rating */}
-      <AccSection label={t("searchResults.filters.rating")} isDark={isDark}>
-        <select
-          style={selectStyle}
-          value={filters.propertyType === "hotel" ? filters.hotelFilters.rating || "all" : filters.apartmentFilters.rating || "all"}
-          onChange={e => {
-            const val = e.target.value as any;
-            if (filters.propertyType === "hotel") onHotelFiltersChange({ rating: val });
-            else if (filters.propertyType === "apartment") onApartmentFiltersChange({ rating: val });
-            else { onHotelFiltersChange({ rating: val }); onApartmentFiltersChange({ rating: val }); }
-          }}
-          onFocus={e => (e.currentTarget.style.borderColor = 'rgba(232,25,44,0.5)')}
-          onBlur={e => (e.currentTarget.style.borderColor = tk.inputBorder)}
-        >
-          <option value="all" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.allRatings")}</option>
-          <option value="3+" style={{ background: tk.selectOptionBg }}>3+</option>
-          <option value="3.5+" style={{ background: tk.selectOptionBg }}>3.5+</option>
-          <option value="4+" style={{ background: tk.selectOptionBg }}>4+</option>
-          <option value="4.5+" style={{ background: tk.selectOptionBg }}>4.5+</option>
-        </select>
-      </AccSection>
+      {filters.propertyType !== "destination" && (
+        <AccSection label={t("searchResults.filters.rating")} isDark={isDark}>
+          <select
+            style={selectStyle}
+            value={filters.propertyType === "hotel" ? filters.hotelFilters.rating || "all" : filters.apartmentFilters.rating || "all"}
+            onChange={e => {
+              const val = e.target.value as any;
+              onHotelFiltersChange({ rating: val });
+              onApartmentFiltersChange({ rating: val });
+            }}
+            onFocus={e => (e.currentTarget.style.borderColor = 'rgba(232,25,44,0.5)')}
+            onBlur={e => (e.currentTarget.style.borderColor = tk.inputBorder)}
+          >
+            <option value="all" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.allRatings")}</option>
+            <option value="3+" style={{ background: tk.selectOptionBg }}>3+</option>
+            <option value="3.5+" style={{ background: tk.selectOptionBg }}>3.5+</option>
+            <option value="4+" style={{ background: tk.selectOptionBg }}>4+</option>
+            <option value="4.5+" style={{ background: tk.selectOptionBg }}>4.5+</option>
+          </select>
+        </AccSection>
+      )}
 
       {/* Availability */}
-      <AccSection label={t("searchResults.filters.availability")} isDark={isDark}>
-        <select
-          style={selectStyle}
-          value={filters.propertyType === "hotel" ? filters.hotelFilters.status || "all" : filters.apartmentFilters.status || "all"}
-          onChange={e => {
-            const val = e.target.value as any;
-            if (filters.propertyType === "hotel") onHotelFiltersChange({ status: val });
-            else if (filters.propertyType === "apartment") onApartmentFiltersChange({ status: val });
-            else { onHotelFiltersChange({ status: val }); onApartmentFiltersChange({ status: val }); }
-          }}
-          onFocus={e => (e.currentTarget.style.borderColor = 'rgba(232,25,44,0.5)')}
-          onBlur={e => (e.currentTarget.style.borderColor = tk.inputBorder)}
-        >
-          <option value="all" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.allStatus")}</option>
-          {filters.propertyType === "hotel" ? (
-            <>
-              <option value="active" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.active")}</option>
-              <option value="maintenance" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.maintenance")}</option>
-            </>
-          ) : (
-            <>
-              <option value="available" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.available")}</option>
-              <option value="rented" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.rented")}</option>
-              <option value="maintenance" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.maintenance")}</option>
-            </>
-          )}
-        </select>
-      </AccSection>
+      {filters.propertyType !== "destination" && (
+        <AccSection label={t("searchResults.filters.availability")} isDark={isDark}>
+          <select
+            style={selectStyle}
+            value={filters.propertyType === "hotel" ? filters.hotelFilters.status || "all" : filters.apartmentFilters.status || "all"}
+            onChange={e => {
+              const val = e.target.value as any;
+              if (filters.propertyType === "hotel") onHotelFiltersChange({ status: val });
+              else onApartmentFiltersChange({ status: val });
+            }}
+            onFocus={e => (e.currentTarget.style.borderColor = 'rgba(232,25,44,0.5)')}
+            onBlur={e => (e.currentTarget.style.borderColor = tk.inputBorder)}
+          >
+            <option value="all" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.allStatus")}</option>
+            {filters.propertyType === "hotel" ? (
+              <>
+                <option value="active" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.active")}</option>
+                <option value="maintenance" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.maintenance")}</option>
+              </>
+            ) : (
+              <>
+                <option value="available" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.available")}</option>
+                <option value="rented" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.rented")}</option>
+                <option value="maintenance" style={{ background: tk.selectOptionBg }}>{t("searchResults.filters.maintenance")}</option>
+              </>
+            )}
+          </select>
+        </AccSection>
+      )}
 
       {/* Hotel Rooms */}
-      {(filters.propertyType === "hotel" || filters.propertyType === "both") && (
+      {filters.propertyType === "hotel" && (
         <AccSection label={t("searchResults.filters.rooms")} isDark={isDark}>
           <MinMaxPair
             minVal={filters.hotelFilters.rooms?.min}
@@ -625,7 +668,7 @@ export const FilterBar = ({
       )}
 
       {/* Hotel Amenities */}
-      {(filters.propertyType === "hotel" || filters.propertyType === "both") && (
+      {filters.propertyType === "hotel" && (
         <AccSection label={t("searchResults.filters.amenities")} isDark={isDark}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
             {[
@@ -649,7 +692,7 @@ export const FilterBar = ({
       )}
 
       {/* Apartment Rooms */}
-      {(filters.propertyType === "apartment" || filters.propertyType === "both") && (
+      {filters.propertyType === "apartment" && (
         <AccSection label={t("searchResults.filters.rooms")} isDark={isDark}>
           <MinMaxPair
             minVal={filters.apartmentFilters.rooms?.min || filters.rooms}
@@ -661,7 +704,7 @@ export const FilterBar = ({
       )}
 
       {/* Apartment Beds */}
-      {(filters.propertyType === "apartment" || filters.propertyType === "both") && (
+      {filters.propertyType === "apartment" && (
         <AccSection label={t("searchResults.filters.beds")} isDark={isDark}>
           <MinMaxPair
             minVal={filters.apartmentFilters.beds?.min}
@@ -673,7 +716,7 @@ export const FilterBar = ({
       )}
 
       {/* Apartment Bathrooms */}
-      {(filters.propertyType === "apartment" || filters.propertyType === "both") && (
+      {filters.propertyType === "apartment" && (
         <AccSection label={t("searchResults.filters.bathrooms")} isDark={isDark}>
           <MinMaxPair
             minVal={filters.apartmentFilters.bathrooms?.min}
@@ -751,7 +794,7 @@ export const FilterBar = ({
       {/* Sidebar */}
       <aside
         style={{
-          width: 260,
+          width: '100%',
           flexShrink: 0,
           background: tk.sidebarBg,
           border: `1px solid ${tk.sidebarBorder}`,
@@ -764,8 +807,23 @@ export const FilterBar = ({
           overflowY: 'auto',
           transition: 'background 0.3s, border-color 0.3s',
         }}
-        className={`${isOpen ? 'block' : 'hidden'} lg:block`}
+        className={`${isOpen ? 'block' : 'hidden'} lg:block alb-filter-scrollbar`}
       >
+        <style>{`
+          .alb-filter-scrollbar::-webkit-scrollbar {
+            width: 4px;
+          }
+          .alb-filter-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .alb-filter-scrollbar::-webkit-scrollbar-thumb {
+            background: ${isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)'};
+            border-radius: 4px;
+          }
+          .alb-filter-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: ${isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)'};
+          }
+        `}</style>
         {sidebarContent}
       </aside>
     </>

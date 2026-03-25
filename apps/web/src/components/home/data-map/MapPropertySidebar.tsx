@@ -334,7 +334,7 @@ export default function MapPropertySidebar({
       {/* Sidebar panel */}
       <div
         style={{
-          position: 'fixed',
+          position: 'absolute',
           top: 0,
           right: 0,
           height: '100%',
@@ -348,7 +348,7 @@ export default function MapPropertySidebar({
           transition: 'transform 0.3s ease-in-out',
           transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
         }}
-        className="lg:absolute"
+        className="fixed lg:absolute"
       >
         {/* Close button */}
         <button
